@@ -1,0 +1,14 @@
+<resources>
+
+    <string name="app_name">Easy Lists</string>
+    <string name="app_version">0.0.1</string>
+
+    <string name="lists">Lists</string>
+    <string name="settings">Settings</string>
+    <string name="about">About</string>
+
+    <string name="create_new_list">Create new list</string>
+    <string name="remove_list">Remove list</string>
+    <string name="overflow_menu">Overflow menu</string>
+
+</resources>
