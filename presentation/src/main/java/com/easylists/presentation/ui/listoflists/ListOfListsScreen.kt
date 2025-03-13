@@ -193,9 +193,7 @@ fun ListOfListsScreenContent(viewModel: ListOfListsViewModel) {
                                     }
                                     IconButton(
                                         modifier = Modifier.weight(0.1f),
-                                        onClick = {
-//                                          viewModel.onActionButtonClick(ListOfListsAction.Add)
-                                        }
+                                        onClick = { viewModel.removeList() }
                                     ) {
                                         Icon(
                                             modifier = Modifier,

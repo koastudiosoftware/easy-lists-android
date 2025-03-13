@@ -8,5 +8,6 @@ interface ListRepository {
     fun getListFlow(): Flow<List<EasyListsList>>
 
     suspend fun addList(list: EasyListsList): Result<Unit>
+    suspend fun removeList(uid: String): Result<Unit>
 
 }

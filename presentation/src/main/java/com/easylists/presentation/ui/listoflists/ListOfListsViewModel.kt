@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.use_cases.AddListFlowUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
+import com.easylists.domain.use_cases.RemoveListUseCase
 import com.easylists.presentation.common.ListOfListsAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListListUiState
@@ -29,6 +30,7 @@ import javax.inject.Inject
 class ListOfListsViewModel @Inject constructor(
     private val getListListFlowUseCase: GetListFlowUseCase,
     private val addListUseCase: AddListFlowUseCase,
+    private val removeListUseCase: RemoveListUseCase,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
@@ -54,6 +56,16 @@ class ListOfListsViewModel @Inject constructor(
             )
 
             showAddListBottomSheet()
+        }
+    }
+    //endregion
+
+
+    //region removeList() :: remove a list from the database
+    fun removeList() {
+        viewModelScope.launch {
+            removeListUseCase(uid = state.selectedListUid)
+            state = state.copy(selectedListUid = "")
         }
     }
     //endregion
