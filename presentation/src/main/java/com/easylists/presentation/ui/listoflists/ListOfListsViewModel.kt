@@ -141,9 +141,9 @@ class ListOfListsViewModel @Inject constructor(
 
         listListFlowJob = getListListFlowUseCase()
             .onEach {
-                handleGetBrokerState(Resultat.success(it))
+                handleGetListState(Resultat.success(it))
             }.catch {
-                handleGetBrokerState(Resultat.failure(it))
+                handleGetListState(Resultat.failure(it))
 
                 // After this catch the flow is interrupted and it must be collected
                 // again to obtain new data. The handleRefresh() method handles this situation.
@@ -152,9 +152,8 @@ class ListOfListsViewModel @Inject constructor(
     }
 
 
-    private fun handleGetBrokerState(result: Resultat<List<EasyListsList>?>) {
+    private fun handleGetListState(result: Resultat<List<EasyListsList>?>) {
         result.onSuccess {
-            Arbor.i("List of lists loaded successfully: $it")
             state = state.copy(
                 isPullToRefreshing = false,
                 // TODO this is where the sorting order should be applied
