@@ -9,4 +9,6 @@ data class EasyListsList(
     var sortOrder: Int? = null,
     var createdTimestamp: Long = Instant.now().epochSecond,
     var modifiedTimestamp: Long = Instant.now().epochSecond,
+
+    var selected: Boolean = false,
 )

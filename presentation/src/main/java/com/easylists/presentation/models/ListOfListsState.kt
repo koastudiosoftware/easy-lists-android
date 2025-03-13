@@ -13,9 +13,8 @@ data class ListOfListsState(
     var listNotes: String = "",
     var listNotesInvalid: Boolean = false,
     var listNotesInvalidMessage: String = "",
-    var selectedList: EasyListsList? = null,
+    var selectedListUid: String = "",
     var showAddListBottomSheet: Boolean = false,
-    var showListContextMenu: Boolean = false,
     var uiState: ListListUiState = ListListUiState.Idle
 )
 

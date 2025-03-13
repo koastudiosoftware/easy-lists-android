@@ -182,11 +182,11 @@ class ListOfListsViewModel @Inject constructor(
     //endregion
 
 
-    //region showListContextMenu()
-    fun showListContextMenu(list: EasyListsList?) {
+    //region showContextIcons()
+    fun showContextIcons(list: EasyListsList?) {
+        if (list == null) return
         state = state.copy(
-            selectedList = list,
-            showListContextMenu = !state.showListContextMenu
+            selectedListUid = if (state.selectedListUid.isEmpty()) list.uid.toString() else "",
         )
     }
     //endregion

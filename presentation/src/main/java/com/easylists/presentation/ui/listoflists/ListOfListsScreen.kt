@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -35,16 +34,13 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.easylists.presentation.R
 import com.easylists.presentation.common.ListOfListsAction
@@ -52,6 +48,8 @@ import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
 import com.easylists.presentation.icons.Check
+import com.easylists.presentation.icons.Delete
+import com.easylists.presentation.icons.Edit
 import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.models.Screen
@@ -148,7 +146,6 @@ fun ListOfListsScreenContent(viewModel: ListOfListsViewModel) {
     ) {
         item {
             HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-//            ListOfListsScreenListContextMenu(viewModel)
         }
         when (viewModel.state.listList?.isNotEmpty()) {
             true -> {
@@ -159,18 +156,14 @@ fun ListOfListsScreenContent(viewModel: ListOfListsViewModel) {
                             .combinedClickable(
                                 onClick = {
                                     Arbor.i("Clicked on $item")
-//                              viewModel.onItemClick(item)
                                 },
-                                onLongClick = {
-                                    Arbor.i("Long clicked on $item")
-                                    viewModel.showListContextMenu(item)
-                                }
+                                onLongClick = { viewModel.showContextIcons(item) }
                             ),
                     ) {
                         Row(
                             modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(0.dp, 64.dp)
+                            .height(52.dp)
                             .padding(horizontal = MaterialTheme.spaces.large)
                             .padding(
                                 top = MaterialTheme.spaces.medium,
@@ -179,9 +172,39 @@ fun ListOfListsScreenContent(viewModel: ListOfListsViewModel) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
+                                modifier = Modifier.weight(1f),
+                                overflow = TextOverflow.Ellipsis,
                                 style = MaterialTheme.typography.titleLarge,
                                 text = item.name
                             )
+                            when {
+                                viewModel.state.selectedListUid == item.uid -> {
+                                    IconButton(
+                                        modifier = Modifier.weight(0.1f),
+                                        onClick = {
+//                                          viewModel.onActionButtonClick(ListOfListsAction.Add)
+                                        }
+                                    ) {
+                                        Icon(
+                                            modifier = Modifier,
+                                            imageVector = Edit,
+                                            contentDescription = stringResource(R.string.create_new_list)
+                                        )
+                                    }
+                                    IconButton(
+                                        modifier = Modifier.weight(0.1f),
+                                        onClick = {
+//                                          viewModel.onActionButtonClick(ListOfListsAction.Add)
+                                        }
+                                    ) {
+                                        Icon(
+                                            modifier = Modifier,
+                                            imageVector = Delete,
+                                            contentDescription = stringResource(R.string.create_new_list)
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                     HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
@@ -235,45 +258,6 @@ fun ListOfListsScreenOverflowMenu(viewModel: ListOfListsViewModel) {
     }
 }
 //endregion
-
-
-@Composable
-fun ListOfListsScreenListContextMenu(
-    viewModel: ListOfListsViewModel
-) {
-    var expanded = remember { mutableStateOf(false) }
-
-    val density = LocalDensity.current
-    var offsetX = remember { mutableStateOf(0.dp) }
-    var parentWidth = remember { mutableIntStateOf(0) }
-
-    when (viewModel.state.showListContextMenu) {
-        true -> expanded.value = true
-        false -> expanded.value = false
-    }
-
-    DropdownMenu(
-        modifier = Modifier.onPlaced {
-            val popUpWidthPx = parentWidth.intValue - it.size.width - (it.size.width / 4)
-            offsetX.value = with(density) { popUpWidthPx.toDp() }
-        },
-        offset = DpOffset(offsetX.value, 0.dp),
-        expanded = expanded.value,
-        onDismissRequest = {
-            expanded.value = false
-            viewModel.showListContextMenu(null)
-        }
-    ) {
-        DropdownMenuItem(
-            text = { Text(text = stringResource(R.string.settings)) },
-            onClick = {
-                expanded.value = !expanded.value
-            },
-            leadingIcon = {},
-            trailingIcon = {}
-        )
-    }
-}
 
 
 //region ListOfListsScreenAddListBottomSheet
