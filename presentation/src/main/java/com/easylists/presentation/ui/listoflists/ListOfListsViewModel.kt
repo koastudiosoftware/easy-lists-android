@@ -32,8 +32,6 @@ class ListOfListsViewModel @Inject constructor(
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
-    val lists = listOf("Groceries", "Travel", "Travel Packing")
-
     private var listListFlowJob: Job? = null
 
     var state by mutableStateOf( ListOfListsState() )
@@ -51,9 +49,9 @@ class ListOfListsViewModel @Inject constructor(
         //
 
         viewModelScope.launch {
-            addListUseCase(
-                list = EasyListsList(name = lists.random())
-            )
+//            addListUseCase(
+//                list = EasyListsList(name = lists.random())
+//            )
         }
     }
     //endregion

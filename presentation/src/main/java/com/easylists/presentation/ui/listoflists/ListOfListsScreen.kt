@@ -105,7 +105,7 @@ fun ListOfListsScreenTitle() {
 @Composable
 fun ListOfListsScreenActionIcons(viewModel: ListOfListsViewModel) {
     IconButton(onClick = {
-        viewModel.onActionButtonClick(ADD)
+//        viewModel.onActionButtonClick(ADD)
     }) {
         Icon(
             modifier = Modifier,
@@ -130,33 +130,51 @@ fun ListOfListsScreenContent(viewModel: ListOfListsViewModel) {
         item {
             HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
         }
-        itemsIndexed(viewModel.lists) { _, item ->
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(0.dp, 64.dp)
-                .padding(horizontal = MaterialTheme.spaces.large)
-                .padding(
-                    top = MaterialTheme.spaces.medium,
-                    bottom = MaterialTheme.spaces.large
-                )
-                .combinedClickable(
-                    onClick = {
-                        Arbor.i("Clicked on $item")
-//                        viewModel.onItemClick(item)
-                    },
-                    onLongClick = {
-                        Arbor.i("Long clicked on $item")
-//                        viewModel.onItemLongClick(item)
+        when (viewModel.state.listList?.isNotEmpty()) {
+            true -> {
+                itemsIndexed(viewModel.state.listList ?: emptyList()) { _, item ->
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = MaterialTheme.spaces.none)
+                            .combinedClickable(
+                                onClick = {
+                                    Arbor.i("Clicked on $item")
+//                              viewModel.onItemClick(item)
+                                },
+                                onLongClick = {
+                                    Arbor.i("Long clicked on $item")
+//                              viewModel.onItemLongClick(item)
+                                }
+                            ),
+                    ) {
+                        Row(
+                            modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(0.dp, 64.dp)
+                            .padding(horizontal = MaterialTheme.spaces.large)
+                            .padding(
+                                top = MaterialTheme.spaces.medium,
+                                bottom = MaterialTheme.spaces.large
+                            ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                style = MaterialTheme.typography.titleLarge,
+                                text = item.name
+                            )
+                        }
                     }
-                ),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    style = MaterialTheme.typography.titleLarge,
-                    text = item
-                )
+                    HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
+                }
             }
-            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
+            else -> {
+                item {
+                    Text(
+                        style = MaterialTheme.typography.titleLarge,
+                        text = stringResource(R.string.no_lists_found)
+                    )
+                }
+            }
         }
     }
 }

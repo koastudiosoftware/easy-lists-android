@@ -11,4 +11,6 @@
     <string name="remove_list">Remove list</string>
     <string name="overflow_menu">Overflow menu</string>
 
+    <string name="no_lists_found">No lists found</string>
+
 </resources>
