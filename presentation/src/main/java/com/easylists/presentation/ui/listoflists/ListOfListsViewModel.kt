@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.use_cases.AddListFlowUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
+import com.easylists.presentation.common.ListOfListsAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListListUiState
 import com.easylists.presentation.models.ListOfListsState
@@ -44,15 +45,80 @@ class ListOfListsViewModel @Inject constructor(
 
     //region addList() :: Add a list to the database
     fun addList() {
-        //
-        // TODO: validate the new list name is not already in use
-        //
-
         viewModelScope.launch {
-//            addListUseCase(
-//                list = EasyListsList(name = lists.random())
-//            )
+            addListUseCase(
+                list = EasyListsList(
+                    name = state.listName,
+                    notes = if (state.listNotes.isEmpty()) null else state.listNotes
+                )
+            )
+
+            showAddListBottomSheet()
         }
+    }
+    //endregion
+
+
+    //region showAddListBottomSheet()
+    fun showAddListBottomSheet() {
+        state = state.copy(showAddListBottomSheet = !state.showAddListBottomSheet)
+    }
+    //endregion
+
+
+    //region addListIconButtonEnabled()
+    fun addListIconButtonEnabled(): Boolean {
+        return true
+    }
+    //endregion
+
+
+    //region listName()
+    fun listName(): String {
+        return state.listName
+    }
+    //endregion
+
+
+    //region listName()
+    fun listNotes(): String {
+        return state.listNotes
+    }
+    //endregion
+
+
+    //region onAddListBottomSheetDismiss()
+    fun onAddListBottomSheetDismiss() {
+        state = state.copy(
+            listName = "",
+            listNameInvalid = false,
+            listNameInvalidMessage = "",
+            showAddListBottomSheet = !state.showAddListBottomSheet,
+        )
+    }
+    //endregion
+
+
+    //region onListNameChange()
+    fun onListNameChange(name: String) {
+        var listNameInvalidMessage: String
+        val isNameInvalid = (state.listList?.any{ it.name == name } == true).let {
+            listNameInvalidMessage = if (it) "Name already in use" else ""
+            it
+        }
+
+        state = state.copy(
+            listName = name,
+            listNameInvalid = isNameInvalid,
+            listNameInvalidMessage = listNameInvalidMessage
+        )
+    }
+    //endregion
+
+
+    //region onListNotesChange()
+    fun onListNotesChange(notes: String) {
+        state = state.copy(listNotes = notes)
     }
     //endregion
 
@@ -78,8 +144,8 @@ class ListOfListsViewModel @Inject constructor(
         result.onSuccess {
             Arbor.i("List of lists loaded successfully: $it")
             state = state.copy(
-//                dataFetchStage = ListListDataFetchState.LocalBrokerSuccess,
                 isPullToRefreshing = false,
+                // TODO this is where the sorting order should be applied
                 listList = it ?: emptyList(),
             )
         }.onFailure {
@@ -104,6 +170,24 @@ class ListOfListsViewModel @Inject constructor(
     //region onPullToRefresh()
     fun onPullToRefresh(isRefreshing: Boolean): () -> Unit = {
         state = state.copy(isPullToRefreshing = isRefreshing)
+    }
+    //endregion
+
+
+    //region onActionButtonClick()
+    fun onActionButtonClick(action: ListOfListsAction) {
+        state = state.copy(actionButtonState = action)
+        showAddListBottomSheet()
+    }
+    //endregion
+
+
+    //region showListContextMenu()
+    fun showListContextMenu(list: EasyListsList?) {
+        state = state.copy(
+            selectedList = list,
+            showListContextMenu = !state.showListContextMenu
+        )
     }
     //endregion
 

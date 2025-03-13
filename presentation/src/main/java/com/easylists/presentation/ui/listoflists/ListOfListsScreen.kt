@@ -3,13 +3,19 @@ package com.easylists.presentation.ui.listoflists
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,24 +23,35 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.easylists.presentation.R
+import com.easylists.presentation.common.ListOfListsAction
 import com.easylists.presentation.common.SharedViewModel
+import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
+import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.models.Screen
@@ -79,6 +96,8 @@ fun ListOfListsScreen(
             },
         ) {
 
+            ListOfListsScreenAddListBottomSheet(viewModel)
+
             ListOfListsScreenContent(viewModel)
 
         }
@@ -105,7 +124,7 @@ fun ListOfListsScreenTitle() {
 @Composable
 fun ListOfListsScreenActionIcons(viewModel: ListOfListsViewModel) {
     IconButton(onClick = {
-//        viewModel.onActionButtonClick(ADD)
+        viewModel.onActionButtonClick(ListOfListsAction.Add)
     }) {
         Icon(
             modifier = Modifier,
@@ -129,6 +148,7 @@ fun ListOfListsScreenContent(viewModel: ListOfListsViewModel) {
     ) {
         item {
             HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
+//            ListOfListsScreenListContextMenu(viewModel)
         }
         when (viewModel.state.listList?.isNotEmpty()) {
             true -> {
@@ -143,7 +163,7 @@ fun ListOfListsScreenContent(viewModel: ListOfListsViewModel) {
                                 },
                                 onLongClick = {
                                     Arbor.i("Long clicked on $item")
-//                              viewModel.onItemLongClick(item)
+                                    viewModel.showListContextMenu(item)
                                 }
                             ),
                     ) {
@@ -211,6 +231,164 @@ fun ListOfListsScreenOverflowMenu(viewModel: ListOfListsViewModel) {
                     contentDescription = "Localized description"
                 )
             }
+        )
+    }
+}
+//endregion
+
+
+@Composable
+fun ListOfListsScreenListContextMenu(
+    viewModel: ListOfListsViewModel
+) {
+    var expanded = remember { mutableStateOf(false) }
+
+    val density = LocalDensity.current
+    var offsetX = remember { mutableStateOf(0.dp) }
+    var parentWidth = remember { mutableIntStateOf(0) }
+
+    when (viewModel.state.showListContextMenu) {
+        true -> expanded.value = true
+        false -> expanded.value = false
+    }
+
+    DropdownMenu(
+        modifier = Modifier.onPlaced {
+            val popUpWidthPx = parentWidth.intValue - it.size.width - (it.size.width / 4)
+            offsetX.value = with(density) { popUpWidthPx.toDp() }
+        },
+        offset = DpOffset(offsetX.value, 0.dp),
+        expanded = expanded.value,
+        onDismissRequest = {
+            expanded.value = false
+            viewModel.showListContextMenu(null)
+        }
+    ) {
+        DropdownMenuItem(
+            text = { Text(text = stringResource(R.string.settings)) },
+            onClick = {
+                expanded.value = !expanded.value
+            },
+            leadingIcon = {},
+            trailingIcon = {}
+        )
+    }
+}
+
+
+//region ListOfListsScreenAddListBottomSheet
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ListOfListsScreenAddListBottomSheet(viewModel: ListOfListsViewModel) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showBottomSheet = remember { mutableStateOf(false) }
+
+    when (viewModel.state.showAddListBottomSheet) {
+        true -> showBottomSheet.value = true
+        false -> showBottomSheet.value = false
+    }
+
+    if (showBottomSheet.value) {
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {
+                showBottomSheet.value = false
+                viewModel.onAddListBottomSheetDismiss()
+            },
+            dragHandle = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    BottomSheetDefaults.DragHandle()
+                }
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.9f)
+            ) {
+                LazyColumn(modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)) {
+                    item {
+                        SectionTitle(
+                            title = stringResource(R.string.add_list),
+                            icon = {
+                                IconButton(
+                                    enabled = viewModel.addListIconButtonEnabled(),
+                                    onClick = { viewModel.addList()
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = Check,
+                                        contentDescription = stringResource(R.string.add_list),
+                                    )
+                                }
+                            },
+                            modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
+                        )
+                    }
+
+                    item {
+                        ListOfListsScreenAddListBottomSheetListName(viewModel)
+                    }
+
+                    item {
+                        ListOfListsScreenAddListBottomSheetListNotes(viewModel)
+                    }
+
+                }
+            }
+        }
+    }
+}
+//endregion
+
+
+//region ListOfListsScreenAddListBottomSheetListName
+@Composable
+fun ListOfListsScreenAddListBottomSheetListName(viewModel: ListOfListsViewModel) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MaterialTheme.spaces.medium)
+                .padding(top = MaterialTheme.spaces.medium),
+            value = viewModel.listName(),
+            onValueChange = { viewModel.onListNameChange(it) },
+            label = { Text(text = stringResource(R.string.name)) },
+            singleLine = true,
+            maxLines = 1,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            isError = viewModel.state.listNameInvalid,
+            supportingText = {
+                when {
+                    viewModel.state.listNameInvalidMessage.isNotEmpty() == true ->
+                        Text(text = viewModel.state.listNameInvalidMessage)
+
+                    else -> null
+                }
+            }
+        )
+    }
+}
+//endregion
+
+
+//region ListOfListsScreenAddListBottomSheetListNotes
+@Composable
+fun ListOfListsScreenAddListBottomSheetListNotes(viewModel: ListOfListsViewModel) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+                .padding(horizontal = MaterialTheme.spaces.medium)
+                .padding(top = MaterialTheme.spaces.medium),
+            value = viewModel.listNotes(),
+            onValueChange = { viewModel.onListNotesChange(it) },
+            label = { Text(text = stringResource(R.string.notes)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         )
     }
 }
