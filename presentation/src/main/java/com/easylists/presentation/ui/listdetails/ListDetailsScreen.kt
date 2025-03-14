@@ -144,7 +144,7 @@ fun ListDetailsScreenActionIcons(viewModel: ListDetailsViewModel) {
             contentDescription = stringResource(R.string.create_new_list)
         )
     }
-    ListDetailsScreenOverflowMenu(viewModel)
+//    ListDetailsScreenOverflowMenu(viewModel)
 }
 //endregion
 

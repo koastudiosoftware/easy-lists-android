@@ -77,7 +77,7 @@ fun ListOfListsScreen(
         topBar = {
             TopAppBar(
                 title = { ListOfListsScreenTitle() },
-                actions = { ListOfListsScreenActionIcons(viewModel) },
+                actions = { ListOfListsScreenActionIcons(navController, viewModel) },
             )
         }
     ) { innerPadding ->
@@ -123,7 +123,10 @@ fun ListOfListsScreenTitle() {
 
 //region ListOfListsScreenActionIcons
 @Composable
-fun ListOfListsScreenActionIcons(viewModel: ListOfListsViewModel) {
+fun ListOfListsScreenActionIcons(
+    navController: NavController<Screen>,
+    viewModel: ListOfListsViewModel
+) {
     IconButton(onClick = {
         viewModel.onActionButtonClick(ListOfListsAction.Add)
     }) {
@@ -133,7 +136,7 @@ fun ListOfListsScreenActionIcons(viewModel: ListOfListsViewModel) {
             contentDescription = stringResource(R.string.create_new_list)
         )
     }
-    ListOfListsScreenOverflowMenu(viewModel)
+    ListOfListsScreenOverflowMenu(navController, viewModel)
 }
 //endregion
 
@@ -232,7 +235,10 @@ fun ListOfListsScreenContent(
 
 //region ListOfListsScreenOverflowMenu
 @Composable
-fun ListOfListsScreenOverflowMenu(viewModel: ListOfListsViewModel) {
+fun ListOfListsScreenOverflowMenu(
+    navController: NavController<Screen>,
+    viewModel: ListOfListsViewModel
+) {
     var expanded = remember { mutableStateOf(false) }
 
     IconButton(
@@ -252,7 +258,7 @@ fun ListOfListsScreenOverflowMenu(viewModel: ListOfListsViewModel) {
             text = { Text(text = stringResource(R.string.settings)) },
             onClick = {
                 expanded.value = !expanded.value
-//                viewModel.showExportDataBottomSheet()
+                navController.navigate(Screen.Settings)
             },
             leadingIcon = {
                 Icon(

@@ -28,6 +28,7 @@ import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.listdetails.ListDetailsScreen
 import com.easylists.presentation.ui.listoflists.ListOfListsScreen
 import com.easylists.presentation.ui.listoflists.ListOfListsViewModel
+import com.easylists.presentation.ui.settings.SettingsScreen
 import com.easylists.presentation.ui.theme.EasyListsTheme
 import com.easylists.presentation.ui.theme.spaces
 import dagger.hilt.android.AndroidEntryPoint
@@ -94,7 +95,10 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 is Screen.Settings -> {
-//                                    SettingsScreen(navController = navController)
+                                    SettingsScreen(
+                                        navController = navController,
+                                        sharedViewModel = sharedViewModel
+                                    )
                                 }
 
                                 is Screen.About -> {
