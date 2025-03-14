@@ -1,10 +1,8 @@
 package com.easylists.data.repositories
 
 import com.easylists.domain.exceptions.EmptyDatabaseException
-import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.repositories.ListItemRepository
-import com.easylists.domain.repositories.ListRepository
 import com.github.davidepanidev.kotlinextensions.utils.dispatchers.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

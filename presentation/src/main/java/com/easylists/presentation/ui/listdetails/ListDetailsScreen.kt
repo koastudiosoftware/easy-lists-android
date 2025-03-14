@@ -14,14 +14,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -47,14 +52,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.presentation.R
-import com.easylists.presentation.common.ListOfListsAction
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
 import com.easylists.presentation.icons.Arrow_back
 import com.easylists.presentation.icons.Check
-import com.easylists.presentation.icons.Delete
-import com.easylists.presentation.icons.Edit
 import com.easylists.presentation.icons.Info
 import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Settings
@@ -63,7 +65,6 @@ import com.easylists.presentation.ui.theme.spaces
 import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
-import dev.olshevski.navigation.reimagined.navigate
 import dev.olshevski.navigation.reimagined.pop
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,7 +108,7 @@ fun ListDetailsScreen(
             },
         ) {
 
-//            ListOfListsScreenAddListBottomSheet(viewModel)
+            ListDetailsScreenAddListItemBottomSheet(viewModel)
 
             ListDetailsScreenContent(viewModel)
 
@@ -136,7 +137,7 @@ fun ListDetailsScreenTitle() {
 @Composable
 fun ListDetailsScreenActionIcons(viewModel: ListDetailsViewModel) {
     IconButton(onClick = {
-//        viewModel.onActionButtonClick(ListOfListsAction.Add)
+        viewModel.showAddListItemBottomSheet()
     }) {
         Icon(
             modifier = Modifier,
@@ -200,11 +201,15 @@ fun ListDetailsScreenListItem(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            var text = item.name
+            if (item.quantity != null)
+                text += " (${item.quantity})"
             Text(
                 modifier = Modifier.weight(1f),
                 overflow = TextOverflow.Ellipsis,
-                text = item.name
+                text = text
             )
+
             VerticalDivider(
                 modifier = Modifier
                     .padding(vertical = MaterialTheme.spaces.none)
@@ -268,7 +273,7 @@ fun ListDetailsScreenAddListItemBottomSheet(viewModel: ListDetailsViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet = remember { mutableStateOf(false) }
 
-    when (viewModel.state.showAddListBottomSheet) {
+    when (viewModel.state.showAddListItemBottomSheet) {
         true -> showBottomSheet.value = true
         false -> showBottomSheet.value = false
     }
@@ -278,7 +283,7 @@ fun ListDetailsScreenAddListItemBottomSheet(viewModel: ListDetailsViewModel) {
             sheetState = sheetState,
             onDismissRequest = {
                 showBottomSheet.value = false
-                viewModel.onAddListBottomSheetDismiss()
+                viewModel.onAddItemBottomSheetDismiss()
             },
             dragHandle = {
                 Column(
@@ -297,17 +302,15 @@ fun ListDetailsScreenAddListItemBottomSheet(viewModel: ListDetailsViewModel) {
                 LazyColumn(modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)) {
                     item {
                         SectionTitle(
-                            title = stringResource(R.string.add_list),
+                            title = stringResource(R.string.add_item),
                             icon = {
                                 IconButton(
-//                                    enabled = viewModel.addListIconButtonEnabled(),
-                                    onClick = {
-//                                        viewModel.addList()
-                                    },
+                                    enabled = viewModel.addListItemIconButtonEnabled(),
+                                    onClick = { viewModel.addListItem() },
                                 ) {
                                     Icon(
                                         imageVector = Check,
-                                        contentDescription = stringResource(R.string.add_list),
+                                        contentDescription = stringResource(R.string.add_list_item),
                                     )
                                 }
                             },
@@ -316,11 +319,19 @@ fun ListDetailsScreenAddListItemBottomSheet(viewModel: ListDetailsViewModel) {
                     }
 
                     item {
-                        ListDetailsScreenListBottomSheetListItemName(viewModel)
+                        ListDetailsScreenListItemBottomSheetName(viewModel)
                     }
 
                     item {
-                        ListDetailsScreenListItemBottomSheetListItemNotes(viewModel)
+                        ListDetailsScreenListItemBottomSheetQuantity(viewModel)
+                    }
+
+                    item {
+                        ListDetailsScreenListItemBottomSheetCategory(viewModel)
+                    }
+
+                    item {
+                        ListDetailsScreenListItemBottomSheetNotes(viewModel)
                     }
 
                 }
@@ -333,24 +344,24 @@ fun ListDetailsScreenAddListItemBottomSheet(viewModel: ListDetailsViewModel) {
 
 //region ListDetailsScreenListBottomSheetListItemName
 @Composable
-fun ListDetailsScreenListBottomSheetListItemName(viewModel: ListDetailsViewModel) {
+fun ListDetailsScreenListItemBottomSheetName(viewModel: ListDetailsViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = MaterialTheme.spaces.medium)
                 .padding(top = MaterialTheme.spaces.medium),
-            value = viewModel.listItemName(),
-            onValueChange = { viewModel.onListNameChange(it) },
+            value = viewModel.itemName(),
+            onValueChange = { viewModel.onItemNameChange(it) },
             label = { Text(text = stringResource(R.string.name)) },
             singleLine = true,
             maxLines = 1,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            isError = viewModel.state.listNameInvalid,
+            isError = viewModel.state.itemNameInvalid,
             supportingText = {
                 when {
-                    viewModel.state.listNameInvalidMessage.isNotEmpty() == true ->
-                        Text(text = viewModel.state.listNameInvalidMessage)
+                    viewModel.state.itemNameInvalidMessage.isNotEmpty() == true ->
+                        Text(text = viewModel.state.itemNameInvalidMessage)
 
                     else -> null
                 }
@@ -363,20 +374,102 @@ fun ListDetailsScreenListBottomSheetListItemName(viewModel: ListDetailsViewModel
 
 //region ListDetailsScreenListItemBottomSheetListItemNotes
 @Composable
-fun ListDetailsScreenListItemBottomSheetListItemNotes(viewModel: ListDetailsViewModel) {
+fun ListDetailsScreenListItemBottomSheetNotes(viewModel: ListDetailsViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(160.dp)
                 .padding(horizontal = MaterialTheme.spaces.medium)
                 .padding(top = MaterialTheme.spaces.medium),
-            value = viewModel.listItemNotes(),
-            onValueChange = { viewModel.onListNotesChange(it) },
+            value = viewModel.itemNotes(),
+            onValueChange = { viewModel.onItemNotesChange(it) },
             label = { Text(text = stringResource(R.string.notes)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         )
     }
+}
+//endregion
+
+
+//region ListDetailsScreenListItemBottomSheetQuantity
+@Composable
+fun ListDetailsScreenListItemBottomSheetQuantity(viewModel: ListDetailsViewModel) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MaterialTheme.spaces.medium),
+            value = viewModel.itemQuantity(),
+            onValueChange = { viewModel.onItemQuantityChange(it) },
+            label = { Text(text = stringResource(R.string.quantity)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        )
+    }
+}
+//endregion
+
+
+//region ListDetailsScreenListItemBottomSheetCategory
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel) {
+    var expanded = remember { mutableStateOf(false) }
+    var textFieldState = rememberTextFieldState("")
+
+//    when {
+//        viewModel.state.eventTypeListUiData?.isNotEmpty() == true -> {
+//            textFieldState.setTextAndPlaceCursorAtEnd(
+//                viewModel.eventTypeNameFromIndex()
+//            )
+//        }
+//    }
+
+    ExposedDropdownMenuBox(
+        modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
+        expanded = expanded.value,
+        onExpandedChange = { expanded.value = it },
+    ) {
+        TextField(
+            // The `menuAnchor` modifier must be passed to the text field to handle
+            // expanding/collapsing the menu on click. A read-only text field has
+            // the anchor type `PrimaryNotEditable`.
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth(),
+            label = { Text(text = stringResource(R.string.category)) },
+            onValueChange = { /* do nothing here, look at ExposedDropdownMenu below */ },
+            readOnly = true,
+            value = textFieldState.text.toString(),
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded.value) },
+        )
+        ExposedDropdownMenu(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            expanded = expanded.value,
+            onDismissRequest = { expanded.value = false },
+        ) {
+            when {
+                viewModel.state.categoryList.isNotEmpty() == true -> {
+                    viewModel.state.categoryList.forEachIndexed { index, option ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = option.name,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                            },
+                            onClick = {
+                                textFieldState.setTextAndPlaceCursorAtEnd(option.name)
+                                expanded.value = false
+//                                viewModel.onEventTypeChange(index)
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
 }
 //endregion
 

@@ -7,7 +7,7 @@ interface ListItemRepository {
 
     fun getListItemFlow(listUid: String): Flow<List<EasyListsListItem>>
 
-    suspend fun addListItem(list: EasyListsListItem): Result<Unit>
+    suspend fun addListItem(listItem: EasyListsListItem): Result<Unit>
     suspend fun removeListItem(uid: String): Result<Unit>
 
 }

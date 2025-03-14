@@ -18,6 +18,10 @@
     <string name="no_lists_found">No lists found</string>
 
     <string name="view_item_details">View item details</string>
+    <string name="add_list_item">Add list item</string>
+    <string name="add_item">Add Item</string>
+    <string name="quantity">Quantity</string>
+    <string name="category">Category</string>
 
     <string name="support">Support</string>
     <string name="email">Email</string>

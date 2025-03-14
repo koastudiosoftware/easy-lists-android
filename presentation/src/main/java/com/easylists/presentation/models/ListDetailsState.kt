@@ -1,21 +1,26 @@
 package com.easylists.presentation.models
 
+import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.presentation.common.ListOfListsAction
 
 data class ListDetailsState(
     var actionButtonState: ListOfListsAction = ListOfListsAction.None,
+    var categoryList: List<EasyListsCategory> = emptyList(),
     var isPullToRefreshing: Boolean = false,
     val listItemList: List<EasyListsListItem> = emptyList(),
-    var listName: String = "",
-    var listNameInvalid: Boolean = false,
-    var listNameInvalidMessage: String = "",
-    var listNotes: String = "",
+    var itemName: String = "",
+    var itemNameInvalid: Boolean = false,
+    var itemNameInvalidMessage: String = "",
+    var itemNotes: String = "",
     var listNotesInvalid: Boolean = false,
     var listNotesInvalidMessage: String = "",
+    var itemQuantity: String = "",
+    var itemQuantityInvalid: Boolean = false,
+    var itemQuantityInvalidMessage: String = "",
     var listUid: String = "",
     var selectedListUid: String = "",
-    var showAddListBottomSheet: Boolean = false,
+    var showAddListItemBottomSheet: Boolean = false,
     var uiState: ListListUiState = ListListUiState.Idle
 )
 

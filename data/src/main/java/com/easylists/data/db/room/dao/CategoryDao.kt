@@ -16,7 +16,7 @@ abstract class CategoryDao() {
     abstract fun get(): Flow<List<CategoryEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insert(brokerEntity: CategoryEntity): Long
+    abstract suspend fun insert(categoryEntity: CategoryEntity): Long
 
     @Query("DELETE FROM category WHERE uid = :uid")
     abstract suspend fun delete(uid: String)

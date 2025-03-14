@@ -1,11 +1,15 @@
 package com.easylists.data.di
 
+import com.easylists.data.repositories.CategoryLocalDataSource
+import com.easylists.data.repositories.CategoryRepositoryImpl
 import com.easylists.data.repositories.ListItemLocalDataSource
 import com.easylists.data.repositories.ListItemRepositoryImpl
 import com.easylists.data.repositories.ListLocalDataSource
 import com.easylists.data.repositories.ListRepositoryImpl
+import com.easylists.data.repositories.local.RoomCategoryLocalDataSource
 import com.easylists.data.repositories.local.RoomListItemLocalDataSource
 import com.easylists.data.repositories.local.RoomListLocalDataSource
+import com.easylists.domain.repositories.CategoryRepository
 import com.easylists.domain.repositories.ListItemRepository
 import com.easylists.domain.repositories.ListRepository
 import dagger.Binds
@@ -23,11 +27,11 @@ abstract class DataModule {
 
 
     // Category
-//    @Binds
-//    abstract fun bindEventRepository(eventRepositoryImpl: EventRepositoryImpl): EventRepository
-//
-//    @Binds
-//    abstract fun bindEventLocalDataSource(roomEventLocalDataSource: RoomEventLocalDataSource): EventLocalDataSource
+    @Binds
+    abstract fun bindCategoryRepository(categoryRepositoryImpl: CategoryRepositoryImpl): CategoryRepository
+
+    @Binds
+    abstract fun bindCategoryLocalDataSource(roomCategoryLocalDataSource: RoomCategoryLocalDataSource): CategoryLocalDataSource
 
 
     // List

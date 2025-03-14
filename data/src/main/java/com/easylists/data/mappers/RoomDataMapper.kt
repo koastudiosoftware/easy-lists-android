@@ -1,7 +1,9 @@
 package com.easylists.data.mappers
 
+import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
+import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.github.davidepanidev.kotlinextensions.utils.serialization.SerializationManager
@@ -10,6 +12,37 @@ import javax.inject.Inject
 class RoomDataMapper @Inject constructor(
     private val serializationManager: SerializationManager,
 ) {
+
+    //
+    // Category
+    //
+
+    //region mapCategoryEntityListToEasyListsCategoryList()
+    // maps a list of list entities to a list of easy lists
+    fun mapCategoryEntityListToEasyListsCategoryList(categoryEntityList: List<CategoryEntity>): List<EasyListsCategory> {
+        return categoryEntityList.map { entity ->
+            EasyListsCategory(
+                uid = entity.uid,
+                name = entity.name,
+                sortOrder = entity.sortOrder,
+                createdTimestamp = entity.createdTimestamp,
+                modifiedTimestamp = entity.modifiedTimestamp,
+            )
+        }
+    }
+    //endregion
+
+
+    //region mapEasyListsListToListEntity()
+    // maps an easy list to a list entity
+    fun mapEasyListsCategoryToCategoryEntity(category: EasyListsCategory): CategoryEntity {
+        return CategoryEntity(
+            name = category.name,
+            sortOrder = category.sortOrder,
+        )
+    }
+    //endregion
+
 
     //
     // List

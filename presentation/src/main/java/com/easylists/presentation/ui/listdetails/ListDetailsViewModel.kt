@@ -5,12 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.use_cases.AddListFlowUseCase
+import com.easylists.domain.use_cases.AddListItemFlowUseCase
+import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveListUseCase
 import com.easylists.presentation.common.ListOfListsAction
+import com.easylists.presentation.common.isNumeric
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListDetailsState
 import com.easylists.presentation.models.ListListUiState
@@ -30,12 +34,14 @@ import javax.inject.Inject
 @HiltViewModel
 class ListDetailsViewModel @Inject constructor(
     private val getListItemFlowUseCase: GetListItemFlowUseCase,
-    private val addListUseCase: AddListFlowUseCase,
+    private val getCategoryFlowUseCase: GetCategoryFlowUseCase,
+    private val addListItemUseCase: AddListItemFlowUseCase,
     private val removeListUseCase: RemoveListUseCase,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
+    private var categoryListFlowJob: Job? = null
     private var listItemListFlowJob: Job? = null
 
     var state by mutableStateOf( ListDetailsState() )
@@ -46,23 +52,28 @@ class ListDetailsViewModel @Inject constructor(
     }
 
 
+    //region init
     fun init(listUid: String) {
         state = state.copy(listUid = listUid)
         initListItemsList()
+        initCategoryList()
     }
+    //endregion
 
 
     //region addListItem() :: Add a list item to the database
     fun addListItem() {
         viewModelScope.launch {
-//            addListUseCase(
-//                list = EasyListsList(
-//                    name = state.listName,
-//                    notes = if (state.listNotes.isEmpty()) null else state.listNotes
-//                )
-//            )
-//
-//            showAddListBottomSheet()
+            addListItemUseCase(
+                listItem = EasyListsListItem(
+                    listUid = state.listUid,
+                    name = state.itemName,
+                    notes = if (state.itemNotes.isEmpty()) null else state.itemNotes,
+                    quantity = if (state.itemQuantity.isEmpty()) null else state.itemQuantity.toInt(),
+                ),
+            )
+
+            showAddListItemBottomSheet()
         }
     }
     //endregion
@@ -78,68 +89,96 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
-    //region showAddListBottomSheet()
-//    fun showAddListBottomSheet() {
-//        state = state.copy(showAddListBottomSheet = !state.showAddListBottomSheet)
-//    }
-    //endregion
-
-
-    //region addListIconButtonEnabled()
-//    fun addListIconButtonEnabled(): Boolean {
-//        return true
-//    }
-    //endregion
-
-
-    //region listItemName()
-    fun listItemName(): String {
-//        return state.listItemName
-        return ""
+    //region showAddListItemBottomSheet()
+    fun showAddListItemBottomSheet() {
+        state = state.copy(showAddListItemBottomSheet = !state.showAddListItemBottomSheet)
     }
     //endregion
 
 
-    //region listItemsNotes()
-    fun listItemNotes(): String {
-//        return state.listItemNotes
-        return ""
+    //region showAddListItemBottomSheet()
+    fun onAddListItemBottomSheetDismiss() {
+        state = state.copy(showAddListItemBottomSheet = !state.showAddListItemBottomSheet)
     }
     //endregion
 
 
-    //region onAddListBottomSheetDismiss()
-    fun onAddListBottomSheetDismiss() {
-//        state = state.copy(
-//            listName = "",
-//            listNameInvalid = false,
-//            listNameInvalidMessage = "",
-//            showAddListBottomSheet = !state.showAddListBottomSheet,
-//        )
+    //region itemName()
+    fun itemName(): String {
+        return state.itemName
     }
     //endregion
 
 
-    //region onListNameChange()
-    fun onListNameChange(name: String) {
-//        var listNameInvalidMessage: String
-//        val isNameInvalid = (state.listList?.any{ it.name == name } == true).let {
-//            listNameInvalidMessage = if (it) "Name already in use" else ""
-//            it
-//        }
-//
-//        state = state.copy(
-//            listName = name,
-//            listNameInvalid = isNameInvalid,
-//            listNameInvalidMessage = listNameInvalidMessage
-//        )
+    //region itemNotes()
+    fun itemNotes(): String {
+        return state.itemNotes
     }
     //endregion
 
 
-    //region onListNotesChange()
-    fun onListNotesChange(notes: String) {
-//        state = state.copy(listNotes = notes)
+    //region itemQuantity()
+    fun itemQuantity(): String {
+        return state.itemQuantity
+    }
+    //endregion
+
+
+    //region addListItemIconButtonEnabled()
+    fun addListItemIconButtonEnabled(): Boolean {
+        if (state.itemName.isEmpty()) return false
+
+        // don't allow duplicate item name
+        if (state.listItemList.any { it.name.lowercase() == state.itemName.lowercase() }) return false
+
+        return true
+    }
+    //endregion
+
+
+    //region onAddItemBottomSheetDismiss()
+    fun onAddItemBottomSheetDismiss() {
+        state = state.copy(
+            itemName = "",
+            itemNameInvalid = false,
+            itemNameInvalidMessage = "",
+            showAddListItemBottomSheet = !state.showAddListItemBottomSheet,
+        )
+    }
+    //endregion
+
+
+    //region onItemNameChange()
+    fun onItemNameChange(name: String) {
+        var itemNameInvalidMessage: String
+        val isNameInvalid = (state.listItemList.any{
+            it.name.lowercase() == name.lowercase()
+        } == true).let {
+            itemNameInvalidMessage = if (it) "Name already in use" else ""
+            it
+        }
+
+        state = state.copy(
+            itemName = name,
+            itemNameInvalid = isNameInvalid,
+            itemNameInvalidMessage = itemNameInvalidMessage
+        )
+    }
+    //endregion
+
+
+    //region onItemQuantityChange()
+    fun onItemQuantityChange(quantity: String) {
+        if (isNumeric(quantity)) {
+            state = state.copy(itemQuantity = quantity)
+        }
+    }
+    //endregion
+
+
+    //region onItemNotesChange()
+    fun onItemNotesChange(notes: String) {
+        state = state.copy(itemNotes = notes)
     }
     //endregion
 
@@ -163,7 +202,6 @@ class ListDetailsViewModel @Inject constructor(
 
     private fun handleGetListItemState(result: Resultat<List<EasyListsListItem>?>) {
         result.onSuccess {
-            Arbor.i("List items received: $it")
             state = state.copy(
                 isPullToRefreshing = false,
                 // TODO this is where the sorting order should be applied
@@ -184,6 +222,50 @@ class ListDetailsViewModel @Inject constructor(
     private fun cancelListItemFlowCollection() {
         listItemListFlowJob?.cancel()
         listItemListFlowJob = null
+    }
+    //endregion
+
+
+    //region initCategoryList() :: initialize list of items from the database
+    fun initCategoryList() {
+        cancelCategoryFlowCollection()
+
+        categoryListFlowJob = getCategoryFlowUseCase()
+            .onEach {
+                handleGetCategoryState(Resultat.success(it))
+            }.catch {
+                handleGetCategoryState(Resultat.failure(it))
+
+                // After this catch the flow is interrupted and it must be collected
+                // again to obtain new data. The handleRefresh() method handles this situation.
+                cancelCategoryFlowCollection()
+            }.launchIn(viewModelScope)
+    }
+
+
+    private fun handleGetCategoryState(result: Resultat<List<EasyListsCategory>?>) {
+        result.onSuccess {
+            Arbor.i("Categories received: $it")
+            state = state.copy(
+                isPullToRefreshing = false,
+                // TODO this is where the sorting order should be applied
+                categoryList = it?.map { item -> item } ?: emptyList(),
+            )
+        }.onFailure {
+            state = state.copy(
+                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
+            )
+        }.onLoading {
+//            state = state.copy(
+//                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
+//            )
+        }
+    }
+
+
+    private fun cancelCategoryFlowCollection() {
+        categoryListFlowJob?.cancel()
+        categoryListFlowJob = null
     }
     //endregion
 
