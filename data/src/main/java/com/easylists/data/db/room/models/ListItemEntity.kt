@@ -37,7 +37,7 @@ data class ListItemEntity @OptIn(ExperimentalUuidApi::class) constructor(
 
     @ColumnInfo(name = "crossed_off")
     @SerializedName(value = "crossed_off")
-    val crossedOff: Int? = null,
+    val crossedOff: Boolean? = null,
 
     @ColumnInfo(name = "sort_order")
     @SerializedName(value = "sort_order")

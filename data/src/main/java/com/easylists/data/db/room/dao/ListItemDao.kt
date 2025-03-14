@@ -15,8 +15,12 @@ abstract class ListItemDao() {
     @Query("SELECT * FROM list_item ORDER BY name ASC")
     abstract fun get(): Flow<List<ListItemEntity>>
 
+    @Transaction
+    @Query("SELECT * FROM list_item WHERE list_uid = :listUid ORDER BY name ASC")
+    abstract fun get(listUid: String): Flow<List<ListItemEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insert(brokerEntity: ListItemEntity): Long
+    abstract suspend fun insert(listItemEntity: ListItemEntity): Long
 
     @Query("DELETE FROM list_item WHERE uid = :uid")
     abstract suspend fun delete(uid: String)

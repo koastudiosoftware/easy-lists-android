@@ -9,6 +9,9 @@ sealed interface Screen : Parcelable {
     object ListOfLists : Screen
 
     @Parcelize
+    object ListDetails : Screen
+
+    @Parcelize
     object Settings : Screen
 
     @Parcelize

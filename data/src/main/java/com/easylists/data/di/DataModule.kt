@@ -1,8 +1,12 @@
 package com.easylists.data.di
 
+import com.easylists.data.repositories.ListItemLocalDataSource
+import com.easylists.data.repositories.ListItemRepositoryImpl
 import com.easylists.data.repositories.ListLocalDataSource
 import com.easylists.data.repositories.ListRepositoryImpl
+import com.easylists.data.repositories.local.RoomListItemLocalDataSource
 import com.easylists.data.repositories.local.RoomListLocalDataSource
+import com.easylists.domain.repositories.ListItemRepository
 import com.easylists.domain.repositories.ListRepository
 import dagger.Binds
 import dagger.Module
@@ -35,10 +39,10 @@ abstract class DataModule {
 
 
     // ListItem
-//    @Binds
-//    abstract fun bindPortfolioRepository(portfolioRepositoryImpl: PortfolioRepositoryImpl): PortfolioRepository
-//
-//    @Binds
-//    abstract fun bindPortfolioLocalDataSource(roomPortfolioLocalDataSource: RoomPortfolioLocalDataSource): PortfolioLocalDataSource
+    @Binds
+    abstract fun bindListItemRepository(listItemRepositoryImpl: ListItemRepositoryImpl): ListItemRepository
+
+    @Binds
+    abstract fun bindListItemLocalDataSource(roomListItemLocalDataSource: RoomListItemLocalDataSource): ListItemLocalDataSource
 
 }

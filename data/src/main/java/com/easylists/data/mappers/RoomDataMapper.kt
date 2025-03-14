@@ -1,7 +1,9 @@
 package com.easylists.data.mappers
 
 import com.easylists.data.db.room.models.ListEntity
+import com.easylists.data.db.room.models.ListItemEntity
 import com.easylists.domain.models.EasyListsList
+import com.easylists.domain.models.EasyListsListItem
 import com.github.davidepanidev.kotlinextensions.utils.serialization.SerializationManager
 import javax.inject.Inject
 
@@ -40,4 +42,44 @@ class RoomDataMapper @Inject constructor(
     }
     //endregion
 
+
+    //
+    // List Item
+    //
+
+    //region mapListEntityListToEasyListsListList()
+    // maps a list of list entities to a list of easy lists
+    fun mapListItemEntityListToEasyListsListItemList(listItemEntityList: List<ListItemEntity>): List<EasyListsListItem> {
+        return listItemEntityList.map { entity ->
+            EasyListsListItem(
+                uid = entity.uid,
+                listUid = entity.listUid,
+                categoryUid = entity.categoryUid,
+                name = entity.name,
+                notes = entity.notes,
+                quantity = entity.quantity,
+                crossedOff = entity.crossedOff,
+                sortOrder = entity.sortOrder,
+                createdTimestamp = entity.createdTimestamp,
+                modifiedTimestamp = entity.modifiedTimestamp,
+            )
+        }
+    }
+    //endregion
+
+
+    //region mapEasyListsListItemToListItemEntity()
+    // maps an easy list to a list item entity
+    fun mapEasyListsListItemToListItemEntity(listItem: EasyListsListItem): ListItemEntity {
+        return ListItemEntity(
+            name = listItem.name,
+            notes = listItem.notes,
+            sortOrder = listItem.sortOrder,
+            listUid = listItem.listUid,
+            categoryUid = listItem.categoryUid,
+            quantity = listItem.quantity,
+            crossedOff = listItem.crossedOff,
+        )
+    }
+    //endregion
 }

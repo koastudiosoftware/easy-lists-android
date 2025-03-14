@@ -8,6 +8,7 @@
     <string name="about">About</string>
 
     <string name="overflow_menu">Overflow menu</string>
+    <string name="return_to_previous_screen">Return to previous screen</string>
 
     <string name="name">Name</string>
     <string name="notes">Notes</string>
@@ -15,5 +16,7 @@
     <string name="create_new_list">Create new list</string>
     <string name="remove_list">Remove list</string>
     <string name="no_lists_found">No lists found</string>
+
+    <string name="view_item_details">View item details</string>
 
 </resources>

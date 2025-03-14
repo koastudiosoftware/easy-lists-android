@@ -8,7 +8,7 @@ data class EasyListsListItem(
     var categoryUid: String? = null,
     var name: String,
     var quantity: Int? = null,
-    var isCrossedOff: Boolean = false,
+    var crossedOff: Boolean? = false,
     var notes: String? = null,
     var sortOrder: Int? = null,
     var createdTimestamp: Long = Instant.now().epochSecond,
