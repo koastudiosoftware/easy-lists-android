@@ -57,6 +57,7 @@ import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
 import com.easylists.presentation.icons.Arrow_back
 import com.easylists.presentation.icons.Check
+import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.icons.Info
 import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Settings
@@ -185,9 +186,7 @@ fun ListDetailsScreenListItem(
                 onClick = {
                     Arbor.i("Clicked ${item.name}")
                 },
-                onLongClick = {
-                    Arbor.i("Long clicked ${item.name}")
-                }
+                onLongClick = { viewModel.showContextIcons(item) }
             ),
     ) {
         Row(
@@ -209,20 +208,37 @@ fun ListDetailsScreenListItem(
                 overflow = TextOverflow.Ellipsis,
                 text = text
             )
+            when {
+                viewModel.state.selectedItemUid == item.uid -> {
+                    VerticalDivider(
+                        modifier = Modifier
+                            .padding(vertical = MaterialTheme.spaces.none)
+                    )
+                    IconButton(onClick = { viewModel.removeListItem() }) {
+                        Icon(
+                            modifier = Modifier.weight(0.1f),
+                            imageVector = Delete,
+                            contentDescription = stringResource(R.string.remove_item)
+                        )
+                    }
+                }
 
-            VerticalDivider(
-                modifier = Modifier
-                    .padding(vertical = MaterialTheme.spaces.none)
-            )
-            IconButton(onClick = {
-            }) {
-                Icon(
-                    modifier = Modifier.weight(0.1f),
-                    imageVector = Info,
-                    contentDescription = stringResource(R.string.view_item_details)
-                )
-            }
+                else -> {
+                    VerticalDivider(
+                        modifier = Modifier
+                            .padding(vertical = MaterialTheme.spaces.none)
+                    )
+                    IconButton(onClick = {
+                    }) {
+                        Icon(
+                            modifier = Modifier.weight(0.1f),
+                            imageVector = Info,
+                            contentDescription = stringResource(R.string.view_item_details)
+                        )
+                    }
 //          style = TextStyle(textDecoration = TextDecoration.LineThrough)
+                }
+            }
         }
         HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
     }

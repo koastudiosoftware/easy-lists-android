@@ -17,6 +17,7 @@
     <string name="remove_list">Remove list</string>
     <string name="no_lists_found">No lists found</string>
 
+    <string name="remove_item">Remove item</string>
     <string name="view_item_details">View item details</string>
     <string name="add_list_item">Add list item</string>
     <string name="add_item">Add Item</string>

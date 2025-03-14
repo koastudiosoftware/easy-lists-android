@@ -19,7 +19,7 @@ data class ListDetailsState(
     var itemQuantityInvalid: Boolean = false,
     var itemQuantityInvalidMessage: String = "",
     var listUid: String = "",
-    var selectedListUid: String = "",
+    var selectedItemUid: String = "",
     var showAddListItemBottomSheet: Boolean = false,
     var uiState: ListListUiState = ListListUiState.Idle
 )

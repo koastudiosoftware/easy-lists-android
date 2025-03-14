@@ -6,13 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.easylists.domain.models.EasyListsCategory
-import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
-import com.easylists.domain.use_cases.AddListFlowUseCase
 import com.easylists.domain.use_cases.AddListItemFlowUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
-import com.easylists.domain.use_cases.RemoveListUseCase
+import com.easylists.domain.use_cases.RemoveListItemUseCase
 import com.easylists.presentation.common.ListOfListsAction
 import com.easylists.presentation.common.isNumeric
 import com.easylists.presentation.mappers.UiMapper
@@ -36,7 +34,7 @@ class ListDetailsViewModel @Inject constructor(
     private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val getCategoryFlowUseCase: GetCategoryFlowUseCase,
     private val addListItemUseCase: AddListItemFlowUseCase,
-    private val removeListUseCase: RemoveListUseCase,
+    private val removeListItemUseCase: RemoveListItemUseCase,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
@@ -82,8 +80,8 @@ class ListDetailsViewModel @Inject constructor(
     //region removeListItem() :: remove a list item from the database
     fun removeListItem() {
         viewModelScope.launch {
-//            removeListUseCase(uid = state.selectedListUid)
-//            state = state.copy(selectedListUid = "")
+            removeListItemUseCase(uid = state.selectedItemUid)
+            state = state.copy(selectedItemUid = "")
         }
     }
     //endregion
@@ -286,11 +284,11 @@ class ListDetailsViewModel @Inject constructor(
 
 
     //region showContextIcons()
-    fun showContextIcons(list: EasyListsList?) {
-//        if (list == null) return
-//        state = state.copy(
-//            selectedListUid = if (state.selectedListUid.isEmpty()) list.uid.toString() else "",
-//        )
+    fun showContextIcons(item: EasyListsListItem?) {
+        if (item == null) return
+        state = state.copy(
+            selectedItemUid = if (state.selectedItemUid.isEmpty()) item.uid.toString() else "",
+        )
     }
     //endregion
 
