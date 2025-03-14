@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.models.Screen
+import com.easylists.presentation.ui.about.AboutScreen
 import com.easylists.presentation.ui.listdetails.ListDetailsScreen
 import com.easylists.presentation.ui.listoflists.ListOfListsScreen
 import com.easylists.presentation.ui.listoflists.ListOfListsViewModel
@@ -102,21 +103,21 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 is Screen.About -> {
-//                                    AboutScreen(
-//                                        navController = navController,
-//                                        onLinkClick = { _ ->
+                                    AboutScreen(
+                                        navController = navController,
+                                        onLinkClick = { _ ->
 //                                            this@MainActivity.openUrlInExternalBrowser(url = url)
-//                                        },
-//                                        onEmailClick = { _, _ ->
+                                        },
+                                        onEmailClick = { _, _ ->
 //                                            this@MainActivity.openEmailInExternalApp(
 //                                                toEmailAddresses = setOf(email),
 //                                                subject = subject
 //                                            )
-//                                        },
-//                                        onPlayStoreClick = {
+                                        },
+                                        onPlayStoreClick = {
 //                                            openAppInPlayStore(packageName = packageName)
-//                                        }
-//                                    )
+                                        }
+                                    )
                                 }
                             }
                         }

@@ -19,4 +19,9 @@
 
     <string name="view_item_details">View item details</string>
 
+    <string name="support">Support</string>
+    <string name="email">Email</string>
+    <string name="donate">Donate</string>
+    <string name="copyright">Copyright</string>
+
 </resources>
