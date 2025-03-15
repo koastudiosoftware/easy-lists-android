@@ -96,6 +96,7 @@ class RoomDataMapper @Inject constructor(
                 notes = entity.notes,
                 quantity = entity.quantity,
                 crossedOff = entity.crossedOff == true,
+                crossedOffTimestamp = entity.crossedOffTimestamp,
                 sortOrder = entity.sortOrder,
                 createdTimestamp = entity.createdTimestamp,
                 modifiedTimestamp = entity.modifiedTimestamp,
@@ -116,6 +117,7 @@ class RoomDataMapper @Inject constructor(
             categoryUid = listItem.categoryUid,
             quantity = listItem.quantity,
             crossedOff = listItem.crossedOff == true,
+            crossedOffTimestamp = listItem.crossedOffTimestamp,
         )
     }
     //endregion
@@ -132,6 +134,7 @@ class RoomDataMapper @Inject constructor(
             categoryUid = listItem.categoryUid,
             quantity = listItem.quantity,
             crossedOff = listItem.crossedOff == true,
+            crossedOffTimestamp = listItem.crossedOffTimestamp,
             modifiedTimestamp = Instant.now().epochSecond,
         )
     }

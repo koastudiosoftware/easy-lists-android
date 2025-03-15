@@ -25,6 +25,10 @@ data class ListItemUpdateEntity(
     @SerializedName(value = "crossed_off")
     val crossedOff: Boolean? = null,
 
+    @ColumnInfo(name = "crossed_off_timestamp")
+    @SerializedName(value = "crossed_off_timestamp")
+    val crossedOffTimestamp: Long? = null,
+
     @ColumnInfo(name = "sort_order")
     @SerializedName(value = "sort_order")
     val sortOrder: Int? = null,

@@ -57,6 +57,7 @@ import com.easylists.domain.models.EasyListsListItem
 import com.easylists.presentation.R
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
+import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
 import com.easylists.presentation.icons.Arrow_back
@@ -67,6 +68,7 @@ import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
+import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.pop
@@ -225,11 +227,26 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                                 )
                             }
                         }
-                        groupedItemList?.filterKeys {
+
+                        val crossedOffItems = groupedItemList?.filterKeys {
                             it.first == true
-                        }?.keys?.forEach {
-                            item {
-                                groupedItemList.getValue(it).forEach {
+                        }?.keys?.map {
+                            groupedItemList.getValue(it)
+                        }?.flatten()
+
+                        if (viewModel.state.sortCrossedOffItems == SortCrossedOffItems.MostRecentOnTop) {
+                            crossedOffItems?.sortedByDescending {
+                                it.crossedOffTimestamp
+                            }?.forEach {
+                                item {
+                                    ListDetailsScreenListItem(it, viewModel)
+                                }
+                            }
+                        } else {
+                            crossedOffItems?.sortedBy {
+                                it.name
+                            }?.forEach {
+                                item {
                                     ListDetailsScreenListItem(it, viewModel)
                                 }
                             }
@@ -237,7 +254,7 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                     }
 
                     GroupCrossedOffItems.ByCategory -> {
-                        //region items with a category that are not crossed off
+                        //region items with a category that are crossed off
                         groupedItemList?.filterKeys {
                             it.first == true && it.second != "Uncategorized"
                         }?.keys?.forEach {
@@ -245,14 +262,22 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                                 ListDetailsScreenCategoryTitle(it.second.toString(), true)
                             }
                             item {
-                                groupedItemList.getValue(it).forEach {
-                                    ListDetailsScreenListItem(it, viewModel)
+                                if (viewModel.state.sortCrossedOffItems == SortCrossedOffItems.MostRecentOnTop) {
+                                    groupedItemList.getValue(it).sortedByDescending {
+                                        it.crossedOffTimestamp
+                                    }.forEach {
+                                        ListDetailsScreenListItem(it, viewModel)
+                                    }
+                                } else {
+                                    groupedItemList.getValue(it).forEach {
+                                        ListDetailsScreenListItem(it, viewModel)
+                                    }
                                 }
                             }
                         }
                         //endregion
 
-                        //region uncategorized items that are not crossed off
+                        //region uncategorized items that are crossed off
                         groupedItemList?.filterKeys {
                             it.first == true && it.second == "Uncategorized"
                         }?.keys?.forEach {
@@ -260,8 +285,16 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                                 ListDetailsScreenCategoryTitle(it.second.toString(), true)
                             }
                             item {
-                                groupedItemList.getValue(it).forEach {
-                                    ListDetailsScreenListItem(it, viewModel)
+                                if (viewModel.state.sortCrossedOffItems == SortCrossedOffItems.MostRecentOnTop) {
+                                    groupedItemList.getValue(it).sortedByDescending {
+                                        it.crossedOffTimestamp
+                                    }.forEach {
+                                        ListDetailsScreenListItem(it, viewModel)
+                                    }
+                                } else {
+                                    groupedItemList.getValue(it).forEach {
+                                        ListDetailsScreenListItem(it, viewModel)
+                                    }
                                 }
                             }
                         }

@@ -10,6 +10,7 @@ data class EasyListsListItem(
     var name: String,
     var quantity: Int? = null,
     var crossedOff: Boolean? = false,
+    var crossedOffTimestamp: Long? = null,
     var notes: String? = null,
     var sortOrder: Int? = null,
     var createdTimestamp: Long = Instant.now().epochSecond,

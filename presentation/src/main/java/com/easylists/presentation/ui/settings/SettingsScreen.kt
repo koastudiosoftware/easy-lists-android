@@ -27,12 +27,14 @@ import androidx.compose.ui.res.stringResource
 import com.easylists.presentation.R
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
+import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.common.composables.ListSettingGroup
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Arrow_back
 import com.easylists.presentation.icons.Info
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
+import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.navigate
@@ -154,6 +156,17 @@ fun SettingsScreenContent(
                 viewModel
             )
         }
+
+        item {
+            ListSettingGroup(
+                "Sort crossed-off items",
+                SortCrossedOffItems.entries.toList(),
+                SortCrossedOffItems.entries.indexOf(viewModel.state.sortCrossedOffItems),
+                viewModel
+            )
+        }
+
     }
+
 }
 //endregion

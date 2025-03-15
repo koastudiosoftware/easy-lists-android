@@ -19,6 +19,7 @@ import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
 import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.ListOfListsAction
+import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.common.isNumeric
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListDetailsState
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -81,10 +83,17 @@ class ListDetailsViewModel @Inject constructor(
             val groupCrossedOffItems =
                 result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
 
+            val sortCrossedOffItems =
+                result.find { it[KEY] == AppSettingsKeys.SortCrossedOffItems.key }?.get(VALUE)
+
             state = state.copy(
                 groupCrossedOffItems = GroupCrossedOffItems.from(
                     groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
                 ) ?: GroupCrossedOffItems.AllTogether,
+
+                sortCrossedOffItems = SortCrossedOffItems.from(
+                    sortCrossedOffItems ?: SortCrossedOffItems.MostRecentOnTop.toString()
+                ) ?: SortCrossedOffItems.MostRecentOnTop,
             )
         }
     }
@@ -365,6 +374,7 @@ class ListDetailsViewModel @Inject constructor(
     fun onListItemClick(item: EasyListsListItem) {
         // update the item
         item.crossedOff = !item.crossedOff!!
+        item.crossedOffTimestamp = Instant.now().epochSecond
         viewModelScope.launch {
             updateListItemUseCase(item)
         }

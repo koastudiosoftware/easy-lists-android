@@ -12,6 +12,7 @@ import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.SetAppSettingsUseCase
 import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.common.GroupCrossedOffItems
+import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.models.SettingsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -47,10 +48,17 @@ class SettingsViewModel @Inject constructor(
             val groupCrossedOffItems =
                 result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
 
+            val sortCrossedOffItems =
+                result.find { it[KEY] == AppSettingsKeys.SortCrossedOffItems.key }?.get(VALUE)
+
             state = state.copy(
                 groupCrossedOffItems = GroupCrossedOffItems.from(
                     groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
                 ) ?: GroupCrossedOffItems.AllTogether,
+
+                sortCrossedOffItems = SortCrossedOffItems.from(
+                    sortCrossedOffItems ?: SortCrossedOffItems.MostRecentOnTop.toString()
+                ) ?: SortCrossedOffItems.MostRecentOnTop,
             )
         }
     }
@@ -80,6 +88,11 @@ class SettingsViewModel @Inject constructor(
                 state = state.copy(groupCrossedOffItems = e)
                 setStringAppSetting(key = AppSettingsKeys.GroupCrossedOffItems.key, value = e.value)
             }
+
+            is SortCrossedOffItems -> {
+                state = state.copy(sortCrossedOffItems = e)
+                setStringAppSetting(key = AppSettingsKeys.SortCrossedOffItems.key, value = e.value)
+            }
         }
     }
     //endregion
@@ -89,6 +102,7 @@ class SettingsViewModel @Inject constructor(
     fun <E : Enum<E>> listSettingsSelected(e: E): String {
         return when (e) {
             is GroupCrossedOffItems -> state.groupCrossedOffItems.toString()
+            is SortCrossedOffItems -> state.sortCrossedOffItems.toString()
             else -> ""
         }
     }

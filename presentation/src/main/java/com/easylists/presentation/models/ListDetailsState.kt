@@ -4,6 +4,7 @@ import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.ListOfListsAction
+import com.easylists.presentation.common.SortCrossedOffItems
 
 data class ListDetailsState(
     var actionButtonState: ListOfListsAction = ListOfListsAction.None,
@@ -26,6 +27,7 @@ data class ListDetailsState(
     var selectedCategoryIndex: Int = -1,
     var selectedItemUid: String = "",
     var showAddListItemBottomSheet: Boolean = false,
+    var sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
     var uiState: ListListUiState = ListListUiState.Idle
 )
 
