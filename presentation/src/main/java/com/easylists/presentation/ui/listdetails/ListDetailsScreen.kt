@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -41,7 +40,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +55,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.presentation.R
+import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
@@ -68,7 +67,6 @@ import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
-import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.pop
@@ -214,21 +212,60 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                 //endregion
 
                 //region crossed off items
-                val count = groupedItemList?.filterKeys {
-                    it.first == true
-                }?.count()
-                if (count != null && count > 0) {
-                    item {
-                        ListDetailsScreenCategoryTitle(stringResource(R.string.crossed_off))
-                    }
-                }
-                groupedItemList?.filterKeys {
-                    it.first == true
-                }?.keys?.forEach {
-                    item {
-                        groupedItemList.getValue(it).forEach {
-                            ListDetailsScreenListItem(it, viewModel)
+                when (viewModel.state.groupCrossedOffItems) {
+                    GroupCrossedOffItems.AllTogether -> {
+                        val count = groupedItemList?.filterKeys {
+                            it.first == true
+                        }?.count()
+                        if (count != null && count > 0) {
+                            item {
+                                ListDetailsScreenCategoryTitle(
+                                    stringResource(R.string.crossed_off),
+                                    true
+                                )
+                            }
                         }
+                        groupedItemList?.filterKeys {
+                            it.first == true
+                        }?.keys?.forEach {
+                            item {
+                                groupedItemList.getValue(it).forEach {
+                                    ListDetailsScreenListItem(it, viewModel)
+                                }
+                            }
+                        }
+                    }
+
+                    GroupCrossedOffItems.ByCategory -> {
+                        //region items with a category that are not crossed off
+                        groupedItemList?.filterKeys {
+                            it.first == true && it.second != "Uncategorized"
+                        }?.keys?.forEach {
+                            item {
+                                ListDetailsScreenCategoryTitle(it.second.toString(), true)
+                            }
+                            item {
+                                groupedItemList.getValue(it).forEach {
+                                    ListDetailsScreenListItem(it, viewModel)
+                                }
+                            }
+                        }
+                        //endregion
+
+                        //region uncategorized items that are not crossed off
+                        groupedItemList?.filterKeys {
+                            it.first == true && it.second == "Uncategorized"
+                        }?.keys?.forEach {
+                            item {
+                                ListDetailsScreenCategoryTitle(it.second.toString(), true)
+                            }
+                            item {
+                                groupedItemList.getValue(it).forEach {
+                                    ListDetailsScreenListItem(it, viewModel)
+                                }
+                            }
+                        }
+                        //endregion
                     }
                 }
                 //endregion
@@ -241,13 +278,13 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
 
 //region ListDetailsScreenCategoryTitle
 @Composable
-fun ListDetailsScreenCategoryTitle(title: String) {
+fun ListDetailsScreenCategoryTitle(title: String, crossedOff: Boolean = false) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = MaterialTheme.spaces.none)
             .background(
-                if (title == stringResource(R.string.crossed_off)) MaterialTheme.colorScheme.tertiaryContainer
+                if (crossedOff) MaterialTheme.colorScheme.tertiaryContainer
                 else MaterialTheme.colorScheme.primaryContainer
             )
     ) {

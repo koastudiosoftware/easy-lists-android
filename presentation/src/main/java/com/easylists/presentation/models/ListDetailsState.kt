@@ -2,11 +2,13 @@ package com.easylists.presentation.models
 
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
+import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.ListOfListsAction
 
 data class ListDetailsState(
     var actionButtonState: ListOfListsAction = ListOfListsAction.None,
     var categoryList: List<EasyListsCategory> = emptyList(),
+    var groupCrossedOffItems: GroupCrossedOffItems = GroupCrossedOffItems.AllTogether,
     var groupedItemList: Map<Pair<Boolean?, String?>, List<EasyListsListItem>>? = null,
     var isPullToRefreshing: Boolean = false,
     val listItemList: List<EasyListsListItem> = emptyList(),

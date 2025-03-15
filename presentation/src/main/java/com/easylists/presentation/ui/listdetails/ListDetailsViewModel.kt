@@ -5,13 +5,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.easylists.domain.common.KEY
+import com.easylists.domain.common.TYPE
+import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.use_cases.AddListItemFlowUseCase
+import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveListItemUseCase
 import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
+import com.easylists.presentation.common.AppSettingsKeys
+import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.ListOfListsAction
 import com.easylists.presentation.common.isNumeric
 import com.easylists.presentation.mappers.UiMapper
@@ -32,6 +38,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ListDetailsViewModel @Inject constructor(
+    private val getAppSettingsUseCase: GetAppSettingsUseCase,
     private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val getCategoryFlowUseCase: GetCategoryFlowUseCase,
     private val addListItemUseCase: AddListItemFlowUseCase,
@@ -48,13 +55,38 @@ class ListDetailsViewModel @Inject constructor(
 
 
     init {
-        // initAppSettings()
+         initAppSettings()
     }
 
 
     //region init
     fun init(listUid: String) {
         state = state.copy(listUid = listUid)
+    }
+    //endregion
+
+
+    //region initAppSettings()
+    fun initAppSettings() {
+        viewModelScope.launch {
+            val result = getAppSettingsUseCase(
+                keys = AppSettingsKeys.entries.map {
+                    mapOf(
+                        KEY to it.key,
+                        TYPE to it.type.toString()
+                    )
+                },
+            )
+
+            val groupCrossedOffItems =
+                result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
+
+            state = state.copy(
+                groupCrossedOffItems = GroupCrossedOffItems.from(
+                    groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
+                ) ?: GroupCrossedOffItems.AllTogether,
+            )
+        }
     }
     //endregion
 
