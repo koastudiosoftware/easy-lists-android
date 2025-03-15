@@ -1,5 +1,6 @@
 package com.easylists.data.di
 
+import com.easylists.data.repositories.AppSettingsRepositoryImpl
 import com.easylists.data.repositories.CategoryLocalDataSource
 import com.easylists.data.repositories.CategoryRepositoryImpl
 import com.easylists.data.repositories.ListItemLocalDataSource
@@ -12,6 +13,7 @@ import com.easylists.data.repositories.local.RoomListLocalDataSource
 import com.easylists.domain.repositories.CategoryRepository
 import com.easylists.domain.repositories.ListItemRepository
 import com.easylists.domain.repositories.ListRepository
+import com.easylists.domain.repositories.SettingsRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -22,8 +24,8 @@ import dagger.hilt.components.SingletonComponent
 abstract class DataModule {
 
     // Settings
-//    @Binds
-//    abstract fun bindAppRepository(appSettingsRepository: AppSettingsRepository): SettingsRepository
+    @Binds
+    abstract fun bindAppRepository(appSettingsRepository: AppSettingsRepositoryImpl): SettingsRepository
 
 
     // Category

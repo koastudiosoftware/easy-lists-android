@@ -57,6 +57,9 @@ dependencies {
 
     implementation(libs.converter.gson)
 
+    // Data Store
+    implementation(libs.androidx.datastore.preferences)
+
     // Arbor
     implementation(libs.arbor.jvm)
 }

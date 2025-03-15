@@ -2,8 +2,11 @@ package com.easylists.presentation.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -22,7 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import com.easylists.presentation.R
+import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
+import com.easylists.presentation.common.composables.ListSettingGroup
+import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Arrow_back
 import com.easylists.presentation.icons.Info
 import com.easylists.presentation.models.Screen
@@ -69,7 +75,7 @@ fun SettingsScreen(
             },
         ) {
 
-//            SettingsScreenContent(navController, viewModel, sharedViewModel)
+            SettingsScreenContent(navController, viewModel)
 
         }
     }
@@ -116,6 +122,38 @@ fun SettingsScreenTopAppBarNavigationIcon(navController: NavController<Screen>) 
             contentDescription = stringResource(R.string.return_to_previous_screen),
             modifier = Modifier.padding(start = MaterialTheme.spaces.mediumLarge),
         )
+    }
+}
+//endregion
+
+
+//region SettingsScreenContent
+@Composable
+fun SettingsScreenContent(
+    navController: NavController<Screen>,
+    viewModel: SettingsViewModel
+) {
+
+    LazyColumn(Modifier.fillMaxSize()) {
+        item {
+            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
+        }
+        item {
+            SectionTitle(
+                title = stringResource(id = R.string.list_items),
+                modifier = Modifier
+                    .padding(horizontal = MaterialTheme.spaces.large)
+                    .padding(top = MaterialTheme.spaces.large)
+            )
+        }
+        item {
+            ListSettingGroup(
+                "Group crossed-off items",
+                GroupCrossedOffItems.entries.toList(),
+                GroupCrossedOffItems.entries.indexOf(viewModel.state.groupCrossedOffItems),
+                viewModel
+            )
+        }
     }
 }
 //endregion

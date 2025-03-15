@@ -1,6 +1,10 @@
 package com.easylists.data.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.easylists.data.db.room.EasyListsDatabase
 import com.easylists.data.db.room.dao.CategoryDao
@@ -17,15 +21,15 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object LocalModule {
 
-//    @Provides
-//    @Singleton
-//    fun providePreferencesDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
-//        return PreferenceDataStoreFactory.create(
-//            produceFile = {
-//                context.preferencesDataStoreFile("app_settings")
-//            }
-//        )
-//    }
+    @Provides
+    @Singleton
+    fun providePreferencesDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
+            produceFile = {
+                context.preferencesDataStoreFile("app_settings")
+            }
+        )
+    }
 
 
     @Provides
