@@ -3,11 +3,15 @@ package com.easylists.data.mappers
 import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
+import com.easylists.data.db.room.models.ListItemUpdateEntity
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.github.davidepanidev.kotlinextensions.utils.serialization.SerializationManager
+import com.toxicbakery.logging.Arbor
+import java.time.Instant
 import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
 
 class RoomDataMapper @Inject constructor(
     private val serializationManager: SerializationManager,
@@ -91,7 +95,7 @@ class RoomDataMapper @Inject constructor(
                 name = entity.name,
                 notes = entity.notes,
                 quantity = entity.quantity,
-                crossedOff = entity.crossedOff,
+                crossedOff = entity.crossedOff == true,
                 sortOrder = entity.sortOrder,
                 createdTimestamp = entity.createdTimestamp,
                 modifiedTimestamp = entity.modifiedTimestamp,
@@ -111,8 +115,26 @@ class RoomDataMapper @Inject constructor(
             listUid = listItem.listUid,
             categoryUid = listItem.categoryUid,
             quantity = listItem.quantity,
-            crossedOff = listItem.crossedOff,
+            crossedOff = listItem.crossedOff == true,
         )
     }
     //endregion
+
+
+    //region mapEasyListsListItemToListItemUpdateEntity()
+    // maps an easy list to a list item entity
+    fun mapEasyListsListItemToListItemUpdateEntity(listItem: EasyListsListItem): ListItemUpdateEntity {
+        return ListItemUpdateEntity(
+            uid = listItem.uid.toString(),
+            name = listItem.name,
+            notes = listItem.notes,
+            sortOrder = listItem.sortOrder,
+            categoryUid = listItem.categoryUid,
+            quantity = listItem.quantity,
+            crossedOff = listItem.crossedOff == true,
+            modifiedTimestamp = Instant.now().epochSecond,
+        )
+    }
+    //endregion
+
 }

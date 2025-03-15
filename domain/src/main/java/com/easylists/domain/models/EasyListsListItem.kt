@@ -5,6 +5,7 @@ import java.time.Instant
 data class EasyListsListItem(
     var uid: String? = null,
     var listUid: String,
+    var category: String? = null,
     var categoryUid: String? = null,
     var name: String,
     var quantity: Int? = null,

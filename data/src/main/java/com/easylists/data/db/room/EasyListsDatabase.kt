@@ -9,6 +9,7 @@ import com.easylists.data.db.room.dao.ListItemDao
 import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
+import com.easylists.data.db.room.models.ListItemUpdateEntity
 
 @TypeConverters(Converters::class)
 @Database(
@@ -16,6 +17,7 @@ import com.easylists.data.db.room.models.ListItemEntity
         CategoryEntity::class,
         ListEntity::class,
         ListItemEntity::class,
+        ListItemUpdateEntity::class,
     ],
     version = 1,
     exportSchema = true,

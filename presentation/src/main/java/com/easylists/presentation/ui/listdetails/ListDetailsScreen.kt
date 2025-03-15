@@ -1,6 +1,7 @@
 package com.easylists.presentation.ui.listdetails
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +49,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.easylists.domain.models.EasyListsListItem
@@ -80,6 +84,16 @@ fun ListDetailsScreen(
 
     LaunchedEffect(key1 = null) {
         viewModel.init(sharedViewModel.listUid)
+    }
+
+    when (viewModel.state.nextDataFetchStage) {
+        "category" -> {
+            viewModel.initCategoryList()
+        }
+
+        "item" -> {
+            viewModel.initListItemsList()
+        }
     }
 
     Scaffold(
@@ -158,15 +172,93 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
     val lazyColumnState = rememberLazyListState()
     LazyColumn(
         state = lazyColumnState,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spaces.medium),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spaces.none),
     ) {
         item {
             HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
         }
 
-        itemsIndexed(viewModel.state.listItemList) { _, item ->
-            ListDetailsScreenListItem(item, viewModel)
+        when {
+            viewModel.state.groupedItemList != null -> {
+                val groupedItemList = viewModel.state.groupedItemList
+
+                //region items with a category that are not crossed off
+                groupedItemList?.filterKeys {
+                    it.first == false && it.second != "Uncategorized"
+                }?.keys?.forEach {
+                    item {
+                        ListDetailsScreenCategoryTitle(it.second.toString())
+                    }
+                    item {
+                        groupedItemList.getValue(it).forEach {
+                            ListDetailsScreenListItem(it, viewModel)
+                        }
+                    }
+                }
+                //endregion
+
+                //region uncategorized items that are not crossed off
+                groupedItemList?.filterKeys {
+                    it.first == false && it.second == "Uncategorized"
+                }?.keys?.forEach {
+                    item {
+                        ListDetailsScreenCategoryTitle(it.second.toString())
+                    }
+                    item {
+                        groupedItemList.getValue(it).forEach {
+                            ListDetailsScreenListItem(it, viewModel)
+                        }
+                    }
+                }
+                //endregion
+
+                //region crossed off items
+                val count = groupedItemList?.filterKeys {
+                    it.first == true
+                }?.count()
+                if (count != null && count > 0) {
+                    item {
+                        ListDetailsScreenCategoryTitle(stringResource(R.string.crossed_off))
+                    }
+                }
+                groupedItemList?.filterKeys {
+                    it.first == true
+                }?.keys?.forEach {
+                    item {
+                        groupedItemList.getValue(it).forEach {
+                            ListDetailsScreenListItem(it, viewModel)
+                        }
+                    }
+                }
+                //endregion
+            }
         }
+    }
+}
+//endregion
+
+
+//region ListDetailsScreenCategoryTitle
+@Composable
+fun ListDetailsScreenCategoryTitle(title: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.spaces.none)
+            .background(
+                if (title == stringResource(R.string.crossed_off)) MaterialTheme.colorScheme.tertiaryContainer
+                else MaterialTheme.colorScheme.primaryContainer
+            )
+    ) {
+        Text(
+            modifier = Modifier.padding(
+                horizontal = MaterialTheme.spaces.large,
+                vertical = MaterialTheme.spaces.medium
+            ),
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            style = MaterialTheme.typography.titleSmall,
+            text = title,
+        )
     }
 }
 //endregion
@@ -183,9 +275,7 @@ fun ListDetailsScreenListItem(
         modifier = Modifier
             .padding(horizontal = MaterialTheme.spaces.none)
             .combinedClickable(
-                onClick = {
-                    Arbor.i("Clicked ${item.name}")
-                },
+                onClick = { viewModel.onListItemClick(item) },
                 onLongClick = { viewModel.showContextIcons(item) }
             ),
     ) {
@@ -193,11 +283,8 @@ fun ListDetailsScreenListItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp)
-                .padding(horizontal = MaterialTheme.spaces.large)
-                .padding(
-                    top = MaterialTheme.spaces.medium,
-                    bottom = MaterialTheme.spaces.large
-                ),
+                .padding(start = MaterialTheme.spaces.large)
+                .padding(vertical = MaterialTheme.spaces.medium),
             verticalAlignment = Alignment.CenterVertically
         ) {
             var text = item.name
@@ -206,7 +293,8 @@ fun ListDetailsScreenListItem(
             Text(
                 modifier = Modifier.weight(1f),
                 overflow = TextOverflow.Ellipsis,
-                text = text
+                style = TextStyle(textDecoration = if (item.crossedOff == true) TextDecoration.LineThrough else TextDecoration.None),
+                text = text,
             )
             when {
                 viewModel.state.selectedItemUid == item.uid -> {
@@ -236,7 +324,6 @@ fun ListDetailsScreenListItem(
                             contentDescription = stringResource(R.string.view_item_details)
                         )
                     }
-//          style = TextStyle(textDecoration = TextDecoration.LineThrough)
                 }
             }
         }
@@ -476,7 +563,7 @@ fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel
                             onClick = {
                                 textFieldState.setTextAndPlaceCursorAtEnd(option.name)
                                 expanded.value = false
-//                                viewModel.onEventTypeChange(index)
+                                viewModel.onCategoryChange(index)
                             },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                         )

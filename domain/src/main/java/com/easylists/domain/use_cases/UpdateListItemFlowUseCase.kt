@@ -1,0 +1,18 @@
+package com.easylists.domain.use_cases
+
+import com.easylists.domain.models.EasyListsListItem
+import com.easylists.domain.repositories.ListItemRepository
+import com.toxicbakery.logging.Arbor
+import javax.inject.Inject
+
+class UpdateListItemFlowUseCase @Inject constructor(
+    private val listItemRepository: ListItemRepository
+) {
+
+    //region invoke()
+    suspend operator fun invoke(listItem: EasyListsListItem) {
+        listItemRepository.updateListItem(listItem = listItem)
+    }
+    //endregion
+
+}

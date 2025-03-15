@@ -57,4 +57,6 @@ dependencies {
 
     implementation(libs.converter.gson)
 
+    // Arbor
+    implementation(libs.arbor.jvm)
 }

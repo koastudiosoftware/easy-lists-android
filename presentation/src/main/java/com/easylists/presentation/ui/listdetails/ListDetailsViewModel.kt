@@ -11,6 +11,7 @@ import com.easylists.domain.use_cases.AddListItemFlowUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveListItemUseCase
+import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
 import com.easylists.presentation.common.ListOfListsAction
 import com.easylists.presentation.common.isNumeric
 import com.easylists.presentation.mappers.UiMapper
@@ -34,6 +35,7 @@ class ListDetailsViewModel @Inject constructor(
     private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val getCategoryFlowUseCase: GetCategoryFlowUseCase,
     private val addListItemUseCase: AddListItemFlowUseCase,
+    private val updateListItemUseCase: UpdateListItemFlowUseCase,
     private val removeListItemUseCase: RemoveListItemUseCase,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
@@ -53,8 +55,6 @@ class ListDetailsViewModel @Inject constructor(
     //region init
     fun init(listUid: String) {
         state = state.copy(listUid = listUid)
-        initListItemsList()
-        initCategoryList()
     }
     //endregion
 
@@ -66,12 +66,21 @@ class ListDetailsViewModel @Inject constructor(
                 listItem = EasyListsListItem(
                     listUid = state.listUid,
                     name = state.itemName,
+                    categoryUid = if (state.selectedCategoryIndex >= 0) state.categoryList[state.selectedCategoryIndex].uid else null,
                     notes = if (state.itemNotes.isEmpty()) null else state.itemNotes,
                     quantity = if (state.itemQuantity.isEmpty()) null else state.itemQuantity.toInt(),
                 ),
             )
 
             showAddListItemBottomSheet()
+            state = state.copy(
+                itemName = "",
+                itemNameInvalid = false,
+                itemNameInvalidMessage = "",
+                itemNotes = "",
+                itemQuantity = "",
+                selectedCategoryIndex = -1,
+            )
         }
     }
     //endregion
@@ -146,6 +155,13 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
+    //region onCategoryChange()
+    fun onCategoryChange(index: Int) {
+        state = state.copy(selectedCategoryIndex = index)
+    }
+    //endregion
+
+
     //region onItemNameChange()
     fun onItemNameChange(name: String) {
         var itemNameInvalidMessage: String
@@ -200,10 +216,29 @@ class ListDetailsViewModel @Inject constructor(
 
     private fun handleGetListItemState(result: Resultat<List<EasyListsListItem>?>) {
         result.onSuccess {
+            var groupedItemList: Map<Pair<Boolean?, String?>, List<EasyListsListItem>>? = null
+
+            if (state.categoryList.isNotEmpty() == true) {
+                // apply category to each item pulled from the database
+                it?.forEach {
+                    it.category = state.categoryList.find {
+                            category -> category.uid == it.categoryUid
+                    }?.name ?: "Uncategorized"
+                }
+
+                // group all items first by crossedOff then by category
+                groupedItemList = it?.map { item -> item }?.sortedBy {
+                    it.category
+                }?.groupBy {
+                    Pair(it.crossedOff, it.category)
+                }
+            }
+
             state = state.copy(
                 isPullToRefreshing = false,
-                // TODO this is where the sorting order should be applied
+                groupedItemList = groupedItemList,
                 listItemList = it?.map { item -> item } ?: emptyList(),
+                nextDataFetchStage = "",
             )
         }.onFailure {
             state = state.copy(
@@ -248,6 +283,7 @@ class ListDetailsViewModel @Inject constructor(
                 isPullToRefreshing = false,
                 // TODO this is where the sorting order should be applied
                 categoryList = it?.map { item -> item } ?: emptyList(),
+                nextDataFetchStage = "item",
             )
         }.onFailure {
             state = state.copy(
@@ -289,6 +325,17 @@ class ListDetailsViewModel @Inject constructor(
         state = state.copy(
             selectedItemUid = if (state.selectedItemUid.isEmpty()) item.uid.toString() else "",
         )
+    }
+    //endregion
+
+
+    //region onListItemClick
+    fun onListItemClick(item: EasyListsListItem) {
+        // update the item
+        item.crossedOff = !item.crossedOff!!
+        viewModelScope.launch {
+            updateListItemUseCase(item)
+        }
     }
     //endregion
 

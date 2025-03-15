@@ -7,6 +7,7 @@ import com.easylists.presentation.common.ListOfListsAction
 data class ListDetailsState(
     var actionButtonState: ListOfListsAction = ListOfListsAction.None,
     var categoryList: List<EasyListsCategory> = emptyList(),
+    var groupedItemList: Map<Pair<Boolean?, String?>, List<EasyListsListItem>>? = null,
     var isPullToRefreshing: Boolean = false,
     val listItemList: List<EasyListsListItem> = emptyList(),
     var itemName: String = "",
@@ -19,6 +20,8 @@ data class ListDetailsState(
     var itemQuantityInvalid: Boolean = false,
     var itemQuantityInvalidMessage: String = "",
     var listUid: String = "",
+    var nextDataFetchStage: String = "category",
+    var selectedCategoryIndex: Int = -1,
     var selectedItemUid: String = "",
     var showAddListItemBottomSheet: Boolean = false,
     var uiState: ListListUiState = ListListUiState.Idle
