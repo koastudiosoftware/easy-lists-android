@@ -30,6 +30,7 @@ data class ListDetailsState(
     var nextDataFetchStage: String = "category",
     var selectedCategoryIndex: Int = -1,
     var selectedItemUid: String = "",
+    var showConfirmationDialog: Boolean = false,
     var showListItemBottomSheet: Boolean = false,
     var sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
     var uiState: ListListUiState = ListListUiState.Idle

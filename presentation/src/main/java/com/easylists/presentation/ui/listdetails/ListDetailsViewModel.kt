@@ -423,4 +423,11 @@ class ListDetailsViewModel @Inject constructor(
     }
     //endregion
 
+
+    //region setShowConfirmationDialogState()
+    fun setShowConfirmationDialogState(newState: Boolean) {
+        state = state.copy(showConfirmationDialog = newState)
+    }
+    //endregion
+
 }

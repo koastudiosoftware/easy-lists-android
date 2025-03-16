@@ -1,7 +1,7 @@
 <resources>
 
     <string name="app_name">Easy Lists</string>
-    <string name="app_version">0.0.12</string>
+    <string name="app_version">0.0.13</string>
 
     <string name="lists">Lists</string>
     <string name="settings">Settings</string>
@@ -33,5 +33,15 @@
     <string name="crossed_off">Crossed Off</string>
 
     <string name="list_items">List Items</string>
+
+    <string name="confirm">Confirm</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="confirmation_dialog_warning_icon">Confirmation dialog warning icon</string>
+    <string name="confirm_removal">Confirm Removal</string>
+    <string name="remove_crossed_off_items_warning">Are you sure you want to remove all crossed off items from this list?</string>
+    <string name="remove_list_items_warning">Are you sure you want to remove the selected item from this list?</string>
+
+    <string name="delete_all_crossed_off_items">Delete All Crossed Off Items</string>
+
 
 </resources>

@@ -60,6 +60,7 @@ import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.SortCrossedOffItems
+import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
 import com.easylists.presentation.icons.Arrow_back
@@ -89,13 +90,8 @@ fun ListDetailsScreen(
     }
 
     when (viewModel.state.nextDataFetchStage) {
-        "category" -> {
-            viewModel.initCategoryList()
-        }
-
-        "item" -> {
-            viewModel.initListItemsList()
-        }
+        "category" -> viewModel.initCategoryList()
+        "item" -> viewModel.initListItemsList()
     }
 
     Scaffold(
@@ -124,6 +120,9 @@ fun ListDetailsScreen(
                 )
             },
         ) {
+
+            ConfirmRemoveCrossedOffItems(viewModel)
+            ConfirmRemoveListItem(viewModel)
 
             ListDetailsScreenListItemBottomSheet(viewModel)
 
@@ -363,17 +362,13 @@ fun ListDetailsScreenDeleteCrossedOffItems(viewModel: ListDetailsViewModel) {
             .height(52.dp)
             .padding(horizontal = MaterialTheme.spaces.large)
             .background(MaterialTheme.colorScheme.secondaryContainer)
-            .clickable(
-                onClick = {
-                    viewModel.deleteAllCrossedOffItems()
-                }
-            )
+            .clickable(onClick = { viewModel.setShowConfirmationDialogState(true) })
         ,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             color = MaterialTheme.colorScheme.inverseOnSurface,
-            text = "Delete All Crossed Off Items",
+            text = stringResource(R.string.delete_all_crossed_off_items),
         )
     }
 }
@@ -447,7 +442,7 @@ fun ListDetailsScreenListItem(
                         modifier = Modifier
                             .padding(vertical = MaterialTheme.spaces.none)
                     )
-                    IconButton(onClick = { viewModel.removeListItem() }) {
+                    IconButton(onClick = { viewModel.setShowConfirmationDialogState(true) }) {
                         Icon(
                             modifier = Modifier.weight(0.1f),
                             imageVector = Delete,
@@ -736,6 +731,50 @@ fun ListDetailsScreenTopAppBarNavigationIcon(navController: NavController<Screen
             contentDescription = stringResource(R.string.return_to_previous_screen),
             modifier = Modifier.padding(start = MaterialTheme.spaces.mediumLarge),
         )
+    }
+}
+//endregion
+
+
+//region ConfirmRemoveCrossedOffItems
+@Composable
+fun ConfirmRemoveCrossedOffItems(viewModel: ListDetailsViewModel) {
+    when {
+        viewModel.state.showConfirmationDialog == true -> {
+            ConfirmationDialog(
+                onDismissRequest = {
+                    viewModel.setShowConfirmationDialogState(false)
+                },
+                onConfirmation = {
+                    viewModel.deleteAllCrossedOffItems()
+                    viewModel.setShowConfirmationDialogState(false)
+                },
+                dialogTitle = stringResource(R.string.confirm_removal),
+                dialogText = stringResource(R.string.remove_crossed_off_items_warning),
+            )
+        }
+    }
+}
+//endregion
+
+
+//region ConfirmRemoveListItem
+@Composable
+fun ConfirmRemoveListItem(viewModel: ListDetailsViewModel) {
+    when {
+        viewModel.state.showConfirmationDialog == true -> {
+            ConfirmationDialog(
+                onDismissRequest = {
+                    viewModel.setShowConfirmationDialogState(false)
+                },
+                onConfirmation = {
+                    viewModel.removeListItem()
+                    viewModel.setShowConfirmationDialogState(false)
+                },
+                dialogTitle = stringResource(R.string.confirm_removal),
+                dialogText = stringResource(R.string.remove_list_items_warning),
+            )
+        }
     }
 }
 //endregion
