@@ -358,12 +358,12 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
 @Composable
 fun ListDetailsScreenDeleteCrossedOffItems(viewModel: ListDetailsViewModel) {
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .height(52.dp)
             .padding(horizontal = MaterialTheme.spaces.large)
             .background(MaterialTheme.colorScheme.secondaryContainer)
-            .clickable(onClick = { viewModel.setShowConfirmationDialogState(true) })
-        ,
+            .clickable(onClick = { viewModel.setShowConfirmationDialogState(true) }),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -424,18 +424,36 @@ fun ListDetailsScreenListItem(
                 .padding(vertical = MaterialTheme.spaces.medium),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            var text = item.name
-            if (item.quantity != null)
-                text += " (${item.quantity})"
-            Text(
-                modifier = Modifier.weight(1f),
-                overflow = TextOverflow.Ellipsis,
-                style = TextStyle(
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    textDecoration = if (item.crossedOff == true) TextDecoration.LineThrough else TextDecoration.None
-                ),
-                text = text,
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(end = MaterialTheme.spaces.medium)
+            ) {
+                var text = item.name
+                if (item.quantity != null)
+                    text += " (${item.quantity})"
+                Text(
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = TextStyle(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        textDecoration = if (item.crossedOff == true) TextDecoration.LineThrough else TextDecoration.None
+                    ),
+                    text = text,
+                )
+                when {
+                    item.notes?.isNotEmpty() == true -> {
+                        Text(
+                            color = MaterialTheme.colorScheme.inverseOnSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodyMedium,
+                            text = item.notes!!,
+                        )
+                    }
+                }
+            }
             when {
                 viewModel.state.selectedItemUid == item.uid -> {
                     VerticalDivider(
