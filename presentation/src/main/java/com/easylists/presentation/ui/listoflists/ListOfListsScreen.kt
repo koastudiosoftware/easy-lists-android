@@ -177,7 +177,8 @@ fun MasterListItem(
             .padding(
                 horizontal = MaterialTheme.spaces.large,
                 vertical = MaterialTheme.spaces.medium,
-            )
+            ),
+            verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 maxLines = 1,
@@ -185,7 +186,6 @@ fun MasterListItem(
                 style = MaterialTheme.typography.bodyLarge,
                 text = item.name
             )
-            Arbor.i("item.notes: ${item.notes}")
             when {
                 item.notes?.isNotEmpty() == true -> {
                     Text(

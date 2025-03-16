@@ -427,9 +427,9 @@ class ListDetailsViewModel @Inject constructor(
 
         state = state.copy(
             addEditMode = addEditMode,
-            categoryText = category?.name.toString(),
+            categoryText = category?.name ?: "",
             itemName = item.name,
-            itemNotes = item.notes.toString(),
+            itemNotes = item.notes ?: "",
             itemQuantity = item.quantity?.toString() ?: "",
             itemUid = item.uid.toString(),
             selectedCategoryIndex = index,
