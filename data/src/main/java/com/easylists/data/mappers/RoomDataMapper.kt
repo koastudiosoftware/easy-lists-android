@@ -40,10 +40,19 @@ class RoomDataMapper @Inject constructor(
     //region mapEasyListsListToListEntity()
     // maps an easy list to a list entity
     fun mapEasyListsCategoryToCategoryEntity(category: EasyListsCategory): CategoryEntity {
-        return CategoryEntity(
-            name = category.name,
-            sortOrder = category.sortOrder,
-        )
+        return if (category.uid == null) {
+            CategoryEntity(
+                name = category.name,
+                sortOrder = category.sortOrder,
+            )
+        } else {
+            CategoryEntity(
+                uid = category.uid!!,
+                name = category.name,
+                sortOrder = category.sortOrder,
+                createdTimestamp = category.createdTimestamp,
+            )
+        }
     }
     //endregion
 

@@ -10,6 +10,7 @@ import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
+import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.AddListItemFlowUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
@@ -24,25 +25,28 @@ import com.easylists.presentation.common.isNumeric
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListDetailsState
 import com.easylists.presentation.models.ListListUiState
-import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
 import fr.haan.resultat.onLoading
 import fr.haan.resultat.onSuccess
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @HiltViewModel
 class ListDetailsViewModel @Inject constructor(
     private val getAppSettingsUseCase: GetAppSettingsUseCase,
     private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val getCategoryFlowUseCase: GetCategoryFlowUseCase,
+    private val addCategoryUseCase: AddCategoryUseCase,
     private val addListItemUseCase: AddListItemFlowUseCase,
     private val updateListItemUseCase: UpdateListItemFlowUseCase,
     private val removeListItemUseCase: RemoveListItemUseCase,
@@ -101,12 +105,26 @@ class ListDetailsViewModel @Inject constructor(
 
 
     //region addListItem() :: Add a list item to the database
+    @OptIn(ExperimentalUuidApi::class)
     fun addListItem() {
         viewModelScope.launch {
+            var category: EasyListsCategory
+
+            var categoryUid = state.categoryList.find { it.name == state.categoryText }?.uid
+            if (categoryUid == null) {
+                categoryUid = Uuid.random().toString()
+                category = EasyListsCategory(
+                    uid = categoryUid,
+                    name = state.categoryText,
+                )
+                addCategoryUseCase(category)
+            }
+
+            delay(100L)     // allow a short time for the category to be added to the database
             var listItem = EasyListsListItem(
                 listUid = state.listUid,
                 name = state.itemName,
-                categoryUid = if (state.selectedCategoryIndex >= 0) state.categoryList[state.selectedCategoryIndex].uid else null,
+                categoryUid = categoryUid,
                 notes = if (state.itemNotes.isEmpty()) null else state.itemNotes,
                 quantity = if (state.itemQuantity.isEmpty()) null else state.itemQuantity.toInt(),
             )
@@ -120,6 +138,7 @@ class ListDetailsViewModel @Inject constructor(
 
             showListItemBottomSheet()
             state = state.copy(
+                categoryText = "",
                 itemName = "",
                 itemNameInvalid = false,
                 itemNameInvalidMessage = "",
@@ -210,7 +229,7 @@ class ListDetailsViewModel @Inject constructor(
 
     //region categoryFromIndex()
     fun categoryFromIndex(): String {
-        if (state.selectedCategoryIndex < 0) return ""
+        if (state.selectedCategoryIndex < 0) return state.categoryText
         return state.categoryList[state.selectedCategoryIndex].name
     }
     //endregion
@@ -218,7 +237,15 @@ class ListDetailsViewModel @Inject constructor(
 
     //region onCategoryChange()
     fun onCategoryChange(index: Int) {
-        state = state.copy(selectedCategoryIndex = index)
+        state = state.copy(
+            categoryText = state.categoryList[index].name,
+            selectedCategoryIndex = index
+        )
+    }
+
+
+    fun onCategoryChange(newCategory: String) {
+        state = state.copy(categoryText = newCategory)
     }
     //endregion
 
@@ -339,7 +366,6 @@ class ListDetailsViewModel @Inject constructor(
 
     private fun handleGetCategoryState(result: Resultat<List<EasyListsCategory>?>) {
         result.onSuccess {
-            Arbor.i("Categories received: $it")
             state = state.copy(
                 isPullToRefreshing = false,
                 // TODO this is where the sorting order should be applied

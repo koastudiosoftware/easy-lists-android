@@ -683,9 +683,9 @@ fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth(),
             label = { Text(text = stringResource(R.string.category)) },
-            onValueChange = { /* do nothing here, look at ExposedDropdownMenu below */ },
-            readOnly = true,
-            value = textFieldState.text.toString(),
+            onValueChange = { viewModel.onCategoryChange(it) },
+            readOnly = false,
+            value = viewModel.state.categoryText,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded.value) },
         )
         ExposedDropdownMenu(
