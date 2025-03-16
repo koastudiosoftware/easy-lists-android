@@ -2,6 +2,7 @@ package com.easylists.presentation.ui.listdetails
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -190,9 +191,12 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                     item {
                         ListDetailsScreenCategoryTitle(it.second.toString())
                     }
-                    item {
-                        groupedItemList.getValue(it).forEach {
+                    groupedItemList.getValue(it).forEach {
+                        item {
                             ListDetailsScreenListItem(it, viewModel)
+                        }
+                        item {
+                            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
                         }
                     }
                 }
@@ -205,20 +209,23 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                     item {
                         ListDetailsScreenCategoryTitle(it.second.toString())
                     }
-                    item {
-                        groupedItemList.getValue(it).forEach {
+                    groupedItemList.getValue(it).forEach {
+                        item {
                             ListDetailsScreenListItem(it, viewModel)
+                        }
+                        item {
+                            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
                         }
                     }
                 }
                 //endregion
 
                 //region crossed off items
+                val count = groupedItemList?.filterKeys {
+                    it.first == true
+                }?.count()
                 when (viewModel.state.groupCrossedOffItems) {
                     GroupCrossedOffItems.AllTogether -> {
-                        val count = groupedItemList?.filterKeys {
-                            it.first == true
-                        }?.count()
                         if (count != null && count > 0) {
                             item {
                                 ListDetailsScreenCategoryTitle(
@@ -241,6 +248,9 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                                 item {
                                     ListDetailsScreenListItem(it, viewModel)
                                 }
+                                item {
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
+                                }
                             }
                         } else {
                             crossedOffItems?.sortedBy {
@@ -249,6 +259,17 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                                 item {
                                     ListDetailsScreenListItem(it, viewModel)
                                 }
+                                item {
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
+                                }
+                            }
+                        }
+                        if (count != null && count > 0) {
+                            item {
+                                ListDetailsScreenDeleteCrossedOffItems(viewModel)
+                            }
+                            item {
+                                HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
                             }
                         }
                     }
@@ -261,16 +282,24 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                             item {
                                 ListDetailsScreenCategoryTitle(it.second.toString(), true)
                             }
-                            item {
-                                if (viewModel.state.sortCrossedOffItems == SortCrossedOffItems.MostRecentOnTop) {
-                                    groupedItemList.getValue(it).sortedByDescending {
-                                        it.crossedOffTimestamp
-                                    }.forEach {
+                            if (viewModel.state.sortCrossedOffItems == SortCrossedOffItems.MostRecentOnTop) {
+                                groupedItemList.getValue(it).sortedByDescending {
+                                    it.crossedOffTimestamp
+                                }.forEach {
+                                    item {
                                         ListDetailsScreenListItem(it, viewModel)
                                     }
-                                } else {
-                                    groupedItemList.getValue(it).forEach {
+                                    item {
+                                        HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
+                                    }
+                                }
+                            } else {
+                                groupedItemList.getValue(it).forEach {
+                                    item {
                                         ListDetailsScreenListItem(it, viewModel)
+                                    }
+                                    item {
+                                        HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
                                     }
                                 }
                             }
@@ -284,26 +313,68 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                             item {
                                 ListDetailsScreenCategoryTitle(it.second.toString(), true)
                             }
-                            item {
-                                if (viewModel.state.sortCrossedOffItems == SortCrossedOffItems.MostRecentOnTop) {
-                                    groupedItemList.getValue(it).sortedByDescending {
-                                        it.crossedOffTimestamp
-                                    }.forEach {
+                            if (viewModel.state.sortCrossedOffItems == SortCrossedOffItems.MostRecentOnTop) {
+                                groupedItemList.getValue(it).sortedByDescending {
+                                    it.crossedOffTimestamp
+                                }.forEach {
+                                    item {
                                         ListDetailsScreenListItem(it, viewModel)
                                     }
-                                } else {
-                                    groupedItemList.getValue(it).forEach {
+                                    item {
+                                        HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
+                                    }
+                                }
+                            } else {
+                                groupedItemList.getValue(it).forEach {
+                                    item {
                                         ListDetailsScreenListItem(it, viewModel)
+                                    }
+                                    item {
+                                        HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
                                     }
                                 }
                             }
                         }
                         //endregion
+
+                        if (count != null && count > 0) {
+                            item {
+                                ListDetailsScreenDeleteCrossedOffItems(viewModel)
+                            }
+                            item {
+                                HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
+                            }
+                        }
                     }
                 }
                 //endregion
             }
         }
+    }
+}
+//endregion
+
+
+//region ListDetailsScreenDeleteCrossedOffItems
+@Composable
+fun ListDetailsScreenDeleteCrossedOffItems(viewModel: ListDetailsViewModel) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .height(52.dp)
+            .padding(horizontal = MaterialTheme.spaces.large)
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .clickable(
+                onClick = {
+                    viewModel.deleteAllCrossedOffItems()
+                }
+            )
+        ,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            color = MaterialTheme.colorScheme.inverseOnSurface,
+            text = "Delete All Crossed Off Items",
+        )
     }
 }
 //endregion
@@ -328,7 +399,6 @@ fun ListDetailsScreenCategoryTitle(title: String, crossedOff: Boolean = false) {
             ),
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.bodySmall,
             text = title.uppercase(),
         )
     }
@@ -365,7 +435,10 @@ fun ListDetailsScreenListItem(
             Text(
                 modifier = Modifier.weight(1f),
                 overflow = TextOverflow.Ellipsis,
-                style = TextStyle(textDecoration = if (item.crossedOff == true) TextDecoration.LineThrough else TextDecoration.None),
+                style = TextStyle(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    textDecoration = if (item.crossedOff == true) TextDecoration.LineThrough else TextDecoration.None
+                ),
                 text = text,
             )
             when {

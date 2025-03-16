@@ -51,15 +51,15 @@ val SolarizedYellowRed = Color(0xFFC95E18)
 
 // individual colors universal to both light and dark themes
 val ColorScheme.earningsEstimate: Color @Composable
-get() = SolarizedBase1
+    get() = SolarizedBase1
 val ColorScheme.gain: Color @Composable
-get() = SolarizedGreen
+    get() = SolarizedGreen
 val ColorScheme.link: Color @Composable
-get() = SolarizedBlue
+    get() = SolarizedBlue
 val ColorScheme.loss: Color @Composable
-get() = SolarizedRed
+    get() = SolarizedRed
 val ColorScheme.tooltipContainer: Color @Composable
-get() = SolarizedViolet
+    get() = SolarizedViolet
 
 val defaultCardColorsLight = CardColors(
     containerColor = SolarizedBase2,
@@ -84,7 +84,7 @@ val onSecondaryLight = Color(0xFFFFFFFF)
 val secondaryContainerLight = SolarizedBase3            // selected nav button background
 val onSecondaryContainerLight = SolarizedBase01
 val tertiaryLight = Color(0xFF960082)
-val onTertiaryLight = Color(0xFFFFFFFF)
+val onTertiaryLight = SolarizedBase00
 val tertiaryContainerLight = SolarizedCyan
 val onTertiaryContainerLight = SolarizedBase3
 val errorLight = SolarizedRed
@@ -101,7 +101,7 @@ val outlineLight = SolarizedBase01                      // unfocused OutlinedTex
 val outlineVariantLight = SolarizedBase1_20             // horizontal divider
 val scrimLight = Color(0xFF000000)
 val inverseSurfaceLight = Color(0xFF332E3A)
-val inverseOnSurfaceLight = Color(0xFFF7EDFE)
+val inverseOnSurfaceLight = SolarizedBase00
 val inversePrimaryLight = Color(0xFFD4BBFF)
 val surfaceDimLight = Color(0xFFE0D7E7)
 val surfaceBrightLight = Color(0xFFFEF7FF)
@@ -192,7 +192,7 @@ val onSecondaryDark = Color(0xFF3E147C)
 val secondaryContainerDark = SolarizedBase03
 val onSecondaryContainerDark = SolarizedBase1
 val tertiaryDark = Color(0xFFFFADE5)
-val onTertiaryDark = Color(0xFF5E0051)
+val onTertiaryDark = SolarizedBase0
 val tertiaryContainerDark = SolarizedViolet
 val onTertiaryContainerDark = SolarizedBase2
 val errorDark = SolarizedRed

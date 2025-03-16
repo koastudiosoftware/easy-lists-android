@@ -412,4 +412,15 @@ class ListDetailsViewModel @Inject constructor(
     }
     //endregion
 
+
+    //region deleteAllCrossedOffItems()
+    fun deleteAllCrossedOffItems() {
+        viewModelScope.launch {
+            state.listItemList.filter { it.crossedOff == true }.forEach {
+                removeListItemUseCase(it.uid.toString())
+            }
+        }
+    }
+    //endregion
+
 }
