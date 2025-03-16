@@ -2,13 +2,10 @@ package com.easylists.presentation.common
 
 import com.easylists.domain.common.AppSettingsType
 
-//region ListOfListsAction
-enum class ListOfListsAction(val value: String) {
-    Add("Add"),
-    None("None"),
+enum class AddEditMode() {
+    Add,
+    Edit,
 }
-//endregion
-
 
 //region AppSettingsKeys
 enum class AppSettingsKeys(val key: String, val type: AppSettingsType) {
@@ -32,6 +29,14 @@ enum class GroupCrossedOffItems(val value: String) {
         infix fun from(value: String): GroupCrossedOffItems? =
             GroupCrossedOffItems.entries.firstOrNull { it.value == value }
     }
+}
+//endregion
+
+
+//region ListOfListsAction
+enum class ListOfListsAction(val value: String) {
+    Add("Add"),
+    None("None"),
 }
 //endregion
 

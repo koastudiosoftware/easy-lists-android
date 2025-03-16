@@ -16,9 +16,9 @@ import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveListItemUseCase
 import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
+import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.common.GroupCrossedOffItems
-import com.easylists.presentation.common.ListOfListsAction
 import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.common.isNumeric
 import com.easylists.presentation.mappers.UiMapper
@@ -53,11 +53,11 @@ class ListDetailsViewModel @Inject constructor(
     private var categoryListFlowJob: Job? = null
     private var listItemListFlowJob: Job? = null
 
-    var state by mutableStateOf( ListDetailsState() )
+    var state by mutableStateOf(ListDetailsState())
 
 
     init {
-         initAppSettings()
+        initAppSettings()
     }
 
 
@@ -103,17 +103,22 @@ class ListDetailsViewModel @Inject constructor(
     //region addListItem() :: Add a list item to the database
     fun addListItem() {
         viewModelScope.launch {
-            addListItemUseCase(
-                listItem = EasyListsListItem(
-                    listUid = state.listUid,
-                    name = state.itemName,
-                    categoryUid = if (state.selectedCategoryIndex >= 0) state.categoryList[state.selectedCategoryIndex].uid else null,
-                    notes = if (state.itemNotes.isEmpty()) null else state.itemNotes,
-                    quantity = if (state.itemQuantity.isEmpty()) null else state.itemQuantity.toInt(),
-                ),
+            var listItem = EasyListsListItem(
+                listUid = state.listUid,
+                name = state.itemName,
+                categoryUid = if (state.selectedCategoryIndex >= 0) state.categoryList[state.selectedCategoryIndex].uid else null,
+                notes = if (state.itemNotes.isEmpty()) null else state.itemNotes,
+                quantity = if (state.itemQuantity.isEmpty()) null else state.itemQuantity.toInt(),
             )
 
-            showAddListItemBottomSheet()
+            if (state.addEditMode == AddEditMode.Add) {
+                addListItemUseCase(listItem = listItem)
+            } else {
+                listItem.uid = state.itemUid
+                updateListItemUseCase(listItem = listItem)
+            }
+
+            showListItemBottomSheet()
             state = state.copy(
                 itemName = "",
                 itemNameInvalid = false,
@@ -137,16 +142,16 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
-    //region showAddListItemBottomSheet()
-    fun showAddListItemBottomSheet() {
-        state = state.copy(showAddListItemBottomSheet = !state.showAddListItemBottomSheet)
+    //region showListItemBottomSheet()
+    fun showListItemBottomSheet() {
+        state = state.copy(showListItemBottomSheet = !state.showListItemBottomSheet)
     }
     //endregion
 
 
     //region showAddListItemBottomSheet()
     fun onAddListItemBottomSheetDismiss() {
-        state = state.copy(showAddListItemBottomSheet = !state.showAddListItemBottomSheet)
+        state = state.copy(showListItemBottomSheet = !state.showListItemBottomSheet)
     }
     //endregion
 
@@ -172,9 +177,11 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
-    //region addListItemIconButtonEnabled()
-    fun addListItemIconButtonEnabled(): Boolean {
+    //region listItemIconButtonEnabled()
+    fun listItemIconButtonEnabled(): Boolean {
         if (state.itemName.isEmpty()) return false
+
+        if (state.addEditMode == AddEditMode.Edit) return true
 
         // don't allow duplicate item name
         if (state.listItemList.any { it.name.lowercase() == state.itemName.lowercase() }) return false
@@ -184,14 +191,27 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
-    //region onAddItemBottomSheetDismiss()
-    fun onAddItemBottomSheetDismiss() {
+    //region onItemBottomSheetDismiss()
+    fun onItemBottomSheetDismiss() {
         state = state.copy(
+            addEditMode = AddEditMode.Add,
+            itemUid = "",
             itemName = "",
+            itemNotes = "",
+            itemQuantity = "",
             itemNameInvalid = false,
             itemNameInvalidMessage = "",
-            showAddListItemBottomSheet = !state.showAddListItemBottomSheet,
+            selectedCategoryIndex = -1,
+            showListItemBottomSheet = !state.showListItemBottomSheet,
         )
+    }
+    //endregion
+
+
+    //region categoryFromIndex()
+    fun categoryFromIndex(): String {
+        if (state.selectedCategoryIndex < 0) return ""
+        return state.categoryList[state.selectedCategoryIndex].name
     }
     //endregion
 
@@ -206,7 +226,7 @@ class ListDetailsViewModel @Inject constructor(
     //region onItemNameChange()
     fun onItemNameChange(name: String) {
         var itemNameInvalidMessage: String
-        val isNameInvalid = (state.listItemList.any{
+        val isNameInvalid = (state.listItemList.any {
             it.name.lowercase() == name.lowercase()
         } == true).let {
             itemNameInvalidMessage = if (it) "Name already in use" else ""
@@ -262,8 +282,8 @@ class ListDetailsViewModel @Inject constructor(
             if (state.categoryList.isNotEmpty() == true) {
                 // apply category to each item pulled from the database
                 it?.forEach {
-                    it.category = state.categoryList.find {
-                            category -> category.uid == it.categoryUid
+                    it.category = state.categoryList.find { category ->
+                        category.uid == it.categoryUid
                     }?.name ?: "Uncategorized"
                 }
 
@@ -352,14 +372,6 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
-    //region onActionButtonClick()
-    fun onActionButtonClick(action: ListOfListsAction) {
-//        state = state.copy(actionButtonState = action)
-//        showAddListBottomSheet()
-    }
-    //endregion
-
-
     //region showContextIcons()
     fun showContextIcons(item: EasyListsListItem?) {
         if (item == null) return
@@ -378,6 +390,25 @@ class ListDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             updateListItemUseCase(item)
         }
+    }
+    //endregion
+
+
+    //region onListItemInfoClick()
+    fun onListItemInfoClick(item: EasyListsListItem, addEditMode: AddEditMode) {
+        val category = state.categoryList.find { it.uid == item.categoryUid }
+        val index = state.categoryList.indexOf(category)
+
+        state = state.copy(
+            addEditMode = addEditMode,
+            categoryText = category?.name.toString(),
+            itemName = item.name,
+            itemNotes = item.notes.toString(),
+            itemQuantity = item.quantity?.toString() ?: "",
+            itemUid = item.uid.toString(),
+            selectedCategoryIndex = index,
+            showListItemBottomSheet = true
+        )
     }
     //endregion
 

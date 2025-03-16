@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.presentation.R
+import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.SortCrossedOffItems
@@ -68,7 +69,6 @@ import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
-import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.pop
@@ -124,7 +124,7 @@ fun ListDetailsScreen(
             },
         ) {
 
-            ListDetailsScreenAddListItemBottomSheet(viewModel)
+            ListDetailsScreenListItemBottomSheet(viewModel)
 
             ListDetailsScreenContent(viewModel)
 
@@ -153,7 +153,7 @@ fun ListDetailsScreenTitle() {
 @Composable
 fun ListDetailsScreenActionIcons(viewModel: ListDetailsViewModel) {
     IconButton(onClick = {
-        viewModel.showAddListItemBottomSheet()
+        viewModel.showListItemBottomSheet()
     }) {
         Icon(
             modifier = Modifier,
@@ -385,10 +385,10 @@ fun ListDetailsScreenListItem(
 
                 else -> {
                     VerticalDivider(
-                        modifier = Modifier
-                            .padding(vertical = MaterialTheme.spaces.none)
+                        modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
                     )
                     IconButton(onClick = {
+                        viewModel.onListItemInfoClick(item, AddEditMode.Edit)
                     }) {
                         Icon(
                             modifier = Modifier.weight(0.1f),
@@ -441,14 +441,14 @@ fun ListDetailsScreenOverflowMenu(viewModel: ListDetailsViewModel) {
 //endregion
 
 
-//region ListOfListsScreenAddListBottomSheet
+//region ListDetailsScreenListItemBottomSheet
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListDetailsScreenAddListItemBottomSheet(viewModel: ListDetailsViewModel) {
+fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet = remember { mutableStateOf(false) }
 
-    when (viewModel.state.showAddListItemBottomSheet) {
+    when (viewModel.state.showListItemBottomSheet) {
         true -> showBottomSheet.value = true
         false -> showBottomSheet.value = false
     }
@@ -458,7 +458,7 @@ fun ListDetailsScreenAddListItemBottomSheet(viewModel: ListDetailsViewModel) {
             sheetState = sheetState,
             onDismissRequest = {
                 showBottomSheet.value = false
-                viewModel.onAddItemBottomSheetDismiss()
+                viewModel.onItemBottomSheetDismiss()
             },
             dragHandle = {
                 Column(
@@ -477,10 +477,13 @@ fun ListDetailsScreenAddListItemBottomSheet(viewModel: ListDetailsViewModel) {
                 LazyColumn(modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)) {
                     item {
                         SectionTitle(
-                            title = stringResource(R.string.add_item),
+                            title = stringResource(
+                                if (viewModel.state.addEditMode == AddEditMode.Add) R.string.add_item
+                                else R.string.edit_item
+                            ),
                             icon = {
                                 IconButton(
-                                    enabled = viewModel.addListItemIconButtonEnabled(),
+                                    enabled = viewModel.listItemIconButtonEnabled(),
                                     onClick = { viewModel.addListItem() },
                                 ) {
                                     Icon(
@@ -591,13 +594,13 @@ fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel
     var expanded = remember { mutableStateOf(false) }
     var textFieldState = rememberTextFieldState("")
 
-//    when {
-//        viewModel.state.eventTypeListUiData?.isNotEmpty() == true -> {
-//            textFieldState.setTextAndPlaceCursorAtEnd(
-//                viewModel.eventTypeNameFromIndex()
-//            )
-//        }
-//    }
+    when {
+        viewModel.state.categoryText.isNotEmpty() == true -> {
+            textFieldState.setTextAndPlaceCursorAtEnd(
+                viewModel.categoryFromIndex()
+            )
+        }
+    }
 
     ExposedDropdownMenuBox(
         modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
