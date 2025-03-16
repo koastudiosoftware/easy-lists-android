@@ -52,6 +52,7 @@ import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ListOfListsAction
 import com.easylists.presentation.common.SharedViewModel
+import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
 import com.easylists.presentation.icons.Check
@@ -61,6 +62,8 @@ import com.easylists.presentation.icons.Info
 import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.models.Screen
+import com.easylists.presentation.ui.listdetails.ConfirmRemoveListItem
+import com.easylists.presentation.ui.listdetails.ListDetailsViewModel
 import com.easylists.presentation.ui.theme.SolarizedRed
 import com.easylists.presentation.ui.theme.spaces
 import com.toxicbakery.logging.Arbor
@@ -104,6 +107,8 @@ fun ListOfListsScreen(
                 )
             },
         ) {
+
+            ConfirmRemoveList(viewModel)
 
             ListOfListsScreenAddListBottomSheet(viewModel)
 
@@ -228,7 +233,7 @@ fun MasterListItem(
                             modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
                         )
                         IconButton(
-                            onClick = { viewModel.removeList() }
+                            onClick = { viewModel.setShowConfirmationDialogState(true) }
                         ) {
                             Icon(
                                 modifier = Modifier,
@@ -271,88 +276,14 @@ fun ListOfListsScreenContent(
                         MasterListItem(item, viewModel, sharedViewModel, navController)
                     }
                 }
-//                itemsIndexed(viewModel.state.listList ?: emptyList()) { _, item ->
-//                    Row(
-//                        modifier = Modifier
-//                            .padding(horizontal = MaterialTheme.spaces.none)
-//                            .combinedClickable(
-//                                onClick = {
-//                                    sharedViewModel.listUid = item.uid.toString()
-//                                    navController.navigate(Screen.ListDetails)
-//                                },
-//                                onLongClick = { viewModel.showContextIcons(item) }
-//                            ),
-//                    ) {
-//                        Row(
-//                            modifier = Modifier
-//                            .fillMaxWidth()
-//                            .height(52.dp)
-//                            .padding(horizontal = MaterialTheme.spaces.large)
-//                            .padding(
-//                                top = MaterialTheme.spaces.medium,
-//                                bottom = MaterialTheme.spaces.large
-//                            ),
-//                            verticalAlignment = Alignment.CenterVertically
-//                        ) {
-//                            Arbor.i("item: $item")
-//                            Column(modifier = Modifier.fillMaxSize().weight(1f)) {
-//                                Text(
-//                                    maxLines = 1,
-//                                    overflow = TextOverflow.Ellipsis,
-//                                    style = MaterialTheme.typography.bodyLarge,
-//                                    text = item.name
-//                                )
-//                                when {
-//                                    item.notes?.isNotEmpty() == true -> {
-//                                        Arbor.i("item.notes: ${item.notes}")
-//                                        Text(
-//                                            color = SolarizedRed,
-//                                            maxLines = 1,
-//                                            overflow = TextOverflow.Ellipsis,
-//                                            style = MaterialTheme.typography.bodyMedium,
-//                                            text = item.notes ?: "null notes"
-//                                        )
-//                                    }
-//                                }
-//                            }
-//                            when {
-//                                viewModel.state.selectedListUid == item.uid -> {
-//                                    IconButton(
-//                                        modifier = Modifier.weight(0.1f),
-//                                        onClick = {
-////                                          viewModel.onActionButtonClick(ListOfListsAction.Add)
-//                                        }
-//                                    ) {
-//                                        Icon(
-//                                            modifier = Modifier,
-//                                            imageVector = Edit,
-//                                            contentDescription = stringResource(R.string.create_new_list)
-//                                        )
-//                                    }
-//                                    IconButton(
-//                                        modifier = Modifier.weight(0.1f),
-//                                        onClick = { viewModel.removeList() }
-//                                    ) {
-//                                        Icon(
-//                                            modifier = Modifier,
-//                                            imageVector = Delete,
-//                                            contentDescription = stringResource(R.string.create_new_list)
-//                                        )
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                    HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-//                }
             }
             else -> {
-//                item {
-//                    Text(
-//                        style = MaterialTheme.typography.titleLarge,
-//                        text = stringResource(R.string.no_lists_found)
-//                    )
-//                }
+                item {
+                    Text(
+                        style = MaterialTheme.typography.titleLarge,
+                        text = stringResource(R.string.no_lists_found)
+                    )
+                }
             }
         }
     }
@@ -513,6 +444,28 @@ fun ListOfListsScreenAddListBottomSheetListNotes(viewModel: ListOfListsViewModel
             label = { Text(text = stringResource(R.string.notes)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         )
+    }
+}
+//endregion
+
+
+//region ConfirmRemoveList
+@Composable
+fun ConfirmRemoveList(viewModel: ListOfListsViewModel) {
+    when {
+        viewModel.state.showConfirmationDialog == true -> {
+            ConfirmationDialog(
+                onDismissRequest = {
+                    viewModel.setShowConfirmationDialogState(false)
+                },
+                onConfirmation = {
+                    viewModel.removeList()
+                    viewModel.setShowConfirmationDialogState(false)
+                },
+                dialogTitle = stringResource(R.string.confirm_removal),
+                dialogText = stringResource(R.string.remove_list_warning),
+            )
+        }
     }
 }
 //endregion

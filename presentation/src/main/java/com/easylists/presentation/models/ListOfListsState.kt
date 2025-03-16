@@ -15,6 +15,7 @@ data class ListOfListsState(
     var listNotesInvalidMessage: String = "",
     var selectedListUid: String = "",
     var showAddListBottomSheet: Boolean = false,
+    var showConfirmationDialog: Boolean = false,
     var uiState: ListListUiState = ListListUiState.Idle
 )
 
