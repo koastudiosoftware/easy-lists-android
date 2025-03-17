@@ -86,7 +86,7 @@ fun ListDetailsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(key1 = null) {
-        viewModel.init(sharedViewModel.listUid)
+        viewModel.init(sharedViewModel.listUid, sharedViewModel.listName)
     }
 
     when (viewModel.state.nextDataFetchStage) {
@@ -99,7 +99,7 @@ fun ListDetailsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { ListDetailsScreenTitle() },
+                title = { ListDetailsScreenTitle(viewModel) },
                 navigationIcon = { ListDetailsScreenTopAppBarNavigationIcon(navController) },
                 actions = { ListDetailsScreenActionIcons(viewModel) },
             )
@@ -136,14 +136,13 @@ fun ListDetailsScreen(
 
 //region ListDetailsScreenTitle
 @Composable
-fun ListDetailsScreenTitle() {
+fun ListDetailsScreenTitle(viewModel: ListDetailsViewModel) {
     Row(
         modifier = Modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
-        // TODO this needs to be changed to show the list name
-        Text(text = stringResource(R.string.app_name))
+        Text(text = viewModel.state.listName)
     }
 }
 //endregion
