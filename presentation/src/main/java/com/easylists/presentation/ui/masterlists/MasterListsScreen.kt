@@ -53,7 +53,7 @@ import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
 import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Delete
-import com.easylists.presentation.icons.Edit
+import com.easylists.presentation.icons.Info
 import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.models.Screen
@@ -193,6 +193,21 @@ fun MasterListItem(
                 }
             }
         }
+        VerticalDivider(
+            modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
+        )
+        IconButton(
+            modifier = Modifier.weight(0.15f),
+            onClick = {
+                viewModel.onListEditButtonClick(list = list)
+            }
+        ) {
+            Icon(
+                modifier = Modifier,
+                imageVector = Info,
+                contentDescription = stringResource(R.string.create_new_list)
+            )
+        }
 
         when {
             viewModel.state.selectedListUid == list.uid -> {
@@ -205,20 +220,6 @@ fun MasterListItem(
                     )
                 ) {
                     Row(modifier = Modifier.fillMaxSize()) {
-                        VerticalDivider(
-                            modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
-                        )
-                        IconButton(
-                            onClick = {
-                                viewModel.onListEditButtonClick(list = list)
-                            }
-                        ) {
-                            Icon(
-                                modifier = Modifier,
-                                imageVector = Edit,
-                                contentDescription = stringResource(R.string.create_new_list)
-                            )
-                        }
                         VerticalDivider(
                             modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
                         )
