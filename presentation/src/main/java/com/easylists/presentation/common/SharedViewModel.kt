@@ -5,5 +5,6 @@ import androidx.lifecycle.ViewModel
 class SharedViewModel: ViewModel() {
 
     var listUid = ""
+    var listName = ""
 
 }

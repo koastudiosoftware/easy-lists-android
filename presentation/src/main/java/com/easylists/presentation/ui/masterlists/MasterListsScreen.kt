@@ -160,6 +160,7 @@ fun MasterListItem(
             .combinedClickable(
                 onClick = {
                     sharedViewModel.listUid = list.uid.toString()
+                    sharedViewModel.listName = list.name.toString()
                     navController.navigate(Screen.ListDetails)
                 },
                 onLongClick = { viewModel.showContextIcons(list) }

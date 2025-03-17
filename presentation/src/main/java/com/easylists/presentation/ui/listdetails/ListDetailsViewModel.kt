@@ -66,8 +66,11 @@ class ListDetailsViewModel @Inject constructor(
 
 
     //region init
-    fun init(listUid: String) {
-        state = state.copy(listUid = listUid)
+    fun init(listUid: String, listName: String) {
+        state = state.copy(
+            listName = listName,
+            listUid = listUid
+        )
     }
     //endregion
 

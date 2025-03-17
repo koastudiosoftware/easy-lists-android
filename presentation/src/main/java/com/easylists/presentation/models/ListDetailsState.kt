@@ -26,6 +26,7 @@ data class ListDetailsState(
     var itemQuantity: String = "",
     var itemQuantityInvalid: Boolean = false,
     var itemQuantityInvalidMessage: String = "",
+    var listName: String = "",
     var listUid: String = "",
     var nextDataFetchStage: String = "category",
     var selectedCategoryIndex: Int = -1,
