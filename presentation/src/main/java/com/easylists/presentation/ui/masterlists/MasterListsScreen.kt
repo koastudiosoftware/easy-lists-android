@@ -166,13 +166,14 @@ fun MasterListItem(
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .weight(1f)
-            .padding(
-                horizontal = MaterialTheme.spaces.large,
-                vertical = MaterialTheme.spaces.medium,
-            ),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f)
+                .padding(
+                    horizontal = MaterialTheme.spaces.large,
+                    vertical = MaterialTheme.spaces.medium,
+                ),
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
@@ -197,7 +198,7 @@ fun MasterListItem(
             modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
         )
         IconButton(
-            modifier = Modifier.weight(0.15f),
+            modifier = Modifier.weight(0.16f),
             onClick = {
                 viewModel.onListEditButtonClick(list = list)
             }
@@ -211,27 +212,26 @@ fun MasterListItem(
 
         when {
             viewModel.state.selectedListUid == list.uid -> {
-                Column(modifier = Modifier
-                    .fillMaxSize()
-                    .weight(0.33f)
-                    .padding(
-                        horizontal = MaterialTheme.spaces.small,
-                        vertical = MaterialTheme.spaces.medium,
-                    )
-                ) {
-                    Row(modifier = Modifier.fillMaxSize()) {
-                        VerticalDivider(
-                            modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(0.22f)
+                        .padding(
+                            horizontal = MaterialTheme.spaces.medium,
+                            vertical = MaterialTheme.spaces.medium,
                         )
-                        IconButton(
-                            onClick = { viewModel.setShowConfirmationDialogState(true) }
-                        ) {
-                            Icon(
-                                modifier = Modifier,
-                                imageVector = Delete,
-                                contentDescription = stringResource(R.string.create_new_list)
-                            )
-                        }
+                ) {
+                    VerticalDivider(
+                        modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
+                    )
+                    IconButton(
+                        onClick = { viewModel.setShowConfirmationDialogState(true) }
+                    ) {
+                        Icon(
+                            modifier = Modifier,
+                            imageVector = Delete,
+                            contentDescription = stringResource(R.string.create_new_list)
+                        )
                     }
                 }
             }
@@ -268,6 +268,7 @@ fun MasterListsScreenContent(
                     }
                 }
             }
+
             else -> {
                 item {
                     Text(
@@ -364,7 +365,8 @@ fun MasterListsScreenListBottomSheet(viewModel: MasterListsViewModel) {
                             icon = {
                                 IconButton(
                                     enabled = viewModel.listIconButtonEnabled(),
-                                    onClick = { viewModel.addList()
+                                    onClick = {
+                                        viewModel.addList()
                                     },
                                 ) {
                                     Icon(
