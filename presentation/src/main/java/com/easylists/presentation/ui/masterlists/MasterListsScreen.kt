@@ -432,7 +432,6 @@ fun MasterListsScreenListBottomSheetListNotes(viewModel: MasterListsViewModel) {
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(160.dp)
                 .padding(horizontal = MaterialTheme.spaces.medium)
                 .padding(top = MaterialTheme.spaces.medium),
             value = viewModel.listNotes(),
