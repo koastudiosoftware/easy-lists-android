@@ -111,7 +111,7 @@ class ListDetailsViewModel @Inject constructor(
             var category: EasyListsCategory
 
             var categoryUid = state.categoryList.find { it.name == state.categoryText }?.uid
-            if (categoryUid == null) {
+            if (categoryUid == null && state.categoryText.isNotEmpty()) {
                 categoryUid = Uuid.random().toString()
                 category = EasyListsCategory(
                     uid = categoryUid,
@@ -163,13 +163,6 @@ class ListDetailsViewModel @Inject constructor(
 
     //region showListItemBottomSheet()
     fun showListItemBottomSheet() {
-        state = state.copy(showListItemBottomSheet = !state.showListItemBottomSheet)
-    }
-    //endregion
-
-
-    //region showAddListItemBottomSheet()
-    fun onAddListItemBottomSheetDismiss() {
         state = state.copy(showListItemBottomSheet = !state.showListItemBottomSheet)
     }
     //endregion
