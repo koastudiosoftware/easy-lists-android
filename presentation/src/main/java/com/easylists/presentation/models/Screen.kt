@@ -6,7 +6,7 @@ import kotlinx.parcelize.Parcelize
 sealed interface Screen : Parcelable {
 
     @Parcelize
-    object ListOfLists : Screen
+    object MasterLists : Screen
 
     @Parcelize
     object ListDetails : Screen

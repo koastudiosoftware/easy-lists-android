@@ -33,8 +33,8 @@ enum class GroupCrossedOffItems(val value: String) {
 //endregion
 
 
-//region ListOfListsAction
-enum class ListOfListsAction(val value: String) {
+//region MasterListsAction
+enum class MasterListsAction(val value: String) {
     Add("Add"),
     None("None"),
 }

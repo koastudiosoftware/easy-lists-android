@@ -2,10 +2,10 @@ package com.easylists.presentation.models
 
 import com.easylists.domain.models.EasyListsList
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.ListOfListsAction
+import com.easylists.presentation.common.MasterListsAction
 
-data class ListOfListsState(
-    var actionButtonState: ListOfListsAction = ListOfListsAction.None,
+data class MasterListsState(
+    var actionButtonState: MasterListsAction = MasterListsAction.None,
     var addEditMode: AddEditMode = AddEditMode.Add,
     var isPullToRefreshing: Boolean = false,
     var listList: List<EasyListsList>? = null,

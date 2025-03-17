@@ -1,4 +1,4 @@
-package com.easylists.presentation.ui.listoflists
+package com.easylists.presentation.ui.masterlists
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import com.easylists.domain.models.EasyListsList
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.ListOfListsAction
+import com.easylists.presentation.common.MasterListsAction
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
@@ -64,10 +64,10 @@ import dev.olshevski.navigation.reimagined.navigate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListOfListsScreen(
+fun MasterListsScreen(
     navController: NavController<Screen>,
     sharedViewModel: SharedViewModel,
-    viewModel: ListOfListsViewModel = hiltViewModel()
+    viewModel: MasterListsViewModel = hiltViewModel()
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -77,8 +77,8 @@ fun ListOfListsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { ListOfListsScreenTitle() },
-                actions = { ListOfListsScreenActionIcons(navController, viewModel) },
+                title = { MasterListsScreenTitle() },
+                actions = { MasterListsScreenActionIcons(navController, viewModel) },
             )
         }
     ) { innerPadding ->
@@ -102,7 +102,7 @@ fun ListOfListsScreen(
 
             MasterListsScreenListBottomSheet(viewModel)
 
-            ListOfListsScreenContent(navController, viewModel, sharedViewModel)
+            MasterListsScreenContent(navController, viewModel, sharedViewModel)
 
         }
     }
@@ -110,9 +110,9 @@ fun ListOfListsScreen(
 }
 
 
-//region ListOfListsScreenTitle
+//region MasterListsScreenTitle
 @Composable
-fun ListOfListsScreenTitle() {
+fun MasterListsScreenTitle() {
     Row(
         modifier = Modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -124,14 +124,14 @@ fun ListOfListsScreenTitle() {
 //endregion
 
 
-//region ListOfListsScreenActionIcons
+//region MasterListsScreenActionIcons
 @Composable
-fun ListOfListsScreenActionIcons(
+fun MasterListsScreenActionIcons(
     navController: NavController<Screen>,
-    viewModel: ListOfListsViewModel
+    viewModel: MasterListsViewModel
 ) {
     IconButton(onClick = {
-        viewModel.onActionButtonClick(ListOfListsAction.Add)
+        viewModel.onActionButtonClick(MasterListsAction.Add)
     }) {
         Icon(
             modifier = Modifier,
@@ -139,7 +139,7 @@ fun ListOfListsScreenActionIcons(
             contentDescription = stringResource(R.string.create_new_list)
         )
     }
-    ListOfListsScreenOverflowMenu(navController, viewModel)
+    MasterListsScreenOverflowMenu(navController, viewModel)
 }
 //endregion
 
@@ -149,7 +149,7 @@ fun ListOfListsScreenActionIcons(
 @Composable
 fun MasterListItem(
     list: EasyListsList,
-    viewModel: ListOfListsViewModel,
+    viewModel: MasterListsViewModel,
     sharedViewModel: SharedViewModel,
     navController: NavController<Screen>,
 ) {
@@ -242,12 +242,12 @@ fun MasterListItem(
 //endregion
 
 
-//region ListOfListsScreenContent
+//region MasterListsScreenContent
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ListOfListsScreenContent(
+fun MasterListsScreenContent(
     navController: NavController<Screen>,
-    viewModel: ListOfListsViewModel,
+    viewModel: MasterListsViewModel,
     sharedViewModel: SharedViewModel
 ) {
     val lazyColumnState = rememberLazyListState()
@@ -281,11 +281,11 @@ fun ListOfListsScreenContent(
 //endregion
 
 
-//region ListOfListsScreenOverflowMenu
+//region MasterListsScreenOverflowMenu
 @Composable
-fun ListOfListsScreenOverflowMenu(
+fun MasterListsScreenOverflowMenu(
     navController: NavController<Screen>,
-    viewModel: ListOfListsViewModel
+    viewModel: MasterListsViewModel
 ) {
     var expanded = remember { mutableStateOf(false) }
 
@@ -323,7 +323,7 @@ fun ListOfListsScreenOverflowMenu(
 //region MasterListsScreenListBottomSheet
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MasterListsScreenListBottomSheet(viewModel: ListOfListsViewModel) {
+fun MasterListsScreenListBottomSheet(viewModel: MasterListsViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet = remember { mutableStateOf(false) }
 
@@ -377,11 +377,11 @@ fun MasterListsScreenListBottomSheet(viewModel: ListOfListsViewModel) {
                     }
 
                     item {
-                        ListOfListsScreenAddListBottomSheetListName(viewModel)
+                        MasterListsScreenListBottomSheetListName(viewModel)
                     }
 
                     item {
-                        ListOfListsScreenAddListBottomSheetListNotes(viewModel)
+                        MasterListsScreenListBottomSheetListNotes(viewModel)
                     }
 
                 }
@@ -392,9 +392,9 @@ fun MasterListsScreenListBottomSheet(viewModel: ListOfListsViewModel) {
 //endregion
 
 
-//region ListOfListsScreenAddListBottomSheetListName
+//region MasterListsScreenListBottomSheetListName
 @Composable
-fun ListOfListsScreenAddListBottomSheetListName(viewModel: ListOfListsViewModel) {
+fun MasterListsScreenListBottomSheetListName(viewModel: MasterListsViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
         TextField(
             modifier = Modifier
@@ -422,9 +422,9 @@ fun ListOfListsScreenAddListBottomSheetListName(viewModel: ListOfListsViewModel)
 //endregion
 
 
-//region ListOfListsScreenAddListBottomSheetListNotes
+//region MasterListsScreenListBottomSheetListNotes
 @Composable
-fun ListOfListsScreenAddListBottomSheetListNotes(viewModel: ListOfListsViewModel) {
+fun MasterListsScreenListBottomSheetListNotes(viewModel: MasterListsViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
         TextField(
             modifier = Modifier
@@ -444,7 +444,7 @@ fun ListOfListsScreenAddListBottomSheetListNotes(viewModel: ListOfListsViewModel
 
 //region ConfirmRemoveList
 @Composable
-fun ConfirmRemoveList(viewModel: ListOfListsViewModel) {
+fun ConfirmRemoveList(viewModel: MasterListsViewModel) {
     when {
         viewModel.state.showConfirmationDialog == true -> {
             ConfirmationDialog(

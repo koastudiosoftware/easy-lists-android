@@ -4,11 +4,11 @@ import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.GroupCrossedOffItems
-import com.easylists.presentation.common.ListOfListsAction
+import com.easylists.presentation.common.MasterListsAction
 import com.easylists.presentation.common.SortCrossedOffItems
 
 data class ListDetailsState(
-    var actionButtonState: ListOfListsAction = ListOfListsAction.None,
+    var actionButtonState: MasterListsAction = MasterListsAction.None,
     var addEditMode: AddEditMode = AddEditMode.Add,
     var categoryList: List<EasyListsCategory> = emptyList(),
     var categoryText: String = "",

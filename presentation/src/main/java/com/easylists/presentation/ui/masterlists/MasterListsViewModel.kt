@@ -1,4 +1,4 @@
-package com.easylists.presentation.ui.listoflists
+package com.easylists.presentation.ui.masterlists
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,10 +11,10 @@ import com.easylists.domain.use_cases.GetListFlowUseCase
 import com.easylists.domain.use_cases.RemoveListUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.ListOfListsAction
+import com.easylists.presentation.common.MasterListsAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListListUiState
-import com.easylists.presentation.models.ListOfListsState
+import com.easylists.presentation.models.MasterListsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ListOfListsViewModel @Inject constructor(
+class MasterListsViewModel @Inject constructor(
     private val getListListFlowUseCase: GetListFlowUseCase,
     private val addListUseCase: AddListFlowUseCase,
     private val updateListUseCase: UpdateListUseCase,
@@ -39,7 +39,7 @@ class ListOfListsViewModel @Inject constructor(
 
     private var listListFlowJob: Job? = null
 
-    var state by mutableStateOf( ListOfListsState() )
+    var state by mutableStateOf( MasterListsState() )
 
 
     init {
@@ -190,7 +190,7 @@ class ListOfListsViewModel @Inject constructor(
 
 
     //region onActionButtonClick()
-    fun onActionButtonClick(action: ListOfListsAction) {
+    fun onActionButtonClick(action: MasterListsAction) {
         state = state.copy(actionButtonState = action)
         showListBottomSheet()
     }
