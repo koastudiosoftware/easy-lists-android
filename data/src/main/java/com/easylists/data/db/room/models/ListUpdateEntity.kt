@@ -7,27 +7,14 @@ import com.google.gson.annotations.SerializedName
 import java.time.Instant
 
 @Entity
-data class ListItemUpdateEntity(
+data class ListUpdateEntity(
 
     @PrimaryKey
     val uid: String,
 
-    @ColumnInfo(name = "category_uid")
-    val categoryUid: String? = null,
-
     val name: String,
 
     val notes: String? = null,
-
-    val quantity: Int? = null,
-
-    @ColumnInfo(name = "crossed_off")
-    @SerializedName(value = "crossed_off")
-    val crossedOff: Boolean? = null,
-
-    @ColumnInfo(name = "crossed_off_timestamp")
-    @SerializedName(value = "crossed_off_timestamp")
-    val crossedOffTimestamp: Long? = null,
 
     @ColumnInfo(name = "sort_order")
     @SerializedName(value = "sort_order")

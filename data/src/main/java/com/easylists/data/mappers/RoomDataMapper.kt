@@ -4,6 +4,7 @@ import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
 import com.easylists.data.db.room.models.ListItemUpdateEntity
+import com.easylists.data.db.room.models.ListUpdateEntity
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
@@ -84,6 +85,20 @@ class RoomDataMapper @Inject constructor(
             name = list.name,
             notes = list.notes,
             sortOrder = list.sortOrder,
+        )
+    }
+    //endregion
+
+
+    //region mapEasyListsListToListEntity()
+    // maps an easy list to a list entity
+    fun mapEasyListsListToListUpdateEntity(list: EasyListsList): ListUpdateEntity {
+        return ListUpdateEntity(
+            uid = list.uid.toString(),
+            name = list.name,
+            notes = list.notes,
+            sortOrder = list.sortOrder,
+            modifiedTimestamp = Instant.now().epochSecond,
         )
     }
     //endregion

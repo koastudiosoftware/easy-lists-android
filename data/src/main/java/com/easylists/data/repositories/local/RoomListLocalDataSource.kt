@@ -42,4 +42,12 @@ class RoomListLocalDataSource @Inject constructor(
     }
     //endregion
 
+
+    //region update()
+    override suspend fun update(list: EasyListsList) {
+        val mappedList = mapper.mapEasyListsListToListUpdateEntity(list)
+        return dao.updatePartial(listUpdateEntity = mappedList)
+    }
+    //endregion
+
 }

@@ -9,11 +9,12 @@ import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.use_cases.AddListFlowUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
 import com.easylists.domain.use_cases.RemoveListUseCase
+import com.easylists.domain.use_cases.UpdateListUseCase
+import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ListOfListsAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListListUiState
 import com.easylists.presentation.models.ListOfListsState
-import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -30,6 +31,7 @@ import javax.inject.Inject
 class ListOfListsViewModel @Inject constructor(
     private val getListListFlowUseCase: GetListFlowUseCase,
     private val addListUseCase: AddListFlowUseCase,
+    private val updateListUseCase: UpdateListUseCase,
     private val removeListUseCase: RemoveListUseCase,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
@@ -48,14 +50,20 @@ class ListOfListsViewModel @Inject constructor(
     //region addList() :: Add a list to the database
     fun addList() {
         viewModelScope.launch {
-            addListUseCase(
-                list = EasyListsList(
-                    name = state.listName,
-                    notes = if (state.listNotes.isEmpty()) null else state.listNotes
-                )
+            var list = EasyListsList(
+                name = state.listName,
+                notes = if (state.listNotes.isEmpty()) null else state.listNotes
             )
 
-            showAddListBottomSheet()
+            if (state.addEditMode == AddEditMode.Add) {
+                addListUseCase(list = list)
+            } else {
+                list.uid = state.listUid
+                updateListUseCase(list = list)
+            }
+
+            showListBottomSheet()
+            state = state.copy(selectedListUid = "")
         }
     }
     //endregion
@@ -71,15 +79,23 @@ class ListOfListsViewModel @Inject constructor(
     //endregion
 
 
-    //region showAddListBottomSheet()
-    fun showAddListBottomSheet() {
-        state = state.copy(showAddListBottomSheet = !state.showAddListBottomSheet)
+    //region showListBottomSheet()
+    fun showListBottomSheet() {
+        state = state.copy(showListBottomSheet = !state.showListBottomSheet)
     }
     //endregion
 
 
-    //region addListIconButtonEnabled()
-    fun addListIconButtonEnabled(): Boolean {
+    //region listIconButtonEnabled()
+    fun listIconButtonEnabled(): Boolean {
+        if (state.listName.isEmpty()) return false
+
+        if (state.addEditMode == AddEditMode.Edit) return true
+
+        // don't allow duplicate list name
+        if (state.listList?.any { it.name.lowercase() == state.listName.lowercase() } == true)
+            return false
+
         return true
     }
     //endregion
@@ -95,18 +111,6 @@ class ListOfListsViewModel @Inject constructor(
     //region listName()
     fun listNotes(): String {
         return state.listNotes
-    }
-    //endregion
-
-
-    //region onAddListBottomSheetDismiss()
-    fun onAddListBottomSheetDismiss() {
-        state = state.copy(
-            listName = "",
-            listNameInvalid = false,
-            listNameInvalidMessage = "",
-            showAddListBottomSheet = !state.showAddListBottomSheet,
-        )
     }
     //endregion
 
@@ -188,7 +192,20 @@ class ListOfListsViewModel @Inject constructor(
     //region onActionButtonClick()
     fun onActionButtonClick(action: ListOfListsAction) {
         state = state.copy(actionButtonState = action)
-        showAddListBottomSheet()
+        showListBottomSheet()
+    }
+    //endregion
+
+
+    //region onListEditButtonClick()
+    fun onListEditButtonClick(list: EasyListsList) {
+        state = state.copy(
+            addEditMode = AddEditMode.Edit,
+            listUid = list.uid.toString(),
+            listName = list.name,
+            listNotes = list.notes ?: "",
+        )
+        showListBottomSheet()
     }
     //endregion
 
@@ -209,4 +226,18 @@ class ListOfListsViewModel @Inject constructor(
     }
     //endregion
 
+
+    //region onItemBottomSheetDismiss()
+    fun onListBottomSheetDismiss() {
+        state = state.copy(
+            addEditMode = AddEditMode.Add,
+            listUid = "",
+            listName = "",
+            listNotes = "",
+            listNameInvalid = false,
+            listNameInvalidMessage = "",
+            showListBottomSheet = !state.showListBottomSheet,
+        )
+    }
+    //endregion
 }

@@ -2,6 +2,7 @@ package com.easylists.data.repositories
 
 import com.easylists.domain.exceptions.EmptyDatabaseException
 import com.easylists.domain.models.EasyListsList
+import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.repositories.ListRepository
 import com.github.davidepanidev.kotlinextensions.utils.dispatchers.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +42,12 @@ class ListRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateList(list: EasyListsList): Result<Unit> {
+        return Result.runCatching {
+            localSource.update(list = list)
+        }
+    }
+
 }
 
 interface ListLocalDataSource {
@@ -48,5 +55,6 @@ interface ListLocalDataSource {
     fun getListsFlow(): Flow<List<EasyListsList>>
     suspend fun insert(list: EasyListsList): Long
     suspend fun delete(uid: String)
+    suspend fun update(list: EasyListsList)
 
 }

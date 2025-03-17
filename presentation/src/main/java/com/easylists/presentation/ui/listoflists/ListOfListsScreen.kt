@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.BottomSheetDefaults
@@ -40,11 +39,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.easylists.domain.models.EasyListsList
@@ -58,19 +54,13 @@ import com.easylists.presentation.icons.Add
 import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.icons.Edit
-import com.easylists.presentation.icons.Info
 import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.models.Screen
-import com.easylists.presentation.ui.listdetails.ConfirmRemoveListItem
-import com.easylists.presentation.ui.listdetails.ListDetailsViewModel
-import com.easylists.presentation.ui.theme.SolarizedRed
 import com.easylists.presentation.ui.theme.spaces
-import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.navigate
-import dev.olshevski.navigation.reimagined.pop
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,7 +100,7 @@ fun ListOfListsScreen(
 
             ConfirmRemoveList(viewModel)
 
-            ListOfListsScreenAddListBottomSheet(viewModel)
+            MasterListsScreenListBottomSheet(viewModel)
 
             ListOfListsScreenContent(navController, viewModel, sharedViewModel)
 
@@ -158,7 +148,7 @@ fun ListOfListsScreenActionIcons(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MasterListItem(
-    item: EasyListsList,
+    list: EasyListsList,
     viewModel: ListOfListsViewModel,
     sharedViewModel: SharedViewModel,
     navController: NavController<Screen>,
@@ -169,10 +159,10 @@ fun MasterListItem(
             .height(64.dp)
             .combinedClickable(
                 onClick = {
-                    sharedViewModel.listUid = item.uid.toString()
+                    sharedViewModel.listUid = list.uid.toString()
                     navController.navigate(Screen.ListDetails)
                 },
-                onLongClick = { viewModel.showContextIcons(item) }
+                onLongClick = { viewModel.showContextIcons(list) }
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -189,23 +179,23 @@ fun MasterListItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyLarge,
-                text = item.name
+                text = list.name
             )
             when {
-                item.notes?.isNotEmpty() == true -> {
+                list.notes?.isNotEmpty() == true -> {
                     Text(
                         color = MaterialTheme.colorScheme.inverseOnSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.bodyMedium,
-                        text = item.notes!!
+                        text = list.notes!!
                     )
                 }
             }
         }
 
         when {
-            viewModel.state.selectedListUid == item.uid -> {
+            viewModel.state.selectedListUid == list.uid -> {
                 Column(modifier = Modifier
                     .fillMaxSize()
                     .weight(0.33f)
@@ -220,7 +210,7 @@ fun MasterListItem(
                         )
                         IconButton(
                             onClick = {
-//                                 viewModel.onActionButtonClick(ListOfListsAction.Add)
+                                viewModel.onListEditButtonClick(list = list)
                             }
                         ) {
                             Icon(
@@ -330,14 +320,14 @@ fun ListOfListsScreenOverflowMenu(
 //endregion
 
 
-//region ListOfListsScreenAddListBottomSheet
+//region MasterListsScreenListBottomSheet
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListOfListsScreenAddListBottomSheet(viewModel: ListOfListsViewModel) {
+fun MasterListsScreenListBottomSheet(viewModel: ListOfListsViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet = remember { mutableStateOf(false) }
 
-    when (viewModel.state.showAddListBottomSheet) {
+    when (viewModel.state.showListBottomSheet) {
         true -> showBottomSheet.value = true
         false -> showBottomSheet.value = false
     }
@@ -347,7 +337,7 @@ fun ListOfListsScreenAddListBottomSheet(viewModel: ListOfListsViewModel) {
             sheetState = sheetState,
             onDismissRequest = {
                 showBottomSheet.value = false
-                viewModel.onAddListBottomSheetDismiss()
+                viewModel.onListBottomSheetDismiss()
             },
             dragHandle = {
                 Column(
@@ -366,10 +356,13 @@ fun ListOfListsScreenAddListBottomSheet(viewModel: ListOfListsViewModel) {
                 LazyColumn(modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)) {
                     item {
                         SectionTitle(
-                            title = stringResource(R.string.add_list),
+                            title = stringResource(
+                                if (viewModel.state.addEditMode == AddEditMode.Add) R.string.add_list
+                                else R.string.edit_list
+                            ),
                             icon = {
                                 IconButton(
-                                    enabled = viewModel.addListIconButtonEnabled(),
+                                    enabled = viewModel.listIconButtonEnabled(),
                                     onClick = { viewModel.addList()
                                     },
                                 ) {

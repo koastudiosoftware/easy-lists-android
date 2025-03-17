@@ -1,10 +1,12 @@
 package com.easylists.presentation.models
 
 import com.easylists.domain.models.EasyListsList
+import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ListOfListsAction
 
 data class ListOfListsState(
     var actionButtonState: ListOfListsAction = ListOfListsAction.None,
+    var addEditMode: AddEditMode = AddEditMode.Add,
     var isPullToRefreshing: Boolean = false,
     var listList: List<EasyListsList>? = null,
     var listName: String = "",
@@ -13,9 +15,10 @@ data class ListOfListsState(
     var listNotes: String = "",
     var listNotesInvalid: Boolean = false,
     var listNotesInvalidMessage: String = "",
+    var listUid: String = "",
     var selectedListUid: String = "",
-    var showAddListBottomSheet: Boolean = false,
     var showConfirmationDialog: Boolean = false,
+    var showListBottomSheet: Boolean = false,
     var uiState: ListListUiState = ListListUiState.Idle
 )
 

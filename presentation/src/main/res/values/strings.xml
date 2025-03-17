@@ -13,6 +13,7 @@
     <string name="name">Name</string>
     <string name="notes">Notes</string>
     <string name="add_list">Add List</string>
+    <string name="edit_list">Edit List</string>
     <string name="create_new_list">Create new list</string>
     <string name="remove_list">Remove list</string>
     <string name="no_lists_found">No lists found</string>
@@ -20,6 +21,7 @@
     <string name="remove_item">Remove item</string>
     <string name="view_item_details">View item details</string>
     <string name="add_list_item">Add list item</string>
+
     <string name="add_item">Add Item</string>
     <string name="edit_item">Edit Item</string>
     <string name="quantity">Quantity</string>
