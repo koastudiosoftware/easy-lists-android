@@ -11,6 +11,7 @@ enum class AddEditMode() {
 enum class AppSettingsKeys(val key: String, val type: AppSettingsType) {
     GroupCrossedOffItems("GroupCrossedOffItems", AppSettingsType.String),
     SortCrossedOffItems("SortCrossedOffItems", AppSettingsType.String),
+    Theme("Theme", AppSettingsType.String),
 }
 //endregion
 

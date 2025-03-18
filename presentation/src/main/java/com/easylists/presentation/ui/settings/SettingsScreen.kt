@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
+import com.easylists.domain.models.Themes
 import com.easylists.presentation.R
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
@@ -34,7 +35,6 @@ import com.easylists.presentation.icons.Arrow_back
 import com.easylists.presentation.icons.Info
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
-import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.navigate
@@ -47,6 +47,18 @@ fun SettingsScreen(
     sharedViewModel: SharedViewModel,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
+
+//    when {
+//        viewModel.state.restartActivity == true -> {
+//            val activity = LocalActivity.current
+//            activity?.finish()
+//            activity?.recreate()
+//            val context = LocalContext.current
+//            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+//            intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+//            context.startActivity(intent)
+//        }
+//    }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -106,7 +118,7 @@ fun SettingsScreenActionIcons(navController: NavController<Screen>) {
         Icon(
             modifier = Modifier,
             imageVector = Info,
-            contentDescription = stringResource(R.string.about)
+            contentDescription = stringResource(R.string.about),
         )
     }
 }
@@ -156,7 +168,6 @@ fun SettingsScreenContent(
                 viewModel
             )
         }
-
         item {
             ListSettingGroup(
                 "Sort crossed-off items",
@@ -166,6 +177,22 @@ fun SettingsScreenContent(
             )
         }
 
+        item {
+            SectionTitle(
+                title = stringResource(id = R.string.display),
+                modifier = Modifier
+                    .padding(horizontal = MaterialTheme.spaces.large)
+                    .padding(top = MaterialTheme.spaces.large)
+            )
+        }
+        item {
+            ListSettingGroup(
+                "Theme",
+                Themes.entries.toList(),
+                Themes.entries.indexOf(viewModel.state.theme),
+                viewModel
+            )
+        }
     }
 
 }

@@ -7,9 +7,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.easylists.domain.common.AppSettingsType
+import com.easylists.domain.models.Themes
 import com.easylists.domain.repositories.SettingsRepository
 import com.toxicbakery.logging.Arbor
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class AppSettingsRepositoryImpl @Inject constructor(
@@ -52,6 +55,17 @@ class AppSettingsRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Arbor.e("getStringAppSetting ERROR: $e")
             ""
+        }
+    }
+    //endregion
+
+
+    //region getStringAppSettingFlow()
+    override suspend fun getStringAppSettingTheme(key: String): Flow<Themes> {
+        return appSettingsDataStore.data.map { preferences ->
+            Themes.entries.find { theme ->
+                preferences[stringPreferencesKey(key)].toString() == theme.toString()
+            } ?: Themes.Default
         }
     }
     //endregion

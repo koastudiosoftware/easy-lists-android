@@ -11,12 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import com.easylists.presentation.ui.settings.SettingsViewModel
 import com.easylists.presentation.ui.theme.spaces
-import com.toxicbakery.logging.Arbor
 
 @Composable
 fun <E : Enum<E>> ListSettingGroup(

@@ -28,6 +28,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -136,7 +138,8 @@ fun MasterListsScreenActionIcons(
         Icon(
             modifier = Modifier,
             imageVector = Add,
-            contentDescription = stringResource(R.string.create_new_list)
+            contentDescription = stringResource(R.string.create_new_list),
+//            tint = MaterialTheme.colorScheme.onSurface
         )
     }
     MasterListsScreenOverflowMenu(navController, viewModel)
@@ -186,7 +189,6 @@ fun MasterListItem(
             when {
                 list.notes?.isNotEmpty() == true -> {
                     Text(
-                        color = MaterialTheme.colorScheme.inverseOnSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.bodyMedium,
@@ -231,7 +233,7 @@ fun MasterListItem(
                         Icon(
                             modifier = Modifier,
                             imageVector = Delete,
-                            contentDescription = stringResource(R.string.create_new_list)
+                            contentDescription = stringResource(R.string.create_new_list),
                         )
                     }
                 }
@@ -306,7 +308,12 @@ fun MasterListsScreenOverflowMenu(
         onDismissRequest = { expanded.value = false }
     ) {
         DropdownMenuItem(
-            text = { Text(text = stringResource(R.string.settings)) },
+            text = {
+                Text(
+                    text = stringResource(R.string.settings),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            },
             onClick = {
                 expanded.value = !expanded.value
                 navController.navigate(Screen.Settings)
@@ -314,7 +321,8 @@ fun MasterListsScreenOverflowMenu(
             leadingIcon = {
                 Icon(
                     Settings,
-                    contentDescription = "Localized description"
+                    contentDescription = "Localized description",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         )

@@ -285,14 +285,13 @@ fun SectionInfoItemAbout(
                 .clip(shape = MaterialTheme.shapes.small),
             painter = rememberVectorPainter(icon),
             contentDescription = null,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
         )
         Column {
             Text(
                 text = name,
                 fontWeight = FontWeight.Bold,
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 1
+                maxLines = 1,
             )
 
             if (showInfo.value) {
@@ -302,7 +301,7 @@ fun SectionInfoItemAbout(
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }

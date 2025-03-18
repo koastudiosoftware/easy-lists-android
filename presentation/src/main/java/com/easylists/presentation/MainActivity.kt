@@ -15,6 +15,8 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.easylists.domain.models.Themes
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.about.AboutScreen
@@ -24,6 +26,7 @@ import com.easylists.presentation.ui.masterlists.MasterListsViewModel
 import com.easylists.presentation.ui.settings.SettingsScreen
 import com.easylists.presentation.ui.theme.EasyListsTheme
 import com.easylists.presentation.ui.theme.spaces
+import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.AndroidEntryPoint
 import dev.olshevski.navigation.reimagined.NavBackHandler
 import dev.olshevski.navigation.reimagined.NavHost
@@ -32,14 +35,19 @@ import dev.olshevski.navigation.reimagined.rememberNavController
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private val viewModel: MainActivityViewModel by viewModels()
     private val sharedViewModel: SharedViewModel by viewModels()
     private val startDestinationViewModel: MasterListsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        viewModel.init()
+
         setContent {
-            EasyListsTheme(dynamicColor = false) {
+            val themeMode by viewModel.themeModeState.collectAsStateWithLifecycle()
+
+            EasyListsTheme(themeMode = themeMode as Themes, dynamicColor = false) {
                 val navController = rememberNavController<Screen>(
                     startDestination = Screen.MasterLists
                 )

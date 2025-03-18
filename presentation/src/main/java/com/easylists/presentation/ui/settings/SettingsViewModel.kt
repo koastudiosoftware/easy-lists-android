@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.easylists.domain.common.KEY
 import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
+import com.easylists.domain.models.Themes
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.SetAppSettingsUseCase
 import com.easylists.presentation.common.AppSettingsKeys
@@ -51,6 +52,8 @@ class SettingsViewModel @Inject constructor(
             val sortCrossedOffItems =
                 result.find { it[KEY] == AppSettingsKeys.SortCrossedOffItems.key }?.get(VALUE)
 
+            val theme = result.find { it[KEY] == AppSettingsKeys.Theme.key }?.get(VALUE)
+
             state = state.copy(
                 groupCrossedOffItems = GroupCrossedOffItems.from(
                     groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
@@ -59,6 +62,8 @@ class SettingsViewModel @Inject constructor(
                 sortCrossedOffItems = SortCrossedOffItems.from(
                     sortCrossedOffItems ?: SortCrossedOffItems.MostRecentOnTop.toString()
                 ) ?: SortCrossedOffItems.MostRecentOnTop,
+
+                theme = Themes.from(theme ?: Themes.Solarized.toString()) ?: Themes.Solarized,
             )
         }
     }
@@ -93,6 +98,11 @@ class SettingsViewModel @Inject constructor(
                 state = state.copy(sortCrossedOffItems = e)
                 setStringAppSetting(key = AppSettingsKeys.SortCrossedOffItems.key, value = e.value)
             }
+
+            is Themes -> {
+                state = state.copy(theme = e)
+                setStringAppSetting(key = AppSettingsKeys.Theme.key, value = e.value)
+            }
         }
     }
     //endregion
@@ -103,6 +113,7 @@ class SettingsViewModel @Inject constructor(
         return when (e) {
             is GroupCrossedOffItems -> state.groupCrossedOffItems.toString()
             is SortCrossedOffItems -> state.sortCrossedOffItems.toString()
+            is Themes -> state.theme.toString()
             else -> ""
         }
     }

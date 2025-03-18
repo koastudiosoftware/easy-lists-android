@@ -1,10 +1,15 @@
 package com.easylists.domain.repositories
 
+import com.easylists.domain.models.Themes
+import kotlinx.coroutines.flow.Flow
+
 interface SettingsRepository {
 
     suspend fun getBooleanAppSetting(key: String): String
     suspend fun getLongAppSetting(key: String): Long
     suspend fun getStringAppSetting(key: String): String
+
+    suspend fun getStringAppSettingTheme(key: String): Flow<Themes>
 
     suspend fun setBooleanAppSetting(key: String, value: Boolean)
     suspend fun setLongAppSetting(key: String, value: Long)

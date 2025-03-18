@@ -8,13 +8,15 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.easylists.domain.models.Themes
 
-private val lightScheme = lightColorScheme(
+//region solarizedLightScheme
+private val solarizedLightScheme = lightColorScheme(
     primary = primaryLight,
     onPrimary = onPrimaryLight,
     primaryContainer = primaryContainerLight,
@@ -51,8 +53,52 @@ private val lightScheme = lightColorScheme(
     surfaceContainerHigh = surfaceContainerHighLight,
     surfaceContainerHighest = surfaceContainerHighestLight,
 )
+//endregion
 
-private val darkScheme = darkColorScheme(
+
+//region tropicalFoliageLightScheme
+private val tropicalFoliageLightScheme = lightColorScheme(
+    primary = tf_primaryLight,
+    onPrimary = tf_onPrimaryLight,
+    primaryContainer = tf_primaryContainerLight,
+    onPrimaryContainer = tf_onPrimaryContainerLight,
+    secondary = tf_secondaryLight,
+    onSecondary = tf_onSecondaryLight,
+    secondaryContainer = tf_secondaryContainerLight,
+    onSecondaryContainer = tf_onSecondaryContainerLight,
+    tertiary = tf_tertiaryLight,
+    onTertiary = tf_onTertiaryLight,
+    tertiaryContainer = tf_tertiaryContainerLight,
+    onTertiaryContainer = tf_onTertiaryContainerLight,
+    error = tf_errorLight,
+    onError = tf_onErrorLight,
+    errorContainer = tf_errorContainerLight,
+    onErrorContainer = tf_onErrorContainerLight,
+    background = tf_backgroundLight,
+    onBackground = tf_onBackgroundLight,
+    surface = tf_surfaceLight,
+    onSurface = tf_onSurfaceLight,
+    surfaceVariant = tf_surfaceVariantLight,
+    onSurfaceVariant = tf_onSurfaceVariantLight,
+    outline = tf_outlineLight,
+    outlineVariant = tf_outlineVariantLight,
+    scrim = tf_scrimLight,
+    inverseSurface = tf_inverseSurfaceLight,
+    inverseOnSurface = tf_inverseOnSurfaceLight,
+    inversePrimary = tf_inversePrimaryLight,
+    surfaceDim = tf_surfaceDimLight,
+    surfaceBright = tf_surfaceBrightLight,
+    surfaceContainerLowest = tf_surfaceContainerLowestLight,
+    surfaceContainerLow = tf_surfaceContainerLowLight,
+    surfaceContainer = tf_surfaceContainerLight,
+    surfaceContainerHigh = tf_surfaceContainerHighLight,
+    surfaceContainerHighest = tf_surfaceContainerHighestLight,
+)
+//endregion
+
+
+//region solarizedDarkScheme
+private val solarizedDarkScheme = darkColorScheme(
     primary = primaryDark,
     onPrimary = onPrimaryDark,
     primaryContainer = primaryContainerDark,
@@ -89,196 +135,94 @@ private val darkScheme = darkColorScheme(
     surfaceContainerHigh = surfaceContainerHighDark,
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
+//endregion
 
-private val mediumContrastLightColorScheme = lightColorScheme(
-    primary = primaryLightMediumContrast,
-    onPrimary = onPrimaryLightMediumContrast,
-    primaryContainer = primaryContainerLightMediumContrast,
-    onPrimaryContainer = onPrimaryContainerLightMediumContrast,
-    secondary = secondaryLightMediumContrast,
-    onSecondary = onSecondaryLightMediumContrast,
-    secondaryContainer = secondaryContainerLightMediumContrast,
-    onSecondaryContainer = onSecondaryContainerLightMediumContrast,
-    tertiary = tertiaryLightMediumContrast,
-    onTertiary = onTertiaryLightMediumContrast,
-    tertiaryContainer = tertiaryContainerLightMediumContrast,
-    onTertiaryContainer = onTertiaryContainerLightMediumContrast,
-    error = errorLightMediumContrast,
-    onError = onErrorLightMediumContrast,
-    errorContainer = errorContainerLightMediumContrast,
-    onErrorContainer = onErrorContainerLightMediumContrast,
-    background = backgroundLightMediumContrast,
-    onBackground = onBackgroundLightMediumContrast,
-    surface = surfaceLightMediumContrast,
-    onSurface = onSurfaceLightMediumContrast,
-    surfaceVariant = surfaceVariantLightMediumContrast,
-    onSurfaceVariant = onSurfaceVariantLightMediumContrast,
-    outline = outlineLightMediumContrast,
-    outlineVariant = outlineVariantLightMediumContrast,
-    scrim = scrimLightMediumContrast,
-    inverseSurface = inverseSurfaceLightMediumContrast,
-    inverseOnSurface = inverseOnSurfaceLightMediumContrast,
-    inversePrimary = inversePrimaryLightMediumContrast,
-    surfaceDim = surfaceDimLightMediumContrast,
-    surfaceBright = surfaceBrightLightMediumContrast,
-    surfaceContainerLowest = surfaceContainerLowestLightMediumContrast,
-    surfaceContainerLow = surfaceContainerLowLightMediumContrast,
-    surfaceContainer = surfaceContainerLightMediumContrast,
-    surfaceContainerHigh = surfaceContainerHighLightMediumContrast,
-    surfaceContainerHighest = surfaceContainerHighestLightMediumContrast,
+//region tropicalFoliageDarkScheme
+private val tropicalFoliageDarkScheme = darkColorScheme(
+    primary = tf_primaryDark,
+    onPrimary = tf_onPrimaryDark,
+    primaryContainer = tf_primaryContainerDark,
+    onPrimaryContainer = tf_onPrimaryContainerDark,
+    secondary = tf_secondaryDark,
+    onSecondary = tf_onSecondaryDark,
+    secondaryContainer = tf_secondaryContainerDark,
+    onSecondaryContainer = tf_onSecondaryContainerDark,
+    tertiary = tf_tertiaryDark,
+    onTertiary = tf_onTertiaryDark,
+    tertiaryContainer = tf_tertiaryContainerDark,
+    onTertiaryContainer = tf_onTertiaryContainerDark,
+    error = tf_errorDark,
+    onError = tf_onErrorDark,
+    errorContainer = tf_errorContainerDark,
+    onErrorContainer = tf_onErrorContainerDark,
+    background = tf_backgroundDark,
+    onBackground = tf_onBackgroundDark,
+    surface = tf_surfaceDark,
+    onSurface = tf_onSurfaceDark,
+    surfaceVariant = tf_surfaceVariantDark,
+    onSurfaceVariant = tf_onSurfaceVariantDark,
+    outline = tf_outlineDark,
+    outlineVariant = tf_outlineVariantDark,
+    scrim = tf_scrimDark,
+    inverseSurface = tf_inverseSurfaceDark,
+    inverseOnSurface = tf_inverseOnSurfaceDark,
+    inversePrimary = tf_inversePrimaryDark,
+    surfaceDim = tf_surfaceDimDark,
+    surfaceBright = tf_surfaceBrightDark,
+    surfaceContainerLowest = tf_surfaceContainerLowestDark,
+    surfaceContainerLow = tf_surfaceContainerLowDark,
+    surfaceContainer = tf_surfaceContainerDark,
+    surfaceContainerHigh = tf_surfaceContainerHighDark,
+    surfaceContainerHighest = tf_surfaceContainerHighestDark,
 )
+//endregion
 
-private val highContrastLightColorScheme = lightColorScheme(
-    primary = primaryLightHighContrast,
-    onPrimary = onPrimaryLightHighContrast,
-    primaryContainer = primaryContainerLightHighContrast,
-    onPrimaryContainer = onPrimaryContainerLightHighContrast,
-    secondary = secondaryLightHighContrast,
-    onSecondary = onSecondaryLightHighContrast,
-    secondaryContainer = secondaryContainerLightHighContrast,
-    onSecondaryContainer = onSecondaryContainerLightHighContrast,
-    tertiary = tertiaryLightHighContrast,
-    onTertiary = onTertiaryLightHighContrast,
-    tertiaryContainer = tertiaryContainerLightHighContrast,
-    onTertiaryContainer = onTertiaryContainerLightHighContrast,
-    error = errorLightHighContrast,
-    onError = onErrorLightHighContrast,
-    errorContainer = errorContainerLightHighContrast,
-    onErrorContainer = onErrorContainerLightHighContrast,
-    background = backgroundLightHighContrast,
-    onBackground = onBackgroundLightHighContrast,
-    surface = surfaceLightHighContrast,
-    onSurface = onSurfaceLightHighContrast,
-    surfaceVariant = surfaceVariantLightHighContrast,
-    onSurfaceVariant = onSurfaceVariantLightHighContrast,
-    outline = outlineLightHighContrast,
-    outlineVariant = outlineVariantLightHighContrast,
-    scrim = scrimLightHighContrast,
-    inverseSurface = inverseSurfaceLightHighContrast,
-    inverseOnSurface = inverseOnSurfaceLightHighContrast,
-    inversePrimary = inversePrimaryLightHighContrast,
-    surfaceDim = surfaceDimLightHighContrast,
-    surfaceBright = surfaceBrightLightHighContrast,
-    surfaceContainerLowest = surfaceContainerLowestLightHighContrast,
-    surfaceContainerLow = surfaceContainerLowLightHighContrast,
-    surfaceContainer = surfaceContainerLightHighContrast,
-    surfaceContainerHigh = surfaceContainerHighLightHighContrast,
-    surfaceContainerHighest = surfaceContainerHighestLightHighContrast,
-)
 
-private val mediumContrastDarkColorScheme = darkColorScheme(
-    primary = primaryDarkMediumContrast,
-    onPrimary = onPrimaryDarkMediumContrast,
-    primaryContainer = primaryContainerDarkMediumContrast,
-    onPrimaryContainer = onPrimaryContainerDarkMediumContrast,
-    secondary = secondaryDarkMediumContrast,
-    onSecondary = onSecondaryDarkMediumContrast,
-    secondaryContainer = secondaryContainerDarkMediumContrast,
-    onSecondaryContainer = onSecondaryContainerDarkMediumContrast,
-    tertiary = tertiaryDarkMediumContrast,
-    onTertiary = onTertiaryDarkMediumContrast,
-    tertiaryContainer = tertiaryContainerDarkMediumContrast,
-    onTertiaryContainer = onTertiaryContainerDarkMediumContrast,
-    error = errorDarkMediumContrast,
-    onError = onErrorDarkMediumContrast,
-    errorContainer = errorContainerDarkMediumContrast,
-    onErrorContainer = onErrorContainerDarkMediumContrast,
-    background = backgroundDarkMediumContrast,
-    onBackground = onBackgroundDarkMediumContrast,
-    surface = surfaceDarkMediumContrast,
-    onSurface = onSurfaceDarkMediumContrast,
-    surfaceVariant = surfaceVariantDarkMediumContrast,
-    onSurfaceVariant = onSurfaceVariantDarkMediumContrast,
-    outline = outlineDarkMediumContrast,
-    outlineVariant = outlineVariantDarkMediumContrast,
-    scrim = scrimDarkMediumContrast,
-    inverseSurface = inverseSurfaceDarkMediumContrast,
-    inverseOnSurface = inverseOnSurfaceDarkMediumContrast,
-    inversePrimary = inversePrimaryDarkMediumContrast,
-    surfaceDim = surfaceDimDarkMediumContrast,
-    surfaceBright = surfaceBrightDarkMediumContrast,
-    surfaceContainerLowest = surfaceContainerLowestDarkMediumContrast,
-    surfaceContainerLow = surfaceContainerLowDarkMediumContrast,
-    surfaceContainer = surfaceContainerDarkMediumContrast,
-    surfaceContainerHigh = surfaceContainerHighDarkMediumContrast,
-    surfaceContainerHighest = surfaceContainerHighestDarkMediumContrast,
-)
-
-private val highContrastDarkColorScheme = darkColorScheme(
-    primary = primaryDarkHighContrast,
-    onPrimary = onPrimaryDarkHighContrast,
-    primaryContainer = primaryContainerDarkHighContrast,
-    onPrimaryContainer = onPrimaryContainerDarkHighContrast,
-    secondary = secondaryDarkHighContrast,
-    onSecondary = onSecondaryDarkHighContrast,
-    secondaryContainer = secondaryContainerDarkHighContrast,
-    onSecondaryContainer = onSecondaryContainerDarkHighContrast,
-    tertiary = tertiaryDarkHighContrast,
-    onTertiary = onTertiaryDarkHighContrast,
-    tertiaryContainer = tertiaryContainerDarkHighContrast,
-    onTertiaryContainer = onTertiaryContainerDarkHighContrast,
-    error = errorDarkHighContrast,
-    onError = onErrorDarkHighContrast,
-    errorContainer = errorContainerDarkHighContrast,
-    onErrorContainer = onErrorContainerDarkHighContrast,
-    background = backgroundDarkHighContrast,
-    onBackground = onBackgroundDarkHighContrast,
-    surface = surfaceDarkHighContrast,
-    onSurface = onSurfaceDarkHighContrast,
-    surfaceVariant = surfaceVariantDarkHighContrast,
-    onSurfaceVariant = onSurfaceVariantDarkHighContrast,
-    outline = outlineDarkHighContrast,
-    outlineVariant = outlineVariantDarkHighContrast,
-    scrim = scrimDarkHighContrast,
-    inverseSurface = inverseSurfaceDarkHighContrast,
-    inverseOnSurface = inverseOnSurfaceDarkHighContrast,
-    inversePrimary = inversePrimaryDarkHighContrast,
-    surfaceDim = surfaceDimDarkHighContrast,
-    surfaceBright = surfaceBrightDarkHighContrast,
-    surfaceContainerLowest = surfaceContainerLowestDarkHighContrast,
-    surfaceContainerLow = surfaceContainerLowDarkHighContrast,
-    surfaceContainer = surfaceContainerDarkHighContrast,
-    surfaceContainerHigh = surfaceContainerHighDarkHighContrast,
-    surfaceContainerHighest = surfaceContainerHighestDarkHighContrast,
-)
-
-@Immutable
-data class ColorFamily(
-    val color: Color,
-    val onColor: Color,
-    val colorContainer: Color,
-    val onColorContainer: Color
-)
-
-val unspecified_scheme = ColorFamily(
-    Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
-)
+/** CompositionLocal key to provide and consume the applied theme mode down the composition. */
+val LocalThemeMode = staticCompositionLocalOf { Themes.Default }
 
 @Composable
 fun EasyListsTheme(
+    themeMode: Themes = Themes.Default,
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable() () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    CompositionLocalProvider(
+        LocalThemeMode provides themeMode
+    ) {
+        val colorScheme = when {
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                val context = LocalContext.current
+                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            }
+
+            darkTheme -> {
+                when (themeMode) {
+                    Themes.TropicalFoliage -> tropicalFoliageDarkScheme
+                    else -> solarizedDarkScheme
+                }
+            }
+
+            else -> {
+                when (themeMode) {
+                    Themes.TropicalFoliage -> tropicalFoliageLightScheme
+                    else -> solarizedLightScheme
+                }
+            }
         }
 
-        darkTheme -> darkScheme
-        else -> lightScheme
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AppTypography,
+            content = content
+        )
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AppTypography,
-        content = content
-    )
 }
 
 
+//region Easy List custom spacing values
 data class CustomSpaces(
     val none: Dp = 0.dp,
     val extraSmall: Dp = 2.dp,
@@ -289,6 +233,8 @@ data class CustomSpaces(
     val extraLarge: Dp = 24.dp,
 )
 
+
 val MaterialTheme.spaces: CustomSpaces
     @Composable
     get() = CustomSpaces()
+//endregion

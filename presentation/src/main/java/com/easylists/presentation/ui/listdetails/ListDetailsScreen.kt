@@ -34,6 +34,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -361,12 +363,11 @@ fun ListDetailsScreenDeleteCrossedOffItems(viewModel: ListDetailsViewModel) {
             .fillMaxWidth()
             .height(52.dp)
             .padding(horizontal = MaterialTheme.spaces.large)
-            .background(MaterialTheme.colorScheme.secondaryContainer)
             .clickable(onClick = { viewModel.setShowConfirmationDialogState(true) }),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            color = MaterialTheme.colorScheme.inverseOnSurface,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
             text = stringResource(R.string.delete_all_crossed_off_items),
         )
     }
@@ -444,7 +445,7 @@ fun ListDetailsScreenListItem(
                 when {
                     item.notes?.isNotEmpty() == true -> {
                         Text(
-                            color = MaterialTheme.colorScheme.inverseOnSurface,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.bodyMedium,
