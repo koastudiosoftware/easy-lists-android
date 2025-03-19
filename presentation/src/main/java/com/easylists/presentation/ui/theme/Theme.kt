@@ -56,6 +56,47 @@ private val merlotLightScheme = lightColorScheme(
 //endregion
 
 
+//region nauticalLightScheme
+private val nauticalLightScheme = lightColorScheme(
+    primary = nautical_primaryLight,
+    onPrimary = nautical_onPrimaryLight,
+    primaryContainer = nautical_primaryContainerLight,
+    onPrimaryContainer = nautical_onPrimaryContainerLight,
+    secondary = nautical_secondaryLight,
+    onSecondary = nautical_onSecondaryLight,
+    secondaryContainer = nautical_secondaryContainerLight,
+    onSecondaryContainer = nautical_onSecondaryContainerLight,
+    tertiary = nautical_tertiaryLight,
+    onTertiary = nautical_onTertiaryLight,
+    tertiaryContainer = nautical_tertiaryContainerLight,
+    onTertiaryContainer = nautical_onTertiaryContainerLight,
+    error = nautical_errorLight,
+    onError = nautical_onErrorLight,
+    errorContainer = nautical_errorContainerLight,
+    onErrorContainer = nautical_onErrorContainerLight,
+    background = nautical_backgroundLight,
+    onBackground = nautical_onBackgroundLight,
+    surface = nautical_surfaceLight,
+    onSurface = nautical_onSurfaceLight,
+    surfaceVariant = nautical_surfaceVariantLight,
+    onSurfaceVariant = nautical_onSurfaceVariantLight,
+    outline = nautical_outlineLight,
+    outlineVariant = nautical_outlineVariantLight,
+    scrim = nautical_scrimLight,
+    inverseSurface = nautical_inverseSurfaceLight,
+    inverseOnSurface = nautical_inverseOnSurfaceLight,
+    inversePrimary = nautical_inversePrimaryLight,
+    surfaceDim = nautical_surfaceDimLight,
+    surfaceBright = nautical_surfaceBrightLight,
+    surfaceContainerLowest = nautical_surfaceContainerLowestLight,
+    surfaceContainerLow = nautical_surfaceContainerLowLight,
+    surfaceContainer = nautical_surfaceContainerLight,
+    surfaceContainerHigh = nautical_surfaceContainerHighLight,
+    surfaceContainerHighest = nautical_surfaceContainerHighestLight,
+)
+//endregion
+
+
 //region oceanLightScheme
 private val oceanLightScheme = lightColorScheme(
     primary = ocean_primaryLight,
@@ -261,6 +302,47 @@ private val merlotDarkScheme = darkColorScheme(
 //endregion
 
 
+//region nauticalDarkScheme
+private val nauticalDarkScheme = darkColorScheme(
+    primary = nautical_primaryDark,
+    onPrimary = nautical_onPrimaryDark,
+    primaryContainer = nautical_primaryContainerDark,
+    onPrimaryContainer = nautical_onPrimaryContainerDark,
+    secondary = nautical_secondaryDark,
+    onSecondary = nautical_onSecondaryDark,
+    secondaryContainer = nautical_secondaryContainerDark,
+    onSecondaryContainer = nautical_onSecondaryContainerDark,
+    tertiary = nautical_tertiaryDark,
+    onTertiary = nautical_onTertiaryDark,
+    tertiaryContainer = nautical_tertiaryContainerDark,
+    onTertiaryContainer = nautical_onTertiaryContainerDark,
+    error = nautical_errorDark,
+    onError = nautical_onErrorDark,
+    errorContainer = nautical_errorContainerDark,
+    onErrorContainer = nautical_onErrorContainerDark,
+    background = nautical_backgroundDark,
+    onBackground = nautical_onBackgroundDark,
+    surface = nautical_surfaceDark,
+    onSurface = nautical_onSurfaceDark,
+    surfaceVariant = nautical_surfaceVariantDark,
+    onSurfaceVariant = nautical_onSurfaceVariantDark,
+    outline = nautical_outlineDark,
+    outlineVariant = nautical_outlineVariantDark,
+    scrim = nautical_scrimDark,
+    inverseSurface = nautical_inverseSurfaceDark,
+    inverseOnSurface = nautical_inverseOnSurfaceDark,
+    inversePrimary = nautical_inversePrimaryDark,
+    surfaceDim = nautical_surfaceDimDark,
+    surfaceBright = nautical_surfaceBrightDark,
+    surfaceContainerLowest = nautical_surfaceContainerLowestDark,
+    surfaceContainerLow = nautical_surfaceContainerLowDark,
+    surfaceContainer = nautical_surfaceContainerDark,
+    surfaceContainerHigh = nautical_surfaceContainerHighDark,
+    surfaceContainerHighest = nautical_surfaceContainerHighestDark,
+)
+//endregion
+
+
 //region oceanDarkScheme
 private val oceanDarkScheme = darkColorScheme(
     primary = ocean_primaryDark,
@@ -448,6 +530,7 @@ fun EasyListsTheme(
             darkTheme -> {
                 when (themeMode) {
                     Themes.Merlot -> merlotDarkScheme
+                    Themes.Nautical -> nauticalDarkScheme
                     Themes.Ocean -> oceanDarkScheme
                     Themes.Slate -> slateDarkScheme
                     Themes.TropicalFoliage -> tropicalFoliageDarkScheme
@@ -458,6 +541,7 @@ fun EasyListsTheme(
             else -> {
                 when (themeMode) {
                     Themes.Merlot -> merlotLightScheme
+                    Themes.Nautical -> nauticalLightScheme
                     Themes.Ocean -> oceanLightScheme
                     Themes.Slate -> slateLightScheme
                     Themes.TropicalFoliage -> tropicalFoliageLightScheme

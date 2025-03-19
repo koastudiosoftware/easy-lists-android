@@ -14,6 +14,18 @@ val Metlot01 = Color(0xFF582937)
 val Metlot03 = Color(0xFF421F29)
 //endregion
 
+//region Nautical color palette
+val NauticalBeige = Color(0xFFFAF0E6)
+val NauticalRed = Color(0xFFAC1D1B)
+val Nautical3 = Color(0xFFC0BDD0)
+val Nautical2 = Color(0xFF9691B1)
+val Nautical1 = Color(0xFF6C6592)
+val Nautical0 = Color(0xFF575272)
+val Nautical00 = Color(0xFF463F6C)
+val Nautical01 = Color(0xFF241C4F)
+val Nautical03 = Color(0xFF1B153B)
+//endregion
+
 //region Ocean color palette
 val OceanBeige = Color(0xFFFAF3E3)
 val OceanRed = Color(0xFFE74958)
@@ -150,6 +162,83 @@ val merlot_surfaceContainerLowDark = Metlot03
 val merlot_surfaceContainerDark = Metlot3
 val merlot_surfaceContainerHighDark = Color(0xFF2D2A1F)
 val merlot_surfaceContainerHighestDark = Metlot03
+//endregion
+
+
+//region Nautical Light
+val nautical_primaryLight = Nautical01
+val nautical_onPrimaryLight = Color(0xFFFFFFFF)
+val nautical_primaryContainerLight = Nautical1
+val nautical_onPrimaryContainerLight = NauticalBeige
+val nautical_secondaryLight = Color(0xFF6B5E24)
+val nautical_onSecondaryLight = Color(0xFFFFFFFF)
+val nautical_secondaryContainerLight = Color(0xFFF2DF98)
+val nautical_onSecondaryContainerLight = Nautical1
+val nautical_tertiaryLight = Color(0xFF4D6700)
+val nautical_onTertiaryLight = Color(0xFFFFFFFF)
+val nautical_tertiaryContainerLight = Nautical2
+val nautical_onTertiaryContainerLight = NauticalBeige
+val nautical_errorLight = NauticalRed
+val nautical_onErrorLight = Color(0xFFFFFFFF)
+val nautical_errorContainerLight = NauticalRed
+val nautical_onErrorContainerLight = Color(0xFF93000A)
+val nautical_backgroundLight = NauticalBeige
+val nautical_onBackgroundLight = Nautical01
+val nautical_surfaceLight = Nautical3
+val nautical_onSurfaceLight = Nautical00
+val nautical_surfaceVariantLight = Color(0xFFEBE2C8)
+val nautical_onSurfaceVariantLight = Nautical00
+val nautical_outlineLight = Color(0xFF7D7761)
+val nautical_outlineVariantLight = Nautical3
+val nautical_scrimLight = Color(0xFF000000)
+val nautical_inverseSurfaceLight = Color(0xFF343025)
+val nautical_inverseOnSurfaceLight = Color(0xFFF8F0DF)
+val nautical_inversePrimaryLight = Color(0xFFE5C524)
+val nautical_surfaceDimLight = Color(0xFFE0D9C9)
+val nautical_surfaceBrightLight = Color(0xFFFFF9EE)
+val nautical_surfaceContainerLowestLight = Color(0xFFFFFFFF)
+val nautical_surfaceContainerLowLight = NauticalBeige
+val nautical_surfaceContainerLight = Nautical3
+val nautical_surfaceContainerHighLight = Color(0xFFEFE8D7)
+val nautical_surfaceContainerHighestLight = NauticalBeige
+//endregion
+
+//region Nautical Dark
+val nautical_primaryDark = Nautical3
+val nautical_onPrimaryDark = Color(0xFF3A3000)
+val nautical_primaryContainerDark = Nautical1
+val nautical_onPrimaryContainerDark = NauticalBeige
+val nautical_secondaryDark = Color(0xFFD8C682)
+val nautical_onSecondaryDark = Color(0xFF3A3000)
+val nautical_secondaryContainerDark = Color(0xFF544910)
+val nautical_onSecondaryContainerDark = Nautical0
+val nautical_tertiaryDark = Color(0xFFF8FFDF)
+val nautical_onTertiaryDark = Color(0xFF263500)
+val nautical_tertiaryContainerDark = Nautical2
+val nautical_onTertiaryContainerDark = NauticalBeige
+val nautical_errorDark = NauticalRed
+val nautical_onErrorDark = Color(0xFF690005)
+val nautical_errorContainerDark = NauticalRed
+val nautical_onErrorContainerDark = Color(0xFFFFDAD6)
+val nautical_backgroundDark = Nautical03
+val nautical_onBackgroundDark = Nautical2
+val nautical_surfaceDark = Nautical3
+val nautical_onSurfaceDark = Nautical00
+val nautical_surfaceVariantDark = Color(0xFF4C4733)
+val nautical_onSurfaceVariantDark = Nautical00
+val nautical_outlineDark = Color(0xFF989079)
+val nautical_outlineVariantDark = Nautical00
+val nautical_scrimDark = Color(0xFF000000)
+val nautical_inverseSurfaceDark = Color(0xFFE9E2D1)
+val nautical_inverseOnSurfaceDark = Color(0xFF343025)
+val nautical_inversePrimaryDark = Color(0xFF6E5D00)
+val nautical_surfaceDimDark = Color(0xFF16130A)
+val nautical_surfaceBrightDark = Color(0xFF3D392E)
+val nautical_surfaceContainerLowestDark = Color(0xFF100E06)
+val nautical_surfaceContainerLowDark = Nautical03
+val nautical_surfaceContainerDark = Nautical3
+val nautical_surfaceContainerHighDark = Color(0xFF2D2A1F)
+val nautical_surfaceContainerHighestDark = Nautical03
 //endregion
 
 
