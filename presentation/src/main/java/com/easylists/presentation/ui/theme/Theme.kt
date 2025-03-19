@@ -15,6 +15,47 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.easylists.domain.models.Themes
 
+//region merlotLightScheme
+private val merlotLightScheme = lightColorScheme(
+    primary = merlot_primaryLight,
+    onPrimary = merlot_onPrimaryLight,
+    primaryContainer = merlot_primaryContainerLight,
+    onPrimaryContainer = merlot_onPrimaryContainerLight,
+    secondary = merlot_secondaryLight,
+    onSecondary = merlot_onSecondaryLight,
+    secondaryContainer = merlot_secondaryContainerLight,
+    onSecondaryContainer = merlot_onSecondaryContainerLight,
+    tertiary = merlot_tertiaryLight,
+    onTertiary = merlot_onTertiaryLight,
+    tertiaryContainer = merlot_tertiaryContainerLight,
+    onTertiaryContainer = merlot_onTertiaryContainerLight,
+    error = merlot_errorLight,
+    onError = merlot_onErrorLight,
+    errorContainer = merlot_errorContainerLight,
+    onErrorContainer = merlot_onErrorContainerLight,
+    background = merlot_backgroundLight,
+    onBackground = merlot_onBackgroundLight,
+    surface = merlot_surfaceLight,
+    onSurface = merlot_onSurfaceLight,
+    surfaceVariant = merlot_surfaceVariantLight,
+    onSurfaceVariant = merlot_onSurfaceVariantLight,
+    outline = merlot_outlineLight,
+    outlineVariant = merlot_outlineVariantLight,
+    scrim = merlot_scrimLight,
+    inverseSurface = merlot_inverseSurfaceLight,
+    inverseOnSurface = merlot_inverseOnSurfaceLight,
+    inversePrimary = merlot_inversePrimaryLight,
+    surfaceDim = merlot_surfaceDimLight,
+    surfaceBright = merlot_surfaceBrightLight,
+    surfaceContainerLowest = merlot_surfaceContainerLowestLight,
+    surfaceContainerLow = merlot_surfaceContainerLowLight,
+    surfaceContainer = merlot_surfaceContainerLight,
+    surfaceContainerHigh = merlot_surfaceContainerHighLight,
+    surfaceContainerHighest = merlot_surfaceContainerHighestLight,
+)
+//endregion
+
+
 //region oceanLightScheme
 private val oceanLightScheme = lightColorScheme(
     primary = ocean_primaryLight,
@@ -52,6 +93,47 @@ private val oceanLightScheme = lightColorScheme(
     surfaceContainer = ocean_surfaceContainerLight,
     surfaceContainerHigh = ocean_surfaceContainerHighLight,
     surfaceContainerHighest = ocean_surfaceContainerHighestLight,
+)
+//endregion
+
+
+//region slateLightScheme
+private val slateLightScheme = lightColorScheme(
+    primary = slate_primaryLight,
+    onPrimary = slate_onPrimaryLight,
+    primaryContainer = slate_primaryContainerLight,
+    onPrimaryContainer = slate_onPrimaryContainerLight,
+    secondary = slate_secondaryLight,
+    onSecondary = slate_onSecondaryLight,
+    secondaryContainer = slate_secondaryContainerLight,
+    onSecondaryContainer = slate_onSecondaryContainerLight,
+    tertiary = slate_tertiaryLight,
+    onTertiary = slate_onTertiaryLight,
+    tertiaryContainer = slate_tertiaryContainerLight,
+    onTertiaryContainer = slate_onTertiaryContainerLight,
+    error = slate_errorLight,
+    onError = slate_onErrorLight,
+    errorContainer = slate_errorContainerLight,
+    onErrorContainer = slate_onErrorContainerLight,
+    background = slate_backgroundLight,
+    onBackground = slate_onBackgroundLight,
+    surface = slate_surfaceLight,
+    onSurface = slate_onSurfaceLight,
+    surfaceVariant = slate_surfaceVariantLight,
+    onSurfaceVariant = slate_onSurfaceVariantLight,
+    outline = slate_outlineLight,
+    outlineVariant = slate_outlineVariantLight,
+    scrim = slate_scrimLight,
+    inverseSurface = slate_inverseSurfaceLight,
+    inverseOnSurface = slate_inverseOnSurfaceLight,
+    inversePrimary = slate_inversePrimaryLight,
+    surfaceDim = slate_surfaceDimLight,
+    surfaceBright = slate_surfaceBrightLight,
+    surfaceContainerLowest = slate_surfaceContainerLowestLight,
+    surfaceContainerLow = slate_surfaceContainerLowLight,
+    surfaceContainer = slate_surfaceContainerLight,
+    surfaceContainerHigh = slate_surfaceContainerHighLight,
+    surfaceContainerHighest = slate_surfaceContainerHighestLight,
 )
 //endregion
 
@@ -138,6 +220,47 @@ private val tropicalFoliageLightScheme = lightColorScheme(
 //endregion
 
 
+//region merlotDarkScheme
+private val merlotDarkScheme = darkColorScheme(
+    primary = merlot_primaryDark,
+    onPrimary = merlot_onPrimaryDark,
+    primaryContainer = merlot_primaryContainerDark,
+    onPrimaryContainer = merlot_onPrimaryContainerDark,
+    secondary = merlot_secondaryDark,
+    onSecondary = merlot_onSecondaryDark,
+    secondaryContainer = merlot_secondaryContainerDark,
+    onSecondaryContainer = merlot_onSecondaryContainerDark,
+    tertiary = merlot_tertiaryDark,
+    onTertiary = merlot_onTertiaryDark,
+    tertiaryContainer = merlot_tertiaryContainerDark,
+    onTertiaryContainer = merlot_onTertiaryContainerDark,
+    error = merlot_errorDark,
+    onError = merlot_onErrorDark,
+    errorContainer = merlot_errorContainerDark,
+    onErrorContainer = merlot_onErrorContainerDark,
+    background = merlot_backgroundDark,
+    onBackground = merlot_onBackgroundDark,
+    surface = merlot_surfaceDark,
+    onSurface = merlot_onSurfaceDark,
+    surfaceVariant = merlot_surfaceVariantDark,
+    onSurfaceVariant = merlot_onSurfaceVariantDark,
+    outline = merlot_outlineDark,
+    outlineVariant = merlot_outlineVariantDark,
+    scrim = merlot_scrimDark,
+    inverseSurface = merlot_inverseSurfaceDark,
+    inverseOnSurface = merlot_inverseOnSurfaceDark,
+    inversePrimary = merlot_inversePrimaryDark,
+    surfaceDim = merlot_surfaceDimDark,
+    surfaceBright = merlot_surfaceBrightDark,
+    surfaceContainerLowest = merlot_surfaceContainerLowestDark,
+    surfaceContainerLow = merlot_surfaceContainerLowDark,
+    surfaceContainer = merlot_surfaceContainerDark,
+    surfaceContainerHigh = merlot_surfaceContainerHighDark,
+    surfaceContainerHighest = merlot_surfaceContainerHighestDark,
+)
+//endregion
+
+
 //region oceanDarkScheme
 private val oceanDarkScheme = darkColorScheme(
     primary = ocean_primaryDark,
@@ -175,6 +298,47 @@ private val oceanDarkScheme = darkColorScheme(
     surfaceContainer = ocean_surfaceContainerDark,
     surfaceContainerHigh = ocean_surfaceContainerHighDark,
     surfaceContainerHighest = ocean_surfaceContainerHighestDark,
+)
+//endregion
+
+
+//region slateDarkScheme
+private val slateDarkScheme = darkColorScheme(
+    primary = slate_primaryDark,
+    onPrimary = slate_onPrimaryDark,
+    primaryContainer = slate_primaryContainerDark,
+    onPrimaryContainer = slate_onPrimaryContainerDark,
+    secondary = slate_secondaryDark,
+    onSecondary = slate_onSecondaryDark,
+    secondaryContainer = slate_secondaryContainerDark,
+    onSecondaryContainer = slate_onSecondaryContainerDark,
+    tertiary = slate_tertiaryDark,
+    onTertiary = slate_onTertiaryDark,
+    tertiaryContainer = slate_tertiaryContainerDark,
+    onTertiaryContainer = slate_onTertiaryContainerDark,
+    error = slate_errorDark,
+    onError = slate_onErrorDark,
+    errorContainer = slate_errorContainerDark,
+    onErrorContainer = slate_onErrorContainerDark,
+    background = slate_backgroundDark,
+    onBackground = slate_onBackgroundDark,
+    surface = slate_surfaceDark,
+    onSurface = slate_onSurfaceDark,
+    surfaceVariant = slate_surfaceVariantDark,
+    onSurfaceVariant = slate_onSurfaceVariantDark,
+    outline = slate_outlineDark,
+    outlineVariant = slate_outlineVariantDark,
+    scrim = slate_scrimDark,
+    inverseSurface = slate_inverseSurfaceDark,
+    inverseOnSurface = slate_inverseOnSurfaceDark,
+    inversePrimary = slate_inversePrimaryDark,
+    surfaceDim = slate_surfaceDimDark,
+    surfaceBright = slate_surfaceBrightDark,
+    surfaceContainerLowest = slate_surfaceContainerLowestDark,
+    surfaceContainerLow = slate_surfaceContainerLowDark,
+    surfaceContainer = slate_surfaceContainerDark,
+    surfaceContainerHigh = slate_surfaceContainerHighDark,
+    surfaceContainerHighest = slate_surfaceContainerHighestDark,
 )
 //endregion
 
@@ -283,7 +447,9 @@ fun EasyListsTheme(
 
             darkTheme -> {
                 when (themeMode) {
+                    Themes.Merlot -> merlotDarkScheme
                     Themes.Ocean -> oceanDarkScheme
+                    Themes.Slate -> slateDarkScheme
                     Themes.TropicalFoliage -> tropicalFoliageDarkScheme
                     else -> solarizedDarkScheme
                 }
@@ -291,7 +457,9 @@ fun EasyListsTheme(
 
             else -> {
                 when (themeMode) {
+                    Themes.Merlot -> merlotLightScheme
                     Themes.Ocean -> oceanLightScheme
+                    Themes.Slate -> slateLightScheme
                     Themes.TropicalFoliage -> tropicalFoliageLightScheme
                     else -> solarizedLightScheme
                 }
