@@ -17,13 +17,13 @@ val Metlot03 = Color(0xFF421F29)
 //region Nautical color palette
 val NauticalBeige = Color(0xFFFAF0E6)
 val NauticalRed = Color(0xFFAC1D1B)
-val Nautical3 = Color(0xFFC0BDD0)
-val Nautical2 = Color(0xFF9691B1)
-val Nautical1 = Color(0xFF6C6592)
-val Nautical0 = Color(0xFF575272)
-val Nautical00 = Color(0xFF463F6C)
-val Nautical01 = Color(0xFF241C4F)
-val Nautical03 = Color(0xFF1B153B)
+val Nautical3 = Color(0xFF9999CC)
+val Nautical2 = Color(0xFF4D4DA6)
+val Nautical1 = Color(0xFF4D4DA6)
+val Nautical0 = Color(0xFF404080)
+val Nautical00 = Color(0xFF262680)
+val Nautical01 = Color(0xFF000066)
+val Nautical03 = Color(0xFF00004D)
 //endregion
 
 //region Ocean color palette
