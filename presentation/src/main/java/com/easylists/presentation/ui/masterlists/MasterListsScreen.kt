@@ -28,8 +28,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -53,6 +51,7 @@ import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
+import com.easylists.presentation.icons.Category
 import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.icons.Info
@@ -310,8 +309,27 @@ fun MasterListsScreenOverflowMenu(
         DropdownMenuItem(
             text = {
                 Text(
-                    text = stringResource(R.string.settings),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = stringResource(R.string.edit_categories),
+                )
+            },
+            onClick = {
+                expanded.value = !expanded.value
+//                navController.navigate(Screen.EditCategories)
+            },
+            leadingIcon = {
+                Icon(
+                    Category,
+                    contentDescription = "Localized description",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = stringResource(R.string.settings),
                 )
             },
             onClick = {

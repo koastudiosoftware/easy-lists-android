@@ -94,6 +94,13 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
 
+                                is Screen.EditCategories -> {
+                                    ListDetailsScreen(
+                                        navController = navController,
+                                        sharedViewModel = sharedViewModel
+                                    )
+                                }
+
                                 is Screen.Settings -> {
                                     SettingsScreen(
                                         navController = navController,
