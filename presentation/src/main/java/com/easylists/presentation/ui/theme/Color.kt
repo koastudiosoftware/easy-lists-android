@@ -29,9 +29,6 @@ val SolarizedBase01_60 = Color(0x99586E75)
 
 //region Tropical Foliage color palette
 val TropicalFoliageBeige = Color(0xFFFAF3E3)
-val TropicalFoliageSpanishPink = Color(0XFFF8D2C5)
-val TropicalFoliageSeaPink = Color(0xFFF7B2AB)
-val TropicalFoliageLightCoral = Color(0xFFED7E77)
 val TropicalFoliageRed = Color(0xFFE74958)
 val TropicalFoliageGreen3 = Color(0xFFC7C8A0)
 val TropicalFoliageGreen2 = Color(0xFF879571)
@@ -40,6 +37,18 @@ val TropicalFoliageGreen0 = Color(0xFF5A735D)
 val TropicalFoliageGreen00 = Color(0xFF446354)
 val TropicalFoliageGreen01 = Color(0XFF32534a)
 val TropicalFoliageGreen03 = Color(0xFF002323)
+//endregion
+
+//region Ocean color palette
+val OceanBeige = Color(0xFFFAF3E3)
+val OceanRed = Color(0xFFE74958)
+val OceanBlue3 = Color(0xFFA7DDE9)
+val OceanBlue2 = Color(0xFF5CC7D1)
+val OceanBlue1 = Color(0xFF1F9EAF)
+val OceanBlue0 = Color(0xFF1192A5)
+val OceanBlue00 = Color(0xFF1E7C96)
+val OceanBlue01 = Color(0xFF11708E)
+val OceanBlue03 = Color(0xFF034460)
 //endregion
 
 
@@ -119,6 +128,7 @@ val surfaceContainerHighDark = SolarizedBase02
 val surfaceContainerHighestDark = SolarizedBase03
 //endregion
 
+
 //region Tropical Foliage Light
 val tf_primaryLight = TropicalFoliageGreen01
 val tf_onPrimaryLight = Color(0xFFFFFFFF)
@@ -155,6 +165,7 @@ val tf_surfaceContainerLowLight = TropicalFoliageBeige
 val tf_surfaceContainerLight = TropicalFoliageGreen3
 val tf_surfaceContainerHighLight = Color(0xFFEFE8D7)
 val tf_surfaceContainerHighestLight = TropicalFoliageBeige
+//endregion
 
 //region Tropical Foliage Dark
 val tf_primaryDark = TropicalFoliageGreen3
@@ -192,5 +203,82 @@ val tf_surfaceContainerLowDark = TropicalFoliageGreen03
 val tf_surfaceContainerDark = TropicalFoliageGreen3
 val tf_surfaceContainerHighDark = Color(0xFF2D2A1F)
 val tf_surfaceContainerHighestDark = TropicalFoliageGreen03
+//endregion
+
+
+//region Ocean Light
+val ocean_primaryLight = OceanBlue01
+val ocean_onPrimaryLight = Color(0xFFFFFFFF)
+val ocean_primaryContainerLight = OceanBlue1
+val ocean_onPrimaryContainerLight = OceanBeige
+val ocean_secondaryLight = Color(0xFF6B5E24)
+val ocean_onSecondaryLight = Color(0xFFFFFFFF)
+val ocean_secondaryContainerLight = Color(0xFFF2DF98)
+val ocean_onSecondaryContainerLight = OceanBlue1
+val ocean_tertiaryLight = Color(0xFF4D6700)
+val ocean_onTertiaryLight = Color(0xFFFFFFFF)
+val ocean_tertiaryContainerLight = OceanBlue2
+val ocean_onTertiaryContainerLight = OceanBeige
+val ocean_errorLight = OceanRed
+val ocean_onErrorLight = Color(0xFFFFFFFF)
+val ocean_errorContainerLight = OceanRed
+val ocean_onErrorContainerLight = Color(0xFF93000A)
+val ocean_backgroundLight = OceanBeige
+val ocean_onBackgroundLight = OceanBlue01
+val ocean_surfaceLight = OceanBlue3
+val ocean_onSurfaceLight = OceanBlue00
+val ocean_surfaceVariantLight = Color(0xFFEBE2C8)
+val ocean_onSurfaceVariantLight = OceanBlue00
+val ocean_outlineLight = Color(0xFF7D7761)
+val ocean_outlineVariantLight = OceanBlue3
+val ocean_scrimLight = Color(0xFF000000)
+val ocean_inverseSurfaceLight = Color(0xFF343025)
+val ocean_inverseOnSurfaceLight = Color(0xFFF8F0DF)
+val ocean_inversePrimaryLight = Color(0xFFE5C524)
+val ocean_surfaceDimLight = Color(0xFFE0D9C9)
+val ocean_surfaceBrightLight = Color(0xFFFFF9EE)
+val ocean_surfaceContainerLowestLight = Color(0xFFFFFFFF)
+val ocean_surfaceContainerLowLight = OceanBeige
+val ocean_surfaceContainerLight = OceanBlue3
+val ocean_surfaceContainerHighLight = Color(0xFFEFE8D7)
+val ocean_surfaceContainerHighestLight = OceanBeige
+//endregion
+
+//region Ocean Dark
+val ocean_primaryDark = OceanBlue3
+val ocean_onPrimaryDark = Color(0xFF3A3000)
+val ocean_primaryContainerDark = OceanBlue1
+val ocean_onPrimaryContainerDark = OceanBeige
+val ocean_secondaryDark = Color(0xFFD8C682)
+val ocean_onSecondaryDark = Color(0xFF3A3000)
+val ocean_secondaryContainerDark = Color(0xFF544910)
+val ocean_onSecondaryContainerDark = OceanBlue0
+val ocean_tertiaryDark = Color(0xFFF8FFDF)
+val ocean_onTertiaryDark = Color(0xFF263500)
+val ocean_tertiaryContainerDark = OceanBlue2
+val ocean_onTertiaryContainerDark = OceanBeige
+val ocean_errorDark = OceanRed
+val ocean_onErrorDark = Color(0xFF690005)
+val ocean_errorContainerDark = OceanRed
+val ocean_onErrorContainerDark = Color(0xFFFFDAD6)
+val ocean_backgroundDark = OceanBlue03
+val ocean_onBackgroundDark = OceanBlue2
+val ocean_surfaceDark = OceanBlue3
+val ocean_onSurfaceDark = OceanBlue00
+val ocean_surfaceVariantDark = Color(0xFF4C4733)
+val ocean_onSurfaceVariantDark = OceanBlue00
+val ocean_outlineDark = Color(0xFF989079)
+val ocean_outlineVariantDark = OceanBlue00
+val ocean_scrimDark = Color(0xFF000000)
+val ocean_inverseSurfaceDark = Color(0xFFE9E2D1)
+val ocean_inverseOnSurfaceDark = Color(0xFF343025)
+val ocean_inversePrimaryDark = Color(0xFF6E5D00)
+val ocean_surfaceDimDark = Color(0xFF16130A)
+val ocean_surfaceBrightDark = Color(0xFF3D392E)
+val ocean_surfaceContainerLowestDark = Color(0xFF100E06)
+val ocean_surfaceContainerLowDark = OceanBlue03
+val ocean_surfaceContainerDark = OceanBlue3
+val ocean_surfaceContainerHighDark = Color(0xFF2D2A1F)
+val ocean_surfaceContainerHighestDark = OceanBlue03
 //endregion
 

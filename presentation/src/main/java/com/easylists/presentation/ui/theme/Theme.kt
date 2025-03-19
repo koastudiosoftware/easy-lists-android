@@ -15,6 +15,47 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.easylists.domain.models.Themes
 
+//region oceanLightScheme
+private val oceanLightScheme = lightColorScheme(
+    primary = ocean_primaryLight,
+    onPrimary = ocean_onPrimaryLight,
+    primaryContainer = ocean_primaryContainerLight,
+    onPrimaryContainer = ocean_onPrimaryContainerLight,
+    secondary = ocean_secondaryLight,
+    onSecondary = ocean_onSecondaryLight,
+    secondaryContainer = ocean_secondaryContainerLight,
+    onSecondaryContainer = ocean_onSecondaryContainerLight,
+    tertiary = ocean_tertiaryLight,
+    onTertiary = ocean_onTertiaryLight,
+    tertiaryContainer = ocean_tertiaryContainerLight,
+    onTertiaryContainer = ocean_onTertiaryContainerLight,
+    error = ocean_errorLight,
+    onError = ocean_onErrorLight,
+    errorContainer = ocean_errorContainerLight,
+    onErrorContainer = ocean_onErrorContainerLight,
+    background = ocean_backgroundLight,
+    onBackground = ocean_onBackgroundLight,
+    surface = ocean_surfaceLight,
+    onSurface = ocean_onSurfaceLight,
+    surfaceVariant = ocean_surfaceVariantLight,
+    onSurfaceVariant = ocean_onSurfaceVariantLight,
+    outline = ocean_outlineLight,
+    outlineVariant = ocean_outlineVariantLight,
+    scrim = ocean_scrimLight,
+    inverseSurface = ocean_inverseSurfaceLight,
+    inverseOnSurface = ocean_inverseOnSurfaceLight,
+    inversePrimary = ocean_inversePrimaryLight,
+    surfaceDim = ocean_surfaceDimLight,
+    surfaceBright = ocean_surfaceBrightLight,
+    surfaceContainerLowest = ocean_surfaceContainerLowestLight,
+    surfaceContainerLow = ocean_surfaceContainerLowLight,
+    surfaceContainer = ocean_surfaceContainerLight,
+    surfaceContainerHigh = ocean_surfaceContainerHighLight,
+    surfaceContainerHighest = ocean_surfaceContainerHighestLight,
+)
+//endregion
+
+
 //region solarizedLightScheme
 private val solarizedLightScheme = lightColorScheme(
     primary = primaryLight,
@@ -97,6 +138,47 @@ private val tropicalFoliageLightScheme = lightColorScheme(
 //endregion
 
 
+//region oceanDarkScheme
+private val oceanDarkScheme = darkColorScheme(
+    primary = ocean_primaryDark,
+    onPrimary = ocean_onPrimaryDark,
+    primaryContainer = ocean_primaryContainerDark,
+    onPrimaryContainer = ocean_onPrimaryContainerDark,
+    secondary = ocean_secondaryDark,
+    onSecondary = ocean_onSecondaryDark,
+    secondaryContainer = ocean_secondaryContainerDark,
+    onSecondaryContainer = ocean_onSecondaryContainerDark,
+    tertiary = ocean_tertiaryDark,
+    onTertiary = ocean_onTertiaryDark,
+    tertiaryContainer = ocean_tertiaryContainerDark,
+    onTertiaryContainer = ocean_onTertiaryContainerDark,
+    error = ocean_errorDark,
+    onError = ocean_onErrorDark,
+    errorContainer = ocean_errorContainerDark,
+    onErrorContainer = ocean_onErrorContainerDark,
+    background = ocean_backgroundDark,
+    onBackground = ocean_onBackgroundDark,
+    surface = ocean_surfaceDark,
+    onSurface = ocean_onSurfaceDark,
+    surfaceVariant = ocean_surfaceVariantDark,
+    onSurfaceVariant = ocean_onSurfaceVariantDark,
+    outline = ocean_outlineDark,
+    outlineVariant = ocean_outlineVariantDark,
+    scrim = ocean_scrimDark,
+    inverseSurface = ocean_inverseSurfaceDark,
+    inverseOnSurface = ocean_inverseOnSurfaceDark,
+    inversePrimary = ocean_inversePrimaryDark,
+    surfaceDim = ocean_surfaceDimDark,
+    surfaceBright = ocean_surfaceBrightDark,
+    surfaceContainerLowest = ocean_surfaceContainerLowestDark,
+    surfaceContainerLow = ocean_surfaceContainerLowDark,
+    surfaceContainer = ocean_surfaceContainerDark,
+    surfaceContainerHigh = ocean_surfaceContainerHighDark,
+    surfaceContainerHighest = ocean_surfaceContainerHighestDark,
+)
+//endregion
+
+
 //region solarizedDarkScheme
 private val solarizedDarkScheme = darkColorScheme(
     primary = primaryDark,
@@ -136,6 +218,7 @@ private val solarizedDarkScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
 //endregion
+
 
 //region tropicalFoliageDarkScheme
 private val tropicalFoliageDarkScheme = darkColorScheme(
@@ -200,6 +283,7 @@ fun EasyListsTheme(
 
             darkTheme -> {
                 when (themeMode) {
+                    Themes.Ocean -> oceanDarkScheme
                     Themes.TropicalFoliage -> tropicalFoliageDarkScheme
                     else -> solarizedDarkScheme
                 }
@@ -207,6 +291,7 @@ fun EasyListsTheme(
 
             else -> {
                 when (themeMode) {
+                    Themes.Ocean -> oceanLightScheme
                     Themes.TropicalFoliage -> tropicalFoliageLightScheme
                     else -> solarizedLightScheme
                 }

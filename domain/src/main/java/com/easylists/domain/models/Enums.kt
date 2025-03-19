@@ -2,6 +2,7 @@ package com.easylists.domain.models
 
 //region Themes
 enum class Themes(val value: String) {
+    Ocean("Ocean"),
     Solarized("Solarized (Default)"),
     TropicalFoliage("Tropical Foliage")
     ;
