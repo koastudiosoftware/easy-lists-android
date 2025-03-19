@@ -138,43 +138,43 @@ private val oceanLightScheme = lightColorScheme(
 //endregion
 
 
-//region slateLightScheme
-private val slateLightScheme = lightColorScheme(
-    primary = slate_primaryLight,
-    onPrimary = slate_onPrimaryLight,
-    primaryContainer = slate_primaryContainerLight,
-    onPrimaryContainer = slate_onPrimaryContainerLight,
-    secondary = slate_secondaryLight,
-    onSecondary = slate_onSecondaryLight,
-    secondaryContainer = slate_secondaryContainerLight,
-    onSecondaryContainer = slate_onSecondaryContainerLight,
-    tertiary = slate_tertiaryLight,
-    onTertiary = slate_onTertiaryLight,
-    tertiaryContainer = slate_tertiaryContainerLight,
-    onTertiaryContainer = slate_onTertiaryContainerLight,
-    error = slate_errorLight,
-    onError = slate_onErrorLight,
-    errorContainer = slate_errorContainerLight,
-    onErrorContainer = slate_onErrorContainerLight,
-    background = slate_backgroundLight,
-    onBackground = slate_onBackgroundLight,
-    surface = slate_surfaceLight,
-    onSurface = slate_onSurfaceLight,
-    surfaceVariant = slate_surfaceVariantLight,
-    onSurfaceVariant = slate_onSurfaceVariantLight,
-    outline = slate_outlineLight,
-    outlineVariant = slate_outlineVariantLight,
-    scrim = slate_scrimLight,
-    inverseSurface = slate_inverseSurfaceLight,
-    inverseOnSurface = slate_inverseOnSurfaceLight,
-    inversePrimary = slate_inversePrimaryLight,
-    surfaceDim = slate_surfaceDimLight,
-    surfaceBright = slate_surfaceBrightLight,
-    surfaceContainerLowest = slate_surfaceContainerLowestLight,
-    surfaceContainerLow = slate_surfaceContainerLowLight,
-    surfaceContainer = slate_surfaceContainerLight,
-    surfaceContainerHigh = slate_surfaceContainerHighLight,
-    surfaceContainerHighest = slate_surfaceContainerHighestLight,
+//region slateBlueLightScheme
+private val slateBlueLightScheme = lightColorScheme(
+    primary = slate_blue_primaryLight,
+    onPrimary = slate_blue_onPrimaryLight,
+    primaryContainer = slate_blue_primaryContainerLight,
+    onPrimaryContainer = slate_blue_onPrimaryContainerLight,
+    secondary = slate_blue_secondaryLight,
+    onSecondary = slate_blue_onSecondaryLight,
+    secondaryContainer = slate_blue_secondaryContainerLight,
+    onSecondaryContainer = slate_blue_onSecondaryContainerLight,
+    tertiary = slate_blue_tertiaryLight,
+    onTertiary = slate_blue_onTertiaryLight,
+    tertiaryContainer = slate_blue_tertiaryContainerLight,
+    onTertiaryContainer = slate_blue_onTertiaryContainerLight,
+    error = slate_blue_errorLight,
+    onError = slate_blue_onErrorLight,
+    errorContainer = slate_blue_errorContainerLight,
+    onErrorContainer = slate_blue_onErrorContainerLight,
+    background = slate_blue_backgroundLight,
+    onBackground = slate_blue_onBackgroundLight,
+    surface = slate_blue_surfaceLight,
+    onSurface = slate_blue_onSurfaceLight,
+    surfaceVariant = slate_blue_surfaceVariantLight,
+    onSurfaceVariant = slate_blue_onSurfaceVariantLight,
+    outline = slate_blue_outlineLight,
+    outlineVariant = slate_blue_outlineVariantLight,
+    scrim = slate_blue_scrimLight,
+    inverseSurface = slate_blue_inverseSurfaceLight,
+    inverseOnSurface = slate_blue_inverseOnSurfaceLight,
+    inversePrimary = slate_blue_inversePrimaryLight,
+    surfaceDim = slate_blue_surfaceDimLight,
+    surfaceBright = slate_blue_surfaceBrightLight,
+    surfaceContainerLowest = slate_blue_surfaceContainerLowestLight,
+    surfaceContainerLow = slate_blue_surfaceContainerLowLight,
+    surfaceContainer = slate_blue_surfaceContainerLight,
+    surfaceContainerHigh = slate_blue_surfaceContainerHighLight,
+    surfaceContainerHighest = slate_blue_surfaceContainerHighestLight,
 )
 //endregion
 
@@ -384,43 +384,43 @@ private val oceanDarkScheme = darkColorScheme(
 //endregion
 
 
-//region slateDarkScheme
-private val slateDarkScheme = darkColorScheme(
-    primary = slate_primaryDark,
-    onPrimary = slate_onPrimaryDark,
-    primaryContainer = slate_primaryContainerDark,
-    onPrimaryContainer = slate_onPrimaryContainerDark,
-    secondary = slate_secondaryDark,
-    onSecondary = slate_onSecondaryDark,
-    secondaryContainer = slate_secondaryContainerDark,
-    onSecondaryContainer = slate_onSecondaryContainerDark,
-    tertiary = slate_tertiaryDark,
-    onTertiary = slate_onTertiaryDark,
-    tertiaryContainer = slate_tertiaryContainerDark,
-    onTertiaryContainer = slate_onTertiaryContainerDark,
-    error = slate_errorDark,
-    onError = slate_onErrorDark,
-    errorContainer = slate_errorContainerDark,
-    onErrorContainer = slate_onErrorContainerDark,
-    background = slate_backgroundDark,
-    onBackground = slate_onBackgroundDark,
-    surface = slate_surfaceDark,
-    onSurface = slate_onSurfaceDark,
-    surfaceVariant = slate_surfaceVariantDark,
-    onSurfaceVariant = slate_onSurfaceVariantDark,
-    outline = slate_outlineDark,
-    outlineVariant = slate_outlineVariantDark,
-    scrim = slate_scrimDark,
-    inverseSurface = slate_inverseSurfaceDark,
-    inverseOnSurface = slate_inverseOnSurfaceDark,
-    inversePrimary = slate_inversePrimaryDark,
-    surfaceDim = slate_surfaceDimDark,
-    surfaceBright = slate_surfaceBrightDark,
-    surfaceContainerLowest = slate_surfaceContainerLowestDark,
-    surfaceContainerLow = slate_surfaceContainerLowDark,
-    surfaceContainer = slate_surfaceContainerDark,
-    surfaceContainerHigh = slate_surfaceContainerHighDark,
-    surfaceContainerHighest = slate_surfaceContainerHighestDark,
+//region slateBlueDarkScheme
+private val slateBlueDarkScheme = darkColorScheme(
+    primary = slate_blue_primaryDark,
+    onPrimary = slate_blue_onPrimaryDark,
+    primaryContainer = slate_blue_primaryContainerDark,
+    onPrimaryContainer = slate_blue_onPrimaryContainerDark,
+    secondary = slate_blue_secondaryDark,
+    onSecondary = slate_blue_onSecondaryDark,
+    secondaryContainer = slate_blue_secondaryContainerDark,
+    onSecondaryContainer = slate_blue_onSecondaryContainerDark,
+    tertiary = slate_blue_tertiaryDark,
+    onTertiary = slate_blue_onTertiaryDark,
+    tertiaryContainer = slate_blue_tertiaryContainerDark,
+    onTertiaryContainer = slate_blue_onTertiaryContainerDark,
+    error = slate_blue_errorDark,
+    onError = slate_blue_onErrorDark,
+    errorContainer = slate_blue_errorContainerDark,
+    onErrorContainer = slate_blue_onErrorContainerDark,
+    background = slate_blue_backgroundDark,
+    onBackground = slate_blue_onBackgroundDark,
+    surface = slate_blue_surfaceDark,
+    onSurface = slate_blue_onSurfaceDark,
+    surfaceVariant = slate_blue_surfaceVariantDark,
+    onSurfaceVariant = slate_blue_onSurfaceVariantDark,
+    outline = slate_blue_outlineDark,
+    outlineVariant = slate_blue_outlineVariantDark,
+    scrim = slate_blue_scrimDark,
+    inverseSurface = slate_blue_inverseSurfaceDark,
+    inverseOnSurface = slate_blue_inverseOnSurfaceDark,
+    inversePrimary = slate_blue_inversePrimaryDark,
+    surfaceDim = slate_blue_surfaceDimDark,
+    surfaceBright = slate_blue_surfaceBrightDark,
+    surfaceContainerLowest = slate_blue_surfaceContainerLowestDark,
+    surfaceContainerLow = slate_blue_surfaceContainerLowDark,
+    surfaceContainer = slate_blue_surfaceContainerDark,
+    surfaceContainerHigh = slate_blue_surfaceContainerHighDark,
+    surfaceContainerHighest = slate_blue_surfaceContainerHighestDark,
 )
 //endregion
 
@@ -532,7 +532,7 @@ fun EasyListsTheme(
                     Themes.Merlot -> merlotDarkScheme
                     Themes.Nautical -> nauticalDarkScheme
                     Themes.Ocean -> oceanDarkScheme
-                    Themes.Slate -> slateDarkScheme
+                    Themes.SlateBlue -> slateBlueDarkScheme
                     Themes.TropicalFoliage -> tropicalFoliageDarkScheme
                     else -> solarizedDarkScheme
                 }
@@ -543,7 +543,7 @@ fun EasyListsTheme(
                     Themes.Merlot -> merlotLightScheme
                     Themes.Nautical -> nauticalLightScheme
                     Themes.Ocean -> oceanLightScheme
-                    Themes.Slate -> slateLightScheme
+                    Themes.SlateBlue -> slateBlueLightScheme
                     Themes.TropicalFoliage -> tropicalFoliageLightScheme
                     else -> solarizedLightScheme
                 }

@@ -5,7 +5,7 @@ enum class Themes(val value: String) {
     Merlot("Merlot"),
     Nautical("Nautical"),
     Ocean("Ocean"),
-    Slate("Slate"),
+    SlateBlue("Slate Blue"),
     Solarized("Solarized (Default)"),
     TropicalFoliage("Tropical Foliage")
     ;
