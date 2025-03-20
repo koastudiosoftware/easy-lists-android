@@ -36,6 +36,13 @@ class RoomListItemLocalDataSource @Inject constructor(
     //endregion
 
 
+    //region removeCategory()
+    override suspend fun removeCategory(categoryUid: List<String>) {
+        return dao.removeCategory(categoryUid = categoryUid)
+    }
+    //endregion
+
+
     //region delete()
     override suspend fun delete(uid: String) {
         return dao.delete(uid = uid)

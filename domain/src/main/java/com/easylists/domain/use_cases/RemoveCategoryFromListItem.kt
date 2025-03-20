@@ -1,0 +1,16 @@
+package com.easylists.domain.use_cases
+
+import com.easylists.domain.repositories.ListItemRepository
+import javax.inject.Inject
+
+class RemoveCategoryFromListItemUseCase @Inject constructor(
+    private val listItemRepository: ListItemRepository
+) {
+
+    //region invoke()
+    suspend operator fun invoke(categoryUid: List<String>) {
+        listItemRepository.removeCategoryFromListItem(categoryUid = categoryUid)
+    }
+    //endregion
+
+}

@@ -3,29 +3,36 @@ package com.easylists.presentation.ui.editcategories
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -45,6 +53,8 @@ import com.easylists.presentation.common.EditCategoriesAction
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.SortCrossedOffItems
+import com.easylists.presentation.common.composables.ConfirmationDialog
+import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
 import com.easylists.presentation.icons.Arrow_back
 import com.easylists.presentation.icons.Cancel
@@ -55,7 +65,12 @@ import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.listdetails.ListDetailsScreenCategoryTitle
 import com.easylists.presentation.ui.listdetails.ListDetailsScreenDeleteCrossedOffItems
 import com.easylists.presentation.ui.listdetails.ListDetailsScreenListItem
+import com.easylists.presentation.ui.listdetails.ListDetailsScreenListItemBottomSheetCategory
+import com.easylists.presentation.ui.listdetails.ListDetailsScreenListItemBottomSheetName
+import com.easylists.presentation.ui.listdetails.ListDetailsScreenListItemBottomSheetNotes
+import com.easylists.presentation.ui.listdetails.ListDetailsScreenListItemBottomSheetQuantity
 import com.easylists.presentation.ui.listdetails.ListDetailsViewModel
+import com.easylists.presentation.ui.masterlists.MasterListsViewModel
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
@@ -69,6 +84,12 @@ fun EditCategoriesScreen(
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+    when {
+        viewModel.state.nextStep == "remove_categories" -> {
+            viewModel.removeCategories()
+        }
+    }
 
     Scaffold(
         modifier = Modifier,
@@ -97,9 +118,9 @@ fun EditCategoriesScreen(
             },
         ) {
 
-//            ConfirmRemoveCategory(viewModel)
+            ConfirmRemoveCategories(viewModel)
 
-//            EditCategoriesScreenCategoryBottomSheet(viewModel)
+            EditCategoriesScreenCategoryBottomSheet(viewModel)
 
             EditCategoriesScreenContent(viewModel)
 
@@ -147,13 +168,13 @@ fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
             IconButton(
                 enabled = viewModel.state.categoryList.any { it.selectedForRemoval },
                 onClick = {
-                    viewModel.showCategoryBottomSheet()
+                    viewModel.setShowConfirmationDialogState(true)
                 }
             ) {
                 Icon(
                     modifier = Modifier,
                     imageVector = Check,
-                    contentDescription = stringResource(R.string.create_new_list)
+                    contentDescription = stringResource(R.string.remove_selected_categories)
                 )
             }
             IconButton(onClick = {
@@ -162,7 +183,7 @@ fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
                 Icon(
                     modifier = Modifier,
                     imageVector = Cancel,
-                    contentDescription = stringResource(R.string.create_new_list)
+                    contentDescription = stringResource(R.string.cancel_removal_of_selected_categories)
                 )
             }
         }
@@ -178,6 +199,103 @@ fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
                 )
             }
         }
+    }
+}
+//endregion
+
+
+//region EditCategoriesScreenCategoryBottomSheet
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showBottomSheet = remember { mutableStateOf(false) }
+
+    when (viewModel.state.showCategoryBottomSheet) {
+        true -> showBottomSheet.value = true
+        false -> showBottomSheet.value = false
+    }
+
+    if (showBottomSheet.value) {
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {
+                showBottomSheet.value = false
+                viewModel.onCategoryBottomSheetDismiss()
+            },
+            dragHandle = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    BottomSheetDefaults.DragHandle()
+                }
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.9f)
+            ) {
+                LazyColumn(modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)) {
+                    item {
+                        SectionTitle(
+                            title = stringResource(
+                                if (viewModel.state.addEditMode == AddEditMode.Add) R.string.add_item
+                                else R.string.edit_item
+                            ),
+                            icon = {
+                                IconButton(
+                                    enabled = viewModel.categoryIconButtonEnabled(),
+                                    onClick = { viewModel.addCategory() },
+                                ) {
+                                    Icon(
+                                        imageVector = Check,
+                                        contentDescription = stringResource(R.string.add_category),
+                                    )
+                                }
+                            },
+                            modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
+                        )
+                    }
+
+                    item {
+                        EditCategoriesScreenBottomSheetName(viewModel)
+                    }
+
+                }
+            }
+        }
+    }
+}
+//endregion
+
+
+//region EditCategoriesScreenBottomSheetName
+@Composable
+fun EditCategoriesScreenBottomSheetName(viewModel: EditCategoriesViewModel) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MaterialTheme.spaces.medium)
+                .padding(top = MaterialTheme.spaces.medium),
+            value = viewModel.categoryName(),
+            onValueChange = { viewModel.onCategoryNameChange(it) },
+            label = { Text(text = stringResource(R.string.name)) },
+            singleLine = true,
+            maxLines = 1,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            isError = viewModel.state.categoryNameInvalid,
+            supportingText = {
+                when {
+                    viewModel.state.categoryNameInvalidMessage.isNotEmpty() == true ->
+                        Text(text = viewModel.state.categoryNameInvalidMessage)
+
+                    else -> null
+                }
+            }
+        )
     }
 }
 //endregion
@@ -204,7 +322,6 @@ fun EditCategoriesScreenContent(viewModel: EditCategoriesViewModel) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
             }
         }
-
     }
 }
 //endregion
@@ -264,7 +381,7 @@ fun CategoryCheckbox(
 
     // uncheck item when context items are not shown
     when {
-        viewModel.state.showContextItems == false -> {
+        viewModel.state.showContextItems == false || viewModel.state.deselectCheckboxes == true -> {
             onStateChange(false)
         }
     }
@@ -278,6 +395,29 @@ fun CategoryCheckbox(
                     onStateChange(!checkedState)
                     viewModel.onCategorySelectedForRemovalChanged(item.uid)
                 },
+            )
+        }
+    }
+}
+//endregion
+
+
+//region ConfirmRemoveCategories
+@Composable
+fun ConfirmRemoveCategories(viewModel: EditCategoriesViewModel) {
+    when {
+        viewModel.state.showConfirmationDialog == true -> {
+            ConfirmationDialog(
+                onDismissRequest = {
+                    viewModel.setShowConfirmationDialogState(false)
+                },
+                onConfirmation = {
+                    viewModel.deselectCheckboxes()
+                    viewModel.removeCategoryFromListItems()
+                    viewModel.setShowConfirmationDialogState(false)
+                },
+                dialogTitle = stringResource(R.string.confirm_removal),
+                dialogText = stringResource(R.string.remove_categories_warning),
             )
         }
     }

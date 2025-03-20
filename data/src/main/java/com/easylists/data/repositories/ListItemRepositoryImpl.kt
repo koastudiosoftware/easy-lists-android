@@ -41,6 +41,12 @@ class ListItemRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun removeCategoryFromListItem(categoryUid: List<String>): Result<Unit> {
+        return Result.runCatching {
+            localSource.removeCategory(categoryUid = categoryUid)
+        }
+    }
+
     override suspend fun updateListItem(listItem: EasyListsListItem): Result<Unit> {
         return Result.runCatching {
             localSource.update(listItem = listItem)
@@ -54,6 +60,7 @@ interface ListItemLocalDataSource {
 
     fun getListItemsFlow(listUid: String): Flow<List<EasyListsListItem>>
     suspend fun insert(listItem: EasyListsListItem): Long
+    suspend fun removeCategory(categoryUid: List<String>)
     suspend fun delete(uid: String)
     suspend fun update(listItem: EasyListsListItem)
 

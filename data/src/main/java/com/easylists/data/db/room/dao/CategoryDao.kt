@@ -21,4 +21,7 @@ abstract class CategoryDao() {
     @Query("DELETE FROM category WHERE uid = :uid")
     abstract suspend fun delete(uid: String)
 
+    @Query("DELETE FROM category WHERE uid IN (:uid)")
+    abstract suspend fun delete(uid: List<String>)
+
 }

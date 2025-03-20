@@ -9,6 +9,7 @@ interface ListItemRepository {
 
     suspend fun addListItem(listItem: EasyListsListItem): Result<Unit>
     suspend fun removeListItem(uid: String): Result<Unit>
+    suspend fun removeCategoryFromListItem(categoryUid: List<String>): Result<Unit>
     suspend fun updateListItem(listItem: EasyListsListItem): Result<Unit>
 
 }

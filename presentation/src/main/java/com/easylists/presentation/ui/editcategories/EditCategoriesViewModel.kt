@@ -10,7 +10,11 @@ import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
+import com.easylists.domain.use_cases.RemoveCategoriesUseCase
+import com.easylists.domain.use_cases.RemoveCategoryFromListItemUseCase
+import com.easylists.domain.use_cases.RemoveListUseCase
 import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
+import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.EditCategoriesAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.EditCategoriesState
@@ -24,6 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,6 +36,8 @@ class EditCategoriesViewModel @Inject constructor(
     private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val getCategoryFlowUseCase: GetCategoryFlowUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
+    private val removeCategoriesUseCase: RemoveCategoriesUseCase,
+    private val removeCategoryFromListItemUseCase: RemoveCategoryFromListItemUseCase,
     private val updateListItemUseCase: UpdateListItemFlowUseCase,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
@@ -90,68 +97,6 @@ class EditCategoriesViewModel @Inject constructor(
     //endregion
 
 
-//    //region initListItemList() :: initialize list of items from the database
-//    fun initListItemsList() {
-//        cancelListItemFlowCollection()
-//
-//        listItemListFlowJob = getListItemFlowUseCase(categoryUid = state.listUid)
-//            .onEach {
-//                handleGetListItemState(Resultat.success(it))
-//            }.catch {
-//                handleGetListItemState(Resultat.failure(it))
-//
-//                // After this catch the flow is interrupted and it must be collected
-//                // again to obtain new data. The handleRefresh() method handles this situation.
-//                cancelListItemFlowCollection()
-//            }.launchIn(viewModelScope)
-//    }
-//
-//
-//    private fun handleGetListItemState(result: Resultat<List<EasyListsListItem>?>) {
-//        result.onSuccess {
-//            var groupedItemList: Map<Pair<Boolean?, String?>, List<EasyListsListItem>>? = null
-//
-//            if (state.categoryList.isNotEmpty() == true) {
-//                // apply category to each item pulled from the database
-//                it?.forEach {
-//                    it.category = state.categoryList.find { category ->
-//                        category.uid == it.categoryUid
-//                    }?.name ?: "Uncategorized"
-//                }
-//
-//                // group all items first by crossedOff then by category
-//                groupedItemList = it?.map { item -> item }?.sortedBy {
-//                    it.category
-//                }?.groupBy {
-//                    Pair(it.crossedOff, it.category)
-//                }
-//            }
-//
-//            state = state.copy(
-//                isPullToRefreshing = false,
-//                groupedItemList = groupedItemList,
-//                listItemList = it?.map { item -> item } ?: emptyList(),
-//                nextDataFetchStage = "",
-//            )
-//        }.onFailure {
-//            state = state.copy(
-//                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
-//            )
-//        }.onLoading {
-////            state = state.copy(
-////                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
-////            )
-//        }
-//    }
-//
-//
-//    private fun cancelListItemFlowCollection() {
-//        listItemListFlowJob?.cancel()
-//        listItemListFlowJob = null
-//    }
-//    //endregion
-
-
     //region onPullToRefresh()
     fun onPullToRefresh(isRefreshing: Boolean): () -> Unit = {
         state = state.copy(isPullToRefreshing = isRefreshing)
@@ -209,6 +154,113 @@ class EditCategoriesViewModel @Inject constructor(
                     it
                 }
             }
+        )
+    }
+    //endregion
+
+
+    //region addCategory()
+    fun addCategory() {
+        viewModelScope.launch {
+            addCategoryUseCase(category = EasyListsCategory(name = state.categoryName))
+            state = state.copy(
+                categoryName = "",
+                categoryNameInvalid = false,
+                categoryNameInvalidMessage = "",
+                showCategoryBottomSheet = false
+            )
+        }
+    }
+    //endregion
+
+
+    //region removeCategoryFromListItems()
+    fun removeCategoryFromListItems() {
+        val categoryList = state.categoryList.filter { category ->
+            category.selectedForRemoval == true
+        }.map { it.uid ?: "" }
+        viewModelScope.launch {
+            if (categoryList.isNotEmpty() || categoryList.all { it.isNotEmpty() }) {
+                removeCategoryFromListItemUseCase(
+                    categoryUid = categoryList,
+                )
+            }
+            state = state.copy(nextStep = "remove_categories")
+        }
+    }
+    //endregion
+
+
+    //region removeCategories()
+    fun removeCategories() {
+        var categoryList = state.categoryList.filter { category ->
+            category.selectedForRemoval == true
+        }.map { it.uid ?: "" }
+
+        viewModelScope.launch {
+            if (categoryList.isNotEmpty() || categoryList.all { it.isNotEmpty() }) {
+                removeCategoriesUseCase(uidList = categoryList)
+                state.categoryList.forEach{ it.selectedForRemoval = false }
+            }
+
+            state = state.copy(
+                deselectCheckboxes = false,
+                nextStep = ""
+            )
+        }
+    }
+    //endregion
+
+
+    //region deselectCheckboxes()
+    fun deselectCheckboxes() {
+        state = state.copy(deselectCheckboxes = true)
+    }
+    //endregion
+
+
+    //region categoryIconButtonEnabled()
+    fun categoryIconButtonEnabled(): Boolean {
+        return state.categoryName.isNotEmpty() &&
+                state.categoryList.all { it.name != state.categoryName }
+    }
+    //endregion
+
+
+    //region categoryName()
+    fun categoryName(): String {
+        return state.categoryName
+    }
+    //endregion
+
+
+    //region onCategoryNameChange()
+    fun onCategoryNameChange(name: String) {
+        var categoryNameInvalidMessage: String
+        val isNameInvalid = (state.categoryList.any {
+            it.name.lowercase() == name.lowercase()
+        } == true).let {
+            categoryNameInvalidMessage = if (it) "Name already in use" else ""
+            it
+        }
+
+        state = state.copy(
+            categoryName = name,
+            categoryNameInvalid = isNameInvalid,
+            categoryNameInvalidMessage = categoryNameInvalidMessage
+        )
+    }
+    //endregion
+
+
+    //region onCategoryBottomSheetDismiss()
+    fun onCategoryBottomSheetDismiss() {
+        state = state.copy(
+            addEditMode = AddEditMode.Add,
+            categoryName = "",
+            categoryNameInvalid = false,
+            categoryNameInvalidMessage = "",
+            showCategoryBottomSheet = !state.showCategoryBottomSheet,
         )
     }
     //endregion
