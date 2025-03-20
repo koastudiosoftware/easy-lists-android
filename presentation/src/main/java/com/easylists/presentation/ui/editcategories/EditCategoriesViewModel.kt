@@ -5,9 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.easylists.domain.common.KEY
+import com.easylists.domain.common.TYPE
+import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.use_cases.AddCategoryUseCase
+import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveCategoriesUseCase
@@ -15,6 +19,8 @@ import com.easylists.domain.use_cases.RemoveCategoryFromListItemUseCase
 import com.easylists.domain.use_cases.RemoveListUseCase
 import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
 import com.easylists.presentation.common.AddEditMode
+import com.easylists.presentation.common.AppSettingsKeys
+import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.EditCategoriesAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.EditCategoriesState
@@ -33,7 +39,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditCategoriesViewModel @Inject constructor(
-    private val getListItemFlowUseCase: GetListItemFlowUseCase,
+    private val getAppSettingsUseCase: GetAppSettingsUseCase,
     private val getCategoryFlowUseCase: GetCategoryFlowUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
     private val removeCategoriesUseCase: RemoveCategoriesUseCase,
@@ -44,14 +50,39 @@ class EditCategoriesViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var categoryListFlowJob: Job? = null
-    private var listItemListFlowJob: Job? = null
 
-    var state by mutableStateOf(EditCategoriesState())
+    var state by mutableStateOf( EditCategoriesState() )
 
 
     init {
+        initAppSettings()
         initCategoryList()
     }
+
+
+    //region initAppSettings()
+    fun initAppSettings() {
+        viewModelScope.launch {
+            val result = getAppSettingsUseCase(
+                keys = AppSettingsKeys.entries.map {
+                    mapOf(
+                        KEY to it.key,
+                        TYPE to it.type.toString()
+                    )
+                },
+            )
+
+            val capitalization =
+                result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
+
+            state = state.copy(
+                capitalization = Capitalization.from(
+                    capitalization ?: Capitalization.NoCapitalization.toString()
+                ) ?: Capitalization.NoCapitalization,
+            )
+        }
+    }
+    //endregion
 
 
     //region initCategoryList() :: initialize list of items from the database

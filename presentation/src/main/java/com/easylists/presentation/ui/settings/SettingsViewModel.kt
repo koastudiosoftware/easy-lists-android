@@ -47,6 +47,9 @@ class SettingsViewModel @Inject constructor(
                 },
             )
 
+            val capitalization =
+                result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
+
             val groupCrossedOffItems =
                 result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
 
@@ -56,6 +59,10 @@ class SettingsViewModel @Inject constructor(
             val theme = result.find { it[KEY] == AppSettingsKeys.Theme.key }?.get(VALUE)
 
             state = state.copy(
+                capitalization = Capitalization.from(
+                    capitalization ?: Capitalization.NoCapitalization.toString()
+                ) ?: Capitalization.NoCapitalization,
+
                 groupCrossedOffItems = GroupCrossedOffItems.from(
                     groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
                 ) ?: GroupCrossedOffItems.AllTogether,

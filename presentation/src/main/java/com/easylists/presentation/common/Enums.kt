@@ -1,5 +1,6 @@
 package com.easylists.presentation.common
 
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.easylists.domain.common.AppSettingsType
 
 //region AddEditMode
@@ -10,16 +11,24 @@ enum class AddEditMode() {
 //endregion
 
 
-enum class Capitalization(val value: String) {
-    NoCapitalization("No capitalization"),
-    CapitalizeFirstLetter("Capitalize first letter"),
-    CapitalizeAllLetters("Capitalize all letters"),
+//region Capitalization
+enum class Capitalization(val value: String, val keyboardCapitalization: KeyboardCapitalization) {
+    NoCapitalization("No capitalization", KeyboardCapitalization.None),
+    CapitalizeFirstLetter("Capitalize first letter", KeyboardCapitalization.Sentences),
+    CapitalizeAllLetters("Capitalize all letters", KeyboardCapitalization.Words),
     ;
 
     override fun toString(): String {
         return value
     }
+
+    companion object {
+        infix fun from(value: String): Capitalization? =
+            Capitalization.entries.firstOrNull { it.value == value }
+    }
 }
+//endregion
+
 
 //region AppSettingsKeys
 enum class AppSettingsKeys(val key: String, val type: AppSettingsType) {

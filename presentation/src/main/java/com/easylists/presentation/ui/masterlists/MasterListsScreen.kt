@@ -138,7 +138,6 @@ fun MasterListsScreenActionIcons(
             modifier = Modifier,
             imageVector = Add,
             contentDescription = stringResource(R.string.create_new_list),
-//            tint = MaterialTheme.colorScheme.onSurface
         )
     }
     MasterListsScreenOverflowMenu(navController, viewModel)
@@ -436,7 +435,11 @@ fun MasterListsScreenListBottomSheetListName(viewModel: MasterListsViewModel) {
             label = { Text(text = stringResource(R.string.name)) },
             singleLine = true,
             maxLines = 1,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            keyboardOptions = KeyboardOptions(
+                capitalization = viewModel.state.capitalization.keyboardCapitalization,
+                keyboardType = KeyboardType.Text,
+                showKeyboardOnFocus = true,
+            ),
             isError = viewModel.state.listNameInvalid,
             supportingText = {
                 when {
@@ -464,7 +467,11 @@ fun MasterListsScreenListBottomSheetListNotes(viewModel: MasterListsViewModel) {
             value = viewModel.listNotes(),
             onValueChange = { viewModel.onListNotesChange(it) },
             label = { Text(text = stringResource(R.string.notes)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            keyboardOptions = KeyboardOptions(
+                capitalization = viewModel.state.capitalization.keyboardCapitalization,
+                keyboardType = KeyboardType.Text,
+                showKeyboardOnFocus = true,
+            ),
         )
     }
 }

@@ -19,6 +19,7 @@ import com.easylists.domain.use_cases.RemoveListItemUseCase
 import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.AppSettingsKeys
+import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.common.isNumeric
@@ -57,7 +58,7 @@ class ListDetailsViewModel @Inject constructor(
     private var categoryListFlowJob: Job? = null
     private var listItemListFlowJob: Job? = null
 
-    var state by mutableStateOf(ListDetailsState())
+    var state by mutableStateOf( ListDetailsState() )
 
 
     init {
@@ -87,6 +88,9 @@ class ListDetailsViewModel @Inject constructor(
                 },
             )
 
+            val capitalization =
+                result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
+
             val groupCrossedOffItems =
                 result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
 
@@ -94,6 +98,10 @@ class ListDetailsViewModel @Inject constructor(
                 result.find { it[KEY] == AppSettingsKeys.SortCrossedOffItems.key }?.get(VALUE)
 
             state = state.copy(
+                capitalization = Capitalization.from(
+                    capitalization ?: Capitalization.NoCapitalization.toString()
+                ) ?: Capitalization.NoCapitalization,
+
                 groupCrossedOffItems = GroupCrossedOffItems.from(
                     groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
                 ) ?: GroupCrossedOffItems.AllTogether,

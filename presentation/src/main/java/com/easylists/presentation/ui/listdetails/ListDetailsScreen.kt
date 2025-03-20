@@ -618,7 +618,11 @@ fun ListDetailsScreenListItemBottomSheetName(viewModel: ListDetailsViewModel) {
             label = { Text(text = stringResource(R.string.name)) },
             singleLine = true,
             maxLines = 1,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            keyboardOptions = KeyboardOptions(
+                capitalization = viewModel.state.capitalization.keyboardCapitalization,
+                keyboardType = KeyboardType.Text,
+                showKeyboardOnFocus = true,
+            ),
             isError = viewModel.state.itemNameInvalid,
             supportingText = {
                 when {
@@ -646,7 +650,11 @@ fun ListDetailsScreenListItemBottomSheetNotes(viewModel: ListDetailsViewModel) {
             value = viewModel.itemNotes(),
             onValueChange = { viewModel.onItemNotesChange(it) },
             label = { Text(text = stringResource(R.string.notes)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            keyboardOptions = KeyboardOptions(
+                capitalization = viewModel.state.capitalization.keyboardCapitalization,
+                keyboardType = KeyboardType.Text,
+                showKeyboardOnFocus = true,
+            ),
         )
     }
 }
@@ -664,7 +672,10 @@ fun ListDetailsScreenListItemBottomSheetQuantity(viewModel: ListDetailsViewModel
             value = viewModel.itemQuantity(),
             onValueChange = { viewModel.onItemQuantityChange(it) },
             label = { Text(text = stringResource(R.string.quantity)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                showKeyboardOnFocus = true,
+            ),
         )
     }
 }

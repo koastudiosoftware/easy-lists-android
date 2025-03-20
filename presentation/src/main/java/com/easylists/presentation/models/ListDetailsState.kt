@@ -3,6 +3,7 @@ package com.easylists.presentation.models
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.presentation.common.AddEditMode
+import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.MasterListsAction
 import com.easylists.presentation.common.SortCrossedOffItems
@@ -10,6 +11,7 @@ import com.easylists.presentation.common.SortCrossedOffItems
 data class ListDetailsState(
     var actionButtonState: MasterListsAction = MasterListsAction.None,
     var addEditMode: AddEditMode = AddEditMode.Add,
+    var capitalization: Capitalization = Capitalization.NoCapitalization,
     var categoryList: List<EasyListsCategory> = emptyList(),
     var categoryText: String = "",
     var groupCrossedOffItems: GroupCrossedOffItems = GroupCrossedOffItems.AllTogether,

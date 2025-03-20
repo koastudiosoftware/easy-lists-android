@@ -5,16 +5,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.easylists.domain.common.KEY
+import com.easylists.domain.common.TYPE
+import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsList
+import com.easylists.domain.models.Themes
 import com.easylists.domain.use_cases.AddListFlowUseCase
+import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
 import com.easylists.domain.use_cases.RemoveListUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
+import com.easylists.presentation.common.AppSettingsKeys
+import com.easylists.presentation.common.Capitalization
+import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.MasterListsAction
+import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListListUiState
 import com.easylists.presentation.models.MasterListsState
+import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -29,6 +39,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MasterListsViewModel @Inject constructor(
+    private val getAppSettingsUseCase: GetAppSettingsUseCase,
     private val getListListFlowUseCase: GetListFlowUseCase,
     private val addListUseCase: AddListFlowUseCase,
     private val updateListUseCase: UpdateListUseCase,
@@ -43,8 +54,34 @@ class MasterListsViewModel @Inject constructor(
 
 
     init {
+        initAppSettings()
         initListList()
     }
+
+
+    //region initAppSettings()
+    fun initAppSettings() {
+        viewModelScope.launch {
+            val result = getAppSettingsUseCase(
+                keys = AppSettingsKeys.entries.map {
+                    mapOf(
+                        KEY to it.key,
+                        TYPE to it.type.toString()
+                    )
+                },
+            )
+
+            val capitalization =
+                result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
+
+            state = state.copy(
+                capitalization = Capitalization.from(
+                    capitalization ?: Capitalization.NoCapitalization.toString()
+                ) ?: Capitalization.NoCapitalization,
+            )
+        }
+    }
+    //endregion
 
 
     //region addList() :: Add a list to the database
@@ -63,7 +100,13 @@ class MasterListsViewModel @Inject constructor(
             }
 
             showListBottomSheet()
-            state = state.copy(selectedListUid = "")
+            state = state.copy(
+                listName = "",
+                listNotes = "",
+                listNameInvalid = false,
+                listNameInvalidMessage = "",
+                selectedListUid = ""
+            )
         }
     }
     //endregion
@@ -240,4 +283,5 @@ class MasterListsViewModel @Inject constructor(
         )
     }
     //endregion
+
 }
