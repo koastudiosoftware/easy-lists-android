@@ -357,14 +357,11 @@ fun EditCategoriesScreenCategory(
                 .padding(vertical = MaterialTheme.spaces.medium),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CategoryCheckbox(item, viewModel)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(horizontal =
-                        if (viewModel.state.showContextItems) MaterialTheme.spaces.none
-                        else MaterialTheme.spaces.medium),
+                    .padding(horizontal = MaterialTheme.spaces.medium),
             ) {
                 Text(
                     maxLines = 1,
@@ -372,6 +369,7 @@ fun EditCategoriesScreenCategory(
                     text = item.name,
                 )
             }
+            CategoryCheckbox(item, viewModel)
         }
     }
 }
