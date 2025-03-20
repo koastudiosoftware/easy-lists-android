@@ -352,7 +352,7 @@ fun EditCategoriesScreenCategory(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
+                .height(MaterialTheme.spaces.rowHeightMedium)
                 .padding(start = MaterialTheme.spaces.medium)
                 .padding(vertical = MaterialTheme.spaces.medium),
             verticalAlignment = Alignment.CenterVertically

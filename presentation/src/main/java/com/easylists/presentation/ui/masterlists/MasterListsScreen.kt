@@ -40,7 +40,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.easylists.domain.models.EasyListsList
@@ -157,7 +159,6 @@ fun MasterListItem(
     Row(
         modifier = Modifier
             .padding(horizontal = MaterialTheme.spaces.none)
-            .height(64.dp)
             .combinedClickable(
                 onClick = {
                     sharedViewModel.listUid = list.uid.toString()
@@ -166,66 +167,50 @@ fun MasterListItem(
                 },
                 onLongClick = { viewModel.showContextIcons(list) }
             ),
-        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .weight(1f)
-                .padding(
-                    horizontal = MaterialTheme.spaces.large,
-                    vertical = MaterialTheme.spaces.medium,
-                ),
-            verticalArrangement = Arrangement.Center,
+                .fillMaxWidth()
+                .height(MaterialTheme.spaces.rowHeightMedium)
+                .padding(start = MaterialTheme.spaces.large)
+                .padding(vertical = MaterialTheme.spaces.medium),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyLarge,
-                text = list.name
-            )
-            when {
-                list.notes?.isNotEmpty() == true -> {
-                    Text(
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.bodyMedium,
-                        text = list.notes!!
-                    )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(end = MaterialTheme.spaces.medium),
+            ) {
+                Text(
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = TextStyle(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        textDecoration = TextDecoration.None,
+                    ),
+                    text = list.name,
+                )
+                when {
+                    list.notes?.isNotEmpty() == true -> {
+                        Text(
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodyMedium,
+                            text = list.notes!!
+                        )
+                    }
                 }
             }
-        }
-        VerticalDivider(
-            modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
-        )
-        IconButton(
-            modifier = Modifier.weight(0.16f),
-            onClick = {
-                viewModel.onListEditButtonClick(list = list)
-            }
-        ) {
-            Icon(
-                modifier = Modifier,
-                imageVector = Info,
-                contentDescription = stringResource(R.string.create_new_list)
-            )
-        }
 
-        when {
-            viewModel.state.selectedListUid == list.uid -> {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .weight(0.22f)
-                        .padding(
-                            horizontal = MaterialTheme.spaces.medium,
-                            vertical = MaterialTheme.spaces.medium,
-                        )
-                ) {
+            when {
+                viewModel.state.selectedListUid == list.uid -> {
                     VerticalDivider(
                         modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
                     )
                     IconButton(
+                        modifier = Modifier.weight(0.12f),
                         onClick = { viewModel.setShowConfirmationDialogState(true) }
                     ) {
                         Icon(
@@ -235,9 +220,26 @@ fun MasterListItem(
                         )
                     }
                 }
+
+                else -> {
+                    VerticalDivider(
+                        modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
+                    )
+                    IconButton(
+                        modifier = Modifier.weight(0.12f),
+                        onClick = {
+                            viewModel.onListEditButtonClick(list = list)
+                        }
+                    ) {
+                        Icon(
+                            modifier = Modifier,
+                            imageVector = Info,
+                            contentDescription = stringResource(R.string.create_new_list)
+                        )
+                    }
+                }
             }
         }
-
     }
     HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
 }

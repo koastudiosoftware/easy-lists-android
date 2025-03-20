@@ -417,7 +417,7 @@ fun ListDetailsScreenListItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
+                .height(MaterialTheme.spaces.rowHeightMedium)
                 .padding(start = MaterialTheme.spaces.large)
                 .padding(vertical = MaterialTheme.spaces.medium),
             verticalAlignment = Alignment.CenterVertically
