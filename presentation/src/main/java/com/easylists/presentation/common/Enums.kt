@@ -2,13 +2,28 @@ package com.easylists.presentation.common
 
 import com.easylists.domain.common.AppSettingsType
 
+//region AddEditMode
 enum class AddEditMode() {
     Add,
     Edit,
 }
+//endregion
+
+
+enum class Capitalization(val value: String) {
+    NoCapitalization("No capitalization"),
+    CapitalizeFirstLetter("Capitalize first letter"),
+    CapitalizeAllLetters("Capitalize all letters"),
+    ;
+
+    override fun toString(): String {
+        return value
+    }
+}
 
 //region AppSettingsKeys
 enum class AppSettingsKeys(val key: String, val type: AppSettingsType) {
+    Capitalization("Capitalization", AppSettingsType.String),
     GroupCrossedOffItems("GroupCrossedOffItems", AppSettingsType.String),
     SortCrossedOffItems("SortCrossedOffItems", AppSettingsType.String),
     Theme("Theme", AppSettingsType.String),

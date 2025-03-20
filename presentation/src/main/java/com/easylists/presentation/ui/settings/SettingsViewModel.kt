@@ -12,6 +12,7 @@ import com.easylists.domain.models.Themes
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.SetAppSettingsUseCase
 import com.easylists.presentation.common.AppSettingsKeys
+import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.models.SettingsState
@@ -89,6 +90,11 @@ class SettingsViewModel @Inject constructor(
     //region onListSettingsChanged()
     fun <E : Enum<E>> onListSettingsChanged(e: E) {
         when (e) {
+            is Capitalization -> {
+                state = state.copy(capitalization = e)
+                setStringAppSetting(key = AppSettingsKeys.Capitalization.key, value = e.value)
+            }
+
             is GroupCrossedOffItems -> {
                 state = state.copy(groupCrossedOffItems = e)
                 setStringAppSetting(key = AppSettingsKeys.GroupCrossedOffItems.key, value = e.value)
@@ -111,6 +117,7 @@ class SettingsViewModel @Inject constructor(
     //region listSettingsSelected()
     fun <E : Enum<E>> listSettingsSelected(e: E): String {
         return when (e) {
+            is Capitalization -> state.capitalization.toString()
             is GroupCrossedOffItems -> state.groupCrossedOffItems.toString()
             is SortCrossedOffItems -> state.sortCrossedOffItems.toString()
             is Themes -> state.theme.toString()

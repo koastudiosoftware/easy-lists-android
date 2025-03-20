@@ -41,6 +41,7 @@
 
     <string name="list_items">List Items</string>
     <string name="display">Display</string>
+    <string name="adding_and_editing">Adding and Editing</string>
 
     <string name="confirm">Confirm</string>
     <string name="dismiss">Dismiss</string>

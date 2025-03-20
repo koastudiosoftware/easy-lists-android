@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import com.easylists.domain.models.Themes
 import com.easylists.presentation.R
+import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.SortCrossedOffItems
@@ -190,6 +191,23 @@ fun SettingsScreenContent(
                 "Theme",
                 Themes.entries.toList(),
                 Themes.entries.indexOf(viewModel.state.theme),
+                viewModel
+            )
+        }
+
+        item {
+            SectionTitle(
+                title = stringResource(id = R.string.adding_and_editing),
+                modifier = Modifier
+                    .padding(horizontal = MaterialTheme.spaces.large)
+                    .padding(top = MaterialTheme.spaces.large)
+            )
+        }
+        item {
+            ListSettingGroup(
+                "Capitalization",
+                Capitalization.entries.toList(),
+                Capitalization.entries.indexOf(viewModel.state.capitalization),
                 viewModel
             )
         }
