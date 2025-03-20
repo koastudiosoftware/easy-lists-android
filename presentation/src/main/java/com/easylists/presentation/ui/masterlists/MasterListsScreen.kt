@@ -315,7 +315,7 @@ fun MasterListsScreenOverflowMenu(
             },
             onClick = {
                 expanded.value = !expanded.value
-//                navController.navigate(Screen.EditCategories)
+                navController.navigate(Screen.EditCategories)
             },
             leadingIcon = {
                 Icon(

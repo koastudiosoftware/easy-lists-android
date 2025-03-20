@@ -16,6 +16,14 @@ enum class AppSettingsKeys(val key: String, val type: AppSettingsType) {
 //endregion
 
 
+//region EditCategoriesAction
+enum class EditCategoriesAction(val value: String) {
+    Remove("Remove"),
+    None("None"),
+}
+//endregion
+
+
 //region GroupCrossedOffItems
 enum class GroupCrossedOffItems(val value: String) {
     AllTogether("All together"),

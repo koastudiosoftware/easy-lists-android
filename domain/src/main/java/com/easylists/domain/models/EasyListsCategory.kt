@@ -8,4 +8,6 @@ data class EasyListsCategory(
     var sortOrder: Int? = null,
     var createdTimestamp: Long = Instant.now().epochSecond,
     var modifiedTimestamp: Long = Instant.now().epochSecond,
+
+    var selectedForRemoval: Boolean = false,
 )
