@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.easylists.data.db.room.models.CategoryEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -17,6 +18,9 @@ abstract class CategoryDao() {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(categoryEntity: CategoryEntity): Long
+
+    @Update
+    abstract suspend fun update(categoryEntity: CategoryEntity)
 
     @Query("DELETE FROM category WHERE uid = :uid")
     abstract suspend fun delete(uid: String)

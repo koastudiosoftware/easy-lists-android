@@ -9,22 +9,18 @@ import com.easylists.domain.common.KEY
 import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsCategory
-import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
-import com.easylists.domain.use_cases.GetListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveCategoriesUseCase
 import com.easylists.domain.use_cases.RemoveCategoryFromListItemUseCase
-import com.easylists.domain.use_cases.RemoveListUseCase
-import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
+import com.easylists.domain.use_cases.UpdateCategoryUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.EditCategoriesAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.EditCategoriesState
-import com.easylists.presentation.models.ListListUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -35,6 +31,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,14 +41,14 @@ class EditCategoriesViewModel @Inject constructor(
     private val addCategoryUseCase: AddCategoryUseCase,
     private val removeCategoriesUseCase: RemoveCategoriesUseCase,
     private val removeCategoryFromListItemUseCase: RemoveCategoryFromListItemUseCase,
-    private val updateListItemUseCase: UpdateListItemFlowUseCase,
+    private val updateCategoryUseCase: UpdateCategoryUseCase,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
     private var categoryListFlowJob: Job? = null
 
-    var state by mutableStateOf( EditCategoriesState() )
+    var state by mutableStateOf(EditCategoriesState())
 
 
     init {
@@ -152,6 +149,8 @@ class EditCategoriesViewModel @Inject constructor(
     //region onCategoryClick()
     fun onCategoryClick(item: EasyListsCategory) {
         state = state.copy(
+            addEditMode = AddEditMode.Edit,
+            categoryName = item.name,
             selectedItem = item,
             showCategoryBottomSheet = true,
         )
@@ -205,6 +204,30 @@ class EditCategoriesViewModel @Inject constructor(
     //endregion
 
 
+    //region updateCategory()
+    fun updateCategory() {
+        viewModelScope.launch {
+            updateCategoryUseCase(
+                category = EasyListsCategory(
+                    uid = state.selectedItem?.uid,
+                    name = state.categoryName,
+                    sortOrder = state.selectedItem?.sortOrder,
+                    createdTimestamp = state.selectedItem?.createdTimestamp
+                        ?: Instant.now().epochSecond,
+                )
+            )
+
+            state = state.copy(
+                categoryName = "",
+                categoryNameInvalid = false,
+                categoryNameInvalidMessage = "",
+                showCategoryBottomSheet = false
+            )
+        }
+    }
+    //endregion
+
+
     //region removeCategoryFromListItems()
     fun removeCategoryFromListItems() {
         val categoryList = state.categoryList.filter { category ->
@@ -231,7 +254,7 @@ class EditCategoriesViewModel @Inject constructor(
         viewModelScope.launch {
             if (categoryList.isNotEmpty() || categoryList.all { it.isNotEmpty() }) {
                 removeCategoriesUseCase(uidList = categoryList)
-                state.categoryList.forEach{ it.selectedForRemoval = false }
+                state.categoryList.forEach { it.selectedForRemoval = false }
             }
 
             state = state.copy(

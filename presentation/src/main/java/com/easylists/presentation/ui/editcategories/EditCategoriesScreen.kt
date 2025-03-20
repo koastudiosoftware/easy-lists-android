@@ -247,7 +247,10 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
                             icon = {
                                 IconButton(
                                     enabled = viewModel.categoryIconButtonEnabled(),
-                                    onClick = { viewModel.addCategory() },
+                                    onClick = {
+                                        if (viewModel.state.addEditMode == AddEditMode.Add) viewModel.addCategory()
+                                        else viewModel.updateCategory()
+                                    },
                                 ) {
                                     Icon(
                                         imageVector = Check,

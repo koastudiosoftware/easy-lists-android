@@ -35,6 +35,14 @@ class RoomCategoryLocalDataSource @Inject constructor(
     //endregion
 
 
+    //region update()
+    override suspend fun update(category: EasyListsCategory) {
+        val mappedCategory = mapper.mapEasyListsCategoryToCategoryEntity(category)
+        return dao.update(categoryEntity = mappedCategory)
+    }
+    //endregion
+
+
     //region delete()
     override suspend fun delete(uid: String) {
         return dao.delete(uid = uid)
