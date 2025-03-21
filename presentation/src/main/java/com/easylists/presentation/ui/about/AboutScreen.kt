@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,10 +33,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.easylists.presentation.R
 import com.easylists.presentation.common.REPOSITORY_DONATE_URL
 import com.easylists.presentation.common.SUPPORT_EMAIL
@@ -188,7 +192,7 @@ fun AboutScreenContent(
 //endregion
 
 
-//region Description
+//region AppLogo
 @Composable
 private fun AppLogo(
     modifier: Modifier = Modifier
@@ -198,12 +202,12 @@ private fun AppLogo(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-//        Image(
-//            modifier = Modifier.requiredHeight(180.dp),
-//            contentDescription = stringResource(R.string.app_name) + " logo",
-//            contentScale = ContentScale.Fit,
-//            painter = painterResource(id = R.drawable.ic_launcher_foreground),
-//        )
+        Image(
+            modifier = Modifier.requiredHeight(180.dp),
+            contentDescription = stringResource(R.string.app_name) + " logo",
+            contentScale = ContentScale.Fit,
+            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+        )
         Text(
             modifier = Modifier.padding(top = MaterialTheme.spaces.small),
             text = stringResource(id = R.string.app_name),
