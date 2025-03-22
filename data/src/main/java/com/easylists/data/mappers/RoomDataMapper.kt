@@ -5,14 +5,16 @@ import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
 import com.easylists.data.db.room.models.ListItemUpdateEntity
 import com.easylists.data.db.room.models.ListUpdateEntity
+import com.easylists.data.db.room.models.TagEntity
+import com.easylists.data.db.room.models.TagListItemEntity
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
+import com.easylists.domain.models.Tag
+import com.easylists.domain.models.TagListItem
 import com.github.davidepanidev.kotlinextensions.utils.serialization.SerializationManager
-import com.toxicbakery.logging.Arbor
 import java.time.Instant
 import javax.inject.Inject
-import kotlin.uuid.ExperimentalUuidApi
 
 class RoomDataMapper @Inject constructor(
     private val serializationManager: SerializationManager,
@@ -160,6 +162,63 @@ class RoomDataMapper @Inject constructor(
             crossedOff = listItem.crossedOff == true,
             crossedOffTimestamp = listItem.crossedOffTimestamp,
             modifiedTimestamp = Instant.now().epochSecond,
+        )
+    }
+    //endregion
+
+
+    //
+    // Tag
+    //
+
+    //region mapTagEntityListToTagList()
+    fun mapTagEntityListToTagList(tagEntityList: List<TagEntity>): List<Tag> {
+        return tagEntityList.map { entity ->
+            Tag(
+                uid = entity.uid,
+                name = entity.name,
+                color = entity.color,
+                createdTimestamp = entity.createdTimestamp,
+                modifiedTimestamp = entity.modifiedTimestamp,
+            )
+        }
+    }
+    //endregion
+
+
+    //region mapTagToTagEntity()
+    fun mapTagToTagEntity(tag: Tag): TagEntity {
+        return TagEntity(
+            name = tag.name,
+            color = tag.color,
+        )
+    }
+    //endregion
+
+
+    //
+    // Tag List Item
+    //
+
+    //region mapTagListItemEntityListToTagListItemList()
+    fun mapTagListItemEntityListToTagListItemList(tagListItemEntityList: List<TagListItemEntity>): List<TagListItem> {
+        return tagListItemEntityList.map { entity ->
+            TagListItem(
+                uid = entity.uid,
+                listItemUid = entity.listItemUid,
+                createdTimestamp = entity.createdTimestamp,
+                modifiedTimestamp = entity.modifiedTimestamp,
+            )
+        }
+    }
+    //endregion
+
+
+    //region mapTagListItemToTagListItemEntity()
+    fun mapTagListItemToTagListItemEntity(tagListItem: TagListItem): TagListItemEntity {
+        return TagListItemEntity(
+            uid = tagListItem.uid,
+            listItemUid = tagListItem.listItemUid,
         )
     }
     //endregion
