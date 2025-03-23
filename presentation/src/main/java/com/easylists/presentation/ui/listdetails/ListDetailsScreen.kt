@@ -585,12 +585,35 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
                     }
 
                     item {
+                        ListDetailsScreenListItemBottomSheetTagsTitle(viewModel)
+                    }
+
+                    item {
                         ListDetailsScreenListItemBottomSheetTags(viewModel)
                     }
 
                 }
             }
         }
+    }
+}
+//endregion
+
+
+//region ListDetailsScreenListItemBottomSheetTagsTitle
+@Composable
+fun ListDetailsScreenListItemBottomSheetTagsTitle(viewModel: ListDetailsViewModel) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = MaterialTheme.spaces.large)
+            .padding(horizontal = MaterialTheme.spaces.large)
+    ) {
+        Text(
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.bodyLarge,
+            text = stringResource(R.string.tags),
+        )
     }
 }
 //endregion
