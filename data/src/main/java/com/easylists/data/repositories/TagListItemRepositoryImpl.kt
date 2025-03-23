@@ -47,15 +47,24 @@ class TagListItemRepositoryImpl @Inject constructor(
             }.flowOn(dispatchers.default)
     }
 
-    override suspend fun addTagListItem(tagListItem: TagListItem): Result<Unit> {
+    override suspend fun addTagListItem(tagListItem: TagListItem): Result<Long> {
         return Result.runCatching {
             localSource.insert(tagListItem = tagListItem)
         }
     }
 
-    override suspend fun removeTag(uid: String): Result<Unit> {
+    override suspend fun addTagListItem(tagListItem: List<TagListItem>): Result<List<Long>> {
         return Result.runCatching {
-            localSource.delete(uid = uid)
+            localSource.insert(tagListItem = tagListItem)
+        }
+    }
+
+    override suspend fun removeTagListItem(
+        listItemUid: String,
+        tagUidList: List<String>
+    ): Result<Unit> {
+        return Result.runCatching {
+            localSource.delete(listItemUid = listItemUid, tagUidList = tagUidList)
         }
     }
 
@@ -66,6 +75,8 @@ interface TagListItemLocalDataSource {
     fun getTagListItemListFlow(): Flow<List<TagListItem>>
     fun getTagListItemListFlow(listItemUid: String): Flow<List<TagListItem>>
     suspend fun insert(tagListItem: TagListItem): Long
+    suspend fun insert(tagListItem: List<TagListItem>): List<Long>
     suspend fun delete(uid: String)
+    suspend fun delete(listItemUid: String, tagUidList: List<String>)
 
 }

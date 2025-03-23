@@ -14,12 +14,14 @@ import com.easylists.domain.models.Tag
 import com.easylists.domain.models.TagListItem
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.AddListItemFlowUseCase
+import com.easylists.domain.use_cases.AddTagListItemUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
 import com.easylists.domain.use_cases.GetTagFlowUseCase
 import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveListItemUseCase
+import com.easylists.domain.use_cases.RemoveTagListItemUseCase
 import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.AppSettingsKeys
@@ -51,11 +53,13 @@ import kotlin.uuid.Uuid
 @HiltViewModel
 class ListDetailsViewModel @Inject constructor(
     private val getAppSettingsUseCase: GetAppSettingsUseCase,
-    private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val getCategoryFlowUseCase: GetCategoryFlowUseCase,
+    private val addCategoryUseCase: AddCategoryUseCase,
     private val getTagFlowUseCase: GetTagFlowUseCase,
     private val getTagListItemFlowUseCase: GetTagListItemFlowUseCase,
-    private val addCategoryUseCase: AddCategoryUseCase,
+    private val addTagListItemUseCase: AddTagListItemUseCase,
+    private val removeTagListItemUseCase: RemoveTagListItemUseCase,
+    private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val addListItemUseCase: AddListItemFlowUseCase,
     private val updateListItemUseCase: UpdateListItemFlowUseCase,
     private val removeListItemUseCase: RemoveListItemUseCase,
@@ -131,6 +135,9 @@ class ListDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             var category: EasyListsCategory
 
+            removeTagListItem()
+            addTagListItem()
+
             var categoryUid = state.categoryList.find { it.name == state.categoryText }?.uid
             if (categoryUid == null && state.categoryText.isNotEmpty()) {
                 categoryUid = Uuid.random().toString()
@@ -143,6 +150,7 @@ class ListDetailsViewModel @Inject constructor(
 
             delay(100L)     // allow a short time for the category to be added to the database
             var listItem = EasyListsListItem(
+                uid = state.itemUid,
                 listUid = state.listUid,
                 name = state.itemName,
                 categoryUid = categoryUid,
@@ -153,12 +161,8 @@ class ListDetailsViewModel @Inject constructor(
             if (state.addEditMode == AddEditMode.Add) {
                 addListItemUseCase(listItem = listItem)
             } else {
-                listItem.uid = state.itemUid
                 updateListItemUseCase(listItem = listItem)
             }
-
-            delay(100L)     // allow a short time for the list item to be added to the database
-
 
             showListItemBottomSheet()
             state = state.copy(
@@ -169,6 +173,48 @@ class ListDetailsViewModel @Inject constructor(
                 itemNotes = "",
                 itemQuantity = "",
                 selectedCategoryIndex = -1,
+            )
+        }
+    }
+    //endregion
+
+
+    //region addTagListItem()
+    @OptIn(ExperimentalUuidApi::class)
+    fun addTagListItem() {
+        val selectedTags = state.tagList.filter { it.isSelected }
+        val tagsToAdd = selectedTags.filter { tag ->
+            state.tagListItemList.none { tagListItem ->
+                tagListItem.listItemUid == state.itemUid && tagListItem.tagUid == tag.uid
+            }
+        }
+
+        viewModelScope.launch {
+            addTagListItemUseCase(tagListItem = tagsToAdd.map {
+                TagListItem(
+                    uid = Uuid.random().toString(),
+                    listItemUid = state.itemUid,
+                    tagUid = it.uid
+                )
+            })
+        }
+    }
+    //endregion
+
+
+    //region removeTagListItem()
+    fun removeTagListItem() {
+        val deselectedTags = state.tagList.filter { !it.isSelected }
+        val tagsToRemove = deselectedTags.filter { tag ->
+            state.tagListItemList.any { tagListItem ->
+                tagListItem.listItemUid == state.itemUid && tagListItem.tagUid == tag.uid
+            }
+        }
+
+        viewModelScope.launch {
+            removeTagListItemUseCase(
+                listItemUid = state.itemUid,
+                tagUidList = tagsToRemove.map { it.uid }
             )
         }
     }
@@ -228,10 +274,11 @@ class ListDetailsViewModel @Inject constructor(
 
 
     //region onItemBottomSheetDismiss()
+    @OptIn(ExperimentalUuidApi::class)
     fun onItemBottomSheetDismiss() {
         state = state.copy(
             addEditMode = AddEditMode.Add,
-            itemUid = "",
+            itemUid = Uuid.random().toString(),
             itemName = "",
             itemNotes = "",
             itemQuantity = "",
@@ -471,7 +518,6 @@ class ListDetailsViewModel @Inject constructor(
 
     private fun handleGetTagListItemListState(result: Resultat<List<TagListItem>?>) {
         result.onSuccess {
-            Arbor.i("tag list item list: $it")
             state = state.copy(
                 isPullToRefreshing = false,
                 tagListItemList = it?.map { item -> item } ?: emptyList(),
@@ -564,34 +610,9 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
-    //region onSelectedIdChange
-    fun onSelectedIdChange(id: Int) {
-        val ids = state.selectedTagIds.toMutableList()
-        if (ids.contains(id)) {
-            ids.remove(id)
-        } else {
-            ids.add(id)
-        }
-        state = state.copy(selectedTagIds = ids)
-    }
-    //endregion
-
-
     //region onSelectedIdsChange
     fun onSelectedIdsChange(ids: List<Int>) {
         state = state.copy(selectedTagIds = ids)
-    }
-    //endregion
-
-
-    //region multiSelectComboBoxOptions()
-    fun multiSelectComboBoxOptions(): List<ComboOption> {
-        return state.tagList.mapIndexed { index, tag ->
-            ComboOption(
-                id = index,
-                text = tag.name,
-            )
-        }
     }
     //endregion
 

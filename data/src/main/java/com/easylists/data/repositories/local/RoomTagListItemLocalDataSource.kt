@@ -5,6 +5,7 @@ import com.easylists.data.mappers.RoomDataMapper
 import com.easylists.data.repositories.TagListItemLocalDataSource
 import com.easylists.domain.models.TagListItem
 import com.github.davidepanidev.kotlinextensions.utils.dispatchers.DispatcherProvider
+import com.toxicbakery.logging.Arbor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -46,9 +47,24 @@ class RoomTagListItemLocalDataSource @Inject constructor(
     //endregion
 
 
+    //region insert()
+    override suspend fun insert(tagListItem: List<TagListItem>): List<Long> {
+        val mappedTagListItem = mapper.mapTagListItemListToTagListItemEntityList(tagListItem)
+        return dao.insert(tagListItemEntity = mappedTagListItem)
+    }
+    //endregion
+
+
     //region delete()
     override suspend fun delete(uid: String) {
         return dao.delete(uid = uid)
+    }
+    //endregion
+
+
+    //region delete()
+    override suspend fun delete(listItemUid: String, tagUidList: List<String>) {
+        return dao.delete(listItemUid = listItemUid, tagUidList = tagUidList)
     }
     //endregion
 

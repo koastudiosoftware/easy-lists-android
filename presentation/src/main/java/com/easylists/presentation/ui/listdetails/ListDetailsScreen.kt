@@ -106,17 +106,13 @@ fun ListDetailsScreen(
         "tag list item" -> viewModel.initTagListItemList()
     }
 
-    Scaffold(
-        modifier = Modifier,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            TopAppBar(
-                title = { ListDetailsScreenTitle(viewModel) },
-                navigationIcon = { ListDetailsScreenTopAppBarNavigationIcon(navController) },
-                actions = { ListDetailsScreenActionIcons(viewModel) },
-            )
-        }
-    ) { innerPadding ->
+    Scaffold(modifier = Modifier, snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
+        TopAppBar(
+            title = { ListDetailsScreenTitle(viewModel) },
+            navigationIcon = { ListDetailsScreenTopAppBarNavigationIcon(navController) },
+            actions = { ListDetailsScreenActionIcons(viewModel) },
+        )
+    }) { innerPadding ->
 
         val pullToRefreshState = rememberPullToRefreshState()
         PullToRefreshBox(
@@ -163,16 +159,15 @@ fun ListDetailsScreenTitle(viewModel: ListDetailsViewModel) {
 //region ListDetailsScreenActionIcons
 @Composable
 fun ListDetailsScreenActionIcons(viewModel: ListDetailsViewModel) {
-    IconButton(onClick = {
-        viewModel.showListItemBottomSheet()
-    }) {
+    IconButton(
+        onClick = { viewModel.showListItemBottomSheet() }
+    ) {
         Icon(
             modifier = Modifier,
             imageVector = Add,
             contentDescription = stringResource(R.string.create_new_list)
         )
     }
-//    ListDetailsScreenOverflowMenu(viewModel)
 }
 //endregion
 
@@ -239,8 +234,7 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                         if (count != null && count > 0) {
                             item {
                                 ListDetailsScreenCategoryTitle(
-                                    stringResource(R.string.crossed_off),
-                                    true
+                                    stringResource(R.string.crossed_off), true
                                 )
                             }
                         }
@@ -399,8 +393,7 @@ fun ListDetailsScreenCategoryTitle(title: String, crossedOff: Boolean = false) {
     ) {
         Text(
             modifier = Modifier.padding(
-                horizontal = MaterialTheme.spaces.large,
-                vertical = MaterialTheme.spaces.medium
+                horizontal = MaterialTheme.spaces.large, vertical = MaterialTheme.spaces.medium
             ),
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             fontWeight = FontWeight.Bold,
@@ -415,16 +408,14 @@ fun ListDetailsScreenCategoryTitle(title: String, crossedOff: Boolean = false) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListDetailsScreenListItem(
-    item: EasyListsListItem,
-    viewModel: ListDetailsViewModel
+    item: EasyListsListItem, viewModel: ListDetailsViewModel
 ) {
     Row(
         modifier = Modifier
             .padding(horizontal = MaterialTheme.spaces.none)
             .combinedClickable(
                 onClick = { viewModel.onListItemClick(item) },
-                onLongClick = { viewModel.showContextIcons(item) }
-            ),
+                onLongClick = { viewModel.showContextIcons(item) }),
     ) {
         Row(
             modifier = Modifier
@@ -441,8 +432,7 @@ fun ListDetailsScreenListItem(
                     .padding(end = MaterialTheme.spaces.medium)
             ) {
                 var text = item.name
-                if (item.quantity != null)
-                    text += " (${item.quantity})"
+                if (item.quantity != null) text += " (${item.quantity})"
                 Text(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -467,8 +457,7 @@ fun ListDetailsScreenListItem(
             when {
                 viewModel.state.selectedItemUid == item.uid -> {
                     VerticalDivider(
-                        modifier = Modifier
-                            .padding(vertical = MaterialTheme.spaces.none)
+                        modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
                     )
                     IconButton(onClick = { viewModel.setShowConfirmationDialogState(true) }) {
                         Icon(
@@ -516,22 +505,15 @@ fun ListDetailsScreenOverflowMenu(viewModel: ListDetailsViewModel) {
         )
     }
     DropdownMenu(
-        expanded = expanded.value,
-        onDismissRequest = { expanded.value = false }
-    ) {
-        DropdownMenuItem(
-            text = { Text(text = stringResource(R.string.settings)) },
-            onClick = {
-                expanded.value = !expanded.value
+        expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
+        DropdownMenuItem(text = { Text(text = stringResource(R.string.settings)) }, onClick = {
+            expanded.value = !expanded.value
 //                viewModel.showExportDataBottomSheet()
-            },
-            leadingIcon = {
-                Icon(
-                    Settings,
-                    contentDescription = "Localized description"
-                )
-            }
-        )
+        }, leadingIcon = {
+            Icon(
+                Settings, contentDescription = "Localized description"
+            )
+        })
     }
 }
 //endregion
@@ -550,21 +532,17 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
     }
 
     if (showBottomSheet.value) {
-        ModalBottomSheet(
-            sheetState = sheetState,
-            onDismissRequest = {
-                showBottomSheet.value = false
-                viewModel.onItemBottomSheetDismiss()
-            },
-            dragHandle = {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    BottomSheetDefaults.DragHandle()
-                }
+        ModalBottomSheet(sheetState = sheetState, onDismissRequest = {
+            showBottomSheet.value = false
+            viewModel.onItemBottomSheetDismiss()
+        }, dragHandle = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                BottomSheetDefaults.DragHandle()
             }
-        ) {
+        }) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -576,8 +554,7 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
                             title = stringResource(
                                 if (viewModel.state.addEditMode == AddEditMode.Add) R.string.add_item
                                 else R.string.edit_item
-                            ),
-                            icon = {
+                            ), icon = {
                                 IconButton(
                                     enabled = viewModel.listItemIconButtonEnabled(),
                                     onClick = { viewModel.addListItem() },
@@ -587,8 +564,7 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
                                         contentDescription = stringResource(R.string.add_list_item),
                                     )
                                 }
-                            },
-                            modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
+                            }, modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
                         )
                     }
 
@@ -642,13 +618,11 @@ fun ListDetailsScreenListItemBottomSheetName(viewModel: ListDetailsViewModel) {
             isError = viewModel.state.itemNameInvalid,
             supportingText = {
                 when {
-                    viewModel.state.itemNameInvalidMessage.isNotEmpty() == true ->
-                        Text(text = viewModel.state.itemNameInvalidMessage)
+                    viewModel.state.itemNameInvalidMessage.isNotEmpty() == true -> Text(text = viewModel.state.itemNameInvalidMessage)
 
                     else -> null
                 }
-            }
-        )
+            })
     }
 }
 //endregion
@@ -799,8 +773,7 @@ fun ListDetailsScreenListItemBottomSheetTags(viewModel: ListDetailsViewModel) {
 
                                     // calculate width of tag pill
                                     var width = measureTextWidth(
-                                        tag.name,
-                                        MaterialTheme.typography.bodyMedium
+                                        tag.name, MaterialTheme.typography.bodyMedium
                                     ) + (MaterialTheme.spaces.small * 2) + (MaterialTheme.spaces.medium * 2)
                                     if (tag.isSelected) {
                                         width += 16.dp
@@ -817,8 +790,7 @@ fun ListDetailsScreenListItemBottomSheetTags(viewModel: ListDetailsViewModel) {
                                     }
 
                                     ListDetailsScreenTagPill(
-                                        tag = tag,
-                                        viewModel = viewModel
+                                        tag = tag, viewModel = viewModel
                                     )
 
                                     widthConsumed += width
@@ -846,28 +818,21 @@ fun ListDetailsScreenTagPill(
     Box(
         modifier = Modifier
             .padding(MaterialTheme.spaces.small)
-            .combinedClickable(
-                onClick = { viewModel.onTagClick(tag) },
-                onLongClick = {}
-            )
+            .combinedClickable(onClick = { viewModel.onTagClick(tag) }, onLongClick = {})
             .background(
                 color = if (tag.isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer,
                 RoundedCornerShape(25.dp)
             )
-            .clip(RoundedCornerShape(25.dp))
-    ) {
+            .clip(RoundedCornerShape(25.dp))) {
         Row(
             modifier = Modifier.padding(
-                start = MaterialTheme.spaces.medium,
-                end = MaterialTheme.spaces.small
-            ),
-            verticalAlignment = Alignment.CenterVertically
+                start = MaterialTheme.spaces.medium, end = MaterialTheme.spaces.small
+            ), verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 color = if (tag.isSelected) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.padding(
-                    start = MaterialTheme.spaces.none,
-                    end = MaterialTheme.spaces.small
+                    start = MaterialTheme.spaces.none, end = MaterialTheme.spaces.small
                 ),
                 style = MaterialTheme.typography.bodyMedium,
                 text = tag.name
@@ -902,8 +867,7 @@ fun measureTextWidth(text: String, style: TextStyle): Dp {
 @Composable
 fun ListDetailsScreenTopAppBarNavigationIcon(navController: NavController<Screen>) {
     IconButton(
-        onClick = { navController.pop() }
-    ) {
+        onClick = { navController.pop() }) {
         Icon(
             painter = rememberVectorPainter(Arrow_back),
             contentDescription = stringResource(R.string.return_to_previous_screen),

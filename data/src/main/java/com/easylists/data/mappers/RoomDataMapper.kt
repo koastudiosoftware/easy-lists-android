@@ -225,4 +225,19 @@ class RoomDataMapper @Inject constructor(
     }
     //endregion
 
+
+    //region mapTagListItemToTagListItemEntity()
+    fun mapTagListItemListToTagListItemEntityList(
+        tagListItem: List<TagListItem>
+    ): List<TagListItemEntity> {
+        return tagListItem.map { tli ->
+            TagListItemEntity(
+                uid = tli.uid.toString(),
+                tagUid = tli.tagUid,
+                listItemUid = tli.listItemUid,
+            )
+        }
+    }
+    //endregion
+
 }
