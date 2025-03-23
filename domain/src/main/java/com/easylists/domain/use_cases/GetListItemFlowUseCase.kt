@@ -12,6 +12,20 @@ class GetListItemFlowUseCase @Inject constructor(
     private val listItemRepository: ListItemRepository,
 ) {
 
+    //region invoke()
+    operator fun invoke(): Flow<List<EasyListsListItem>> {
+        return try {
+            listItemRepository.getListItemFlow().map { it }
+        } catch (e: Exception) {
+            flow {
+                throw e
+            }
+        }
+    }
+    //endregion
+
+
+    //region invoke(listUid: String)
     operator fun invoke(listUid: String): Flow<List<EasyListsListItem>> {
         return try {
             listItemRepository.getListItemFlow(listUid = listUid).map { it }
@@ -21,5 +35,6 @@ class GetListItemFlowUseCase @Inject constructor(
             }
         }
     }
+    //endregion
 
 }

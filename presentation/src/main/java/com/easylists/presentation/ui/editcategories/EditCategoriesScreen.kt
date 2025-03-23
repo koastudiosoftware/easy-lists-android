@@ -38,7 +38,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.presentation.R
@@ -347,7 +349,23 @@ fun EditCategoriesScreenCategory(
                 Text(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    style = TextStyle(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        textDecoration = TextDecoration.None,
+                    ),
                     text = item.name,
+                )
+                val listItemCount = viewModel.categoryListItemCount(item)
+                Text(
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyMedium,
+                    text = when (listItemCount) {
+                        0 -> "Not used"
+                        1 -> "Used by $listItemCount list item"
+                        else -> "Used by $listItemCount list items"
+                    }
                 )
             }
             CategoryCheckbox(item, viewModel)

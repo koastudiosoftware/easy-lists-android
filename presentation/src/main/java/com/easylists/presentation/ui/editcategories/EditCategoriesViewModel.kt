@@ -9,9 +9,14 @@ import com.easylists.domain.common.KEY
 import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsCategory
+import com.easylists.domain.models.EasyListsListItem
+import com.easylists.domain.models.EasyListsTag
+import com.easylists.domain.models.TagListItem
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
+import com.easylists.domain.use_cases.GetListItemFlowUseCase
+import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveCategoryUseCase
 import com.easylists.domain.use_cases.RemoveCategoryFromListItemUseCase
 import com.easylists.domain.use_cases.UpdateCategoryUseCase
@@ -21,6 +26,7 @@ import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.EditCategoriesAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.EditCategoriesState
+import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -42,11 +48,13 @@ class EditCategoriesViewModel @Inject constructor(
     private val removeCategoryUseCase: RemoveCategoryUseCase,
     private val removeCategoryFromListItemUseCase: RemoveCategoryFromListItemUseCase,
     private val updateCategoryUseCase: UpdateCategoryUseCase,
+    private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
     private var categoryListFlowJob: Job? = null
+    private var listItemListFlowJob: Job? = null
 
     var state by mutableStateOf(EditCategoriesState())
 
@@ -54,6 +62,7 @@ class EditCategoriesViewModel @Inject constructor(
     init {
         initAppSettings()
         initCategoryList()
+        initListItemList()
     }
 
 
@@ -121,6 +130,48 @@ class EditCategoriesViewModel @Inject constructor(
     private fun cancelCategoryFlowCollection() {
         categoryListFlowJob?.cancel()
         categoryListFlowJob = null
+    }
+    //endregion
+
+
+    //region initListItemList() :: initialize list of list items from the database
+    fun initListItemList() {
+        cancelListItemFlowCollection()
+
+        listItemListFlowJob = getListItemFlowUseCase()
+            .onEach {
+                handleGetTagListItemState(Resultat.success(it))
+            }.catch {
+                handleGetTagListItemState(Resultat.failure(it))
+
+                // After this catch the flow is interrupted and it must be collected
+                // again to obtain new data. The handleRefresh() method handles this situation.
+                cancelListItemFlowCollection()
+            }.launchIn(viewModelScope)
+    }
+
+
+    private fun handleGetTagListItemState(result: Resultat<List<EasyListsListItem>?>) {
+        result.onSuccess {
+            state = state.copy(
+                isPullToRefreshing = false,
+                listItemList = it?.map { item -> item } ?: emptyList(),
+            )
+        }.onFailure {
+//            state = state.copy(
+//                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
+//            )
+        }.onLoading {
+//            state = state.copy(
+//                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
+//            )
+        }
+    }
+
+
+    private fun cancelListItemFlowCollection() {
+        listItemListFlowJob?.cancel()
+        listItemListFlowJob = null
     }
     //endregion
 
@@ -316,6 +367,14 @@ class EditCategoriesViewModel @Inject constructor(
             categoryNameInvalidMessage = "",
             showCategoryBottomSheet = !state.showCategoryBottomSheet,
         )
+    }
+    //endregion
+
+
+    //region categoryListItemCount()
+    fun categoryListItemCount(category: EasyListsCategory): Int {
+        Arbor.i("state.tagListItemList: ${state.listItemList}")
+        return state.listItemList.count { it.categoryUid == category.uid }
     }
     //endregion
 

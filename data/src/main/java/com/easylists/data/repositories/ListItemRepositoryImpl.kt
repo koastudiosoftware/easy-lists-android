@@ -16,6 +16,19 @@ class ListItemRepositoryImpl @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) : ListItemRepository {
 
+    override fun getListItemFlow(): Flow<List<EasyListsListItem>> {
+        return localSource.getListItemsFlow()
+            .catch {
+                throw if (it is NullPointerException) {
+                    EmptyDatabaseException()
+                } else it
+            }
+            .distinctUntilChanged()
+            .map {
+                it
+            }.flowOn(dispatchers.default)
+    }
+
     override fun getListItemFlow(listUid: String): Flow<List<EasyListsListItem>> {
         return localSource.getListItemsFlow(listUid = listUid)
             .catch {
@@ -58,6 +71,7 @@ class ListItemRepositoryImpl @Inject constructor(
 
 interface ListItemLocalDataSource {
 
+    fun getListItemsFlow(): Flow<List<EasyListsListItem>>
     fun getListItemsFlow(listUid: String): Flow<List<EasyListsListItem>>
     suspend fun insert(listItem: EasyListsListItem): Long
     suspend fun removeCategory(categoryUid: List<String>)

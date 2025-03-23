@@ -18,6 +18,17 @@ class RoomListItemLocalDataSource @Inject constructor(
 ) : ListItemLocalDataSource {
 
     //region getListsFlow()
+    override fun getListItemsFlow(): Flow<List<EasyListsListItem>> {
+        return dao.get()
+            .flowOn(dispatchers.io)
+            .map {
+                mapper.mapListItemEntityListToEasyListsListItemList(it)
+            }
+    }
+    //endregion
+
+
+    //region getListsFlow()
     override fun getListItemsFlow(listUid: String): Flow<List<EasyListsListItem>> {
         return dao.get(listUid = listUid)
             .flowOn(dispatchers.io)
