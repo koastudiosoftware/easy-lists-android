@@ -9,9 +9,11 @@ import com.easylists.domain.common.KEY
 import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsTag
+import com.easylists.domain.models.TagListItem
 import com.easylists.domain.use_cases.AddTagUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetTagFlowUseCase
+import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveTagFromListItemUseCase
 import com.easylists.domain.use_cases.RemoveTagUseCase
 import com.easylists.domain.use_cases.UpdateTagUseCase
@@ -21,6 +23,7 @@ import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.EditTagsAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.EditTagsState
+import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -44,11 +47,13 @@ class EditTagsViewModel @Inject constructor(
     private val removeTagUseCase: RemoveTagUseCase,
     private val removeTagFromListItemUseCase: RemoveTagFromListItemUseCase,
     private val updateTagUseCase: UpdateTagUseCase,
+    private val getTagListItemFlowUseCase: GetTagListItemFlowUseCase,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
     private var tagListFlowJob: Job? = null
+    private var tagListItemFlowJob: Job? = null
 
     var state by mutableStateOf( EditTagsState() )
 
@@ -56,6 +61,7 @@ class EditTagsViewModel @Inject constructor(
     init {
         initAppSettings()
         initTagList()
+        initTagListItemList()
     }
 
 
@@ -106,7 +112,7 @@ class EditTagsViewModel @Inject constructor(
             state = state.copy(
                 isPullToRefreshing = false,
                 // TODO this is where the sorting order should be applied
-                easyListsTagList = it?.map { item -> item } ?: emptyList(),
+                tagList = it?.map { item -> item } ?: emptyList(),
             )
         }.onFailure {
 //            state = state.copy(
@@ -123,6 +129,49 @@ class EditTagsViewModel @Inject constructor(
     private fun cancelTagFlowCollection() {
         tagListFlowJob?.cancel()
         tagListFlowJob = null
+    }
+    //endregion
+
+
+    //region initTagListItemList() :: initialize list of tag list items from the database
+    fun initTagListItemList() {
+        cancelTagListItemFlowCollection()
+
+        tagListItemFlowJob = getTagListItemFlowUseCase()
+            .onEach {
+                handleGetTagListItemState(Resultat.success(it))
+            }.catch {
+                handleGetTagListItemState(Resultat.failure(it))
+
+                // After this catch the flow is interrupted and it must be collected
+                // again to obtain new data. The handleRefresh() method handles this situation.
+                cancelTagListItemFlowCollection()
+            }.launchIn(viewModelScope)
+    }
+
+
+    private fun handleGetTagListItemState(result: Resultat<List<TagListItem>?>) {
+        result.onSuccess {
+            state = state.copy(
+                isPullToRefreshing = false,
+                // TODO this is where the sorting order should be applied
+                tagListItemList = it?.map { item -> item } ?: emptyList(),
+            )
+        }.onFailure {
+//            state = state.copy(
+//                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
+//            )
+        }.onLoading {
+//            state = state.copy(
+//                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
+//            )
+        }
+    }
+
+
+    private fun cancelTagListItemFlowCollection() {
+        tagListItemFlowJob?.cancel()
+        tagListItemFlowJob = null
     }
     //endregion
 
@@ -162,7 +211,7 @@ class EditTagsViewModel @Inject constructor(
 
     //region showContextIcons()
     fun showContextIcons(item: EasyListsTag? = null) {
-        state.easyListsTagList.forEach { it.selectedForRemoval = false }
+        state.tagList.forEach { it.selectedForRemoval = false }
 
         state = state.copy(
             actionButtonState = if (state.actionButtonState == EditTagsAction.Remove)
@@ -179,7 +228,7 @@ class EditTagsViewModel @Inject constructor(
     //region onTagSelectedForRemovalChanged()
     fun onTagSelectedForRemovalChanged(uid: String?) {
         state = state.copy(
-            easyListsTagList = state.easyListsTagList.map {
+            tagList = state.tagList.map {
                 if (it.uid == uid) {
                     it.copy(selectedForRemoval = !it.selectedForRemoval)
                 } else {
@@ -235,7 +284,7 @@ class EditTagsViewModel @Inject constructor(
 
     //region removeTagFromListItems()
     fun removeTagFromListItems() {
-        val tagList = state.easyListsTagList.filter { category ->
+        val tagList = state.tagList.filter { category ->
             category.selectedForRemoval == true
         }.map { it.uid ?: "" }
         viewModelScope.launch {
@@ -252,14 +301,14 @@ class EditTagsViewModel @Inject constructor(
 
     //region removeTags()
     fun removeTags() {
-        var tagList = state.easyListsTagList.filter { tag ->
+        var tagList = state.tagList.filter { tag ->
             tag.selectedForRemoval == true
         }.map { it.uid ?: "" }
 
         viewModelScope.launch {
             if (tagList.isNotEmpty() || tagList.all { it.isNotEmpty() }) {
                 removeTagUseCase(uidList = tagList)
-                state.easyListsTagList.forEach { it.selectedForRemoval = false }
+                state.tagList.forEach { it.selectedForRemoval = false }
             }
 
             state = state.copy(
@@ -281,7 +330,7 @@ class EditTagsViewModel @Inject constructor(
     //region tagIconButtonEnabled()
     fun tagIconButtonEnabled(): Boolean {
         return state.tagName.isNotEmpty() &&
-                state.easyListsTagList.all { it.name != state.tagName }
+                state.tagList.all { it.name != state.tagName }
     }
     //endregion
 
@@ -296,7 +345,7 @@ class EditTagsViewModel @Inject constructor(
     //region onTagNameChange()
     fun onTagNameChange(name: String) {
         var tagNameInvalidMessage: String
-        val isNameInvalid = (state.easyListsTagList.any {
+        val isNameInvalid = (state.tagList.any {
             it.name.lowercase() == name.lowercase()
         } == true).let {
             tagNameInvalidMessage = if (it) "Name already in use" else ""
@@ -321,6 +370,14 @@ class EditTagsViewModel @Inject constructor(
             tagNameInvalidMessage = "",
             showTagBottomSheet = !state.showTagBottomSheet,
         )
+    }
+    //endregion
+
+
+    //region tagItemCount()
+    fun tagListItemCount(tag: EasyListsTag): Int {
+        Arbor.i("state.tagListItemList: ${state.tagListItemList}")
+        return state.tagListItemList.count { it.tagUid == tag.uid }
     }
     //endregion
 

@@ -38,7 +38,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
@@ -147,7 +149,7 @@ fun EditTagsScreenActionIcons(viewModel: EditTagsViewModel) {
     when (viewModel.state.actionButtonState) {
         EditTagsAction.Remove -> {
             IconButton(
-                enabled = viewModel.state.easyListsTagList.any { it.selectedForRemoval },
+                enabled = viewModel.state.tagList.any { it.selectedForRemoval },
                 onClick = {
                     viewModel.setShowConfirmationDialogState(true)
                 }
@@ -301,9 +303,9 @@ fun EditTagsScreenContent(viewModel: EditTagsViewModel) {
             HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
         }
 
-        viewModel.state.easyListsTagList.forEach { item ->
+        viewModel.state.tagList.forEach { item ->
             item {
-                EditTagsScreenCategory(item, viewModel)
+                EditTagsScreenTag(item, viewModel)
             }
 
             item {
@@ -315,10 +317,10 @@ fun EditTagsScreenContent(viewModel: EditTagsViewModel) {
 //endregion
 
 
-//region EditTagsScreenCategory
+//region EditTagsScreenTag
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun EditTagsScreenCategory(
+fun EditTagsScreenTag(
     item: EasyListsTag,
     viewModel: EditTagsViewModel
 ) {
@@ -347,7 +349,23 @@ fun EditTagsScreenCategory(
                 Text(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    style = TextStyle(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        textDecoration = TextDecoration.None,
+                    ),
                     text = item.name,
+                )
+                val tagListItemCount = viewModel.tagListItemCount(item)
+                Text(
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyMedium,
+                    text = when (tagListItemCount) {
+                        0 -> "Not used"
+                        1 -> "Used by $tagListItemCount list item"
+                        else -> "Used by $tagListItemCount list items"
+                    }
                 )
             }
             TagCheckbox(item, viewModel)

@@ -2,6 +2,7 @@ package com.easylists.presentation.models
 
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
+import com.easylists.domain.models.TagListItem
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.EditTagsAction
@@ -12,13 +13,13 @@ data class EditTagsState(
     var capitalization: Capitalization = Capitalization.NoCapitalization,
     var deselectCheckboxes: Boolean = false,
     var isPullToRefreshing: Boolean = false,
-    var listItemList: List<EasyListsListItem> = emptyList(),
     var nextStep: String? = null,
     var selectedItem: EasyListsTag? = null,
     var showTagBottomSheet: Boolean = false,
     var showConfirmationDialog: Boolean = false,
     var showContextItems: Boolean = false,
-    var easyListsTagList: List<EasyListsTag> = emptyList(),
+    var tagList: List<EasyListsTag> = emptyList(),
+    var tagListItemList: List<TagListItem> = emptyList(),
     var tagName: String = "",
     var tagNameInvalid: Boolean = false,
     var tagNameInvalidMessage: String = "",
