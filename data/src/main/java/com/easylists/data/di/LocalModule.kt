@@ -10,6 +10,8 @@ import com.easylists.data.db.room.EasyListsDatabase
 import com.easylists.data.db.room.dao.CategoryDao
 import com.easylists.data.db.room.dao.ListDao
 import com.easylists.data.db.room.dao.ListItemDao
+import com.easylists.data.db.room.dao.TagDao
+import com.easylists.data.db.room.dao.TagListItemDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -60,5 +62,19 @@ object LocalModule {
     fun provideListItemDao(
         easyListsDatabase: EasyListsDatabase
     ): ListItemDao = easyListsDatabase.listItemDao()
+
+
+    @Provides
+    @Singleton
+    fun provideTagDao(
+        easyListsDatabase: EasyListsDatabase
+    ): TagDao = easyListsDatabase.tagDao()
+
+
+    @Provides
+    @Singleton
+    fun provideTagListItemDao(
+        easyListsDatabase: EasyListsDatabase
+    ): TagListItemDao = easyListsDatabase.tagListItemDao()
 
 }

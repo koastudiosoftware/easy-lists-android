@@ -2,13 +2,17 @@ package com.easylists.presentation.models
 
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
+import com.easylists.domain.models.Tag
+import com.easylists.domain.models.TagListItem
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.MasterListsAction
 import com.easylists.presentation.common.SortCrossedOffItems
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-data class ListDetailsState(
+data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
     var actionButtonState: MasterListsAction = MasterListsAction.None,
     var addEditMode: AddEditMode = AddEditMode.Add,
     var capitalization: Capitalization = Capitalization.NoCapitalization,
@@ -18,7 +22,7 @@ data class ListDetailsState(
     var groupedItemList: Map<Pair<Boolean?, String?>, List<EasyListsListItem>>? = null,
     var isPullToRefreshing: Boolean = false,
     val listItemList: List<EasyListsListItem> = emptyList(),
-    var itemUid: String = "",
+    var itemUid: String = Uuid.random().toString(),
     var itemName: String = "",
     var itemNameInvalid: Boolean = false,
     var itemNameInvalidMessage: String = "",
@@ -33,9 +37,12 @@ data class ListDetailsState(
     var nextDataFetchStage: String = "category",
     var selectedCategoryIndex: Int = -1,
     var selectedItemUid: String = "",
+    var selectedTagIds: List<Int> = emptyList(),
     var showConfirmationDialog: Boolean = false,
     var showListItemBottomSheet: Boolean = false,
     var sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
+    var tagList: List<Tag> = emptyList(),
+    var tagListItemList: List<TagListItem> = emptyList(),
     var uiState: ListListUiState = ListListUiState.Idle
 )
 

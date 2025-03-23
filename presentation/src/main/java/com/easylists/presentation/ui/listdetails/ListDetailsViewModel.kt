@@ -10,22 +10,30 @@ import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
+import com.easylists.domain.models.Tag
+import com.easylists.domain.models.TagListItem
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.AddListItemFlowUseCase
+import com.easylists.domain.use_cases.AddTagListItemUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
+import com.easylists.domain.use_cases.GetTagFlowUseCase
+import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveListItemUseCase
+import com.easylists.domain.use_cases.RemoveTagListItemUseCase
 import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SortCrossedOffItems
+import com.easylists.presentation.common.composables.ComboOption
 import com.easylists.presentation.common.isNumeric
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListDetailsState
 import com.easylists.presentation.models.ListListUiState
+import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -45,9 +53,13 @@ import kotlin.uuid.Uuid
 @HiltViewModel
 class ListDetailsViewModel @Inject constructor(
     private val getAppSettingsUseCase: GetAppSettingsUseCase,
-    private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val getCategoryFlowUseCase: GetCategoryFlowUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
+    private val getTagFlowUseCase: GetTagFlowUseCase,
+    private val getTagListItemFlowUseCase: GetTagListItemFlowUseCase,
+    private val addTagListItemUseCase: AddTagListItemUseCase,
+    private val removeTagListItemUseCase: RemoveTagListItemUseCase,
+    private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val addListItemUseCase: AddListItemFlowUseCase,
     private val updateListItemUseCase: UpdateListItemFlowUseCase,
     private val removeListItemUseCase: RemoveListItemUseCase,
@@ -57,8 +69,10 @@ class ListDetailsViewModel @Inject constructor(
 
     private var categoryListFlowJob: Job? = null
     private var listItemListFlowJob: Job? = null
+    private var tagListFlowJob: Job? = null
+    private var tagListItemListFlowJob: Job? = null
 
-    var state by mutableStateOf( ListDetailsState() )
+    var state by mutableStateOf(ListDetailsState())
 
 
     init {
@@ -121,6 +135,9 @@ class ListDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             var category: EasyListsCategory
 
+            removeTagListItem()
+            addTagListItem()
+
             var categoryUid = state.categoryList.find { it.name == state.categoryText }?.uid
             if (categoryUid == null && state.categoryText.isNotEmpty()) {
                 categoryUid = Uuid.random().toString()
@@ -133,6 +150,7 @@ class ListDetailsViewModel @Inject constructor(
 
             delay(100L)     // allow a short time for the category to be added to the database
             var listItem = EasyListsListItem(
+                uid = state.itemUid,
                 listUid = state.listUid,
                 name = state.itemName,
                 categoryUid = categoryUid,
@@ -143,7 +161,6 @@ class ListDetailsViewModel @Inject constructor(
             if (state.addEditMode == AddEditMode.Add) {
                 addListItemUseCase(listItem = listItem)
             } else {
-                listItem.uid = state.itemUid
                 updateListItemUseCase(listItem = listItem)
             }
 
@@ -156,6 +173,48 @@ class ListDetailsViewModel @Inject constructor(
                 itemNotes = "",
                 itemQuantity = "",
                 selectedCategoryIndex = -1,
+            )
+        }
+    }
+    //endregion
+
+
+    //region addTagListItem()
+    @OptIn(ExperimentalUuidApi::class)
+    fun addTagListItem() {
+        val selectedTags = state.tagList.filter { it.isSelected }
+        val tagsToAdd = selectedTags.filter { tag ->
+            state.tagListItemList.none { tagListItem ->
+                tagListItem.listItemUid == state.itemUid && tagListItem.tagUid == tag.uid
+            }
+        }
+
+        viewModelScope.launch {
+            addTagListItemUseCase(tagListItem = tagsToAdd.map {
+                TagListItem(
+                    uid = Uuid.random().toString(),
+                    listItemUid = state.itemUid,
+                    tagUid = it.uid
+                )
+            })
+        }
+    }
+    //endregion
+
+
+    //region removeTagListItem()
+    fun removeTagListItem() {
+        val deselectedTags = state.tagList.filter { !it.isSelected }
+        val tagsToRemove = deselectedTags.filter { tag ->
+            state.tagListItemList.any { tagListItem ->
+                tagListItem.listItemUid == state.itemUid && tagListItem.tagUid == tag.uid
+            }
+        }
+
+        viewModelScope.launch {
+            removeTagListItemUseCase(
+                listItemUid = state.itemUid,
+                tagUidList = tagsToRemove.map { it.uid }
             )
         }
     }
@@ -215,10 +274,11 @@ class ListDetailsViewModel @Inject constructor(
 
 
     //region onItemBottomSheetDismiss()
+    @OptIn(ExperimentalUuidApi::class)
     fun onItemBottomSheetDismiss() {
         state = state.copy(
             addEditMode = AddEditMode.Add,
-            itemUid = "",
+            itemUid = Uuid.random().toString(),
             itemName = "",
             itemNotes = "",
             itemQuantity = "",
@@ -330,7 +390,7 @@ class ListDetailsViewModel @Inject constructor(
                 isPullToRefreshing = false,
                 groupedItemList = groupedItemList,
                 listItemList = it?.map { item -> item } ?: emptyList(),
-                nextDataFetchStage = "",
+                nextDataFetchStage = "tag",
             )
         }.onFailure {
             state = state.copy(
@@ -395,6 +455,93 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
+    //region initTagList() :: initialize list of tags from the database
+    fun initTagList() {
+        cancelTagFlowCollection()
+
+        tagListFlowJob = getTagFlowUseCase()
+            .onEach {
+                handleGetTagListState(Resultat.success(it))
+            }.catch {
+                handleGetTagListState(Resultat.failure(it))
+
+                // After this catch the flow is interrupted and it must be collected
+                // again to obtain new data. The handleRefresh() method handles this situation.
+                cancelTagFlowCollection()
+            }.launchIn(viewModelScope)
+    }
+
+
+    private fun handleGetTagListState(result: Resultat<List<Tag>?>) {
+        result.onSuccess {
+            Arbor.i("tag list: $it")
+            state = state.copy(
+                isPullToRefreshing = false,
+                tagList = it?.map { item -> item } ?: emptyList(),
+                nextDataFetchStage = "tag list item",
+            )
+        }.onFailure {
+            state = state.copy(
+                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
+            )
+        }.onLoading {
+//            state = state.copy(
+//                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
+//            )
+        }
+    }
+
+
+    private fun cancelTagFlowCollection() {
+        tagListFlowJob?.cancel()
+        tagListFlowJob = null
+    }
+    //endregion
+
+
+    //region initTagListItemList() :: initialize list of tags from the database
+    fun initTagListItemList() {
+        cancelTagListItemFlowCollection()
+
+        tagListItemListFlowJob = getTagListItemFlowUseCase()
+            .onEach {
+                handleGetTagListItemListState(Resultat.success(it))
+            }.catch {
+                handleGetTagListItemListState(Resultat.failure(it))
+
+                // After this catch the flow is interrupted and it must be collected
+                // again to obtain new data. The handleRefresh() method handles this situation.
+                cancelTagListItemFlowCollection()
+            }.launchIn(viewModelScope)
+    }
+
+
+    private fun handleGetTagListItemListState(result: Resultat<List<TagListItem>?>) {
+        result.onSuccess {
+            state = state.copy(
+                isPullToRefreshing = false,
+                tagListItemList = it?.map { item -> item } ?: emptyList(),
+                nextDataFetchStage = "",
+            )
+        }.onFailure {
+            state = state.copy(
+                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
+            )
+        }.onLoading {
+//            state = state.copy(
+//                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
+//            )
+        }
+    }
+
+
+    private fun cancelTagListItemFlowCollection() {
+        tagListItemListFlowJob?.cancel()
+        tagListItemListFlowJob = null
+    }
+    //endregion
+
+
     //region onPullToRefresh()
     fun onPullToRefresh(isRefreshing: Boolean): () -> Unit = {
         state = state.copy(isPullToRefreshing = isRefreshing)
@@ -439,6 +586,8 @@ class ListDetailsViewModel @Inject constructor(
             selectedCategoryIndex = index,
             showListItemBottomSheet = true
         )
+
+        selectedTags()
     }
     //endregion
 
@@ -457,6 +606,46 @@ class ListDetailsViewModel @Inject constructor(
     //region setShowConfirmationDialogState()
     fun setShowConfirmationDialogState(newState: Boolean) {
         state = state.copy(showConfirmationDialog = newState)
+    }
+    //endregion
+
+
+    //region onSelectedIdsChange
+    fun onSelectedIdsChange(ids: List<Int>) {
+        state = state.copy(selectedTagIds = ids)
+    }
+    //endregion
+
+
+    //region onTagClick()
+    fun onTagClick(tag: Tag) {
+        // create a copy of the list
+        var tagList = ArrayList( state.tagList.map { it.copy() })
+
+        tagList.find {
+            it.uid == tag.uid
+        }?.isSelected = !tag.isSelected
+
+        state = state.copy(tagList = tagList)
+    }
+    //endregion
+
+
+    //region selectedTags()
+    // finds the set of tags that are associated with the selected list item
+    fun selectedTags() {
+        var tagList = state.tagList
+        val selectedTags = tagList.filter { tag ->
+            state.tagListItemList.filter { tagListItem ->
+                tagListItem.listItemUid == state.itemUid
+            }.any { it.tagUid == tag.uid }
+        }
+
+        tagList.forEach { tag ->
+            tag.isSelected = selectedTags.any { it.uid == tag.uid }
+        }
+
+        state = state.copy(tagList = tagList)
     }
     //endregion
 

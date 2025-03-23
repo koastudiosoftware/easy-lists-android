@@ -1,7 +1,7 @@
 <resources>
 
     <string name="app_name">Easy Lists</string>
-    <string name="app_version">0.1.10</string>
+    <string name="app_version">0.2.0</string>
 
     <string name="lists">Lists</string>
     <string name="settings">Settings</string>
@@ -53,6 +53,8 @@
     <string name="remove_categories_warning">Are you sure you want to remove the selected categories? Items in these categories will not be removed.</string>
 
     <string name="delete_all_crossed_off_items">Delete All Crossed Off Items</string>
+
+    <string name="tags">Tags</string>
 
 
 </resources>
