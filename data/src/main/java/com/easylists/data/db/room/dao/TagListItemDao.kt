@@ -30,8 +30,11 @@ abstract class TagListItemDao() {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(tagListItemEntity: List<TagListItemEntity>): List<Long>
 
-    @Query("DELETE FROM tag_list_item WHERE uid = :uid")
-    abstract suspend fun delete(uid: String)
+    @Query("DELETE FROM tag_list_item WHERE tag_uid = :tagUid")
+    abstract suspend fun delete(tagUid: String)
+
+    @Query("DELETE FROM tag_list_item WHERE tag_uid IN (:tagUid)")
+    abstract suspend fun delete(tagUid: List<String>)
 
     @Query("DELETE FROM tag_list_item WHERE list_item_uid = :listItemUid AND tag_uid IN (:tagUidList)")
     abstract suspend fun delete(listItemUid: String, tagUidList: List<String>)

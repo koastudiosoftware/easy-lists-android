@@ -1,13 +1,8 @@
 package com.easylists.data.repositories
 
 import com.easylists.domain.exceptions.EmptyDatabaseException
-import com.easylists.domain.models.EasyListsList
-import com.easylists.domain.models.EasyListsListItem
-import com.easylists.domain.models.Tag
 import com.easylists.domain.models.TagListItem
-import com.easylists.domain.repositories.ListRepository
 import com.easylists.domain.repositories.TagListItemRepository
-import com.easylists.domain.repositories.TagRepository
 import com.github.davidepanidev.kotlinextensions.utils.dispatchers.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -59,6 +54,18 @@ class TagListItemRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun removeTag(tagUid: String): Result<Unit> {
+        return Result.runCatching {
+            localSource.delete(tagUid = tagUid)
+        }
+    }
+
+    override suspend fun removeTag(tagUid: List<String>): Result<Unit> {
+        return Result.runCatching {
+            localSource.delete(tagUid = tagUid)
+        }
+    }
+
     override suspend fun removeTagListItem(
         listItemUid: String,
         tagUidList: List<String>
@@ -76,7 +83,8 @@ interface TagListItemLocalDataSource {
     fun getTagListItemListFlow(listItemUid: String): Flow<List<TagListItem>>
     suspend fun insert(tagListItem: TagListItem): Long
     suspend fun insert(tagListItem: List<TagListItem>): List<Long>
-    suspend fun delete(uid: String)
+    suspend fun delete(tagUid: String)
+    suspend fun delete(tagUid: List<String>)
     suspend fun delete(listItemUid: String, tagUidList: List<String>)
 
 }

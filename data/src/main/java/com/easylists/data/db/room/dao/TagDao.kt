@@ -32,7 +32,13 @@ abstract class TagDao() {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(tagEntity: TagEntity): Long
 
+    @Update
+    abstract suspend fun update(tagEntity: TagEntity)
+
     @Query("DELETE FROM tag WHERE uid = :uid")
     abstract suspend fun delete(uid: String)
+
+    @Query("DELETE FROM tag WHERE uid IN (:uidList)")
+    abstract suspend fun delete(uidList: List<String>)
 
 }

@@ -3,7 +3,7 @@ package com.easylists.data.repositories.local
 import com.easylists.data.db.room.dao.TagDao
 import com.easylists.data.mappers.RoomDataMapper
 import com.easylists.data.repositories.TagLocalDataSource
-import com.easylists.domain.models.Tag
+import com.easylists.domain.models.EasyListsTag
 import com.github.davidepanidev.kotlinextensions.utils.dispatchers.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -17,7 +17,7 @@ class RoomTagLocalDataSource @Inject constructor(
 ) : TagLocalDataSource {
 
     //region getTagListFlow()
-    override fun getTagListFlow(): Flow<List<Tag>> {
+    override fun getTagListFlow(): Flow<List<EasyListsTag>> {
         return dao.get()
             .flowOn(dispatchers.io)
             .map {
@@ -28,7 +28,7 @@ class RoomTagLocalDataSource @Inject constructor(
 
 
     //region getTagListFlow(listItemUid)
-    override fun getTagListFlow(listItemUid: String): Flow<List<Tag>> {
+    override fun getTagListFlow(listItemUid: String): Flow<List<EasyListsTag>> {
         return dao.get(listItemUid)
             .flowOn(dispatchers.io)
             .map {
@@ -39,9 +39,17 @@ class RoomTagLocalDataSource @Inject constructor(
 
 
     //region insert()
-    override suspend fun insert(tag: Tag): Long {
-        val mappedTag = mapper.mapTagToTagEntity(tag)
+    override suspend fun insert(easyListsTag: EasyListsTag): Long {
+        val mappedTag = mapper.mapTagToTagEntity(easyListsTag)
         return dao.insert(tagEntity = mappedTag)
+    }
+    //endregion
+
+
+    //region update()
+    override suspend fun update(easyListsTag: EasyListsTag){
+        val mappedTag = mapper.mapTagToTagEntity(easyListsTag)
+        return dao.update(tagEntity = mappedTag)
     }
     //endregion
 
@@ -49,6 +57,13 @@ class RoomTagLocalDataSource @Inject constructor(
     //region delete()
     override suspend fun delete(uid: String) {
         return dao.delete(uid = uid)
+    }
+    //endregion
+
+
+    //region delete()
+    override suspend fun delete(uidList: List<String>) {
+        return dao.delete(uidList = uidList)
     }
     //endregion
 

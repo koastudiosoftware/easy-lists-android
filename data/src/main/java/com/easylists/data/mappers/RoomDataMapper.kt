@@ -10,7 +10,7 @@ import com.easylists.data.db.room.models.TagListItemEntity
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
-import com.easylists.domain.models.Tag
+import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
 import com.github.davidepanidev.kotlinextensions.utils.serialization.SerializationManager
 import java.time.Instant
@@ -168,13 +168,13 @@ class RoomDataMapper @Inject constructor(
 
 
     //
-    // Tag
+    // EasyListsTag
     //
 
     //region mapTagEntityListToTagList()
-    fun mapTagEntityListToTagList(tagEntityList: List<TagEntity>): List<Tag> {
+    fun mapTagEntityListToTagList(tagEntityList: List<TagEntity>): List<EasyListsTag> {
         return tagEntityList.map { entity ->
-            Tag(
+            EasyListsTag(
                 uid = entity.uid,
                 name = entity.name,
                 color = entity.color,
@@ -187,17 +187,17 @@ class RoomDataMapper @Inject constructor(
 
 
     //region mapTagToTagEntity()
-    fun mapTagToTagEntity(tag: Tag): TagEntity {
+    fun mapTagToTagEntity(easyListsTag: EasyListsTag): TagEntity {
         return TagEntity(
-            name = tag.name,
-            color = tag.color,
+            name = easyListsTag.name,
+            color = easyListsTag.color,
         )
     }
     //endregion
 
 
     //
-    // Tag List Item
+    // EasyListsTag List Item
     //
 
     //region mapTagListItemEntityListToTagListItemList()

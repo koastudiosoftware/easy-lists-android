@@ -49,18 +49,6 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
 
-//    when {
-//        viewModel.state.restartActivity == true -> {
-//            val activity = LocalActivity.current
-//            activity?.finish()
-//            activity?.recreate()
-//            val context = LocalContext.current
-//            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-//            intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-//            context.startActivity(intent)
-//        }
-//    }
-
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
@@ -151,14 +139,11 @@ fun SettingsScreenContent(
 
     LazyColumn(Modifier.fillMaxSize()) {
         item {
-            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-        }
-        item {
             SectionTitle(
                 title = stringResource(id = R.string.list_items),
                 modifier = Modifier
                     .padding(horizontal = MaterialTheme.spaces.large)
-                    .padding(top = MaterialTheme.spaces.large)
+                    .padding(top = MaterialTheme.spaces.medium)
             )
         }
         item {
@@ -179,11 +164,12 @@ fun SettingsScreenContent(
         }
 
         item {
+            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.medium))
+        }
+        item {
             SectionTitle(
                 title = stringResource(id = R.string.display),
-                modifier = Modifier
-                    .padding(horizontal = MaterialTheme.spaces.large)
-                    .padding(top = MaterialTheme.spaces.large)
+                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)
             )
         }
         item {
@@ -196,11 +182,12 @@ fun SettingsScreenContent(
         }
 
         item {
+            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.medium))
+        }
+        item {
             SectionTitle(
                 title = stringResource(id = R.string.adding_and_editing),
-                modifier = Modifier
-                    .padding(horizontal = MaterialTheme.spaces.large)
-                    .padding(top = MaterialTheme.spaces.large)
+                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)
             )
         }
         item {

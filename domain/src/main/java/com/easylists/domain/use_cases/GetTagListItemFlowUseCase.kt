@@ -1,6 +1,5 @@
 package com.easylists.domain.use_cases
 
-import com.easylists.domain.models.Tag
 import com.easylists.domain.models.TagListItem
 import com.easylists.domain.repositories.TagListItemRepository
 import kotlinx.coroutines.flow.Flow

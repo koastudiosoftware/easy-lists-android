@@ -1,10 +1,7 @@
 package com.easylists.data.repositories
 
 import com.easylists.domain.exceptions.EmptyDatabaseException
-import com.easylists.domain.models.EasyListsList
-import com.easylists.domain.models.EasyListsListItem
-import com.easylists.domain.models.Tag
-import com.easylists.domain.repositories.ListRepository
+import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.repositories.TagRepository
 import com.github.davidepanidev.kotlinextensions.utils.dispatchers.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +16,7 @@ class TagRepositoryImpl @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) : TagRepository {
 
-    override fun getTagListFlow(): Flow<List<Tag>> {
+    override fun getTagListFlow(): Flow<List<EasyListsTag>> {
         return localSource.getTagListFlow()
             .catch {
                 throw if (it is NullPointerException) {
@@ -32,7 +29,7 @@ class TagRepositoryImpl @Inject constructor(
             }.flowOn(dispatchers.default)
     }
 
-    override fun getTagListFlow(listItemUid: String): Flow<List<Tag>> {
+    override fun getTagListFlow(listItemUid: String): Flow<List<EasyListsTag>> {
         return localSource.getTagListFlow(listItemUid)
             .catch {
                 throw if (it is NullPointerException) {
@@ -45,9 +42,15 @@ class TagRepositoryImpl @Inject constructor(
             }.flowOn(dispatchers.default)
     }
 
-    override suspend fun addTag(tag: Tag): Result<Unit> {
+    override suspend fun addTag(easyListsTag: EasyListsTag): Result<Unit> {
         return Result.runCatching {
-            localSource.insert(tag = tag)
+            localSource.insert(easyListsTag = easyListsTag)
+        }
+    }
+
+    override suspend fun updateTag(easyListsTag: EasyListsTag): Result<Unit> {
+        return Result.runCatching {
+            localSource.update(easyListsTag = easyListsTag)
         }
     }
 
@@ -57,13 +60,21 @@ class TagRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun removeTags(uidList: List<String>): Result<Unit> {
+        return Result.runCatching {
+            localSource.delete(uidList = uidList)
+        }
+    }
+
 }
 
 interface TagLocalDataSource {
 
-    fun getTagListFlow(): Flow<List<Tag>>
-    fun getTagListFlow(listItemUid: String): Flow<List<Tag>>
-    suspend fun insert(tag: Tag): Long
+    fun getTagListFlow(): Flow<List<EasyListsTag>>
+    fun getTagListFlow(listItemUid: String): Flow<List<EasyListsTag>>
+    suspend fun insert(easyListsTag: EasyListsTag): Long
+    suspend fun update(easyListsTag: EasyListsTag)
     suspend fun delete(uid: String)
+    suspend fun delete(uidList: List<String>)
 
 }

@@ -1,11 +1,12 @@
 <resources>
 
     <string name="app_name">Easy Lists</string>
-    <string name="app_version">0.2.0</string>
+    <string name="app_version">0.2.1</string>
 
     <string name="lists">Lists</string>
     <string name="settings">Settings</string>
     <string name="edit_categories">Edit Categories</string>
+    <string name="edit_tags">Edit Tags</string>
     <string name="about">About</string>
 
     <string name="overflow_menu">Overflow menu</string>
@@ -16,16 +17,20 @@
     <string name="add_list">Add List</string>
     <string name="edit_list">Edit List</string>
     <string name="create_new_list">Create new list</string>
+    <string name="create_new_tag">Create new easyListsTag</string>
     <string name="remove_list">Remove list</string>
     <string name="no_lists_found">No lists found</string>
 
     <string name="remove_selected_categories">Remove selected categories</string>
+    <string name="remove_selected_tags">Remove selected tags</string>
     <string name="cancel_removal_of_selected_categories">Cancel removal of selected categories</string>
+    <string name="cancel_removal_of_selected_tags">Cancel removal of selected tags</string>
 
     <string name="remove_item">Remove item</string>
     <string name="view_item_details">View item details</string>
     <string name="add_list_item">Add list item</string>
     <string name="add_category">Add category</string>
+    <string name="add_tag">Add easyListsTag</string>
 
     <string name="add_item">Add Item</string>
     <string name="edit_item">Edit Item</string>
@@ -35,7 +40,7 @@
     <string name="support">Support</string>
     <string name="email">Email</string>
     <string name="donate">Donate</string>
-    <string name="copyright">Copyright</string>
+    <string name="copyright">© 2024 David Wiard, All Rights Reserved</string>
 
     <string name="crossed_off">Crossed Off</string>
 
@@ -51,6 +56,7 @@
     <string name="remove_list_warning">Are you sure you want to remove the selected list?</string>
     <string name="remove_list_items_warning">Are you sure you want to remove the selected item from this list?</string>
     <string name="remove_categories_warning">Are you sure you want to remove the selected categories? Items in these categories will not be removed.</string>
+    <string name="remove_tags_warning">Are you sure you want to remove the selected tags? Items with these tags will not be removed.</string>
 
     <string name="delete_all_crossed_off_items">Delete All Crossed Off Items</string>
 

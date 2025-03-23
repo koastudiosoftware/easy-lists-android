@@ -1,8 +1,6 @@
 package com.easylists.domain.use_cases
 
-import com.easylists.domain.models.EasyListsList
-import com.easylists.domain.models.Tag
-import com.easylists.domain.repositories.ListRepository
+import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.repositories.TagRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -13,7 +11,7 @@ class GetTagFlowUseCase @Inject constructor(
     private val tagRepository: TagRepository,
 ) {
 
-    operator fun invoke(): Flow<List<Tag>> {
+    operator fun invoke(): Flow<List<EasyListsTag>> {
         return try {
             tagRepository.getTagListFlow().map { it }
         } catch (e: Exception) {
@@ -23,7 +21,7 @@ class GetTagFlowUseCase @Inject constructor(
         }
     }
 
-    operator fun invoke(listItemUid: String): Flow<List<Tag>> {
+    operator fun invoke(listItemUid: String): Flow<List<EasyListsTag>> {
         return try {
             tagRepository.getTagListFlow(listItemUid = listItemUid).map { it }
         } catch (e: Exception) {

@@ -9,6 +9,9 @@ sealed interface Screen : Parcelable {
     object EditCategories : Screen
 
     @Parcelize
+    object EditTags : Screen
+
+    @Parcelize
     object MasterLists : Screen
 
     @Parcelize

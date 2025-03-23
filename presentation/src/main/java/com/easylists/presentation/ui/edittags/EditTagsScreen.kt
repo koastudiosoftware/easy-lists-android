@@ -1,4 +1,4 @@
-package com.easylists.presentation.ui.editcategories
+package com.easylists.presentation.ui.edittags
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -40,10 +40,10 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
-import com.easylists.domain.models.EasyListsCategory
+import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.EditCategoriesAction
+import com.easylists.presentation.common.EditTagsAction
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
@@ -59,16 +59,16 @@ import dev.olshevski.navigation.reimagined.pop
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditCategoriesScreen(
+fun EditTagsScreen(
     navController: NavController<Screen>,
-    viewModel: EditCategoriesViewModel = hiltViewModel()
+    viewModel: EditTagsViewModel = hiltViewModel()
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
 
     when {
-        viewModel.state.nextStep == "remove_categories" -> {
-            viewModel.removeCategories()
+        viewModel.state.nextStep == "remove_tags" -> {
+            viewModel.removeTags()
         }
     }
 
@@ -77,9 +77,9 @@ fun EditCategoriesScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { EditCategoriesScreenTitle() },
-                navigationIcon = { EditCategoriesScreenTopAppBarNavigationIcon(navController) },
-                actions = { EditCategoriesScreenActionIcons(viewModel) },
+                title = { EditTagsScreenTitle() },
+                navigationIcon = { EditTagsScreenTopAppBarNavigationIcon(navController) },
+                actions = { EditTagsScreenActionIcons(viewModel) },
             )
         }
     ) { innerPadding ->
@@ -99,11 +99,11 @@ fun EditCategoriesScreen(
             },
         ) {
 
-            ConfirmRemoveCategories(viewModel)
+            ConfirmRemoveTags(viewModel)
 
-            EditCategoriesScreenCategoryBottomSheet(viewModel)
+            EditTagsScreenCategoryBottomSheet(viewModel)
 
-            EditCategoriesScreenContent(viewModel)
+            EditTagsScreenContent(viewModel)
 
         }
     }
@@ -111,23 +111,23 @@ fun EditCategoriesScreen(
 }
 
 
-//region EditCategoriesScreenTitle
+//region EditTagsScreenTitle
 @Composable
-fun EditCategoriesScreenTitle() {
+fun EditTagsScreenTitle() {
     Row(
         modifier = Modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
-        Text(text = stringResource(R.string.edit_categories))
+        Text(text = stringResource(R.string.edit_tags))
     }
 }
 //endregion
 
 
-//region EditCategoriesScreenTopAppBarNavigationIcon
+//region EditTagsScreenTopAppBarNavigationIcon
 @Composable
-fun EditCategoriesScreenTopAppBarNavigationIcon(navController: NavController<Screen>) {
+fun EditTagsScreenTopAppBarNavigationIcon(navController: NavController<Screen>) {
     IconButton(
         onClick = { navController.pop() }
     ) {
@@ -141,13 +141,13 @@ fun EditCategoriesScreenTopAppBarNavigationIcon(navController: NavController<Scr
 //endregion
 
 
-//region EditCategoriesScreenActionIcons
+//region EditTagsScreenActionIcons
 @Composable
-fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
+fun EditTagsScreenActionIcons(viewModel: EditTagsViewModel) {
     when (viewModel.state.actionButtonState) {
-        EditCategoriesAction.Remove -> {
+        EditTagsAction.Remove -> {
             IconButton(
-                enabled = viewModel.state.categoryList.any { it.selectedForRemoval },
+                enabled = viewModel.state.easyListsTagList.any { it.selectedForRemoval },
                 onClick = {
                     viewModel.setShowConfirmationDialogState(true)
                 }
@@ -155,7 +155,7 @@ fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
                 Icon(
                     modifier = Modifier,
                     imageVector = Delete,
-                    contentDescription = stringResource(R.string.remove_selected_categories)
+                    contentDescription = stringResource(R.string.remove_selected_tags)
                 )
             }
             IconButton(onClick = {
@@ -164,19 +164,19 @@ fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
                 Icon(
                     modifier = Modifier,
                     imageVector = Cancel,
-                    contentDescription = stringResource(R.string.cancel_removal_of_selected_categories)
+                    contentDescription = stringResource(R.string.cancel_removal_of_selected_tags)
                 )
             }
         }
 
         else -> {
             IconButton(onClick = {
-                viewModel.showCategoryBottomSheet()
+                viewModel.showTagBottomSheet()
             }) {
                 Icon(
                     modifier = Modifier,
                     imageVector = Add,
-                    contentDescription = stringResource(R.string.create_new_list)
+                    contentDescription = stringResource(R.string.create_new_tag)
                 )
             }
         }
@@ -185,14 +185,14 @@ fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
 //endregion
 
 
-//region EditCategoriesScreenCategoryBottomSheet
+//region EditTagsScreenCategoryBottomSheet
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) {
+fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet = remember { mutableStateOf(false) }
 
-    when (viewModel.state.showCategoryBottomSheet) {
+    when (viewModel.state.showTagBottomSheet) {
         true -> showBottomSheet.value = true
         false -> showBottomSheet.value = false
     }
@@ -202,7 +202,7 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
             sheetState = sheetState,
             onDismissRequest = {
                 showBottomSheet.value = false
-                viewModel.onCategoryBottomSheetDismiss()
+                viewModel.onTagBottomSheetDismiss()
             },
             dragHandle = {
                 Column(
@@ -227,15 +227,15 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
                             ),
                             icon = {
                                 IconButton(
-                                    enabled = viewModel.categoryIconButtonEnabled(),
+                                    enabled = viewModel.tagIconButtonEnabled(),
                                     onClick = {
-                                        if (viewModel.state.addEditMode == AddEditMode.Add) viewModel.addCategory()
-                                        else viewModel.updateCategory()
+                                        if (viewModel.state.addEditMode == AddEditMode.Add) viewModel.addTag()
+                                        else viewModel.updateTag()
                                     },
                                 ) {
                                     Icon(
                                         imageVector = Check,
-                                        contentDescription = stringResource(R.string.add_category),
+                                        contentDescription = stringResource(R.string.add_tag),
                                     )
                                 }
                             },
@@ -244,7 +244,7 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
                     }
 
                     item {
-                        EditCategoriesScreenBottomSheetName(viewModel)
+                        EditTagsScreenBottomSheetName(viewModel)
                     }
 
                 }
@@ -255,17 +255,17 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
 //endregion
 
 
-//region EditCategoriesScreenBottomSheetName
+//region EditTagsScreenBottomSheetName
 @Composable
-fun EditCategoriesScreenBottomSheetName(viewModel: EditCategoriesViewModel) {
+fun EditTagsScreenBottomSheetName(viewModel: EditTagsViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = MaterialTheme.spaces.medium)
                 .padding(top = MaterialTheme.spaces.medium),
-            value = viewModel.categoryName(),
-            onValueChange = { viewModel.onCategoryNameChange(it) },
+            value = viewModel.tagName(),
+            onValueChange = { viewModel.onTagNameChange(it) },
             label = { Text(text = stringResource(R.string.name)) },
             singleLine = true,
             maxLines = 1,
@@ -274,11 +274,11 @@ fun EditCategoriesScreenBottomSheetName(viewModel: EditCategoriesViewModel) {
                 keyboardType = KeyboardType.Text,
                 autoCorrectEnabled = true,
             ),
-            isError = viewModel.state.categoryNameInvalid,
+            isError = viewModel.state.tagNameInvalid,
             supportingText = {
                 when {
-                    viewModel.state.categoryNameInvalidMessage.isNotEmpty() == true ->
-                        Text(text = viewModel.state.categoryNameInvalidMessage)
+                    viewModel.state.tagNameInvalidMessage.isNotEmpty() == true ->
+                        Text(text = viewModel.state.tagNameInvalidMessage)
 
                     else -> null
                 }
@@ -289,9 +289,9 @@ fun EditCategoriesScreenBottomSheetName(viewModel: EditCategoriesViewModel) {
 //endregion
 
 
-//region EditCategoriesScreenContent
+//region EditTagsScreenContent
 @Composable
-fun EditCategoriesScreenContent(viewModel: EditCategoriesViewModel) {
+fun EditTagsScreenContent(viewModel: EditTagsViewModel) {
     val lazyColumnState = rememberLazyListState()
     LazyColumn(
         state = lazyColumnState,
@@ -301,9 +301,9 @@ fun EditCategoriesScreenContent(viewModel: EditCategoriesViewModel) {
             HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
         }
 
-        viewModel.state.categoryList.forEach { item ->
+        viewModel.state.easyListsTagList.forEach { item ->
             item {
-                EditCategoriesScreenCategory(item, viewModel)
+                EditTagsScreenCategory(item, viewModel)
             }
 
             item {
@@ -315,18 +315,18 @@ fun EditCategoriesScreenContent(viewModel: EditCategoriesViewModel) {
 //endregion
 
 
-//region EditCategoriesScreenCategory
+//region EditTagsScreenCategory
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun EditCategoriesScreenCategory(
-    item: EasyListsCategory,
-    viewModel: EditCategoriesViewModel
+fun EditTagsScreenCategory(
+    item: EasyListsTag,
+    viewModel: EditTagsViewModel
 ) {
     Row(
         modifier = Modifier
             .padding(horizontal = MaterialTheme.spaces.none)
             .combinedClickable(
-                onClick = { viewModel.onCategoryClick(item) },
+                onClick = { viewModel.onTagClick(item) },
                 onLongClick = { viewModel.showContextIcons(item) }
             ),
     ) {
@@ -350,18 +350,18 @@ fun EditCategoriesScreenCategory(
                     text = item.name,
                 )
             }
-            CategoryCheckbox(item, viewModel)
+            TagCheckbox(item, viewModel)
         }
     }
 }
 //endregion
 
 
-//region CategoryCheckbox
+//region TagCheckbox
 @Composable
-fun CategoryCheckbox(
-    item: EasyListsCategory,
-    viewModel: EditCategoriesViewModel
+fun TagCheckbox(
+    item: EasyListsTag,
+    viewModel: EditTagsViewModel
 ) {
     val (checkedState, onStateChange) = remember { mutableStateOf(false) }
 
@@ -379,7 +379,7 @@ fun CategoryCheckbox(
                 checked = checkedState,
                 onCheckedChange = {
                     onStateChange(!checkedState)
-                    viewModel.onCategorySelectedForRemovalChanged(item.uid)
+                    viewModel.onTagSelectedForRemovalChanged(item.uid)
                 },
             )
         }
@@ -388,9 +388,9 @@ fun CategoryCheckbox(
 //endregion
 
 
-//region ConfirmRemoveCategories
+//region ConfirmRemoveTags
 @Composable
-fun ConfirmRemoveCategories(viewModel: EditCategoriesViewModel) {
+fun ConfirmRemoveTags(viewModel: EditTagsViewModel) {
     when {
         viewModel.state.showConfirmationDialog == true -> {
             ConfirmationDialog(
@@ -399,11 +399,11 @@ fun ConfirmRemoveCategories(viewModel: EditCategoriesViewModel) {
                 },
                 onConfirmation = {
                     viewModel.deselectCheckboxes()
-                    viewModel.removeCategoryFromListItems()
+                    viewModel.removeTagFromListItems()
                     viewModel.setShowConfirmationDialogState(false)
                 },
                 dialogTitle = stringResource(R.string.confirm_removal),
-                dialogText = stringResource(R.string.remove_categories_warning),
+                dialogText = stringResource(R.string.remove_tags_warning),
             )
         }
     }

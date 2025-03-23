@@ -1,10 +1,9 @@
 package com.easylists.domain.use_cases
 
 import com.easylists.domain.repositories.CategoryRepository
-import com.easylists.domain.repositories.ListItemRepository
 import javax.inject.Inject
 
-class RemoveCategoriesUseCase @Inject constructor(
+class RemoveCategoryUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository
 ) {
 

@@ -1,4 +1,4 @@
-package com.easylists.presentation.ui.editcategories
+package com.easylists.presentation.ui.edittags
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,19 +8,19 @@ import androidx.lifecycle.viewModelScope
 import com.easylists.domain.common.KEY
 import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
-import com.easylists.domain.models.EasyListsCategory
-import com.easylists.domain.use_cases.AddCategoryUseCase
+import com.easylists.domain.models.EasyListsTag
+import com.easylists.domain.use_cases.AddTagUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
-import com.easylists.domain.use_cases.GetCategoryFlowUseCase
-import com.easylists.domain.use_cases.RemoveCategoryUseCase
-import com.easylists.domain.use_cases.RemoveCategoryFromListItemUseCase
-import com.easylists.domain.use_cases.UpdateCategoryUseCase
+import com.easylists.domain.use_cases.GetTagFlowUseCase
+import com.easylists.domain.use_cases.RemoveTagFromListItemUseCase
+import com.easylists.domain.use_cases.RemoveTagUseCase
+import com.easylists.domain.use_cases.UpdateTagUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.common.Capitalization
-import com.easylists.presentation.common.EditCategoriesAction
+import com.easylists.presentation.common.EditTagsAction
 import com.easylists.presentation.mappers.UiMapper
-import com.easylists.presentation.models.EditCategoriesState
+import com.easylists.presentation.models.EditTagsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -33,27 +33,29 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @HiltViewModel
-class EditCategoriesViewModel @Inject constructor(
+class EditTagsViewModel @Inject constructor(
     private val getAppSettingsUseCase: GetAppSettingsUseCase,
-    private val getCategoryFlowUseCase: GetCategoryFlowUseCase,
-    private val addCategoryUseCase: AddCategoryUseCase,
-    private val removeCategoryUseCase: RemoveCategoryUseCase,
-    private val removeCategoryFromListItemUseCase: RemoveCategoryFromListItemUseCase,
-    private val updateCategoryUseCase: UpdateCategoryUseCase,
+    private val getTagFlowUseCase: GetTagFlowUseCase,
+    private val addTagUseCase: AddTagUseCase,
+    private val removeTagUseCase: RemoveTagUseCase,
+    private val removeTagFromListItemUseCase: RemoveTagFromListItemUseCase,
+    private val updateTagUseCase: UpdateTagUseCase,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
-    private var categoryListFlowJob: Job? = null
+    private var tagListFlowJob: Job? = null
 
-    var state by mutableStateOf(EditCategoriesState())
+    var state by mutableStateOf( EditTagsState() )
 
 
     init {
         initAppSettings()
-        initCategoryList()
+        initTagList()
     }
 
 
@@ -82,29 +84,29 @@ class EditCategoriesViewModel @Inject constructor(
     //endregion
 
 
-    //region initCategoryList() :: initialize list of items from the database
-    fun initCategoryList() {
-        cancelCategoryFlowCollection()
+    //region initTagList() :: initialize list of tags from the database
+    fun initTagList() {
+        cancelTagFlowCollection()
 
-        categoryListFlowJob = getCategoryFlowUseCase()
+        tagListFlowJob = getTagFlowUseCase()
             .onEach {
-                handleGetCategoryState(Resultat.success(it))
+                handleGetTagState(Resultat.success(it))
             }.catch {
-                handleGetCategoryState(Resultat.failure(it))
+                handleGetTagState(Resultat.failure(it))
 
                 // After this catch the flow is interrupted and it must be collected
                 // again to obtain new data. The handleRefresh() method handles this situation.
-                cancelCategoryFlowCollection()
+                cancelTagFlowCollection()
             }.launchIn(viewModelScope)
     }
 
 
-    private fun handleGetCategoryState(result: Resultat<List<EasyListsCategory>?>) {
+    private fun handleGetTagState(result: Resultat<List<EasyListsTag>?>) {
         result.onSuccess {
             state = state.copy(
                 isPullToRefreshing = false,
                 // TODO this is where the sorting order should be applied
-                categoryList = it?.map { item -> item } ?: emptyList(),
+                easyListsTagList = it?.map { item -> item } ?: emptyList(),
             )
         }.onFailure {
 //            state = state.copy(
@@ -118,9 +120,9 @@ class EditCategoriesViewModel @Inject constructor(
     }
 
 
-    private fun cancelCategoryFlowCollection() {
-        categoryListFlowJob?.cancel()
-        categoryListFlowJob = null
+    private fun cancelTagFlowCollection() {
+        tagListFlowJob?.cancel()
+        tagListFlowJob = null
     }
     //endregion
 
@@ -132,9 +134,9 @@ class EditCategoriesViewModel @Inject constructor(
     //endregion
 
 
-    //region showCategoryBottomSheet()
-    fun showCategoryBottomSheet() {
-        state = state.copy(showCategoryBottomSheet = !state.showCategoryBottomSheet)
+    //region showTagBottomSheet()
+    fun showTagBottomSheet() {
+        state = state.copy(showTagBottomSheet = !state.showTagBottomSheet)
     }
     //endregion
 
@@ -146,27 +148,27 @@ class EditCategoriesViewModel @Inject constructor(
     //endregion
 
 
-    //region onCategoryClick()
-    fun onCategoryClick(item: EasyListsCategory) {
+    //region onTagClick()
+    fun onTagClick(item: EasyListsTag) {
         state = state.copy(
             addEditMode = AddEditMode.Edit,
-            categoryName = item.name,
+            tagName = item.name,
             selectedItem = item,
-            showCategoryBottomSheet = true,
+            showTagBottomSheet = true,
         )
     }
     //endregion
 
 
     //region showContextIcons()
-    fun showContextIcons(item: EasyListsCategory? = null) {
-        state.categoryList.forEach { it.selectedForRemoval = false }
+    fun showContextIcons(item: EasyListsTag? = null) {
+        state.easyListsTagList.forEach { it.selectedForRemoval = false }
 
         state = state.copy(
-            actionButtonState = if (state.actionButtonState == EditCategoriesAction.Remove)
-                EditCategoriesAction.None
+            actionButtonState = if (state.actionButtonState == EditTagsAction.Remove)
+                EditTagsAction.None
             else
-                EditCategoriesAction.Remove,
+                EditTagsAction.Remove,
             selectedItem = item,
             showContextItems = !state.showContextItems
         )
@@ -174,10 +176,10 @@ class EditCategoriesViewModel @Inject constructor(
     //endregion
 
 
-    //region onCategorySelectedForRemovalChanged()
-    fun onCategorySelectedForRemovalChanged(uid: String?) {
+    //region onTagSelectedForRemovalChanged()
+    fun onTagSelectedForRemovalChanged(uid: String?) {
         state = state.copy(
-            categoryList = state.categoryList.map {
+            easyListsTagList = state.easyListsTagList.map {
                 if (it.uid == uid) {
                     it.copy(selectedForRemoval = !it.selectedForRemoval)
                 } else {
@@ -189,72 +191,75 @@ class EditCategoriesViewModel @Inject constructor(
     //endregion
 
 
-    //region addCategory()
-    fun addCategory() {
+    //region addTag()
+    @OptIn(ExperimentalUuidApi::class)
+    fun addTag() {
         viewModelScope.launch {
-            addCategoryUseCase(category = EasyListsCategory(name = state.categoryName))
+            addTagUseCase(easyListsTag = EasyListsTag(
+                uid = Uuid.random().toString(),
+                name = state.tagName
+            ))
             state = state.copy(
-                categoryName = "",
-                categoryNameInvalid = false,
-                categoryNameInvalidMessage = "",
-                showCategoryBottomSheet = false
+                tagName = "",
+                tagNameInvalid = false,
+                tagNameInvalidMessage = "",
+                showTagBottomSheet = false
             )
         }
     }
     //endregion
 
 
-    //region updateCategory()
-    fun updateCategory() {
+    //region updateTag()
+    fun updateTag() {
         viewModelScope.launch {
-            updateCategoryUseCase(
-                category = EasyListsCategory(
+            updateTagUseCase(
+                easyListsTag = EasyListsTag(
                     uid = state.selectedItem?.uid,
-                    name = state.categoryName,
-                    sortOrder = state.selectedItem?.sortOrder,
+                    name = state.tagName,
                     createdTimestamp = state.selectedItem?.createdTimestamp
                         ?: Instant.now().epochSecond,
                 )
             )
 
             state = state.copy(
-                categoryName = "",
-                categoryNameInvalid = false,
-                categoryNameInvalidMessage = "",
-                showCategoryBottomSheet = false
+                tagName = "",
+                tagNameInvalid = false,
+                tagNameInvalidMessage = "",
+                showTagBottomSheet = false
             )
         }
     }
     //endregion
 
 
-    //region removeCategoryFromListItems()
-    fun removeCategoryFromListItems() {
-        val categoryList = state.categoryList.filter { category ->
+    //region removeTagFromListItems()
+    fun removeTagFromListItems() {
+        val tagList = state.easyListsTagList.filter { category ->
             category.selectedForRemoval == true
         }.map { it.uid ?: "" }
         viewModelScope.launch {
-            if (categoryList.isNotEmpty() || categoryList.all { it.isNotEmpty() }) {
-                removeCategoryFromListItemUseCase(
-                    categoryUid = categoryList,
+            if (tagList.isNotEmpty() || tagList.all { it.isNotEmpty() }) {
+                removeTagFromListItemUseCase(
+                    tagUid = tagList,
                 )
             }
-            state = state.copy(nextStep = "remove_categories")
+            state = state.copy(nextStep = "remove_tags")
         }
     }
     //endregion
 
 
-    //region removeCategories()
-    fun removeCategories() {
-        var categoryList = state.categoryList.filter { category ->
-            category.selectedForRemoval == true
+    //region removeTags()
+    fun removeTags() {
+        var tagList = state.easyListsTagList.filter { tag ->
+            tag.selectedForRemoval == true
         }.map { it.uid ?: "" }
 
         viewModelScope.launch {
-            if (categoryList.isNotEmpty() || categoryList.all { it.isNotEmpty() }) {
-                removeCategoryUseCase(uidList = categoryList)
-                state.categoryList.forEach { it.selectedForRemoval = false }
+            if (tagList.isNotEmpty() || tagList.all { it.isNotEmpty() }) {
+                removeTagUseCase(uidList = tagList)
+                state.easyListsTagList.forEach { it.selectedForRemoval = false }
             }
 
             state = state.copy(
@@ -273,48 +278,48 @@ class EditCategoriesViewModel @Inject constructor(
     //endregion
 
 
-    //region categoryIconButtonEnabled()
-    fun categoryIconButtonEnabled(): Boolean {
-        return state.categoryName.isNotEmpty() &&
-                state.categoryList.all { it.name != state.categoryName }
+    //region tagIconButtonEnabled()
+    fun tagIconButtonEnabled(): Boolean {
+        return state.tagName.isNotEmpty() &&
+                state.easyListsTagList.all { it.name != state.tagName }
     }
     //endregion
 
 
-    //region categoryName()
-    fun categoryName(): String {
-        return state.categoryName
+    //region tagName()
+    fun tagName(): String {
+        return state.tagName
     }
     //endregion
 
 
-    //region onCategoryNameChange()
-    fun onCategoryNameChange(name: String) {
-        var categoryNameInvalidMessage: String
-        val isNameInvalid = (state.categoryList.any {
+    //region onTagNameChange()
+    fun onTagNameChange(name: String) {
+        var tagNameInvalidMessage: String
+        val isNameInvalid = (state.easyListsTagList.any {
             it.name.lowercase() == name.lowercase()
         } == true).let {
-            categoryNameInvalidMessage = if (it) "Name already in use" else ""
+            tagNameInvalidMessage = if (it) "Name already in use" else ""
             it
         }
 
         state = state.copy(
-            categoryName = name,
-            categoryNameInvalid = isNameInvalid,
-            categoryNameInvalidMessage = categoryNameInvalidMessage
+            tagName = name,
+            tagNameInvalid = isNameInvalid,
+            tagNameInvalidMessage = tagNameInvalidMessage
         )
     }
     //endregion
 
 
-    //region onCategoryBottomSheetDismiss()
-    fun onCategoryBottomSheetDismiss() {
+    //region onTagBottomSheetDismiss()
+    fun onTagBottomSheetDismiss() {
         state = state.copy(
             addEditMode = AddEditMode.Add,
-            categoryName = "",
-            categoryNameInvalid = false,
-            categoryNameInvalidMessage = "",
-            showCategoryBottomSheet = !state.showCategoryBottomSheet,
+            tagName = "",
+            tagNameInvalid = false,
+            tagNameInvalidMessage = "",
+            showTagBottomSheet = !state.showTagBottomSheet,
         )
     }
     //endregion

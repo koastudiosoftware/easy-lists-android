@@ -63,7 +63,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.easylists.domain.models.EasyListsListItem
-import com.easylists.domain.models.Tag
+import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.GroupCrossedOffItems
@@ -741,7 +741,7 @@ fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel
 @Composable
 fun ListDetailsScreenListItemBottomSheetTags(viewModel: ListDetailsViewModel) {
     when {
-        viewModel.state.tagList.isNotEmpty() == true -> {
+        viewModel.state.easyListsTagList.isNotEmpty() == true -> {
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxSize()
@@ -758,14 +758,14 @@ fun ListDetailsScreenListItemBottomSheetTags(viewModel: ListDetailsViewModel) {
                         .fillMaxSize()
                         .padding(MaterialTheme.spaces.none)
                 ) {
-                    while (lastIndex < viewModel.state.tagList.size - 1) {
+                    while (lastIndex < viewModel.state.easyListsTagList.size - 1) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = MaterialTheme.spaces.none)
                         ) {
                             run breaking@{
-                                viewModel.state.tagList.forEachIndexed { index, tag ->
+                                viewModel.state.easyListsTagList.forEachIndexed { index, tag ->
                                     lastIndex = index
 
                                     // skip items already added to previous row(s)
@@ -790,7 +790,7 @@ fun ListDetailsScreenListItemBottomSheetTags(viewModel: ListDetailsViewModel) {
                                     }
 
                                     ListDetailsScreenTagPill(
-                                        tag = tag, viewModel = viewModel
+                                        easyListsTag = tag, viewModel = viewModel
                                     )
 
                                     widthConsumed += width
@@ -812,15 +812,15 @@ fun ListDetailsScreenListItemBottomSheetTags(viewModel: ListDetailsViewModel) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListDetailsScreenTagPill(
-    tag: Tag,
+    easyListsTag: EasyListsTag,
     viewModel: ListDetailsViewModel,
 ) {
     Box(
         modifier = Modifier
             .padding(MaterialTheme.spaces.small)
-            .combinedClickable(onClick = { viewModel.onTagClick(tag) }, onLongClick = {})
+            .combinedClickable(onClick = { viewModel.onTagClick(easyListsTag) }, onLongClick = {})
             .background(
-                color = if (tag.isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+                color = if (easyListsTag.isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer,
                 RoundedCornerShape(25.dp)
             )
             .clip(RoundedCornerShape(25.dp))) {
@@ -830,14 +830,14 @@ fun ListDetailsScreenTagPill(
             ), verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                color = if (tag.isSelected) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                color = if (easyListsTag.isSelected) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.padding(
                     start = MaterialTheme.spaces.none, end = MaterialTheme.spaces.small
                 ),
                 style = MaterialTheme.typography.bodyMedium,
-                text = tag.name
+                text = easyListsTag.name
             )
-            if (tag.isSelected) {
+            if (easyListsTag.isSelected) {
                 Icon(
                     modifier = Modifier
                         .size(16.dp)

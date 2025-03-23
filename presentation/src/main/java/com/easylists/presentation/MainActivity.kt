@@ -21,6 +21,7 @@ import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.about.AboutScreen
 import com.easylists.presentation.ui.editcategories.EditCategoriesScreen
+import com.easylists.presentation.ui.edittags.EditTagsScreen
 import com.easylists.presentation.ui.listdetails.ListDetailsScreen
 import com.easylists.presentation.ui.masterlists.MasterListsScreen
 import com.easylists.presentation.ui.masterlists.MasterListsViewModel
@@ -97,6 +98,10 @@ class MainActivity : ComponentActivity() {
 
                                 is Screen.EditCategories -> {
                                     EditCategoriesScreen(navController = navController)
+                                }
+
+                                is Screen.EditTags -> {
+                                    EditTagsScreen(navController = navController)
                                 }
 
                                 is Screen.Settings -> {

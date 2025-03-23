@@ -59,6 +59,7 @@ import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.icons.Info
 import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Settings
+import com.easylists.presentation.icons.Tag
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
@@ -321,6 +322,25 @@ fun MasterListsScreenOverflowMenu(
             leadingIcon = {
                 Icon(
                     Category,
+                    contentDescription = "Localized description",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = stringResource(R.string.edit_tags),
+                )
+            },
+            onClick = {
+                expanded.value = !expanded.value
+                navController.navigate(Screen.EditTags)
+            },
+            leadingIcon = {
+                Icon(
+                    Tag,
                     contentDescription = "Localized description",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

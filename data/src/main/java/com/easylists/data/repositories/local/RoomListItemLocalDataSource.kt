@@ -33,8 +33,6 @@ class RoomListItemLocalDataSource @Inject constructor(
         val mappedList = mapper.mapEasyListsListItemToListItemEntity(listItem)
         return dao.insert(listItemEntity = mappedList)
     }
-    //endregion
-
 
     //region removeCategory()
     override suspend fun removeCategory(categoryUid: List<String>) {

@@ -60,7 +60,7 @@ abstract class DataModule {
     abstract fun bindListItemLocalDataSource(roomListItemLocalDataSource: RoomListItemLocalDataSource): ListItemLocalDataSource
 
 
-    // Tag
+    // EasyListsTag
     @Binds
     abstract fun bindTagRepository(tagRepositoryImpl: TagRepositoryImpl): TagRepository
 

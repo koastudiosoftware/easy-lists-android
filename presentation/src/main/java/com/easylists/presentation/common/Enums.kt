@@ -48,6 +48,14 @@ enum class EditCategoriesAction(val value: String) {
 //endregion
 
 
+//region EditTagsAction
+enum class EditTagsAction(val value: String) {
+    Remove("Remove"),
+    None("None"),
+}
+//endregion
+
+
 //region GroupCrossedOffItems
 enum class GroupCrossedOffItems(val value: String) {
     AllTogether("All together"),
@@ -77,7 +85,7 @@ enum class MasterListsAction(val value: String) {
 //region SortCrossedOffItems
 enum class SortCrossedOffItems(val value: String) {
     Alphabetically("Alphabetically"),
-    MostRecentOnTop("Most recent on top"),
+    MostRecentOnTop("Most recently crossed off on top"),
     ;
 
     override fun toString(): String {

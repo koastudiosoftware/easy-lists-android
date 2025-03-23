@@ -10,7 +10,7 @@ import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
-import com.easylists.domain.models.Tag
+import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.AddListItemFlowUseCase
@@ -28,7 +28,6 @@ import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SortCrossedOffItems
-import com.easylists.presentation.common.composables.ComboOption
 import com.easylists.presentation.common.isNumeric
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListDetailsState
@@ -182,7 +181,7 @@ class ListDetailsViewModel @Inject constructor(
     //region addTagListItem()
     @OptIn(ExperimentalUuidApi::class)
     fun addTagListItem() {
-        val selectedTags = state.tagList.filter { it.isSelected }
+        val selectedTags = state.easyListsTagList.filter { it.isSelected }
         val tagsToAdd = selectedTags.filter { tag ->
             state.tagListItemList.none { tagListItem ->
                 tagListItem.listItemUid == state.itemUid && tagListItem.tagUid == tag.uid
@@ -194,7 +193,7 @@ class ListDetailsViewModel @Inject constructor(
                 TagListItem(
                     uid = Uuid.random().toString(),
                     listItemUid = state.itemUid,
-                    tagUid = it.uid
+                    tagUid = it.uid.toString()
                 )
             })
         }
@@ -204,7 +203,7 @@ class ListDetailsViewModel @Inject constructor(
 
     //region removeTagListItem()
     fun removeTagListItem() {
-        val deselectedTags = state.tagList.filter { !it.isSelected }
+        val deselectedTags = state.easyListsTagList.filter { !it.isSelected }
         val tagsToRemove = deselectedTags.filter { tag ->
             state.tagListItemList.any { tagListItem ->
                 tagListItem.listItemUid == state.itemUid && tagListItem.tagUid == tag.uid
@@ -214,7 +213,7 @@ class ListDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             removeTagListItemUseCase(
                 listItemUid = state.itemUid,
-                tagUidList = tagsToRemove.map { it.uid }
+                tagUidList = tagsToRemove.map { it.uid.toString() }
             )
         }
     }
@@ -472,12 +471,12 @@ class ListDetailsViewModel @Inject constructor(
     }
 
 
-    private fun handleGetTagListState(result: Resultat<List<Tag>?>) {
+    private fun handleGetTagListState(result: Resultat<List<EasyListsTag>?>) {
         result.onSuccess {
             Arbor.i("tag list: $it")
             state = state.copy(
                 isPullToRefreshing = false,
-                tagList = it?.map { item -> item } ?: emptyList(),
+                easyListsTagList = it?.map { item -> item } ?: emptyList(),
                 nextDataFetchStage = "tag list item",
             )
         }.onFailure {
@@ -618,15 +617,15 @@ class ListDetailsViewModel @Inject constructor(
 
 
     //region onTagClick()
-    fun onTagClick(tag: Tag) {
+    fun onTagClick(easyListsTag: EasyListsTag) {
         // create a copy of the list
-        var tagList = ArrayList( state.tagList.map { it.copy() })
+        var tagList = ArrayList( state.easyListsTagList.map { it.copy() })
 
         tagList.find {
-            it.uid == tag.uid
-        }?.isSelected = !tag.isSelected
+            it.uid == easyListsTag.uid
+        }?.isSelected = !easyListsTag.isSelected
 
-        state = state.copy(tagList = tagList)
+        state = state.copy(easyListsTagList = tagList)
     }
     //endregion
 
@@ -634,7 +633,7 @@ class ListDetailsViewModel @Inject constructor(
     //region selectedTags()
     // finds the set of tags that are associated with the selected list item
     fun selectedTags() {
-        var tagList = state.tagList
+        var tagList = state.easyListsTagList
         val selectedTags = tagList.filter { tag ->
             state.tagListItemList.filter { tagListItem ->
                 tagListItem.listItemUid == state.itemUid
@@ -645,7 +644,7 @@ class ListDetailsViewModel @Inject constructor(
             tag.isSelected = selectedTags.any { it.uid == tag.uid }
         }
 
-        state = state.copy(tagList = tagList)
+        state = state.copy(easyListsTagList = tagList)
     }
     //endregion
 
