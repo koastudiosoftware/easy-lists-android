@@ -6,14 +6,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -46,15 +50,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.easylists.domain.models.EasyListsListItem
+import com.easylists.domain.models.Tag
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.GroupCrossedOffItems
@@ -65,6 +74,7 @@ import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.Add
 import com.easylists.presentation.icons.Arrow_back
 import com.easylists.presentation.icons.Check
+import com.easylists.presentation.icons.Close_small
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.icons.Info
 import com.easylists.presentation.icons.More_vert
@@ -92,6 +102,8 @@ fun ListDetailsScreen(
     when (viewModel.state.nextDataFetchStage) {
         "category" -> viewModel.initCategoryList()
         "item" -> viewModel.initListItemsList()
+        "tag" -> viewModel.initTagList()
+        "tag list item" -> viewModel.initTagListItemList()
     }
 
     Scaffold(
@@ -596,6 +608,10 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
                         ListDetailsScreenListItemBottomSheetNotes(viewModel)
                     }
 
+                    item {
+                        ListDetailsScreenListItemBottomSheetTags(viewModel)
+                    }
+
                 }
             }
         }
@@ -743,6 +759,141 @@ fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel
         }
     }
 
+}
+//endregion
+
+
+//region ListDetailsScreenListItemBottomSheetTags
+@Composable
+fun ListDetailsScreenListItemBottomSheetTags(viewModel: ListDetailsViewModel) {
+    when {
+        viewModel.state.tagList.isNotEmpty() == true -> {
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(MaterialTheme.spaces.medium)
+            ) {
+                val boxWithConstraintsScope = this
+                var widthConsumed: Dp = MaterialTheme.spaces.none
+
+                var nextIndex = 0
+                var lastIndex = -1
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(MaterialTheme.spaces.none)
+                ) {
+                    while (lastIndex < viewModel.state.tagList.size - 1) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = MaterialTheme.spaces.none)
+                        ) {
+                            run breaking@{
+                                viewModel.state.tagList.forEachIndexed { index, tag ->
+                                    lastIndex = index
+
+                                    // skip items already added to previous row(s)
+                                    if (index < nextIndex) return@forEachIndexed
+
+                                    // calculate width of tag pill
+                                    var width = measureTextWidth(
+                                        tag.name,
+                                        MaterialTheme.typography.bodyMedium
+                                    ) + (MaterialTheme.spaces.small * 2) + (MaterialTheme.spaces.medium * 2)
+                                    if (tag.isSelected) {
+                                        width += 16.dp
+                                    }
+
+                                    if (widthConsumed + width > boxWithConstraintsScope.maxWidth) {
+                                        // reduce last index by 1 as we didn't actually display the last item
+                                        lastIndex = index - 1
+                                        nextIndex = index
+                                        widthConsumed = MaterialTheme.spaces.none
+
+                                        // break here because we have to start a new row
+                                        return@breaking
+                                    }
+
+                                    ListDetailsScreenTagPill(
+                                        tag = tag,
+                                        viewModel = viewModel
+                                    )
+
+                                    widthConsumed += width
+                                    lastIndex = index
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+//endregion
+
+
+//region ListDetailsScreenTagPill
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ListDetailsScreenTagPill(
+    tag: Tag,
+    viewModel: ListDetailsViewModel,
+) {
+    Box(
+        modifier = Modifier
+            .padding(MaterialTheme.spaces.small)
+            .combinedClickable(
+                onClick = { viewModel.onTagClick(tag) },
+                onLongClick = {}
+            )
+            .background(
+                color = if (tag.isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+                RoundedCornerShape(25.dp)
+            )
+            .clip(RoundedCornerShape(25.dp))
+    ) {
+        Row(
+            modifier = Modifier.padding(
+                start = MaterialTheme.spaces.medium,
+                end = MaterialTheme.spaces.small
+            ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                color = if (tag.isSelected) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(
+                    start = MaterialTheme.spaces.none,
+                    end = MaterialTheme.spaces.small
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                text = tag.name
+            )
+            if (tag.isSelected) {
+                Icon(
+                    modifier = Modifier
+                        .size(16.dp)
+                        .padding(horizontal = MaterialTheme.spaces.none),
+                    imageVector = Close_small,
+                    contentDescription = stringResource(R.string.create_new_list),
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            }
+        }
+    }
+}
+//endregion
+
+
+//region measureTextWidth
+@Composable
+fun measureTextWidth(text: String, style: TextStyle): Dp {
+    val textMeasurer = rememberTextMeasurer()
+    val widthInPixels = textMeasurer.measure(text, style).size.width
+    return with(LocalDensity.current) { widthInPixels.toDp() }
 }
 //endregion
 

@@ -14,6 +14,7 @@ import kotlin.uuid.Uuid
     tableName = "tag_list_item",
     foreignKeys = [
         ForeignKey(entity = ListItemEntity::class, parentColumns = ["uid"], childColumns = ["list_item_uid"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(entity = TagEntity::class, parentColumns = ["uid"], childColumns = ["tag_uid"], onDelete = ForeignKey.CASCADE),
     ],
     indices = [Index(value = ["uid"], unique = true)],
 )
@@ -21,6 +22,10 @@ data class TagListItemEntity @OptIn(ExperimentalUuidApi::class) constructor(
 
     @PrimaryKey
     val uid: String = Uuid.random().toString(),
+
+    @ColumnInfo(name = "tag_uid")
+    @SerializedName(value = "tag_uid")
+    var tagUid: String,
 
     @ColumnInfo(name = "list_item_uid")
     @SerializedName(value = "list_item_uid")

@@ -8,4 +8,6 @@ data class Tag(
     val color: String? = null,
     val createdTimestamp: Long = Instant.now().epochSecond,
     val modifiedTimestamp: Long = Instant.now().epochSecond,
+
+    var isSelected: Boolean = false,
 )

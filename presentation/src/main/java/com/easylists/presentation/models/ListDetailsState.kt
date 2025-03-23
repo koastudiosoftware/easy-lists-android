@@ -2,6 +2,8 @@ package com.easylists.presentation.models
 
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
+import com.easylists.domain.models.Tag
+import com.easylists.domain.models.TagListItem
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
@@ -33,9 +35,12 @@ data class ListDetailsState(
     var nextDataFetchStage: String = "category",
     var selectedCategoryIndex: Int = -1,
     var selectedItemUid: String = "",
+    var selectedTagIds: List<Int> = emptyList(),
     var showConfirmationDialog: Boolean = false,
     var showListItemBottomSheet: Boolean = false,
     var sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
+    var tagList: List<Tag> = emptyList(),
+    var tagListItemList: List<TagListItem> = emptyList(),
     var uiState: ListListUiState = ListListUiState.Idle
 )
 

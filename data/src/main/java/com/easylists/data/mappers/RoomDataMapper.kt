@@ -205,6 +205,7 @@ class RoomDataMapper @Inject constructor(
         return tagListItemEntityList.map { entity ->
             TagListItem(
                 uid = entity.uid,
+                tagUid = entity.tagUid,
                 listItemUid = entity.listItemUid,
                 createdTimestamp = entity.createdTimestamp,
                 modifiedTimestamp = entity.modifiedTimestamp,
@@ -217,7 +218,8 @@ class RoomDataMapper @Inject constructor(
     //region mapTagListItemToTagListItemEntity()
     fun mapTagListItemToTagListItemEntity(tagListItem: TagListItem): TagListItemEntity {
         return TagListItemEntity(
-            uid = tagListItem.uid,
+            uid = tagListItem.uid.toString(),
+            tagUid = tagListItem.tagUid,
             listItemUid = tagListItem.listItemUid,
         )
     }

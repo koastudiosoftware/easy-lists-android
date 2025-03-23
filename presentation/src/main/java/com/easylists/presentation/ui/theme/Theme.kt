@@ -569,6 +569,8 @@ data class CustomSpaces(
     val large: Dp = 16.dp,
     val extraLarge: Dp = 24.dp,
 
+    val staggeredGridCellMinSize: Dp = 30.dp,
+
     val rowHeightMedium: Dp = 54.dp,
     val rowHeightLarge: Dp = 72.dp,
 )

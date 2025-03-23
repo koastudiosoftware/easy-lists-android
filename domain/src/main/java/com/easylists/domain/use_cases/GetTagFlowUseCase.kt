@@ -23,9 +23,9 @@ class GetTagFlowUseCase @Inject constructor(
         }
     }
 
-    operator fun invoke(tagListUid: String): Flow<List<Tag>> {
+    operator fun invoke(listItemUid: String): Flow<List<Tag>> {
         return try {
-            tagRepository.getTagListFlow(tagListUid).map { it }
+            tagRepository.getTagListFlow(listItemUid = listItemUid).map { it }
         } catch (e: Exception) {
             flow {
                 throw e
