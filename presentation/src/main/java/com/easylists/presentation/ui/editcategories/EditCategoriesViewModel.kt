@@ -9,12 +9,14 @@ import com.easylists.domain.common.KEY
 import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsCategory
+import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
+import com.easylists.domain.use_cases.GetListFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
 import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveCategoryUseCase
@@ -49,12 +51,14 @@ class EditCategoriesViewModel @Inject constructor(
     private val removeCategoryFromListItemUseCase: RemoveCategoryFromListItemUseCase,
     private val updateCategoryUseCase: UpdateCategoryUseCase,
     private val getListItemFlowUseCase: GetListItemFlowUseCase,
+    private val getListListFlowUseCase: GetListFlowUseCase,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
     private var categoryListFlowJob: Job? = null
     private var listItemListFlowJob: Job? = null
+    private var listListFlowJob: Job? = null
 
     var state by mutableStateOf(EditCategoriesState())
 
@@ -62,6 +66,7 @@ class EditCategoriesViewModel @Inject constructor(
     init {
         initAppSettings()
         initCategoryList()
+        initListList()
         initListItemList()
     }
 
@@ -172,6 +177,49 @@ class EditCategoriesViewModel @Inject constructor(
     private fun cancelListItemFlowCollection() {
         listItemListFlowJob?.cancel()
         listItemListFlowJob = null
+    }
+    //endregion
+
+
+    //region initListList() :: initialize list of lists from the database
+    fun initListList() {
+        cancelListFlowCollection()
+
+        listListFlowJob = getListListFlowUseCase()
+            .onEach {
+                handleGetListState(Resultat.success(it))
+            }.catch {
+                handleGetListState(Resultat.failure(it))
+
+                // After this catch the flow is interrupted and it must be collected
+                // again to obtain new data. The handleRefresh() method handles this situation.
+                cancelListFlowCollection()
+            }.launchIn(viewModelScope)
+    }
+
+
+    private fun handleGetListState(result: Resultat<List<EasyListsList>?>) {
+        result.onSuccess {
+            state = state.copy(
+                isPullToRefreshing = false,
+                // TODO this is where the sorting order should be applied
+                listList = it ?: emptyList(),
+            )
+        }.onFailure {
+//            state = state.copy(
+//                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
+//            )
+        }.onLoading {
+//            state = state.copy(
+//                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
+//            )
+        }
+    }
+
+
+    private fun cancelListFlowCollection() {
+        listListFlowJob?.cancel()
+        listListFlowJob = null
     }
     //endregion
 
@@ -373,8 +421,24 @@ class EditCategoriesViewModel @Inject constructor(
 
     //region categoryListItemCount()
     fun categoryListItemCount(category: EasyListsCategory): Int {
-        Arbor.i("state.tagListItemList: ${state.listItemList}")
         return state.listItemList.count { it.categoryUid == category.uid }
+    }
+    //endregion
+
+
+    //region listItems()
+    fun listItems(): List<EasyListsListItem> {
+        return state.listItemList.filter { it.categoryUid == state.selectedItem?.uid }
+    }
+    //endregion
+
+
+    //region lists()
+    fun lists(): List<EasyListsList> {
+        val listItems = listItems()
+        return state.listList.filter { list ->
+            listItems.any { it.listUid == list.uid }
+        }
     }
     //endregion
 

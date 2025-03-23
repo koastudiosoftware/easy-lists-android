@@ -1,6 +1,7 @@
 package com.easylists.presentation.models
 
 import com.easylists.domain.models.EasyListsCategory
+import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.Capitalization
@@ -17,6 +18,7 @@ data class EditCategoriesState(
     var deselectCheckboxes: Boolean = false,
     var isPullToRefreshing: Boolean = false,
     var listItemList: List<EasyListsListItem> = emptyList(),
+    var listList: List<EasyListsList> = emptyList(),
     var nextStep: String? = null,
     var selectedItem: EasyListsCategory? = null,
     var showCategoryBottomSheet: Boolean = false,

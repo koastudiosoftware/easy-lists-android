@@ -60,6 +60,11 @@
     <string name="remove_categories_warning">Are you sure you want to remove the selected categories? Items in these categories will not be removed.</string>
     <string name="remove_tags_warning">Are you sure you want to remove the selected tags? Items with these tags will not be removed.</string>
 
+    <string name="category_not_used_message">This category is not used by any items on any list.</string>
+    <string name="category_used_by_message">This category is used by the following items.</string>
+    <string name="tag_not_used_message">This tag is not used by any items on any list.</string>
+    <string name="tag_used_by_message">This tag is used by the following items.</string>
+
     <string name="delete_all_crossed_off_items">Delete All Crossed Off Items</string>
 
     <string name="tags">Tags</string>

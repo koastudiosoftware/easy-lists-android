@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,6 +55,8 @@ import com.easylists.presentation.icons.Cancel
 import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.models.Screen
+import com.easylists.presentation.ui.edittags.EditTagsScreenBottomSheetListsAndItems
+import com.easylists.presentation.ui.edittags.EditTagsViewModel
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
@@ -224,8 +227,8 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
                     item {
                         SectionTitle(
                             title = stringResource(
-                                if (viewModel.state.addEditMode == AddEditMode.Add) R.string.add_item
-                                else R.string.edit_item
+                                if (viewModel.state.addEditMode == AddEditMode.Add) R.string.add_category
+                                else R.string.edit_category
                             ),
                             icon = {
                                 IconButton(
@@ -247,6 +250,10 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
 
                     item {
                         EditCategoriesScreenBottomSheetName(viewModel)
+                    }
+
+                    item {
+                        EditCategoriesScreenBottomSheetListsAndItems(viewModel)
                     }
 
                 }
@@ -286,6 +293,60 @@ fun EditCategoriesScreenBottomSheetName(viewModel: EditCategoriesViewModel) {
                 }
             }
         )
+    }
+}
+//endregion
+
+
+//region EditCategoriesScreenBottomSheetListsAndItems
+@Composable
+fun EditCategoriesScreenBottomSheetListsAndItems(viewModel: EditCategoriesViewModel) {
+    var lists = viewModel.lists()
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = MaterialTheme.spaces.large)
+        .padding(top = MaterialTheme.spaces.medium)
+    ) {
+        if (lists.isEmpty()) {
+            if (viewModel.state.addEditMode == AddEditMode.Edit) {
+                Text(
+                    modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
+                    style = MaterialTheme.typography.bodyLarge,
+                    text = stringResource(R.string.category_not_used_message),
+                )
+            }
+        } else {
+            Text(
+                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
+                style = MaterialTheme.typography.bodyLarge,
+                text = stringResource(R.string.category_used_by_message),
+            )
+        }
+    }
+    lists.forEach { list ->
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.spaces.large)
+            .padding(top = MaterialTheme.spaces.medium)
+        ) {
+            Text(
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
+                style = MaterialTheme.typography.bodyLarge,
+                text = list.name,
+            )
+
+            val listItems = viewModel.listItems()
+            listItems.forEach { item ->
+                if (item.listUid == list.uid) {
+                    Text(
+                        text = item.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(horizontal = MaterialTheme.spaces.extraLarge)
+                    )
+                }
+            }
+        }
     }
 }
 //endregion

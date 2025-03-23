@@ -226,7 +226,7 @@ fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
                     item {
                         SectionTitle(
                             title = stringResource(
-                                if (viewModel.state.addEditMode == AddEditMode.Add) R.string.add_item
+                                if (viewModel.state.addEditMode == AddEditMode.Add) R.string.add_tag
                                 else R.string.edit_tag
                             ),
                             icon = {
@@ -277,14 +277,14 @@ fun EditTagsScreenBottomSheetListsAndItems(viewModel: EditTagsViewModel) {
                 Text(
                     modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
                     style = MaterialTheme.typography.bodyLarge,
-                    text = "This tag is not used by any items on any list.",
+                    text = stringResource(R.string.tag_not_used_message),
                 )
             }
         } else {
             Text(
                 modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
                 style = MaterialTheme.typography.bodyLarge,
-                text = "This tag is used by the following items.",
+                text = stringResource(R.string.tag_used_by_message),
             )
         }
     }
