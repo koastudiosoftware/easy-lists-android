@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ListItemRepository {
 
+    fun getListItemFlow(): Flow<List<EasyListsListItem>>
     fun getListItemFlow(listUid: String): Flow<List<EasyListsListItem>>
 
     suspend fun addListItem(listItem: EasyListsListItem): Result<Unit>
