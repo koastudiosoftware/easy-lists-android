@@ -1,5 +1,6 @@
 package com.easylists.presentation.models
 
+import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
@@ -13,6 +14,8 @@ data class EditTagsState(
     var capitalization: Capitalization = Capitalization.NoCapitalization,
     var deselectCheckboxes: Boolean = false,
     var isPullToRefreshing: Boolean = false,
+    var listItemList: List<EasyListsListItem> = emptyList(),
+    var listList: List<EasyListsList> = emptyList(),
     var nextStep: String? = null,
     var selectedItem: EasyListsTag? = null,
     var showTagBottomSheet: Boolean = false,

@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,6 +56,7 @@ import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
+import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.pop
@@ -225,7 +227,7 @@ fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
                         SectionTitle(
                             title = stringResource(
                                 if (viewModel.state.addEditMode == AddEditMode.Add) R.string.add_item
-                                else R.string.edit_item
+                                else R.string.edit_tag
                             ),
                             icon = {
                                 IconButton(
@@ -249,6 +251,64 @@ fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
                         EditTagsScreenBottomSheetName(viewModel)
                     }
 
+                    item {
+                        EditTagsScreenBottomSheetListsAndItems(viewModel)
+                    }
+
+                }
+            }
+        }
+    }
+}
+//endregion
+
+
+//region EditTagsScreenBottomSheetListsAndItems
+@Composable
+fun EditTagsScreenBottomSheetListsAndItems(viewModel: EditTagsViewModel) {
+    var lists = viewModel.lists()
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = MaterialTheme.spaces.large)
+        .padding(top = MaterialTheme.spaces.medium)
+    ) {
+        if (lists.isEmpty()) {
+            if (viewModel.state.addEditMode == AddEditMode.Edit) {
+                Text(
+                    modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
+                    style = MaterialTheme.typography.bodyLarge,
+                    text = "This tag is not used by any items on any list.",
+                )
+            }
+        } else {
+            Text(
+                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
+                style = MaterialTheme.typography.bodyLarge,
+                text = "This tag is used by the following items.",
+            )
+        }
+    }
+    lists.forEach { list ->
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.spaces.large)
+            .padding(top = MaterialTheme.spaces.medium)
+        ) {
+            Text(
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
+                style = MaterialTheme.typography.bodyLarge,
+                text = list.name,
+            )
+
+            val listItems = viewModel.listItems()
+            listItems.forEach { item ->
+                if (item.listUid == list.uid) {
+                    Text(
+                        text = item.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(horizontal = MaterialTheme.spaces.extraLarge)
+                    )
                 }
             }
         }
