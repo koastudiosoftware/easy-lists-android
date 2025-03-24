@@ -443,6 +443,7 @@ class EditCategoriesViewModel @Inject constructor(
     //endregion
 
 
+    //region dismissConfirmationDialog()
     fun dismissConfirmationDialog() {
         state = state.copy(
             confirmationTitle = "",
@@ -452,7 +453,10 @@ class EditCategoriesViewModel @Inject constructor(
             showConfirmationDialog = false,
         )
     }
+    //endregion
 
+
+    //region configureRemoveCategory
     fun configureRemoveCategory(
         title: String,
         message: String,
@@ -468,5 +472,6 @@ class EditCategoriesViewModel @Inject constructor(
 
         setShowConfirmationDialogState(true)
     }
+    //endregion
 
 }

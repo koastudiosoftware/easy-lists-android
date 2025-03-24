@@ -503,4 +503,41 @@ class EditTagsViewModel @Inject constructor(
     }
     //endregion
 
+
+    //region dismissConfirmationDialog()
+    fun dismissConfirmationDialog() {
+        state = state.copy(
+            actionButtonState = EditTagsAction.None,
+            confirmationTitle = "",
+            confirmationMessage = "",
+            confirmationOnConfirmation = {},
+            confirmationOnDismissRequest = {},
+            showConfirmationDialog = false,
+            showTagBottomSheet = false,
+            tagName = "",
+            tagNameInvalid = false,
+            tagNameInvalidMessage = "",
+        )
+    }
+    //endregion
+
+
+    //region configureRemoveTag
+    fun configureRemoveTag(
+        title: String,
+        message: String,
+        onConfirmation: () -> Unit,
+        onDismissRequest: () -> Unit
+    ) {
+        state = state.copy(
+            confirmationTitle = title,
+            confirmationMessage = message,
+            confirmationOnConfirmation = onConfirmation,
+            confirmationOnDismissRequest = onDismissRequest,
+        )
+
+        setShowConfirmationDialogState(true)
+    }
+    //endregion
+
 }

@@ -103,7 +103,7 @@ fun EditTagsScreen(
             },
         ) {
 
-            ConfirmRemoveTags(viewModel)
+            ConfirmRemove(viewModel)
 
             EditTagsScreenCategoryBottomSheet(viewModel)
 
@@ -150,10 +150,23 @@ fun EditTagsScreenTopAppBarNavigationIcon(navController: NavController<Screen>) 
 fun EditTagsScreenActionIcons(viewModel: EditTagsViewModel) {
     when (viewModel.state.actionButtonState) {
         EditTagsAction.Remove -> {
+            val title = stringResource(R.string.confirm_removal)
+            val message = stringResource(R.string.remove_tags_warning)
             IconButton(
                 enabled = viewModel.state.tagList.any { it.selectedForRemoval },
                 onClick = {
-                    viewModel.setShowConfirmationDialogState(true)
+                    viewModel.configureRemoveTag(
+                        title = title,
+                        message = message,
+                        onConfirmation = {
+                            viewModel.deselectCheckboxes()
+                            viewModel.removeTagFromListItems()
+                            viewModel.setShowConfirmationDialogState(false)
+                        },
+                        onDismissRequest = {
+                            viewModel.dismissConfirmationDialog()
+                        }
+                    )
                 }
             ) {
                 Icon(
@@ -241,6 +254,33 @@ fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
                                         imageVector = Check,
                                         contentDescription = stringResource(R.string.add_tag),
                                     )
+                                }
+                                if (viewModel.state.addEditMode == AddEditMode.Edit) {
+                                    val title = stringResource(R.string.confirm_removal)
+                                    val message = stringResource(R.string.remove_tag_warning)
+                                    IconButton(
+                                        enabled = true,
+                                        onClick = {
+                                            viewModel.configureRemoveTag(
+                                                title = title,
+                                                message = message,
+                                                onConfirmation = {
+                                                    viewModel.onTagSelectedForRemovalChanged(viewModel.state.selectedItem?.uid)
+                                                    viewModel.removeTags()
+                                                    viewModel.dismissConfirmationDialog()
+                                                    viewModel.showTagBottomSheet()
+                                                },
+                                                onDismissRequest = {
+                                                    viewModel.dismissConfirmationDialog()
+                                                }
+                                            )
+                                        },
+                                    ) {
+                                        Icon(
+                                            imageVector = Delete,
+                                            contentDescription = stringResource(R.string.add_tag),
+                                        )
+                                    }
                                 }
                             },
                             modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
@@ -468,21 +508,28 @@ fun TagCheckbox(
 
 //region ConfirmRemoveTags
 @Composable
-fun ConfirmRemoveTags(viewModel: EditTagsViewModel) {
+fun ConfirmRemove(viewModel: EditTagsViewModel) {
     when {
         viewModel.state.showConfirmationDialog == true -> {
             ConfirmationDialog(
-                onDismissRequest = {
-                    viewModel.setShowConfirmationDialogState(false)
-                },
-                onConfirmation = {
-                    viewModel.deselectCheckboxes()
-                    viewModel.removeTagFromListItems()
-                    viewModel.setShowConfirmationDialogState(false)
-                },
-                dialogTitle = stringResource(R.string.confirm_removal),
-                dialogText = stringResource(R.string.remove_tags_warning),
+                onDismissRequest = viewModel.state.confirmationOnDismissRequest,
+                onConfirmation = viewModel.state.confirmationOnConfirmation,
+                dialogTitle = viewModel.state.confirmationTitle,
+                dialogText = viewModel.state.confirmationMessage,
             )
+
+//            ConfirmationDialog(
+//                onDismissRequest = {
+//                    viewModel.setShowConfirmationDialogState(false)
+//                },
+//                onConfirmation = {
+//                    viewModel.deselectCheckboxes()
+//                    viewModel.removeTagFromListItems()
+//                    viewModel.setShowConfirmationDialogState(false)
+//                },
+//                dialogTitle = stringResource(R.string.confirm_removal),
+//                dialogText = stringResource(R.string.remove_tags_warning),
+//            )
         }
     }
 }
