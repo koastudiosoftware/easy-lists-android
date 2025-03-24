@@ -3,6 +3,7 @@ activityCompose = "1.10.1"
 agp = "8.9.0"
 appcompat = "1.7.0"
 arborJvm = "2.0.102"
+coilCompose = "3.0.4"
 composeBom = "2025.02.00"
 converterGson = "2.11.0"
 coreKtx = "1.15.0"
@@ -46,6 +47,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 arbor-jvm = { module = "com.ToxicBakery.logging:arbor-jvm", version.ref = "arborJvm" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "daggerCompiler" }

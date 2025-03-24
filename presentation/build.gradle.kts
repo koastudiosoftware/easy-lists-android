@@ -78,7 +78,6 @@ dependencies {
     // Arbor
     implementation(libs.arbor.jvm)
 
-    // DataStore
-//    implementation(libs.androidx.datastore.preferences)
-
+    // Coil (for AsyncImage)
+    implementation(libs.coil.compose)
 }
