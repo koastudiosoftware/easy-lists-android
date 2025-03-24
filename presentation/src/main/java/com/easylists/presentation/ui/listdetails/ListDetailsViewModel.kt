@@ -350,6 +350,7 @@ class ListDetailsViewModel @Inject constructor(
 
     //region initListItemList() :: initialize list of items from the database
     fun initListItemsList() {
+        Arbor.i("initListItemList()")
         cancelListItemFlowCollection()
 
         listItemListFlowJob = getListItemFlowUseCase(listUid = state.listUid)
@@ -412,6 +413,7 @@ class ListDetailsViewModel @Inject constructor(
 
     //region initCategoryList() :: initialize list of items from the database
     fun initCategoryList() {
+        Arbor.i("initCategoryList()")
         cancelCategoryFlowCollection()
 
         categoryListFlowJob = getCategoryFlowUseCase()
@@ -430,10 +432,9 @@ class ListDetailsViewModel @Inject constructor(
     private fun handleGetCategoryState(result: Resultat<List<EasyListsCategory>?>) {
         result.onSuccess {
             state = state.copy(
-                isPullToRefreshing = false,
                 // TODO this is where the sorting order should be applied
                 categoryList = it?.map { item -> item } ?: emptyList(),
-                nextDataFetchStage = "item",
+                nextDataFetchStage = "list item",
             )
         }.onFailure {
             state = state.copy(
@@ -456,6 +457,7 @@ class ListDetailsViewModel @Inject constructor(
 
     //region initTagList() :: initialize list of tags from the database
     fun initTagList() {
+        Arbor.i("initTagList()")
         cancelTagFlowCollection()
 
         tagListFlowJob = getTagFlowUseCase()
@@ -475,7 +477,7 @@ class ListDetailsViewModel @Inject constructor(
         result.onSuccess {
             Arbor.i("tag list: $it")
             state = state.copy(
-                isPullToRefreshing = false,
+//                isPullToRefreshing = false,
                 easyListsTagList = it?.map { item -> item } ?: emptyList(),
                 nextDataFetchStage = "tag list item",
             )
@@ -500,10 +502,12 @@ class ListDetailsViewModel @Inject constructor(
 
     //region initTagListItemList() :: initialize list of tags from the database
     fun initTagListItemList() {
+        Arbor.i("initTagListItemList()")
         cancelTagListItemFlowCollection()
 
         tagListItemListFlowJob = getTagListItemFlowUseCase()
             .onEach {
+                delay(500L) // workaround to eliminate sticky pull to refresh indicator
                 handleGetTagListItemListState(Resultat.success(it))
             }.catch {
                 handleGetTagListItemListState(Resultat.failure(it))
@@ -522,6 +526,7 @@ class ListDetailsViewModel @Inject constructor(
                 tagListItemList = it?.map { item -> item } ?: emptyList(),
                 nextDataFetchStage = "",
             )
+            Arbor.i("finished")
         }.onFailure {
             state = state.copy(
                 uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
@@ -542,8 +547,11 @@ class ListDetailsViewModel @Inject constructor(
 
 
     //region onPullToRefresh()
-    fun onPullToRefresh(isRefreshing: Boolean): () -> Unit = {
-        state = state.copy(isPullToRefreshing = isRefreshing)
+    fun onPullToRefresh(): () -> Unit = {
+        state = state.copy(
+            isPullToRefreshing = true,
+            nextDataFetchStage = "category",
+        )
     }
     //endregion
 

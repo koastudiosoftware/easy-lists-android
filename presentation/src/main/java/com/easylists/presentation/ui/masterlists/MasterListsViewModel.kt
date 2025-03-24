@@ -31,6 +31,7 @@ import fr.haan.resultat.onFailure
 import fr.haan.resultat.onLoading
 import fr.haan.resultat.onSuccess
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -184,6 +185,7 @@ class MasterListsViewModel @Inject constructor(
 
     //region initListList() :: initialize list of lists from the database
     fun initListList() {
+        Arbor.i("initListList()")
         cancelListFlowCollection()
 
         listListFlowJob = getListListFlowUseCase()
@@ -206,6 +208,7 @@ class MasterListsViewModel @Inject constructor(
                 // TODO this is where the sorting order should be applied
                 listList = it ?: emptyList(),
             )
+            Arbor.i("finished")
         }.onFailure {
             state = state.copy(
                 uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
@@ -226,8 +229,17 @@ class MasterListsViewModel @Inject constructor(
 
 
     //region onPullToRefresh()
-    fun onPullToRefresh(isRefreshing: Boolean): () -> Unit = {
-        state = state.copy(isPullToRefreshing = isRefreshing)
+    fun onPullToRefresh(): () -> Unit = {
+        Arbor.i("onPullToRefresh()")
+        state = state.copy(
+            isPullToRefreshing = true,
+            listList = emptyList(),
+        )
+        viewModelScope.launch {
+            initListList()
+            delay(500L) // workaround to eliminate sticky pull to refresh indicator
+            state = state.copy(isPullToRefreshing = false)
+        }
     }
     //endregion
 

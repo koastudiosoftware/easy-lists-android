@@ -35,6 +35,7 @@ import fr.haan.resultat.onFailure
 import fr.haan.resultat.onLoading
 import fr.haan.resultat.onSuccess
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -116,7 +117,6 @@ class EditCategoriesViewModel @Inject constructor(
     private fun handleGetCategoryState(result: Resultat<List<EasyListsCategory>?>) {
         result.onSuccess {
             state = state.copy(
-                isPullToRefreshing = false,
                 // TODO this is where the sorting order should be applied
                 categoryList = it?.map { item -> item } ?: emptyList(),
             )
@@ -159,7 +159,6 @@ class EditCategoriesViewModel @Inject constructor(
     private fun handleGetTagListItemState(result: Resultat<List<EasyListsListItem>?>) {
         result.onSuccess {
             state = state.copy(
-                isPullToRefreshing = false,
                 listItemList = it?.map { item -> item } ?: emptyList(),
             )
         }.onFailure {
@@ -201,7 +200,6 @@ class EditCategoriesViewModel @Inject constructor(
     private fun handleGetListState(result: Resultat<List<EasyListsList>?>) {
         result.onSuccess {
             state = state.copy(
-                isPullToRefreshing = false,
                 // TODO this is where the sorting order should be applied
                 listList = it ?: emptyList(),
             )
@@ -225,8 +223,15 @@ class EditCategoriesViewModel @Inject constructor(
 
 
     //region onPullToRefresh()
-    fun onPullToRefresh(isRefreshing: Boolean): () -> Unit = {
-        state = state.copy(isPullToRefreshing = isRefreshing)
+    fun onPullToRefresh(): () -> Unit = {
+        state = state.copy(isPullToRefreshing = true)
+        viewModelScope.launch {
+            initCategoryList()
+            initListItemList()
+            initListList()
+            delay(500L) // workaround to eliminate sticky pull to refresh indicator
+            state = state.copy(isPullToRefreshing = false)
+        }
     }
     //endregion
 

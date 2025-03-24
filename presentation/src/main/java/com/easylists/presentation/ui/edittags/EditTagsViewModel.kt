@@ -35,6 +35,7 @@ import fr.haan.resultat.onFailure
 import fr.haan.resultat.onLoading
 import fr.haan.resultat.onSuccess
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -273,8 +274,16 @@ class EditTagsViewModel @Inject constructor(
 
 
     //region onPullToRefresh()
-    fun onPullToRefresh(isRefreshing: Boolean): () -> Unit = {
-        state = state.copy(isPullToRefreshing = isRefreshing)
+    fun onPullToRefresh(): () -> Unit = {
+        state = state.copy(isPullToRefreshing = true)
+        viewModelScope.launch {
+            initTagList()
+            initListItemList()
+            initTagListItemList()
+            initListList()
+            delay(500L) // workaround to eliminate sticky pull to refresh indicator
+            state = state.copy(isPullToRefreshing = false)
+        }
     }
     //endregion
 

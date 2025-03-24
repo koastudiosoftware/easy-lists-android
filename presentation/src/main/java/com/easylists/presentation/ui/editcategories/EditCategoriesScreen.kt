@@ -92,7 +92,7 @@ fun EditCategoriesScreen(
         val pullToRefreshState = rememberPullToRefreshState()
         PullToRefreshBox(
             isRefreshing = viewModel.state.isPullToRefreshing,
-            onRefresh = viewModel.onPullToRefresh(true),
+            onRefresh = viewModel.onPullToRefresh(),
             state = pullToRefreshState,
             modifier = Modifier.padding(innerPadding),
             indicator = {

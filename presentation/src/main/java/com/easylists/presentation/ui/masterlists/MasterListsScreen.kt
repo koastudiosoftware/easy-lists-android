@@ -88,16 +88,9 @@ fun MasterListsScreen(
         val pullToRefreshState = rememberPullToRefreshState()
         PullToRefreshBox(
             isRefreshing = viewModel.state.isPullToRefreshing,
-            onRefresh = viewModel.onPullToRefresh(true),
+            onRefresh = viewModel.onPullToRefresh(),
             state = pullToRefreshState,
             modifier = Modifier.padding(innerPadding),
-            indicator = {
-                Indicator(
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    isRefreshing = viewModel.state.isPullToRefreshing,
-                    state = pullToRefreshState
-                )
-            },
         ) {
 
             ConfirmRemoveList(viewModel)
