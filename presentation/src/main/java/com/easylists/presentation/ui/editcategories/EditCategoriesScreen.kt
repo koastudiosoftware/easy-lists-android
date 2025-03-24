@@ -243,6 +243,21 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
                                         contentDescription = stringResource(R.string.add_category),
                                     )
                                 }
+                                if (viewModel.state.addEditMode == AddEditMode.Edit) {
+                                    IconButton(
+                                        enabled = true,
+                                        onClick = {
+                                            viewModel.onCategorySelectedForRemovalChanged(viewModel.state.selectedItem?.uid)
+                                            viewModel.removeCategories()
+                                            viewModel.showCategoryBottomSheet()
+                                        },
+                                    ) {
+                                        Icon(
+                                            imageVector = Delete,
+                                            contentDescription = stringResource(R.string.add_category),
+                                        )
+                                    }
+                                }
                             },
                             modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
                         )

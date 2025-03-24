@@ -52,14 +52,14 @@ fun SectionTitle(
             )
         }
         if (icon != null) {
-            Column(
+            Row(
                 modifier = Modifier
                     .weight(1f)
                     .padding(  // padding is determined by the caller
                         horizontal = MaterialTheme.spaces.none,
                         vertical = MaterialTheme.spaces.none
                     ),
-                horizontalAlignment = Alignment.End
+                horizontalArrangement = Arrangement.End,
             ) {
                 icon()
             }
