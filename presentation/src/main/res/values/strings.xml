@@ -1,7 +1,7 @@
 <resources>
 
     <string name="app_name">Easy Lists</string>
-    <string name="app_version">0.2.5</string>
+    <string name="app_version">0.2.6</string>
 
     <string name="lists">Lists</string>
     <string name="settings">Settings</string>
