@@ -57,6 +57,7 @@
     <string name="remove_crossed_off_items_warning">Are you sure you want to remove all crossed off items from this list?</string>
     <string name="remove_list_warning">Are you sure you want to remove the selected list?</string>
     <string name="remove_list_items_warning">Are you sure you want to remove the selected item from this list?</string>
+    <string name="remove_category_warning">Are you sure you want to remove the selected category? Items in this category will not be removed.</string>
     <string name="remove_categories_warning">Are you sure you want to remove the selected categories? Items in these categories will not be removed.</string>
     <string name="remove_tags_warning">Are you sure you want to remove the selected tags? Items with these tags will not be removed.</string>
 

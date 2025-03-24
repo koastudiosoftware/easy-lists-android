@@ -104,7 +104,7 @@ fun EditCategoriesScreen(
             },
         ) {
 
-            ConfirmRemoveCategories(viewModel)
+            ConfirmRemove(viewModel)
 
             EditCategoriesScreenCategoryBottomSheet(viewModel)
 
@@ -151,10 +151,23 @@ fun EditCategoriesScreenTopAppBarNavigationIcon(navController: NavController<Scr
 fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
     when (viewModel.state.actionButtonState) {
         EditCategoriesAction.Remove -> {
+            val title = stringResource(R.string.confirm_removal)
+            val message = stringResource(R.string.remove_categories_warning)
             IconButton(
                 enabled = viewModel.state.categoryList.any { it.selectedForRemoval },
                 onClick = {
-                    viewModel.setShowConfirmationDialogState(true)
+                    viewModel.configureRemoveCategory(
+                        title = title,
+                        message = message,
+                        onConfirmation = {
+                            viewModel.deselectCheckboxes()
+                            viewModel.removeCategoryFromListItems()
+                            viewModel.setShowConfirmationDialogState(false)
+                        },
+                        onDismissRequest = {
+                            viewModel.dismissConfirmationDialog()
+                        }
+                    )
                 }
             ) {
                 Icon(
@@ -244,12 +257,24 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
                                     )
                                 }
                                 if (viewModel.state.addEditMode == AddEditMode.Edit) {
+                                    val title = stringResource(R.string.confirm_removal)
+                                    val message = stringResource(R.string.remove_category_warning)
                                     IconButton(
                                         enabled = true,
                                         onClick = {
-                                            viewModel.onCategorySelectedForRemovalChanged(viewModel.state.selectedItem?.uid)
-                                            viewModel.removeCategories()
-                                            viewModel.showCategoryBottomSheet()
+                                            viewModel.configureRemoveCategory(
+                                                title = title,
+                                                message = message,
+                                                onConfirmation = {
+                                                    viewModel.onCategorySelectedForRemovalChanged(viewModel.state.selectedItem?.uid)
+                                                    viewModel.removeCategories()
+                                                    viewModel.dismissConfirmationDialog()
+                                                    viewModel.showCategoryBottomSheet()
+                                                },
+                                                onDismissRequest = {
+                                                    viewModel.dismissConfirmationDialog()
+                                                }
+                                            )
                                         },
                                     ) {
                                         Icon(
@@ -482,22 +507,16 @@ fun CategoryCheckbox(
 //endregion
 
 
-//region ConfirmRemoveCategories
+//region ConfirmRemove
 @Composable
-fun ConfirmRemoveCategories(viewModel: EditCategoriesViewModel) {
+fun ConfirmRemove(viewModel: EditCategoriesViewModel) {
     when {
         viewModel.state.showConfirmationDialog == true -> {
             ConfirmationDialog(
-                onDismissRequest = {
-                    viewModel.setShowConfirmationDialogState(false)
-                },
-                onConfirmation = {
-                    viewModel.deselectCheckboxes()
-                    viewModel.removeCategoryFromListItems()
-                    viewModel.setShowConfirmationDialogState(false)
-                },
-                dialogTitle = stringResource(R.string.confirm_removal),
-                dialogText = stringResource(R.string.remove_categories_warning),
+                onDismissRequest = viewModel.state.confirmationOnDismissRequest,
+                onConfirmation = viewModel.state.confirmationOnConfirmation,
+                dialogTitle = viewModel.state.confirmationTitle,
+                dialogText = viewModel.state.confirmationMessage,
             )
         }
     }

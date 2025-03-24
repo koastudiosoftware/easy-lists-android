@@ -442,4 +442,31 @@ class EditCategoriesViewModel @Inject constructor(
     }
     //endregion
 
+
+    fun dismissConfirmationDialog() {
+        state = state.copy(
+            confirmationTitle = "",
+            confirmationMessage = "",
+            confirmationOnConfirmation = {},
+            confirmationOnDismissRequest = {},
+            showConfirmationDialog = false,
+        )
+    }
+
+    fun configureRemoveCategory(
+        title: String,
+        message: String,
+        onConfirmation: () -> Unit,
+        onDismissRequest: () -> Unit
+    ) {
+        state = state.copy(
+            confirmationTitle = title,
+            confirmationMessage = message,
+            confirmationOnConfirmation = onConfirmation,
+            confirmationOnDismissRequest = onDismissRequest,
+        )
+
+        setShowConfirmationDialogState(true)
+    }
+
 }
