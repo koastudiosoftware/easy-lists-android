@@ -20,6 +20,8 @@
     <string name="create_new_tag">Create new easyListsTag</string>
     <string name="remove_list">Remove list</string>
     <string name="no_lists_found">No lists found</string>
+    <string name="take_a_picture">Take a picture</string>
+    <string name="list_item_image">List item picture</string>
 
     <string name="remove_selected_categories">Remove selected categories</string>
     <string name="remove_selected_tags">Remove selected tags</string>
@@ -70,6 +72,7 @@
     <string name="delete_all_crossed_off_items">Delete All Crossed Off Items</string>
 
     <string name="tags">Tags</string>
+    <string name="photo">Photo</string>
 
 
 </resources>

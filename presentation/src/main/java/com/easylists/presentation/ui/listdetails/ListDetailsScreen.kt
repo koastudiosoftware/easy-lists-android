@@ -1,5 +1,9 @@
 package com.easylists.presentation.ui.listdetails
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,7 +46,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -52,6 +56,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -62,6 +68,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
@@ -78,12 +86,16 @@ import com.easylists.presentation.icons.Close_small
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.icons.Info
 import com.easylists.presentation.icons.More_vert
+import com.easylists.presentation.icons.Photo
+import com.easylists.presentation.icons.Photo_camera
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
+import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.pop
+import kotlinx.coroutines.Dispatchers
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -578,6 +590,14 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
                     }
 
                     item {
+                        ListDetailsScreenListItemBottomSheetPhotoTitle(viewModel)
+                    }
+
+                    item {
+                        ListDetailsScreenListItemBottomSheetPhoto(viewModel)
+                    }
+
+                    item {
                         ListDetailsScreenListItemBottomSheetTagsTitle(viewModel)
                     }
 
@@ -824,6 +844,123 @@ fun ListDetailsScreenListItemBottomSheetTags(viewModel: ListDetailsViewModel) {
 //endregion
 
 
+//region ListDetailsScreenListItemBottomSheetPhotoTitle
+@Composable
+fun ListDetailsScreenListItemBottomSheetPhotoTitle(viewModel: ListDetailsViewModel) {
+
+    val currentContext = LocalContext.current
+
+    val pickImageFromAlbumLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        viewModel.onFinishPickingImages(currentContext, uri)
+    }
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isImageSaved ->
+            if (isImageSaved) {
+                viewModel.onCameraImageSaved(currentContext)
+            } else {
+                viewModel.onCameraImageSavingCanceled()
+            }
+        }
+
+    val permissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permissionGranted ->
+            if (permissionGranted) {
+                viewModel.onCameraPermissionGranted(currentContext)
+            } else {
+                viewModel.onCameraPermissionDenied()
+            }
+        }
+
+    // this ensures that the camera is launched only once when the url of the temp file changes
+    LaunchedEffect(key1 = viewModel.state.tempCameraFileUrl) {
+        viewModel.state.tempCameraFileUrl?.let {
+            cameraLauncher.launch(it)
+        }
+    }
+
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.spaces.large),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            modifier = Modifier.weight(1f),
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.bodyLarge,
+            text = stringResource(R.string.photo),
+        )
+        IconButton(
+            modifier = Modifier.weight(0.13f),
+            onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }
+        ) {
+            Icon(
+                modifier = Modifier,
+                imageVector = Photo_camera,
+                contentDescription = stringResource(R.string.take_a_picture)
+            )
+        }
+        IconButton(
+            modifier = Modifier.weight(0.13f),
+            onClick = {
+                pickImageFromAlbumLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            }
+        ) {
+            Icon(
+                modifier = Modifier,
+                imageVector = Photo,
+                contentDescription = stringResource(R.string.take_a_picture)
+            )
+        }
+        when {
+            viewModel.state.itemPhotoUri != null -> {
+                IconButton(
+                    modifier = Modifier.weight(0.13f),
+                    onClick = {
+                        Arbor.i("Delete photo")
+                    }
+                ) {
+                    Icon(
+                        modifier = Modifier,
+                        imageVector = Delete,
+                        contentDescription = stringResource(R.string.take_a_picture)
+                    )
+                }
+            }
+        }
+    }
+}
+//endregion
+
+
+//region ListDetailsScreenListItemBottomSheetPhoto
+@Composable
+fun ListDetailsScreenListItemBottomSheetPhoto(viewModel: ListDetailsViewModel) {
+    when {
+        viewModel.state.itemPhotoUri != null -> {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Box(modifier = Modifier.aspectRatio(1f)) {
+                    AsyncImage(
+                        model = ImageRequest
+                            .Builder(LocalContext.current)
+                            .data(viewModel.state.itemPhotoUri)
+                            .build(),
+                        contentDescription = stringResource(R.string.list_item_image),
+                        contentScale = ContentScale.FillWidth,
+                    )
+                }
+            }
+        }
+    }
+}
+//endregion
+
+
 //region ListDetailsScreenTagPill
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -839,7 +976,8 @@ fun ListDetailsScreenTagPill(
                 color = if (easyListsTag.isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer,
                 RoundedCornerShape(25.dp)
             )
-            .clip(RoundedCornerShape(25.dp))) {
+            .clip(RoundedCornerShape(25.dp))
+    ) {
         Row(
             modifier = Modifier.padding(
                 start = MaterialTheme.spaces.medium, end = MaterialTheme.spaces.small

@@ -1,5 +1,6 @@
 package com.easylists.presentation.models
 
+import android.net.Uri
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
@@ -27,8 +28,7 @@ data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
     var itemNameInvalid: Boolean = false,
     var itemNameInvalidMessage: String = "",
     var itemNotes: String = "",
-    var listNotesInvalid: Boolean = false,
-    var listNotesInvalidMessage: String = "",
+    val itemPhotoUri: Uri? = null,
     var itemQuantity: String = "",
     var itemQuantityInvalid: Boolean = false,
     var itemQuantityInvalidMessage: String = "",
@@ -43,6 +43,7 @@ data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
     var sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
     var easyListsTagList: List<EasyListsTag> = emptyList(),
     var tagListItemList: List<TagListItem> = emptyList(),
+    val tempCameraFileUrl: Uri? = null,
     var uiState: ListListUiState = ListListUiState.Idle
 )
 

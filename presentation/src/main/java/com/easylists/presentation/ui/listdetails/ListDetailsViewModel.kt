@@ -1,8 +1,12 @@
 package com.easylists.presentation.ui.listdetails
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.easylists.domain.common.KEY
@@ -23,6 +27,7 @@ import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveListItemUseCase
 import com.easylists.domain.use_cases.RemoveTagListItemUseCase
 import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
+import com.easylists.presentation.BuildConfig
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.common.Capitalization
@@ -44,7 +49,10 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.io.File
+import java.text.SimpleDateFormat
 import java.time.Instant
+import java.util.Date
 import javax.inject.Inject
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -71,7 +79,7 @@ class ListDetailsViewModel @Inject constructor(
     private var tagListFlowJob: Job? = null
     private var tagListItemListFlowJob: Job? = null
 
-    var state by mutableStateOf(ListDetailsState())
+    var state by mutableStateOf( ListDetailsState() )
 
 
     init {
@@ -283,6 +291,7 @@ class ListDetailsViewModel @Inject constructor(
             itemQuantity = "",
             itemNameInvalid = false,
             itemNameInvalidMessage = "",
+            itemPhotoUri = null,
             selectedCategoryIndex = -1,
             showListItemBottomSheet = !state.showListItemBottomSheet,
         )
@@ -457,7 +466,6 @@ class ListDetailsViewModel @Inject constructor(
 
     //region initTagList() :: initialize list of tags from the database
     fun initTagList() {
-        Arbor.i("initTagList()")
         cancelTagFlowCollection()
 
         tagListFlowJob = getTagFlowUseCase()
@@ -475,7 +483,6 @@ class ListDetailsViewModel @Inject constructor(
 
     private fun handleGetTagListState(result: Resultat<List<EasyListsTag>?>) {
         result.onSuccess {
-            Arbor.i("tag list: $it")
             state = state.copy(
 //                isPullToRefreshing = false,
                 easyListsTagList = it?.map { item -> item } ?: emptyList(),
@@ -502,7 +509,6 @@ class ListDetailsViewModel @Inject constructor(
 
     //region initTagListItemList() :: initialize list of tags from the database
     fun initTagListItemList() {
-        Arbor.i("initTagListItemList()")
         cancelTagListItemFlowCollection()
 
         tagListItemListFlowJob = getTagListItemFlowUseCase()
@@ -653,6 +659,73 @@ class ListDetailsViewModel @Inject constructor(
         }
 
         state = state.copy(easyListsTagList = tagList)
+    }
+    //endregion
+
+
+    //region onCameraImageSaved()
+    fun onCameraImageSaved(context: Context) {
+        // We get here when the user saves the image they took with the camera
+        Arbor.i("Camera image saved")
+        Arbor.i("state.tempCameraFileUrl: ${state.tempCameraFileUrl}")
+        state = state.copy(
+            itemPhotoUri = state.tempCameraFileUrl,
+            tempCameraFileUrl = null
+        )
+
+    }
+    //endregion
+
+
+    //region onCameraPermissionDenied()
+    fun onCameraPermissionDenied() {
+        Arbor.i("Camera permission denied")
+        // TODO Display a message in the app to explain that permissions were denied
+        // TODO Save this in the app settings so we can show the message every time?
+        // TODO And then we can disable (but not hide) the camera icon?
+    }
+    //endregion
+
+
+    //region onCameraImageSavingCanceled()
+    fun onCameraImageSavingCanceled() {
+        // We get here when the camera is active and a photo was taken but the user
+        // decided not to save the image they took, no need to do anything here
+        Arbor.i("Camera image saving canceled")
+        state = state.copy(tempCameraFileUrl = null)
+    }
+    //endregion
+
+
+    //region onCameraPermissionGranted()
+    @SuppressLint("SimpleDateFormat")
+    fun onCameraPermissionGranted(context: Context) {
+        Arbor.i("Camera permission granted")
+
+        // Create an empty image file in the app's cache directory before the camera
+        // opens up to allow the user to take a photo
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val file = File.createTempFile(
+            "camera_" + timeStamp + "_",
+            ".jpg",
+            context.cacheDir
+        )
+
+        // Create sandboxed url for this temp file - needed for the camera API
+        val uri = FileProvider.getUriForFile(
+            context,
+            "${BuildConfig.LIBRARY_PACKAGE_NAME}.provider",
+            file
+        )
+        state = state.copy(tempCameraFileUrl = uri)
+    }
+    //endregion
+
+
+    //region onFinishPickingImages()
+    fun onFinishPickingImages(context: Context, uri: Uri?) {
+        Arbor.i("FinishPickingImages() uri: $uri")
+        state = state.copy(itemPhotoUri = uri)
     }
     //endregion
 
