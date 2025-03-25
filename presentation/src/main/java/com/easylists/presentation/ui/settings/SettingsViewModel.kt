@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.easylists.domain.common.AppSettingsType
 import com.easylists.domain.common.KEY
 import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
@@ -27,7 +28,7 @@ class SettingsViewModel @Inject constructor(
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
-    var state by mutableStateOf(SettingsState())
+    var state by mutableStateOf( SettingsState() )
 
 
     init {
@@ -50,6 +51,9 @@ class SettingsViewModel @Inject constructor(
             val capitalization =
                 result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
 
+            val enableCamera =
+                result.find { it[KEY] == AppSettingsKeys.EnableCamera.key }?.get(VALUE)
+
             val groupCrossedOffItems =
                 result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
 
@@ -62,6 +66,8 @@ class SettingsViewModel @Inject constructor(
                 capitalization = Capitalization.from(
                     capitalization ?: Capitalization.NoCapitalization.toString()
                 ) ?: Capitalization.NoCapitalization,
+
+                enableCamera = enableCamera != "false",
 
                 groupCrossedOffItems = GroupCrossedOffItems.from(
                     groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
@@ -81,6 +87,27 @@ class SettingsViewModel @Inject constructor(
     //region onPullToRefresh()
     fun onPullToRefresh(isRefreshing: Boolean): () -> Unit = {
         state = state.copy(isPullToRefreshing = isRefreshing)
+    }
+    //endregion
+
+
+    //region onEnableCameraChanged()
+    fun onEnableCameraChanged() {
+        state = state.copy(enableCamera = !state.enableCamera)
+        setBooleanAppSetting(
+            key = AppSettingsKeys.EnableCamera.key,
+            value = state.enableCamera
+        )
+    }
+    //endregion
+
+
+    //region setBooleanAppSetting()
+    fun setBooleanAppSetting(key: String, value: Boolean) {
+        viewModelScope.launch {
+            setAppSettingsUseCase(key = key, value = value,
+                type = AppSettingsType.Boolean.toString())
+        }
     }
     //endregion
 

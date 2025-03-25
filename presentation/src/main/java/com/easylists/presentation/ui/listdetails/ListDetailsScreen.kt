@@ -2,6 +2,7 @@ package com.easylists.presentation.ui.listdetails
 
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -884,7 +885,7 @@ fun ListDetailsScreenListItemBottomSheetPhotoTitle(viewModel: ListDetailsViewMod
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.spaces.large),
+            .padding(start = MaterialTheme.spaces.large),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -893,44 +894,97 @@ fun ListDetailsScreenListItemBottomSheetPhotoTitle(viewModel: ListDetailsViewMod
             style = MaterialTheme.typography.bodyLarge,
             text = stringResource(R.string.photo),
         )
-        IconButton(
+
+        ListDetailsScreenListItemBottomSheetCameraIcon(
+            permissionLauncher = permissionLauncher,
             modifier = Modifier.weight(0.13f),
-            onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }
-        ) {
-            Icon(
-                modifier = Modifier,
-                imageVector = Photo_camera,
-                contentDescription = stringResource(R.string.take_a_picture)
-            )
-        }
-        IconButton(
+            viewModel = viewModel
+        )
+
+        ListDetailsScreenListItemBottomSheetPhotoIcon(
+            pickImageFromAlbumLauncher = pickImageFromAlbumLauncher,
             modifier = Modifier.weight(0.13f),
-            onClick = {
-                pickImageFromAlbumLauncher.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            viewModel = viewModel
+        )
+
+        ListDetailsScreenListItemBottomSheetDeleteIcon(
+            modifier = Modifier.weight(0.13f),
+            viewModel = viewModel
+        )
+    }
+}
+//endregion
+
+
+//region ListDetailsScreenListItemBottomSheetCameraIcon
+@Composable
+fun ListDetailsScreenListItemBottomSheetCameraIcon(
+    permissionLauncher: ActivityResultLauncher<String>,
+    modifier: Modifier = Modifier,
+    viewModel: ListDetailsViewModel
+) {
+    when {
+        viewModel.state.enableCamera == true -> {
+            IconButton(
+                modifier = modifier,
+                onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }
+            ) {
+                Icon(
+                    modifier = Modifier,
+                    imageVector = Photo_camera,
+                    contentDescription = stringResource(R.string.take_a_picture)
                 )
             }
-        ) {
-            Icon(
-                modifier = Modifier,
-                imageVector = Photo,
-                contentDescription = stringResource(R.string.take_a_picture)
+        }
+    }
+}
+//endregion
+
+
+//region ListDetailsScreenListItemBottomSheetPhotoIcon
+@Composable
+fun ListDetailsScreenListItemBottomSheetPhotoIcon(
+    pickImageFromAlbumLauncher: ActivityResultLauncher<PickVisualMediaRequest>,
+    modifier: Modifier = Modifier,
+    viewModel: ListDetailsViewModel
+) {
+    IconButton(
+        modifier = modifier,
+        onClick = {
+            pickImageFromAlbumLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
             )
         }
-        when {
-            viewModel.state.itemPhotoUri != null -> {
-                IconButton(
-                    modifier = Modifier.weight(0.13f),
-                    onClick = {
-                        Arbor.i("Delete photo")
-                    }
-                ) {
-                    Icon(
-                        modifier = Modifier,
-                        imageVector = Delete,
-                        contentDescription = stringResource(R.string.take_a_picture)
-                    )
+    ) {
+        Icon(
+            modifier = Modifier,
+            imageVector = Photo,
+            contentDescription = stringResource(R.string.take_a_picture)
+        )
+    }
+}
+//endregion
+
+
+//region ListDetailsScreenListItemBottomSheetDeleteIcon
+@Composable
+fun ListDetailsScreenListItemBottomSheetDeleteIcon(
+    modifier: Modifier = Modifier,
+    viewModel: ListDetailsViewModel
+) {
+    when {
+        viewModel.state.itemPhotoUri != null -> {
+            IconButton(
+                modifier = modifier,
+                onClick = {
+                    Arbor.i("Delete photo")
                 }
+            ) {
+                Icon(
+                    modifier = Modifier,
+                    imageVector = Delete,
+                    contentDescription = stringResource(R.string.take_a_picture)
+                )
             }
         }
     }

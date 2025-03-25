@@ -19,6 +19,7 @@ data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
     var capitalization: Capitalization = Capitalization.NoCapitalization,
     var categoryList: List<EasyListsCategory> = emptyList(),
     var categoryText: String = "",
+    var enableCamera: Boolean = true,
     var groupCrossedOffItems: GroupCrossedOffItems = GroupCrossedOffItems.AllTogether,
     var groupedItemList: Map<Pair<Boolean?, String?>, List<EasyListsListItem>>? = null,
     var isPullToRefreshing: Boolean = false,

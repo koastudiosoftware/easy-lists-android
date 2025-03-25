@@ -52,6 +52,9 @@
     <string name="display">Display</string>
     <string name="adding_and_editing">Adding and Editing</string>
 
+    <string name="enable_camera">Enable Camera</string>
+    <string name="enable_camera_description">Enable or disable the list item camera</string>
+
     <string name="confirm">Confirm</string>
     <string name="dismiss">Dismiss</string>
     <string name="confirmation_dialog_warning_icon">Confirmation dialog warning icon</string>
@@ -69,10 +72,15 @@
     <string name="tag_not_used_message">This tag is not used by any items on any list.</string>
     <string name="tag_used_by_message">This tag is used by the following items.</string>
 
+    <string name="group_crossed_off_items">Group crossed-off items</string>
+    <string name="sort_crossed_off_items">Sort crossed-off items</string>
     <string name="delete_all_crossed_off_items">Delete All Crossed Off Items</string>
 
     <string name="tags">Tags</string>
     <string name="photo">Photo</string>
 
+    <string name="theme">Theme</string>
+
+    <string name="capitalization">Capitalization</string>
 
 </resources>

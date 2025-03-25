@@ -32,6 +32,7 @@ import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.common.composables.ListSettingGroup
 import com.easylists.presentation.common.composables.SectionTitle
+import com.easylists.presentation.common.composables.ToggleSettingItem
 import com.easylists.presentation.icons.Arrow_back
 import com.easylists.presentation.icons.Info
 import com.easylists.presentation.models.Screen
@@ -148,7 +149,7 @@ fun SettingsScreenContent(
         }
         item {
             ListSettingGroup(
-                "Group crossed-off items",
+                stringResource(R.string.group_crossed_off_items),
                 GroupCrossedOffItems.entries.toList(),
                 GroupCrossedOffItems.entries.indexOf(viewModel.state.groupCrossedOffItems),
                 viewModel
@@ -156,10 +157,18 @@ fun SettingsScreenContent(
         }
         item {
             ListSettingGroup(
-                "Sort crossed-off items",
+                stringResource(R.string.sort_crossed_off_items),
                 SortCrossedOffItems.entries.toList(),
                 SortCrossedOffItems.entries.indexOf(viewModel.state.sortCrossedOffItems),
                 viewModel
+            )
+        }
+        item {
+            ToggleSettingItem(
+                textLine1 = stringResource(id = R.string.enable_camera),
+                textLine2 = stringResource(id = R.string.enable_camera_description),
+                enabled = viewModel.state.enableCamera,
+                onCheckedChange = { viewModel.onEnableCameraChanged() }
             )
         }
 
@@ -174,7 +183,7 @@ fun SettingsScreenContent(
         }
         item {
             ListSettingGroup(
-                "Theme",
+                stringResource(R.string.theme),
                 Themes.entries.toList(),
                 Themes.entries.indexOf(viewModel.state.theme),
                 viewModel
@@ -192,7 +201,7 @@ fun SettingsScreenContent(
         }
         item {
             ListSettingGroup(
-                "Capitalization",
+                stringResource(R.string.capitalization),
                 Capitalization.entries.toList(),
                 Capitalization.entries.indexOf(viewModel.state.capitalization),
                 viewModel

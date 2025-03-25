@@ -112,6 +112,9 @@ class ListDetailsViewModel @Inject constructor(
             val capitalization =
                 result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
 
+            val enableCamera =
+                result.find { it[KEY] == AppSettingsKeys.EnableCamera.key }?.get(VALUE)
+
             val groupCrossedOffItems =
                 result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
 
@@ -122,6 +125,8 @@ class ListDetailsViewModel @Inject constructor(
                 capitalization = Capitalization.from(
                     capitalization ?: Capitalization.NoCapitalization.toString()
                 ) ?: Capitalization.NoCapitalization,
+
+                enableCamera = enableCamera != "false",
 
                 groupCrossedOffItems = GroupCrossedOffItems.from(
                     groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
