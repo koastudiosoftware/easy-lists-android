@@ -373,7 +373,6 @@ class ListDetailsViewModel @Inject constructor(
 
     //region initListItemList() :: initialize list of items from the database
     fun initListItemsList() {
-        Arbor.i("initListItemList()")
         cancelListItemFlowCollection()
 
         listItemListFlowJob = getListItemFlowUseCase(listUid = state.listUid)
@@ -436,7 +435,6 @@ class ListDetailsViewModel @Inject constructor(
 
     //region initCategoryList() :: initialize list of items from the database
     fun initCategoryList() {
-        Arbor.i("initCategoryList()")
         cancelCategoryFlowCollection()
 
         categoryListFlowJob = getCategoryFlowUseCase()
@@ -546,7 +544,6 @@ class ListDetailsViewModel @Inject constructor(
                 tagListItemList = it?.map { item -> item } ?: emptyList(),
                 nextDataFetchStage = "",
             )
-            Arbor.i("finished")
         }.onFailure {
             state = state.copy(
                 uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
