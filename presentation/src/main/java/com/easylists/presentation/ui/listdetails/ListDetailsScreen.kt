@@ -21,8 +21,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -459,37 +461,81 @@ fun ListDetailsScreenListItem(
                     }
                 }
             }
-            when {
-                viewModel.state.selectedItemUid == item.uid -> {
-                    VerticalDivider(
-                        modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
-                    )
-                    IconButton(onClick = { viewModel.setShowConfirmationDialogState(true) }) {
-                        Icon(
-                            modifier = Modifier.weight(0.1f),
-                            imageVector = Delete,
-                            contentDescription = stringResource(R.string.remove_item)
-                        )
-                    }
-                }
 
-                else -> {
-                    VerticalDivider(
-                        modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
-                    )
-                    IconButton(onClick = {
-                        viewModel.onListItemInfoClick(item, AddEditMode.Edit)
-                    }) {
-                        Icon(
-                            modifier = Modifier.weight(0.1f),
-                            imageVector = Info,
-                            contentDescription = stringResource(R.string.view_item_details)
-                        )
-                    }
-                }
-            }
+            ListDetailsScreenListItemTags(
+                item = item,
+                modifier = Modifier.weight(0.3f),
+                viewModel = viewModel,
+            )
+
+            ListDetailsScreenListItemIcons(
+                item = item,
+                modifier = Modifier.weight(0.1f),
+                viewModel = viewModel
+            )
         }
         HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
+    }
+}
+//endregion
+
+
+//region ListDetailsScreenListItemTags
+@Composable
+fun ListDetailsScreenListItemTags(
+    item: EasyListsListItem,
+    modifier: Modifier = Modifier,
+    viewModel: ListDetailsViewModel
+) {
+    Column(
+        modifier = Modifier.padding(end = MaterialTheme.spaces.medium),
+        horizontalAlignment = Alignment.End
+    ) {
+        val tags = viewModel.listItemTags(item)
+        tags.take(2).forEach {
+            ListItemDetailsScreenTagDot(it, modifier, viewModel)
+            ListItemDetailsScreenTagPillSmall(it, modifier, viewModel)
+        }
+    }
+}
+//endregion
+
+
+//region ListDetailsScreenListItemIcons
+@Composable
+fun ListDetailsScreenListItemIcons(
+    item: EasyListsListItem,
+    modifier: Modifier = Modifier,
+    viewModel: ListDetailsViewModel,
+) {
+    when {
+        viewModel.state.selectedItemUid == item.uid -> {
+            VerticalDivider(
+                modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
+            )
+            IconButton(onClick = { viewModel.setShowConfirmationDialogState(true) }) {
+                Icon(
+                    modifier = modifier,
+                    imageVector = Delete,
+                    contentDescription = stringResource(R.string.remove_item)
+                )
+            }
+        }
+
+        else -> {
+            VerticalDivider(
+                modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
+            )
+            IconButton(onClick = {
+                viewModel.onListItemInfoClick(item, AddEditMode.Edit)
+            }) {
+                Icon(
+                    modifier = modifier,
+                    imageVector = Info,
+                    contentDescription = stringResource(R.string.view_item_details)
+                )
+            }
+        }
     }
 }
 //endregion
@@ -1059,6 +1105,86 @@ fun ListDetailsScreenTagPill(
             }
         }
     }
+}
+//endregion
+
+
+//region ListItemDetailsScreenTagDot
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ListItemDetailsScreenTagDot(
+    easyListsTag: EasyListsTag,
+    modifier: Modifier = Modifier,
+    viewModel: ListDetailsViewModel,
+) {
+    when {
+        viewModel.state.expandTagPills == false -> {
+            Row(
+                modifier = Modifier
+                    .size(20.dp)
+            ) {
+                Box(
+                    modifier = modifier
+                        .size(20.dp)
+                        .height(20.dp)
+                        .padding(MaterialTheme.spaces.extraSmall)
+                        .combinedClickable(
+                            onClick = { viewModel.expandTagPills() },
+                            onLongClick = {}
+                        )
+                        .clip(CircleShape)
+                        .background(
+                            color = if (easyListsTag.isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+                        )
+                )
+            }
+        }
+    }
+}
+//endregion
+
+
+//region ListDetailsScreenTagPillSmall
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ListItemDetailsScreenTagPillSmall(
+    easyListsTag: EasyListsTag,
+    modifier: Modifier = Modifier,
+    viewModel: ListDetailsViewModel,
+) {
+    when {
+        viewModel.state.expandTagPills == true -> {
+            Box(
+                modifier = Modifier
+                    .padding(MaterialTheme.spaces.extraSmall)
+                    .combinedClickable(
+                        onClick = { viewModel.expandTagPills() },
+                        onLongClick = {}
+                    )
+                    .background(
+                        color = if (easyListsTag.isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+                        RoundedCornerShape(10.dp)
+                    )
+                    .clip(RoundedCornerShape(10.dp))
+            ) {
+                Row(
+                    modifier = Modifier.padding(
+                        start = MaterialTheme.spaces.medium, end = MaterialTheme.spaces.small
+                    ), verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        color = if (easyListsTag.isSelected) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.padding(
+                            start = MaterialTheme.spaces.none, end = MaterialTheme.spaces.small
+                        ),
+                        style = MaterialTheme.typography.labelSmall,
+                        text = easyListsTag.name
+                    )
+                }
+            }
+        }
+    }
+
 }
 //endregion
 

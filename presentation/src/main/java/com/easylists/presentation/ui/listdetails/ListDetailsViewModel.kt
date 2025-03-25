@@ -740,4 +740,24 @@ class ListDetailsViewModel @Inject constructor(
     }
     //endregion
 
+
+    //region expandTagPills()
+    fun expandTagPills() {
+        state = state.copy(expandTagPills = !state.expandTagPills)
+    }
+    //endregion
+
+
+    fun listItemTags(item: EasyListsListItem): List<EasyListsTag> {
+        val tagListItems = state.tagListItemList.filter {
+            it.listItemUid == item.uid
+        }
+
+        val tags = state.easyListsTagList.filter { tag ->
+            tagListItems.any { it.tagUid == tag.uid }
+        }
+
+        return tags
+    }
+
 }

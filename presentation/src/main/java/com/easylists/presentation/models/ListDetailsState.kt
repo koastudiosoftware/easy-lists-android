@@ -19,8 +19,10 @@ data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
     var capitalization: Capitalization = Capitalization.NoCapitalization,
     var categoryList: List<EasyListsCategory> = emptyList(),
     var categoryText: String = "",
+    var easyListsTagList: List<EasyListsTag> = emptyList(),
     var enableCamera: Boolean = true,
     var enableTags: Boolean = true,
+    var expandTagPills: Boolean = false,
     var groupCrossedOffItems: GroupCrossedOffItems = GroupCrossedOffItems.AllTogether,
     var groupedItemList: Map<Pair<Boolean?, String?>, List<EasyListsListItem>>? = null,
     var isPullToRefreshing: Boolean = false,
@@ -43,7 +45,6 @@ data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
     var showConfirmationDialog: Boolean = false,
     var showListItemBottomSheet: Boolean = false,
     var sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
-    var easyListsTagList: List<EasyListsTag> = emptyList(),
     var tagListItemList: List<TagListItem> = emptyList(),
     val tempCameraFileUrl: Uri? = null,
     var uiState: ListListUiState = ListListUiState.Idle
