@@ -171,6 +171,14 @@ fun SettingsScreenContent(
                 onCheckedChange = { viewModel.onEnableCameraChanged() }
             )
         }
+        item {
+            ToggleSettingItem(
+                textLine1 = stringResource(id = R.string.enable_tags),
+                textLine2 = stringResource(id = R.string.enable_tags_description),
+                enabled = viewModel.state.enableTags,
+                onCheckedChange = { viewModel.onEnableTagsChanged() }
+            )
+        }
 
         item {
             HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.medium))

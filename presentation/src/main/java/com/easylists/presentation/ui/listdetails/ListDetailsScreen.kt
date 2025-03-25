@@ -598,14 +598,17 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
                         ListDetailsScreenListItemBottomSheetPhoto(viewModel)
                     }
 
-                    item {
-                        ListDetailsScreenListItemBottomSheetTagsTitle(viewModel)
-                    }
+                    when {
+                        viewModel.state.enableTags == true -> {
+                            item {
+                                ListDetailsScreenListItemBottomSheetTagsTitle(viewModel)
+                            }
 
-                    item {
-                        ListDetailsScreenListItemBottomSheetTags(viewModel)
+                            item {
+                                ListDetailsScreenListItemBottomSheetTags(viewModel)
+                            }
+                        }
                     }
-
                 }
             }
         }

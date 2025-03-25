@@ -53,7 +53,10 @@
     <string name="adding_and_editing">Adding and Editing</string>
 
     <string name="enable_camera">Enable Camera</string>
-    <string name="enable_camera_description">Enable or disable the list item camera</string>
+    <string name="enable_camera_description">Enable or disable list item camera</string>
+
+    <string name="enable_tags">Enable Tags</string>
+    <string name="enable_tags_description">Enable or disable list item tags</string>
 
     <string name="confirm">Confirm</string>
     <string name="dismiss">Dismiss</string>

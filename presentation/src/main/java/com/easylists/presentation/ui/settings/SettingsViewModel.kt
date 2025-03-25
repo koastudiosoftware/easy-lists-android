@@ -54,6 +54,9 @@ class SettingsViewModel @Inject constructor(
             val enableCamera =
                 result.find { it[KEY] == AppSettingsKeys.EnableCamera.key }?.get(VALUE)
 
+            val enableTags =
+                result.find { it[KEY] == AppSettingsKeys.EnableTags.key }?.get(VALUE)
+
             val groupCrossedOffItems =
                 result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
 
@@ -68,6 +71,8 @@ class SettingsViewModel @Inject constructor(
                 ) ?: Capitalization.NoCapitalization,
 
                 enableCamera = enableCamera != "false",
+
+                enableTags = enableTags != "false",
 
                 groupCrossedOffItems = GroupCrossedOffItems.from(
                     groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
@@ -97,6 +102,17 @@ class SettingsViewModel @Inject constructor(
         setBooleanAppSetting(
             key = AppSettingsKeys.EnableCamera.key,
             value = state.enableCamera
+        )
+    }
+    //endregion
+
+
+    //region onEnableTagsChanged()
+    fun onEnableTagsChanged() {
+        state = state.copy(enableTags = !state.enableTags)
+        setBooleanAppSetting(
+            key = AppSettingsKeys.EnableTags.key,
+            value = state.enableTags
         )
     }
     //endregion

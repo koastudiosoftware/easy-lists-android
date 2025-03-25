@@ -10,6 +10,7 @@ data class SettingsState(
     var actionButtonState: MasterListsAction = MasterListsAction.None,
     var capitalization: Capitalization = Capitalization.NoCapitalization,
     var enableCamera: Boolean = true,
+    var enableTags: Boolean = true,
     var groupCrossedOffItems: GroupCrossedOffItems = GroupCrossedOffItems.AllTogether,
     var isPullToRefreshing: Boolean = false,
     var restartActivity: Boolean? = null,

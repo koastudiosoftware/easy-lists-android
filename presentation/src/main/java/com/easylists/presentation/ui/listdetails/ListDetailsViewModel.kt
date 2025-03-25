@@ -115,6 +115,9 @@ class ListDetailsViewModel @Inject constructor(
             val enableCamera =
                 result.find { it[KEY] == AppSettingsKeys.EnableCamera.key }?.get(VALUE)
 
+            val enableTags =
+                result.find { it[KEY] == AppSettingsKeys.EnableTags.key }?.get(VALUE)
+
             val groupCrossedOffItems =
                 result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
 
@@ -127,6 +130,8 @@ class ListDetailsViewModel @Inject constructor(
                 ) ?: Capitalization.NoCapitalization,
 
                 enableCamera = enableCamera != "false",
+
+                enableTags = enableTags != "false",
 
                 groupCrossedOffItems = GroupCrossedOffItems.from(
                     groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
