@@ -146,9 +146,9 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
-    //region addListItem() :: Add a list item to the database
+    //region saveListItem() :: save a list item to the database
     @OptIn(ExperimentalUuidApi::class)
-    fun addListItem() {
+    fun saveListItem() {
         viewModelScope.launch {
             var category: EasyListsCategory
 
@@ -163,6 +163,10 @@ class ListDetailsViewModel @Inject constructor(
                     name = state.categoryText,
                 )
                 addCategoryUseCase(category)
+            } else if (categoryUid == null) {
+                // special case where the user selected the empty category and
+                // wants to remove the category from the list item
+                categoryUid = null
             }
 
             delay(100L)     // allow a short time for the category to be added to the database

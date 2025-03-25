@@ -96,7 +96,6 @@ import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.pop
-import kotlinx.coroutines.Dispatchers
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -563,7 +562,7 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
                             ), icon = {
                                 IconButton(
                                     enabled = viewModel.listItemIconButtonEnabled(),
-                                    onClick = { viewModel.addListItem() },
+                                    onClick = { viewModel.saveListItem() },
                                 ) {
                                     Icon(
                                         imageVector = Check,
