@@ -75,7 +75,7 @@ As of Android API 31, dynamic color theming is supported. However, as this proje
 
 - [Solarized](https://ethanschoonover.com/solarized/): for the light and dark themes
 
-- [MaxContrast](https://github.com/Myndex/max-contrast): for calculating the text color to display over custom tag colors
+- [max-contrast](https://github.com/Myndex/max-contrast): for calculating the text color to display over custom tag colors
 
 ## Support
 
