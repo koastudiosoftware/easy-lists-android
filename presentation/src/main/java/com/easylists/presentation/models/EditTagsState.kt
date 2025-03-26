@@ -34,4 +34,6 @@ data class EditTagsState(
     var tagName: String = "",
     var tagNameInvalid: Boolean = false,
     var tagNameInvalidMessage: String = "",
+    var textFieldHexCode: String = "",
+    var userUpdatedHexCode: Boolean = false,
 )
