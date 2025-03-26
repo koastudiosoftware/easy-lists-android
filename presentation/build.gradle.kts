@@ -80,4 +80,7 @@ dependencies {
 
     // Coil (for AsyncImage)
     implementation(libs.coil.compose)
+
+    // colorpicker-compose
+    implementation(libs.colorpicker.compose)
 }
