@@ -196,6 +196,18 @@ class RoomDataMapper @Inject constructor(
     //endregion
 
 
+    //region mapTagToTagEntityForUpdate()
+    fun mapTagToTagEntityForUpdate(easyListsTag: EasyListsTag): TagEntity {
+        return TagEntity(
+            uid = easyListsTag.uid.toString(),
+            name = easyListsTag.name,
+            color = easyListsTag.color,
+            createdTimestamp = easyListsTag.createdTimestamp,
+        )
+    }
+    //endregion
+
+
     //
     // EasyListsTag List Item
     //

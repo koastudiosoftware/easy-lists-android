@@ -48,7 +48,7 @@ class RoomTagLocalDataSource @Inject constructor(
 
     //region update()
     override suspend fun update(easyListsTag: EasyListsTag){
-        val mappedTag = mapper.mapTagToTagEntity(easyListsTag)
+        val mappedTag = mapper.mapTagToTagEntityForUpdate(easyListsTag)
         return dao.update(tagEntity = mappedTag)
     }
     //endregion

@@ -9,7 +9,6 @@ import com.easylists.domain.common.KEY
 import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsList
-import com.easylists.domain.models.Themes
 import com.easylists.domain.use_cases.AddListFlowUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
@@ -18,13 +17,10 @@ import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.common.Capitalization
-import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.MasterListsAction
-import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListListUiState
 import com.easylists.presentation.models.MasterListsState
-import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -185,7 +181,6 @@ class MasterListsViewModel @Inject constructor(
 
     //region initListList() :: initialize list of lists from the database
     fun initListList() {
-        Arbor.i("initListList()")
         cancelListFlowCollection()
 
         listListFlowJob = getListListFlowUseCase()
@@ -208,7 +203,6 @@ class MasterListsViewModel @Inject constructor(
                 // TODO this is where the sorting order should be applied
                 listList = it ?: emptyList(),
             )
-            Arbor.i("finished")
         }.onFailure {
             state = state.copy(
                 uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
@@ -230,7 +224,6 @@ class MasterListsViewModel @Inject constructor(
 
     //region onPullToRefresh()
     fun onPullToRefresh(): () -> Unit = {
-        Arbor.i("onPullToRefresh()")
         state = state.copy(
             isPullToRefreshing = true,
             listList = emptyList(),

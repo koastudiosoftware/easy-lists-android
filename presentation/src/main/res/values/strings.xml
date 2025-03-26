@@ -1,7 +1,7 @@
 <resources>
 
     <string name="app_name">Easy Lists</string>
-    <string name="app_version">0.2.9</string>
+    <string name="app_version">0.2.10</string>
 
     <string name="lists">Lists</string>
     <string name="settings">Settings</string>
@@ -85,5 +85,9 @@
     <string name="theme">Theme</string>
 
     <string name="capitalization">Capitalization</string>
+
+    <string name="choose_a_color">Choose A Color</string>
+    <string name="save_tag_color">Save tag color</string>
+    <string name="remove_tag_color">Remove tag color</string>
 
 </resources>
