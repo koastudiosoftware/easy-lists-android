@@ -1073,12 +1073,20 @@ fun ListDetailsScreenTagPill(
     easyListsTag: EasyListsTag,
     viewModel: ListDetailsViewModel,
 ) {
+    val backgroundColor = Color(
+        easyListsTag.color?.toColorInt()
+            ?: if (easyListsTag.isSelected)
+                MaterialTheme.colorScheme.secondaryContainer.toHexCodeWithAlpha()
+                    .toColorInt()
+            else MaterialTheme.colorScheme.tertiaryContainer.toHexCodeWithAlpha().toColorInt()
+    )
+
     Box(
         modifier = Modifier
             .padding(MaterialTheme.spaces.small)
             .combinedClickable(onClick = { viewModel.onTagClick(easyListsTag) }, onLongClick = {})
             .background(
-                color = if (easyListsTag.isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+                color = backgroundColor,
                 RoundedCornerShape(25.dp)
             )
             .clip(RoundedCornerShape(25.dp))
@@ -1089,7 +1097,7 @@ fun ListDetailsScreenTagPill(
             ), verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                color = if (easyListsTag.isSelected) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                color = backgroundColor.getContrastColor(),
                 modifier = Modifier.padding(
                     start = MaterialTheme.spaces.none, end = MaterialTheme.spaces.small
                 ),
@@ -1103,7 +1111,7 @@ fun ListDetailsScreenTagPill(
                         .padding(horizontal = MaterialTheme.spaces.none),
                     imageVector = Close_small,
                     contentDescription = stringResource(R.string.create_new_list),
-                    tint = MaterialTheme.colorScheme.onTertiaryContainer
+                    tint = backgroundColor.getContrastColor()
                 )
             }
         }
