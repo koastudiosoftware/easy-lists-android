@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -58,6 +57,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -71,6 +71,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColorInt
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.easylists.domain.models.EasyListsListItem
@@ -82,6 +83,8 @@ import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
+import com.easylists.presentation.common.getContrastColor
+import com.easylists.presentation.common.toHexCodeWithAlpha
 import com.easylists.presentation.icons.Add
 import com.easylists.presentation.icons.Arrow_back
 import com.easylists.presentation.icons.Check
@@ -1134,7 +1137,11 @@ fun ListItemDetailsScreenTagDot(
                         )
                         .clip(CircleShape)
                         .background(
-                            color = if (easyListsTag.isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+                            color = Color(
+                                easyListsTag.color?.toColorInt()
+                                    ?: MaterialTheme.colorScheme.secondaryContainer.toHexCodeWithAlpha()
+                                        .toColorInt()
+                            ),
                         )
                 )
             }
@@ -1154,6 +1161,13 @@ fun ListItemDetailsScreenTagPillSmall(
 ) {
     when {
         viewModel.state.expandTagPills == true -> {
+            val backgroundColor = Color(
+                easyListsTag.color?.toColorInt()
+                    ?: if (easyListsTag.isSelected)
+                        MaterialTheme.colorScheme.secondaryContainer.toHexCodeWithAlpha()
+                            .toColorInt()
+                    else MaterialTheme.colorScheme.tertiaryContainer.toHexCodeWithAlpha().toColorInt()
+            )
             Box(
                 modifier = Modifier
                     .padding(MaterialTheme.spaces.extraSmall)
@@ -1162,8 +1176,8 @@ fun ListItemDetailsScreenTagPillSmall(
                         onLongClick = {}
                     )
                     .background(
-                        color = if (easyListsTag.isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer,
-                        RoundedCornerShape(10.dp)
+                        color = backgroundColor,
+                        shape = RoundedCornerShape(10.dp)
                     )
                     .clip(RoundedCornerShape(10.dp))
             ) {
@@ -1173,7 +1187,7 @@ fun ListItemDetailsScreenTagPillSmall(
                     ), verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        color = if (easyListsTag.isSelected) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                        color = backgroundColor.getContrastColor(),
                         modifier = Modifier.padding(
                             start = MaterialTheme.spaces.none, end = MaterialTheme.spaces.small
                         ),

@@ -1,6 +1,7 @@
 package com.easylists.presentation.ui.edittags
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,8 +11,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Checkbox
@@ -28,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -36,6 +39,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -43,12 +48,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColorInt
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.EditTagsAction
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
+import com.easylists.presentation.common.toHexCodeWithAlpha
 import com.easylists.presentation.icons.Add
 import com.easylists.presentation.icons.Arrow_back
 import com.easylists.presentation.icons.Cancel
@@ -56,7 +64,12 @@ import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
-import com.toxicbakery.logging.Arbor
+import com.github.skydoves.colorpicker.compose.AlphaSlider
+import com.github.skydoves.colorpicker.compose.AlphaTile
+import com.github.skydoves.colorpicker.compose.BrightnessSlider
+import com.github.skydoves.colorpicker.compose.ColorPickerController
+import com.github.skydoves.colorpicker.compose.HsvColorPicker
+import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.pop
@@ -99,6 +112,8 @@ fun EditTagsScreen(
             ConfirmRemove(viewModel)
 
             EditTagsScreenCategoryBottomSheet(viewModel)
+
+            EditTagsScreenColorPickerBottomSheet(viewModel)
 
             EditTagsScreenContent(viewModel)
 
@@ -258,7 +273,9 @@ fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
                                                 title = title,
                                                 message = message,
                                                 onConfirmation = {
-                                                    viewModel.onTagSelectedForRemovalChanged(viewModel.state.selectedItem?.uid)
+                                                    viewModel.onTagSelectedForRemovalChanged(
+                                                        viewModel.state.selectedItem?.uid
+                                                    )
                                                     viewModel.removeTags()
                                                     viewModel.dismissConfirmationDialog()
                                                     viewModel.showTagBottomSheet()
@@ -300,10 +317,11 @@ fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
 @Composable
 fun EditTagsScreenBottomSheetListsAndItems(viewModel: EditTagsViewModel) {
     var lists = viewModel.lists()
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = MaterialTheme.spaces.large)
-        .padding(top = MaterialTheme.spaces.medium)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.spaces.large)
+            .padding(top = MaterialTheme.spaces.medium)
     ) {
         if (lists.isEmpty()) {
             if (viewModel.state.addEditMode == AddEditMode.Edit) {
@@ -322,10 +340,11 @@ fun EditTagsScreenBottomSheetListsAndItems(viewModel: EditTagsViewModel) {
         }
     }
     lists.forEach { list ->
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.spaces.large)
-            .padding(top = MaterialTheme.spaces.medium)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MaterialTheme.spaces.large)
+                .padding(top = MaterialTheme.spaces.medium)
         ) {
             Text(
                 fontWeight = FontWeight.Bold,
@@ -461,7 +480,38 @@ fun EditTagsScreenTag(
                     }
                 )
             }
+
+            EditTagsScreenTagColor(item, viewModel)
+
             TagCheckbox(item, viewModel)
+        }
+    }
+}
+//endregion
+
+
+//region EditTagsScreenTagColor
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun EditTagsScreenTagColor(item: EasyListsTag, viewModel: EditTagsViewModel) {
+    when {
+        viewModel.state.showContextItems == false -> {
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = MaterialTheme.spaces.large)
+                    .size(35.dp)
+                    .clip(CircleShape)
+                    .background(
+                        color = Color(
+                            item.color?.toColorInt()
+                                ?: MaterialTheme.colorScheme.secondaryContainer.toHexCodeWithAlpha().toColorInt()
+                        ),
+                    )
+                    .combinedClickable(
+                        onClick = { viewModel.onTagColorChangeClicked(item) },
+                        onLongClick = { }
+                    )
+            )
         }
     }
 }
@@ -510,20 +560,166 @@ fun ConfirmRemove(viewModel: EditTagsViewModel) {
                 dialogTitle = viewModel.state.confirmationTitle,
                 dialogText = viewModel.state.confirmationMessage,
             )
-
-//            ConfirmationDialog(
-//                onDismissRequest = {
-//                    viewModel.setShowConfirmationDialogState(false)
-//                },
-//                onConfirmation = {
-//                    viewModel.deselectCheckboxes()
-//                    viewModel.removeTagFromListItems()
-//                    viewModel.setShowConfirmationDialogState(false)
-//                },
-//                dialogTitle = stringResource(R.string.confirm_removal),
-//                dialogText = stringResource(R.string.remove_tags_warning),
-//            )
         }
+    }
+}
+//endregion
+
+
+//region EditTagsScreenColorPickerBottomSheet
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditTagsScreenColorPickerBottomSheet(
+    viewModel: EditTagsViewModel
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showBottomSheet = remember { mutableStateOf(false) }
+    val colorPickerController = rememberColorPickerController()
+
+    when (viewModel.state.showColorPickerBottomSheet) {
+        true -> showBottomSheet.value = true
+        false -> showBottomSheet.value = false
+    }
+
+    if (showBottomSheet.value) {
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {
+                showBottomSheet.value = false
+                viewModel.onColorPickerBottomSheetDismiss()
+            },
+            dragHandle = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    BottomSheetDefaults.DragHandle()
+                }
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.9f)
+            ) {
+                LazyColumn(modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)) {
+                    item {
+                        SectionTitle(
+                            title = stringResource(R.string.choose_a_color),
+                            icon = {
+                                IconButton(
+                                    enabled = true,
+                                    onClick = {
+                                        viewModel.updateTagColor()
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = Check,
+                                        contentDescription = stringResource(R.string.save_tag_color),
+                                    )
+                                }
+                                IconButton(
+                                    enabled = true,
+                                    onClick = {
+                                        viewModel.removeTagColor()
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = Delete,
+                                        contentDescription = stringResource(R.string.remove_tag_color),
+                                    )
+                                }
+                            },
+                            modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
+                        )
+                    }
+
+                    item {
+                        ColorPickerWheel(controller = colorPickerController, viewModel = viewModel)
+                    }
+
+                    item {
+                        ColorPickerBrightnessSlider(controller = colorPickerController)
+                    }
+
+                    item {
+                        ColorPickerHexCode(viewModel)
+                    }
+
+                    item {
+                        ColorPickerAlphaTile(controller = colorPickerController)
+                    }
+                }
+            }
+        }
+    }
+}
+//endregion
+
+
+//region ColorPickerHexCode
+@Composable
+fun ColorPickerHexCode(viewModel: EditTagsViewModel) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Text(text = "#${viewModel.state.selectedHexCode.uppercase()}")
+    }
+}
+//endregion
+
+
+//region ColorPickerWheel
+@Composable
+fun ColorPickerWheel(
+    controller: ColorPickerController,
+    viewModel: EditTagsViewModel
+) {
+    HsvColorPicker(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(450.dp)
+            .padding(10.dp),
+        controller = controller,
+        initialColor = Color(
+            viewModel.state.selectedItem?.color?.toColorInt() ?: "#FFFFFFFF".toColorInt()
+        ),
+        onColorChanged = {
+            viewModel.updatedSelectedHexColor(it.hexCode)
+        }
+    )
+}
+//endregion
+
+
+//region ColorPickerBrightnessSlider
+@Composable
+fun ColorPickerBrightnessSlider(controller: ColorPickerController) {
+    BrightnessSlider(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+            .height(35.dp),
+        controller = controller,
+    )
+}
+//endregion
+
+
+//region ColorPickerAlphaTile
+@Composable
+fun ColorPickerAlphaTile(controller: ColorPickerController) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        AlphaTile(
+            modifier = Modifier
+                .size(80.dp)
+                .clip(RoundedCornerShape(6.dp)),
+            controller = controller
+        )
     }
 }
 //endregion

@@ -1,5 +1,6 @@
 package com.easylists.presentation.models
 
+import androidx.compose.ui.graphics.Color
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
@@ -7,6 +8,7 @@ import com.easylists.domain.models.TagListItem
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.EditTagsAction
+import com.easylists.presentation.common.toHexCodeWithAlpha
 
 data class EditTagsState(
     var actionButtonState: EditTagsAction = EditTagsAction.None,
@@ -21,7 +23,9 @@ data class EditTagsState(
     var listItemList: List<EasyListsListItem> = emptyList(),
     var listList: List<EasyListsList> = emptyList(),
     var nextStep: String? = null,
+    var selectedHexCode: String = Color.White.toHexCodeWithAlpha(),
     var selectedItem: EasyListsTag? = null,
+    var showColorPickerBottomSheet: Boolean = false,
     var showTagBottomSheet: Boolean = false,
     var showConfirmationDialog: Boolean = false,
     var showContextItems: Boolean = false,

@@ -3,6 +3,7 @@ package com.easylists.presentation.ui.edittags
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.easylists.domain.common.KEY
@@ -25,6 +26,7 @@ import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.EditTagsAction
+import com.easylists.presentation.common.toHexCodeWithAlpha
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.EditTagsState
 import com.easylists.presentation.models.ListListUiState
@@ -546,6 +548,82 @@ class EditTagsViewModel @Inject constructor(
         )
 
         setShowConfirmationDialogState(true)
+    }
+    //endregion
+
+
+    //region onTagColorChangeClicked
+    fun onTagColorChangeClicked(item: EasyListsTag) {
+        state = state.copy(
+            selectedItem = item,
+            showColorPickerBottomSheet = true,
+        )
+    }
+    //endregion
+
+
+    //region removeTagColor()
+    fun removeTagColor() {
+        viewModelScope.launch {
+            updateTagUseCase(
+                easyListsTag = EasyListsTag(
+                    uid = state.selectedItem?.uid,
+                    name = state.selectedItem?.name.toString(),
+                    color = null,
+                    createdTimestamp = state.selectedItem?.createdTimestamp
+                        ?: Instant.now().epochSecond,
+                )
+            )
+
+            state = state.copy(
+                selectedHexCode = Color.White.toHexCodeWithAlpha(),
+                selectedItem = null,
+                showColorPickerBottomSheet = false,
+            )
+        }
+    }
+    //endregion
+
+
+    //region updateTagColor()
+    fun updateTagColor() {
+        // store the color with format "#AARRGGBB" so it can be directly parsed in the UI
+        // store the color code in all uppercase letters
+        viewModelScope.launch {
+            updateTagUseCase(
+                easyListsTag = EasyListsTag(
+                    uid = state.selectedItem?.uid,
+                    name = state.selectedItem?.name.toString(),
+                    color = "#${state.selectedHexCode.uppercase()}",
+                    createdTimestamp = state.selectedItem?.createdTimestamp
+                        ?: Instant.now().epochSecond,
+                )
+            )
+
+            state = state.copy(
+                selectedHexCode = Color.White.toHexCodeWithAlpha(),
+                selectedItem = null,
+                showColorPickerBottomSheet = false,
+            )
+        }
+    }
+    //endregion
+
+
+    //region updatedSelectedHexColor()
+    fun updatedSelectedHexColor(hexColor: String) {
+        state = state.copy(selectedHexCode = hexColor)
+    }
+    //endregion
+
+
+    //region onColorPickerBottomSheetDismiss()
+    fun onColorPickerBottomSheetDismiss() {
+        state = state.copy(
+            showColorPickerBottomSheet = !state.showColorPickerBottomSheet,
+            selectedHexCode = Color.White.toHexCodeWithAlpha(),
+            selectedItem = null,
+        )
     }
     //endregion
 
