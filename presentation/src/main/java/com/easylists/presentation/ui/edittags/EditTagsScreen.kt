@@ -45,6 +45,8 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -64,7 +66,6 @@ import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
-import com.github.skydoves.colorpicker.compose.AlphaSlider
 import com.github.skydoves.colorpicker.compose.AlphaTile
 import com.github.skydoves.colorpicker.compose.BrightnessSlider
 import com.github.skydoves.colorpicker.compose.ColorPickerController
@@ -643,7 +644,7 @@ fun EditTagsScreenColorPickerBottomSheet(
                     }
 
                     item {
-                        ColorPickerHexCode(viewModel)
+                        ColorPickerTextFieldHexCode(controller = colorPickerController, viewModel = viewModel)
                     }
 
                     item {
@@ -657,14 +658,56 @@ fun EditTagsScreenColorPickerBottomSheet(
 //endregion
 
 
-//region ColorPickerHexCode
+//region ColorPickerTextFieldHexCode
 @Composable
-fun ColorPickerHexCode(viewModel: EditTagsViewModel) {
+fun ColorPickerTextFieldHexCode(
+    controller: ColorPickerController,
+    viewModel: EditTagsViewModel
+) {
+    when {
+        viewModel.state.userUpdatedHexCode == true -> {
+            val userColor = Color(
+                if (viewModel.state.selectedHexCode.length == 9) viewModel.state.selectedHexCode.toColorInt()
+                else Color.White.toHexCodeWithAlpha().toColorInt()
+            )
+            controller.selectByColor(color = userColor, fromUser = true)
+        }
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
     ) {
-        Text(text = "#${viewModel.state.selectedHexCode.uppercase()}")
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.Center,
+        ) { }
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            TextField(
+                modifier = Modifier.padding(MaterialTheme.spaces.medium),
+                value = viewModel.state.textFieldHexCode,
+                onValueChange = { viewModel.updateTextFieldHexCode(it) },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done,
+                    autoCorrectEnabled = false,
+                    capitalization = KeyboardCapitalization.None
+                ),
+                label = { Text(text = stringResource(R.string.rgb)) },
+                singleLine = true,
+                maxLines = 1,
+                placeholder = {
+                    Text(text = stringResource(R.string.hex_placeholder))
+                },
+                shape = MaterialTheme.shapes.large,
+            )
+        }
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.Center,
+        ) { }
     }
 }
 //endregion
@@ -683,11 +726,12 @@ fun ColorPickerWheel(
             .padding(10.dp),
         controller = controller,
         initialColor = Color(
-            viewModel.state.selectedItem?.color?.toColorInt() ?: "#FFFFFFFF".toColorInt()
+            if (viewModel.state.selectedHexCode.length == 9) viewModel.state.selectedHexCode.toColorInt()
+            else Color.White.toHexCodeWithAlpha().toColorInt()
         ),
         onColorChanged = {
-            viewModel.updatedSelectedHexColor(it.hexCode)
-        }
+            viewModel.updateSelectedHexCode(it.hexCode)
+        },
     )
 }
 //endregion
@@ -711,7 +755,7 @@ fun ColorPickerBrightnessSlider(controller: ColorPickerController) {
 @Composable
 fun ColorPickerAlphaTile(controller: ColorPickerController) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(top = MaterialTheme.spaces.medium),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AlphaTile(

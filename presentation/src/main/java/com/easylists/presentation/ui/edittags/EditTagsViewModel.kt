@@ -29,8 +29,6 @@ import com.easylists.presentation.common.EditTagsAction
 import com.easylists.presentation.common.toHexCodeWithAlpha
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.EditTagsState
-import com.easylists.presentation.models.ListListUiState
-import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -373,6 +371,7 @@ class EditTagsViewModel @Inject constructor(
                 easyListsTag = EasyListsTag(
                     uid = state.selectedItem?.uid,
                     name = state.tagName,
+                    color = state.selectedItem?.color,
                     createdTimestamp = state.selectedItem?.createdTimestamp
                         ?: Instant.now().epochSecond,
                 )
@@ -523,11 +522,13 @@ class EditTagsViewModel @Inject constructor(
             confirmationMessage = "",
             confirmationOnConfirmation = {},
             confirmationOnDismissRequest = {},
+            selectedHexCode = "",
             showConfirmationDialog = false,
             showTagBottomSheet = false,
             tagName = "",
             tagNameInvalid = false,
             tagNameInvalidMessage = "",
+            textFieldHexCode = "",
         )
     }
     //endregion
@@ -556,6 +557,7 @@ class EditTagsViewModel @Inject constructor(
     fun onTagColorChangeClicked(item: EasyListsTag) {
         state = state.copy(
             selectedItem = item,
+            selectedHexCode = item.color ?: Color.White.toHexCodeWithAlpha(),
             showColorPickerBottomSheet = true,
         )
     }
@@ -594,7 +596,7 @@ class EditTagsViewModel @Inject constructor(
                 easyListsTag = EasyListsTag(
                     uid = state.selectedItem?.uid,
                     name = state.selectedItem?.name.toString(),
-                    color = "#${state.selectedHexCode.uppercase()}",
+                    color = state.selectedHexCode.uppercase(),
                     createdTimestamp = state.selectedItem?.createdTimestamp
                         ?: Instant.now().epochSecond,
                 )
@@ -610,19 +612,57 @@ class EditTagsViewModel @Inject constructor(
     //endregion
 
 
-    //region updatedSelectedHexColor()
-    fun updatedSelectedHexColor(hexColor: String) {
-        state = state.copy(selectedHexCode = hexColor)
-    }
-    //endregion
-
-
     //region onColorPickerBottomSheetDismiss()
     fun onColorPickerBottomSheetDismiss() {
         state = state.copy(
             showColorPickerBottomSheet = !state.showColorPickerBottomSheet,
             selectedHexCode = Color.White.toHexCodeWithAlpha(),
             selectedItem = null,
+        )
+    }
+    //endregion
+
+
+    //region updateTextFieldHexCode
+    fun updateTextFieldHexCode(updatedTextFieldHexCode: String) {
+        state = state.copy(userUpdatedHexCode = true)
+
+        var hexCode = updatedTextFieldHexCode.removePrefix("#")
+        if (hexCode.length == 8) {
+            hexCode = hexCode.removePrefix("FF").removePrefix("ff")
+        }
+
+        if (hexCode.contains("[^0-9a-fA-F]".toRegex())) {
+            return
+        }
+
+        if (hexCode.length > 6) {
+            return
+        }
+
+        state = state.copy(textFieldHexCode = hexCode)
+
+        // update the color wheel and brightness slider values only once there's a full hex value
+        if (hexCode.length == 6) {
+            state = state.copy(selectedHexCode = "#ff$hexCode")
+        }
+    }
+    //endregion
+
+
+    //region updateSelectedHexCode()
+    fun updateSelectedHexCode(updatedHexCode: String) {
+        state = state.copy(userUpdatedHexCode = false)
+
+        // remove leading #FF, if present, to update the text field value
+        var hexCode = updatedHexCode.removePrefix("#")
+        if (hexCode.length == 8) {
+            hexCode = hexCode.removePrefix("FF").removePrefix("ff")
+        }
+
+        state = state.copy(
+            selectedHexCode = "#$updatedHexCode",
+            textFieldHexCode = hexCode
         )
     }
     //endregion

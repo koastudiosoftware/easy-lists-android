@@ -89,5 +89,7 @@
     <string name="choose_a_color">Choose A Color</string>
     <string name="save_tag_color">Save tag color</string>
     <string name="remove_tag_color">Remove tag color</string>
+    <string name="hex_placeholder">FFFFFF</string>
+    <string name="rgb">RGB</string>
 
 </resources>
