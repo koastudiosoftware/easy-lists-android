@@ -77,6 +77,8 @@ As of Android API 31, dynamic color theming is supported. However, as this proje
 
 - [max-contrast](https://github.com/Myndex/max-contrast): for calculating the text color to display over custom tag colors
 
+- [colorpicker-compose](https://github.com/skydoves/colorpicker-compose): for tag color wheel/slider selection
+
 ## Support
 
 Easy Lists does not generate any revenue. If you wish to support the developers you can donate some sats at the Bitcoin address below:
