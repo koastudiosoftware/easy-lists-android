@@ -16,7 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.easylists.domain.models.Themes
+import com.easylists.domain.common.Themes
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.about.AboutScreen

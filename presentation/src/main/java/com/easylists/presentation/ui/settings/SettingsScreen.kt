@@ -24,7 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
-import com.easylists.domain.models.Themes
+import com.easylists.domain.common.Themes
 import com.easylists.presentation.R
 import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems

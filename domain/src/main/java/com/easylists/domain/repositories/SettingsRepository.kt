@@ -1,6 +1,6 @@
 package com.easylists.domain.repositories
 
-import com.easylists.domain.models.Themes
+import com.easylists.domain.common.Themes
 import kotlinx.coroutines.flow.Flow
 
 interface SettingsRepository {

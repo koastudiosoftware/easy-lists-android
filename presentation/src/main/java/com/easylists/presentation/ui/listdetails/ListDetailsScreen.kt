@@ -175,7 +175,8 @@ fun ListDetailsScreenActionIcons(viewModel: ListDetailsViewModel) {
         Icon(
             modifier = Modifier,
             imageVector = Add,
-            contentDescription = stringResource(R.string.create_new_list)
+            contentDescription = stringResource(R.string.create_new_list),
+            tint = MaterialTheme.colorScheme.onSurface,
         )
     }
 }

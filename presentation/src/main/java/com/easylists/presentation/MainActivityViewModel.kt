@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.easylists.domain.common.KEY
 import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
-import com.easylists.domain.models.Themes
+import com.easylists.domain.common.Themes
 import com.easylists.domain.use_cases.GetAppSettingsFlowUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.presentation.common.AppSettingsKeys

@@ -1,6 +1,6 @@
 package com.easylists.presentation.models
 
-import com.easylists.domain.models.Themes
+import com.easylists.domain.common.Themes
 import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.MasterListsAction

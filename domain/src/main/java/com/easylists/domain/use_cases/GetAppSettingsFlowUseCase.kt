@@ -1,15 +1,10 @@
 package com.easylists.domain.use_cases
 
-import com.easylists.domain.common.AppSettingsType
 import com.easylists.domain.common.KEY
-import com.easylists.domain.common.TYPE
-import com.easylists.domain.common.VALUE
-import com.easylists.domain.models.Themes
+import com.easylists.domain.common.Themes
 import com.easylists.domain.repositories.SettingsRepository
-import com.toxicbakery.logging.Arbor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 

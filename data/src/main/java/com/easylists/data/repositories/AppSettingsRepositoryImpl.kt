@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.easylists.domain.common.AppSettingsType
-import com.easylists.domain.models.Themes
+import com.easylists.domain.common.Themes
 import com.easylists.domain.repositories.SettingsRepository
 import com.toxicbakery.logging.Arbor
 import kotlinx.coroutines.flow.Flow

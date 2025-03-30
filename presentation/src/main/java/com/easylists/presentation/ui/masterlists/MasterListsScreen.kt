@@ -132,6 +132,7 @@ fun MasterListsScreenActionIcons(
             modifier = Modifier,
             imageVector = Add,
             contentDescription = stringResource(R.string.create_new_list),
+            tint = MaterialTheme.colorScheme.onSurface,
         )
     }
     MasterListsScreenOverflowMenu(navController, viewModel)
@@ -293,6 +294,7 @@ fun MasterListsScreenOverflowMenu(
         Icon(
             imageVector = More_vert,
             contentDescription = stringResource(R.string.overflow_menu),
+            tint = MaterialTheme.colorScheme.onSurface,
         )
     }
     DropdownMenu(
