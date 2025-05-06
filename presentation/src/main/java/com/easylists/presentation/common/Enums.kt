@@ -15,7 +15,7 @@ enum class AddEditMode() {
 enum class Capitalization(val value: String, val keyboardCapitalization: KeyboardCapitalization) {
     NoCapitalization("No capitalization", KeyboardCapitalization.None),
     CapitalizeFirstLetter("Capitalize first letter", KeyboardCapitalization.Sentences),
-    CapitalizeAllLetters("Capitalize all letters", KeyboardCapitalization.Words),
+    CapitalizeAllWords("Capitalize all words", KeyboardCapitalization.Words),
     ;
 
     override fun toString(): String {
