@@ -1,6 +1,6 @@
 [versions]
 activityCompose = "1.10.1"
-agp = "8.9.2"
+agp = "8.10.0"
 appcompat = "1.7.0"
 arborJvm = "2.0.105"
 coilCompose = "3.0.4"
