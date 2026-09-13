@@ -28,11 +28,11 @@ Lightweight, fast and private list manager for Android
 - **Settings**: customize your in-app experience
 
 <p float="left">
-  <img src="https://github.com/my-waiwai/easy-lists/blob/main/metadata/images/phone-001.png" width="19%" />
-  <img src="https://github.com/my-waiwai/easy-lists/blob/main/metadata/images/phone-002.png" width="19%" />
-  <img src="https://github.com/my-waiwai/easy-lists/blob/main/metadata/images/phone-003.png" width="19%" />
-  <img src="https://github.com/my-waiwai/easy-lists/blob/main/metadata/images/phone-004.png" width="19%" />
-  <img src="https://github.com/my-waiwai/easy-lists/blob/main/metadata/images/phone-005.png" width="19%" />
+  <img src="https://github.com/koastudiosoftware/easy-lists-android/blob/main/metadata/images/phone-001.png" width="19%" />
+  <img src="https://github.com/koastudiosoftware/easy-lists-android/blob/main/metadata/images/phone-002.png" width="19%" />
+  <img src="https://github.com/koastudiosoftware/easy-lists-android/blob/main/metadata/images/phone-003.png" width="19%" />
+  <img src="https://github.com/koastudiosoftware/easy-lists-android/blob/main/metadata/images/phone-004.png" width="19%" />
+  <img src="https://github.com/koastudiosoftware/easy-lists-android/blob/main/metadata/images/phone-005.png" width="19%" />
 </p>
 
 ### Lightweight
