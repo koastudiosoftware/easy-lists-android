@@ -7,9 +7,9 @@
 ### Lightweight List Manager
 
 [![Android](https://img.shields.io/badge/Android-grey?logo=android&style=flat)](https://www.android.com/)
-[![AndroidAPI](https://img.shields.io/badge/API-31%2B-859900.svg?style=flat)](https://www.android.com/)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-6c71c4.svg?logo=kotlin)](https://kotlinlang.org)
-[![JetpackCompose](https://img.shields.io/badge/Jetpack%20Compose-1.7.7-b58900)](https://developer.android.com/jetpack/compose)
+[![AndroidAPI](https://img.shields.io/badge/API-35%2B-859900.svg?style=flat)](https://www.android.com/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20-6c71c4.svg?logo=kotlin)](https://kotlinlang.org)
+[![JetpackCompose](https://img.shields.io/badge/Jetpack%20Compose-1.8.0-b58900)](https://developer.android.com/jetpack/compose)
 [![Release](https://badgen.net/github/release/koastudiosoftware/easy-lists-android?color=dc322f)](https://github.com/koastudiosoftware/easy-lists-android/releases)
 
 [![Resultat](https://img.shields.io/badge/Resultat-1.0.0-d33682)](https://github.com/nicolashaan/resultat)
