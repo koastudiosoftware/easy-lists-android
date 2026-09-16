@@ -1,32 +1,33 @@
 [versions]
-activityCompose = "1.10.1"
-agp = "8.10.0"
-appcompat = "1.7.0"
+activityCompose = "1.13.0"
+agp = "9.4.0"
+appcompat = "1.8.0"
 arborJvm = "2.0.105"
-coilCompose = "3.0.4"
-colorpickerCompose = "1.1.2"
-composeBom = "2025.04.01"
-converterGson = "2.11.0"
-coreKtx = "1.16.0"
-dagger = "2.55"
-daggerCompiler = "2.55"
-datastorePreferences = "1.1.5"
-espressoCore = "3.6.1"
-hiltAndroidCompiler = "2.55"
-hiltVersion = "2.55"
-jetbrainsKotlinJvm = "2.1.0"
+coilCompose = "3.6.2"
+colorpickerCompose = "1.2.0"
+composeBom = "2026.09.00"
+converterGson = "3.0.0"
+coreKtx = "1.19.0"
+dagger = "2.60.1"
+daggerCompiler = "2.60.1"
+datastorePreferences = "1.2.1"
+espressoCore = "3.7.0"
+hiltAndroidCompiler = "2.60.1"
+hiltVersion = "2.60.1"
+jetbrainsKotlinJvm = "2.4.20"
 junit = "4.13.2"
-junitVersion = "1.2.1"
-kotlin = "2.1.0"
+junitVersion = "1.3.0"
+kotlin = "2.4.20"
 kotlinExtensionsVersion = "2.1"
-kotlinxCoroutinesCore = "1.10.1"
-lifecycleRuntimeKtx = "2.8.7"
-material = "1.12.0"
+kotlinxCoroutinesCore = "1.11.0"
+ksp = "2.3.6"
+lifecycleRuntimeKtx = "2.11.0"
+material = "1.14.0"
 reimaginedHilt = "1.5.0"
 resultat = "1.0.0"
-roomCompiler = "2.7.1"
-roomKtx = "2.7.1"
-roomRuntime = "2.7.1"
+roomCompiler = "2.8.5"
+roomKtx = "2.8.5"
+roomRuntime = "2.8.5"
 
 [libraries]
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -66,5 +67,6 @@ resultat = { module = "fr.haan.resultat:resultat", version.ref = "resultat" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+hilt-plugin = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
