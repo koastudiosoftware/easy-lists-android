@@ -465,12 +465,16 @@ fun ListDetailsScreenListItem(
                     }
                 }
             }
-
-            ListDetailsScreenListItemTags(
-                item = item,
-                modifier = Modifier.weight(0.3f),
-                viewModel = viewModel,
-            )
+    
+            when {
+                viewModel.state.enableTags -> {
+                    ListDetailsScreenListItemTags(
+                        item = item,
+                        modifier = Modifier.weight(0.3f),
+                        viewModel = viewModel,
+                    )
+                }
+            }
 
             ListDetailsScreenListItemIcons(
                 item = item,
@@ -648,7 +652,7 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
                     }
 
                     when {
-                        viewModel.state.enableTags == true -> {
+                        viewModel.state.enableTags -> {
                             item {
                                 ListDetailsScreenListItemBottomSheetTagsTitle(viewModel)
                             }
