@@ -552,7 +552,7 @@ fun ListDetailsScreenListItemIcons(
 //region ListDetailsScreenOverflowMenu
 @Composable
 fun ListDetailsScreenOverflowMenu(viewModel: ListDetailsViewModel) {
-    var expanded = remember { mutableStateOf(false) }
+    val expanded = remember { mutableStateOf(false) }
 
     IconButton(
         enabled = true,
@@ -583,7 +583,7 @@ fun ListDetailsScreenOverflowMenu(viewModel: ListDetailsViewModel) {
 @Composable
 fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showBottomSheet = remember { mutableStateOf(false) }
+    val showBottomSheet = remember { mutableStateOf(false) }
 
     when (viewModel.state.showListItemBottomSheet) {
         true -> showBottomSheet.value = true
@@ -711,7 +711,7 @@ fun ListDetailsScreenListItemBottomSheetName(viewModel: ListDetailsViewModel) {
             isError = viewModel.state.itemNameInvalid,
             supportingText = {
                 when {
-                    viewModel.state.itemNameInvalidMessage.isNotEmpty() == true -> Text(text = viewModel.state.itemNameInvalidMessage)
+                    viewModel.state.itemNameInvalidMessage.isNotEmpty() -> Text(text = viewModel.state.itemNameInvalidMessage)
 
                     else -> null
                 }
@@ -804,7 +804,7 @@ fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel
             onDismissRequest = { expanded.value = false },
         ) {
             when {
-                viewModel.state.categoryList.isNotEmpty() == true -> {
+                viewModel.state.categoryList.isNotEmpty() -> {
                     viewModel.state.categoryList.forEachIndexed { index, option ->
                         DropdownMenuItem(
                             text = {
@@ -834,7 +834,7 @@ fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel
 @Composable
 fun ListDetailsScreenListItemBottomSheetTags(viewModel: ListDetailsViewModel) {
     when {
-        viewModel.state.easyListsTagList.isNotEmpty() == true -> {
+        viewModel.state.easyListsTagList.isNotEmpty() -> {
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxSize()
@@ -904,7 +904,6 @@ fun ListDetailsScreenListItemBottomSheetTags(viewModel: ListDetailsViewModel) {
 //region ListDetailsScreenListItemBottomSheetPhotoTitle
 @Composable
 fun ListDetailsScreenListItemBottomSheetPhotoTitle(viewModel: ListDetailsViewModel) {
-
     val currentContext = LocalContext.current
 
     val pickImageFromAlbumLauncher = rememberLauncherForActivityResult(
@@ -980,7 +979,7 @@ fun ListDetailsScreenListItemBottomSheetCameraIcon(
     viewModel: ListDetailsViewModel
 ) {
     when {
-        viewModel.state.enableCamera == true -> {
+        viewModel.state.enableCamera -> {
             IconButton(
                 modifier = modifier,
                 onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }
@@ -1173,7 +1172,7 @@ fun ListItemDetailsScreenTagPillSmall(
     viewModel: ListDetailsViewModel,
 ) {
     when {
-        viewModel.state.expandTagPills == true -> {
+        viewModel.state.expandTagPills -> {
             val backgroundColor = Color(
                 easyListsTag.color?.toColorInt()
                     ?: if (easyListsTag.isSelected)
@@ -1245,7 +1244,7 @@ fun ListDetailsScreenTopAppBarNavigationIcon(navController: NavController<Screen
 @Composable
 fun ConfirmRemoveCrossedOffItems(viewModel: ListDetailsViewModel) {
     when {
-        viewModel.state.showConfirmationDialog == true -> {
+        viewModel.state.showConfirmationDialog -> {
             ConfirmationDialog(
                 onDismissRequest = {
                     viewModel.setShowConfirmationDialogState(false)
@@ -1267,7 +1266,7 @@ fun ConfirmRemoveCrossedOffItems(viewModel: ListDetailsViewModel) {
 @Composable
 fun ConfirmRemoveListItem(viewModel: ListDetailsViewModel) {
     when {
-        viewModel.state.showConfirmationDialog == true -> {
+        viewModel.state.showConfirmationDialog -> {
             ConfirmationDialog(
                 onDismissRequest = {
                     viewModel.setShowConfirmationDialogState(false)
