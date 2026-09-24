@@ -9,6 +9,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -52,13 +58,25 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -552,11 +570,11 @@ fun ListDetailsScreenListItemIcons(
 //region ListDetailsScreenOverflowMenu
 @Composable
 fun ListDetailsScreenOverflowMenu(viewModel: ListDetailsViewModel) {
-    val expanded = remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
 
     IconButton(
         enabled = true,
-        onClick = { expanded.value = !expanded.value },
+        onClick = { expanded = !expanded },
     ) {
         Icon(
             imageVector = More_vert,
@@ -564,9 +582,9 @@ fun ListDetailsScreenOverflowMenu(viewModel: ListDetailsViewModel) {
         )
     }
     DropdownMenu(
-        expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
+        expanded = expanded, onDismissRequest = { expanded = false }) {
         DropdownMenuItem(text = { Text(text = stringResource(R.string.settings)) }, onClick = {
-            expanded.value = !expanded.value
+            expanded = !expanded
 //                viewModel.showExportDataBottomSheet()
         }, leadingIcon = {
             Icon(
@@ -583,16 +601,16 @@ fun ListDetailsScreenOverflowMenu(viewModel: ListDetailsViewModel) {
 @Composable
 fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val showBottomSheet = remember { mutableStateOf(false) }
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     when (viewModel.state.showListItemBottomSheet) {
-        true -> showBottomSheet.value = true
-        false -> showBottomSheet.value = false
+        true -> showBottomSheet = true
+        false -> showBottomSheet = false
     }
 
-    if (showBottomSheet.value) {
+    if (showBottomSheet) {
         ModalBottomSheet(sheetState = sheetState, onDismissRequest = {
-            showBottomSheet.value = false
+            showBottomSheet = false
             viewModel.onItemBottomSheetDismiss()
         }, dragHandle = {
             Column(
@@ -769,11 +787,11 @@ fun ListDetailsScreenListItemBottomSheetQuantity(viewModel: ListDetailsViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel) {
-    var expanded = remember { mutableStateOf(false) }
-    var textFieldState = rememberTextFieldState("")
+    var expanded by remember { mutableStateOf(false) }
+    val textFieldState = rememberTextFieldState("")
 
     when {
-        viewModel.state.categoryText.isNotEmpty() == true -> {
+        viewModel.state.categoryText.isNotEmpty() -> {
             textFieldState.setTextAndPlaceCursorAtEnd(
                 viewModel.categoryFromIndex()
             )
@@ -782,8 +800,8 @@ fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel
 
     ExposedDropdownMenuBox(
         modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
-        expanded = expanded.value,
-        onExpandedChange = { expanded.value = it },
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
     ) {
         TextField(
             // The `menuAnchor` modifier must be passed to the text field to handle
@@ -796,12 +814,12 @@ fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel
             onValueChange = { viewModel.onCategoryChange(it) },
             readOnly = false,
             value = viewModel.state.categoryText,
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded.value) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
         )
         ExposedDropdownMenu(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            expanded = expanded.value,
-            onDismissRequest = { expanded.value = false },
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
         ) {
             when {
                 viewModel.state.categoryList.isNotEmpty() -> {
@@ -815,7 +833,7 @@ fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel
                             },
                             onClick = {
                                 textFieldState.setTextAndPlaceCursorAtEnd(option.name)
-                                expanded.value = false
+                                expanded = false
                                 viewModel.onCategoryChange(index)
                             },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
@@ -1047,20 +1065,135 @@ fun ListDetailsScreenListItemBottomSheetDeleteIcon(
 //endregion
 
 
+//region ZoomState class, used for pinch to zoom
+@Stable
+class ZoomState(
+    initialScale: Float = 1f,
+    initialOffset: Offset = Offset.Zero,
+) {
+    var scale by mutableFloatStateOf(initialScale)
+    var offset by mutableStateOf(initialOffset)
+
+    val isZoomed: Boolean get() = scale > 1f
+
+    fun reset() {
+        scale = 1f
+        offset = Offset.Zero
+    }
+
+    companion object {
+        val Saver = listSaver<ZoomState, Float>(
+            save = { listOf(it.scale, it.offset.x, it.offset.y) },
+            restore = { ZoomState(it[0], Offset(it[1], it[2])) },
+        )
+    }
+}
+//endregion
+
+
+//region rememberZoomState, creates a ZoomState object
+@Composable
+fun rememberZoomState() = remember { ZoomState() }
+//endregion
+
+
+//region Modifier.pinchToZoom, used for pinch to zoom on Add/Edit Item bottom sheet
+fun Modifier.pinchToZoom(
+    state: ZoomState,
+    maxScale: Float = 5f,
+    doubleTapScale: Float = 2.5f,
+    onTap: (() -> Unit)? = null,
+): Modifier = this
+    .pointerInput(state) {
+        awaitEachGesture {
+            // Initial pass: runs before the bottom sheet / LazyColumn see the events
+            awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+            do {
+                val event = awaitPointerEvent(PointerEventPass.Initial)
+                val fingers = event.changes.count { it.pressed }
+
+                if (fingers >= 2 || state.isZoomed) {
+                    val zoom = if (fingers >= 2) event.calculateZoom() else 1f
+                    val pan = event.calculatePan()
+                    val centroid = event.calculateCentroid()
+
+                    if (centroid.isSpecified) {
+                        val center = Offset(size.width / 2f, size.height / 2f)
+                        val newScale = (state.scale * zoom).coerceIn(1f, maxScale)
+                        val z = newScale / state.scale
+
+                        // Keep the content point under the fingers stationary
+                        val raw = (centroid - center) * (1f - z) + state.offset * z + pan
+
+                        val maxX = size.width * (newScale - 1f) / 2f
+                        val maxY = size.height * (newScale - 1f) / 2f
+
+                        state.scale = newScale
+                        state.offset = Offset(
+                            raw.x.coerceIn(-maxX, maxX),
+                            raw.y.coerceIn(-maxY, maxY),
+                        )
+
+                        event.changes.forEach { if (it.positionChanged()) it.consume() }
+                    }
+                }
+            } while (event.changes.any { it.pressed })
+            // No reset here: the image stays zoomed after the fingers lift.
+        }
+    }
+    .pointerInput(state, onTap) {
+        detectTapGestures(
+            onTap = { onTap?.invoke() },
+            onDoubleTap = { tap ->
+                if (state.isZoomed) {
+                    state.reset()
+                } else {
+                    val center = Offset(size.width / 2f, size.height / 2f)
+                    val maxX = size.width * (doubleTapScale - 1f) / 2f
+                    val maxY = size.height * (doubleTapScale - 1f) / 2f
+                    val raw = (tap - center) * (1f - doubleTapScale)
+                    state.scale = doubleTapScale
+                    state.offset = Offset(
+                        raw.x.coerceIn(-maxX, maxX),
+                        raw.y.coerceIn(-maxY, maxY),
+                    )
+                }
+            },
+        )
+    }
+    // Clip to the Box's original bounds (the sheet clips anyway), OUTSIDE the layer
+    .clipToBounds()
+    .graphicsLayer {
+        scaleX = state.scale
+        scaleY = state.scale
+        translationX = state.offset.x
+        translationY = state.offset.y
+    }
+//endregion
+
+
 //region ListDetailsScreenListItemBottomSheetPhoto
 @Composable
 fun ListDetailsScreenListItemBottomSheetPhoto(viewModel: ListDetailsViewModel) {
+    val zoom = rememberZoomState()
+
     when {
         viewModel.state.itemPhotoUri != null -> {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier.aspectRatio(1f)) {
+                Box(
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .fillMaxWidth()
+                        .pinchToZoom(zoom),
+                ) {
                     AsyncImage(
                         model = ImageRequest
                             .Builder(LocalContext.current)
                             .data(viewModel.state.itemPhotoUri)
                             .build(),
                         contentDescription = stringResource(R.string.list_item_image),
-                        contentScale = ContentScale.FillWidth,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
             }

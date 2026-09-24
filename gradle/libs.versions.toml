@@ -28,6 +28,8 @@ resultat = "1.0.0"
 roomCompiler = "2.8.5"
 roomKtx = "2.8.5"
 roomRuntime = "2.8.5"
+cameraCore = "1.6.2"
+ui = "1.12.1"
 
 [libraries]
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -62,6 +64,8 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 reimagined-hilt = { module = "dev.olshevski.navigation:reimagined-hilt", version.ref = "reimaginedHilt" }
 resultat = { module = "fr.haan.resultat:resultat", version.ref = "resultat" }
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
