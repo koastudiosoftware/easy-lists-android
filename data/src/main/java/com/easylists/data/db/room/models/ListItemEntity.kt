@@ -43,6 +43,22 @@ data class ListItemEntity @OptIn(ExperimentalUuidApi::class) constructor(
     @SerializedName(value = "crossed_off_timestamp")
     val crossedOffTimestamp: Long? = null,
 
+    @ColumnInfo(name = "photo_uri")
+    @SerializedName(value = "photo_uri")
+    val photoUri: String? = null,
+
+    @ColumnInfo(name = "photo_offset_x")
+    @SerializedName(value = "photo_offset_x")
+    val photoOffsetX: Double? = null,
+
+    @ColumnInfo(name = "photo_offset_y")
+    @SerializedName(value = "photo_offset_y")
+    val photoOffsetY: Double? = null,
+
+    @ColumnInfo(name = "photo_scale")
+    @SerializedName(value = "photo_scale")
+    val photoScale: Double? = null,
+
     @ColumnInfo(name = "sort_order")
     @SerializedName(value = "sort_order")
     val sortOrder: Int? = null,

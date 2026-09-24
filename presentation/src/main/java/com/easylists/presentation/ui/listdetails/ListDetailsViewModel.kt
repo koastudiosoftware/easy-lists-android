@@ -6,6 +6,7 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -54,6 +55,7 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Date
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -169,8 +171,8 @@ class ListDetailsViewModel @Inject constructor(
                 categoryUid = null
             }
 
-            delay(100L)     // allow a short time for the category to be added to the database
-            var listItem = EasyListsListItem(
+            delay(100L.milliseconds)     // allow a short time for the category to be added to the database
+            val listItem = EasyListsListItem(
                 uid = state.itemUid,
                 listUid = state.listUid,
                 name = state.itemName,
@@ -287,7 +289,7 @@ class ListDetailsViewModel @Inject constructor(
         if (state.addEditMode == AddEditMode.Edit) return true
 
         // don't allow duplicate item name
-        if (state.listItemList.any { it.name.lowercase() == state.itemName.lowercase() }) return false
+        if (state.listItemList.any { it.name.equals(state.itemName, ignoreCase = true) }) return false
 
         return true
     }
@@ -392,7 +394,7 @@ class ListDetailsViewModel @Inject constructor(
         result.onSuccess {
             var groupedItemList: Map<Pair<Boolean?, String?>, List<EasyListsListItem>>? = null
 
-            if (state.categoryList.isNotEmpty() == true) {
+            if (state.categoryList.isNotEmpty()) {
                 // apply category to each item pulled from the database
                 it?.forEach {
                     it.category = state.categoryList.find { category ->
@@ -525,7 +527,7 @@ class ListDetailsViewModel @Inject constructor(
 
         tagListItemListFlowJob = getTagListItemFlowUseCase()
             .onEach {
-                delay(500L) // workaround to eliminate sticky pull to refresh indicator
+                delay(500L.milliseconds) // workaround to eliminate sticky pull to refresh indicator
                 handleGetTagListItemListState(Resultat.success(it))
             }.catch {
                 handleGetTagListItemListState(Resultat.failure(it))
@@ -644,7 +646,7 @@ class ListDetailsViewModel @Inject constructor(
     //region onTagClick()
     fun onTagClick(easyListsTag: EasyListsTag) {
         // create a copy of the list
-        var tagList = ArrayList( state.easyListsTagList.map { it.copy() })
+        val tagList = ArrayList( state.easyListsTagList.map { it.copy() })
 
         tagList.find {
             it.uid == easyListsTag.uid
@@ -658,7 +660,7 @@ class ListDetailsViewModel @Inject constructor(
     //region selectedTags()
     // finds the set of tags that are associated with the selected list item
     fun selectedTags() {
-        var tagList = state.easyListsTagList
+        val tagList = state.easyListsTagList
         val selectedTags = tagList.filter { tag ->
             state.tagListItemList.filter { tagListItem ->
                 tagListItem.listItemUid == state.itemUid
@@ -748,6 +750,7 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
+    //region listItemTags()
     fun listItemTags(item: EasyListsListItem): List<EasyListsTag> {
         val tagListItems = state.tagListItemList.filter {
             it.listItemUid == item.uid
@@ -759,5 +762,12 @@ class ListDetailsViewModel @Inject constructor(
 
         return tags
     }
+    //endregion
 
+
+    //region onPhotoOffsetChange()
+    fun onPhotoOffsetChange(offset: Offset) {
+        state = state.copy(photoOffset = offset)
+    }
+    //endregion
 }

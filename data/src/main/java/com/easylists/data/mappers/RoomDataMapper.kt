@@ -123,6 +123,10 @@ class RoomDataMapper @Inject constructor(
                 quantity = entity.quantity,
                 crossedOff = entity.crossedOff == true,
                 crossedOffTimestamp = entity.crossedOffTimestamp,
+                photoUri = entity.photoUri,
+                photoScale = entity.photoScale,
+                photoOffsetX = entity.photoOffsetX,
+                photoOffsetY = entity.photoOffsetY,
                 sortOrder = entity.sortOrder,
                 createdTimestamp = entity.createdTimestamp,
                 modifiedTimestamp = entity.modifiedTimestamp,
@@ -144,6 +148,10 @@ class RoomDataMapper @Inject constructor(
             quantity = listItem.quantity,
             crossedOff = listItem.crossedOff == true,
             crossedOffTimestamp = listItem.crossedOffTimestamp,
+            photoUri = listItem.photoUri,
+            photoScale = listItem.photoScale,
+            photoOffsetX = listItem.photoOffsetX,
+            photoOffsetY = listItem.photoOffsetY,
         )
     }
     //endregion
@@ -161,6 +169,10 @@ class RoomDataMapper @Inject constructor(
             quantity = listItem.quantity,
             crossedOff = listItem.crossedOff == true,
             crossedOffTimestamp = listItem.crossedOffTimestamp,
+            photoUri = listItem.photoUri,
+            photoScale = listItem.photoScale,
+            photoOffsetX = listItem.photoOffsetX,
+            photoOffsetY = listItem.photoOffsetY,
             modifiedTimestamp = Instant.now().epochSecond,
         )
     }

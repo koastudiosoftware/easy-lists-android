@@ -1,6 +1,7 @@
 package com.easylists.presentation.models
 
 import android.net.Uri
+import androidx.compose.ui.geometry.Offset
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
@@ -39,6 +40,9 @@ data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
     var listName: String = "",
     var listUid: String = "",
     var nextDataFetchStage: String = "category",
+    var photoOffset: Offset = Offset.Zero,
+    var photoScale: Float = 1f,
+    var photoUri: String = "",
     var selectedCategoryIndex: Int = -1,
     var selectedItemUid: String = "",
     var selectedTagIds: List<Int> = emptyList(),
