@@ -114,6 +114,7 @@ import com.easylists.presentation.icons.Photo
 import com.easylists.presentation.icons.Photo_camera
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.models.Screen
+import com.easylists.presentation.models.ZoomState
 import com.easylists.presentation.ui.theme.spaces
 import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
@@ -221,7 +222,7 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                 //region items with a category that are not crossed off
                 groupedItemList?.filterKeys {
                     it.first == false && it.second != "Uncategorized"
-                }?.keys?.forEach {
+                }?.keys?.forEach { it ->
                     item {
                         ListDetailsScreenCategoryTitle(it.second.toString())
                     }
@@ -239,7 +240,7 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                 //region uncategorized items that are not crossed off
                 groupedItemList?.filterKeys {
                     it.first == false && it.second == "Uncategorized"
-                }?.keys?.forEach {
+                }?.keys?.forEach { it ->
                     item {
                         ListDetailsScreenCategoryTitle(it.second.toString())
                     }
@@ -270,9 +271,9 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
 
                         val crossedOffItems = groupedItemList?.filterKeys {
                             it.first == true
-                        }?.keys?.map {
+                        }?.keys?.flatMap {
                             groupedItemList.getValue(it)
-                        }?.flatten()
+                        }
 
                         if (viewModel.state.sortCrossedOffItems == SortCrossedOffItems.MostRecentOnTop) {
                             crossedOffItems?.sortedByDescending {
@@ -603,9 +604,9 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    when (viewModel.state.showListItemBottomSheet) {
-        true -> showBottomSheet = true
-        false -> showBottomSheet = false
+    showBottomSheet = when (viewModel.state.showListItemBottomSheet) {
+        true -> true
+        false -> false
     }
 
     if (showBottomSheet) {
@@ -1065,38 +1066,6 @@ fun ListDetailsScreenListItemBottomSheetDeleteIcon(
 //endregion
 
 
-//region ZoomState class, used for pinch to zoom
-@Stable
-class ZoomState(
-    initialScale: Float = 1f,
-    initialOffset: Offset = Offset.Zero,
-) {
-    var scale by mutableFloatStateOf(initialScale)
-    var offset by mutableStateOf(initialOffset)
-
-    val isZoomed: Boolean get() = scale > 1f
-
-    fun reset() {
-        scale = 1f
-        offset = Offset.Zero
-    }
-
-    companion object {
-        val Saver = listSaver<ZoomState, Float>(
-            save = { listOf(it.scale, it.offset.x, it.offset.y) },
-            restore = { ZoomState(it[0], Offset(it[1], it[2])) },
-        )
-    }
-}
-//endregion
-
-
-//region rememberZoomState, creates a ZoomState object
-@Composable
-fun rememberZoomState() = remember { ZoomState() }
-//endregion
-
-
 //region Modifier.pinchToZoom, used for pinch to zoom on Add/Edit Item bottom sheet
 fun Modifier.pinchToZoom(
     state: ZoomState,
@@ -1147,6 +1116,7 @@ fun Modifier.pinchToZoom(
             onDoubleTap = { tap ->
                 if (state.isZoomed) {
                     state.reset()
+                    // reset view model values to defaults
                 } else {
                     val center = Offset(size.width / 2f, size.height / 2f)
                     val maxX = size.width * (doubleTapScale - 1f) / 2f
@@ -1175,7 +1145,13 @@ fun Modifier.pinchToZoom(
 //region ListDetailsScreenListItemBottomSheetPhoto
 @Composable
 fun ListDetailsScreenListItemBottomSheetPhoto(viewModel: ListDetailsViewModel) {
-    val zoom = rememberZoomState()
+    val zoom = remember { ZoomState(
+        initialScale = viewModel.state.photoScale.toFloat(),
+        initialOffset = viewModel.state.photoOffset
+    ) }
+
+    Arbor.i("scale (b): ${viewModel.state.photoScale}")
+    Arbor.i("offset (b): ${viewModel.state.photoOffset}")
 
     when {
         viewModel.state.itemPhotoUri != null -> {
@@ -1195,6 +1171,13 @@ fun ListDetailsScreenListItemBottomSheetPhoto(viewModel: ListDetailsViewModel) {
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),
                     )
+
+                    Arbor.i("Item photo uri (a): ${viewModel.state.itemPhotoUri}")
+                    Arbor.i( "scale (a): ${zoom.scale}")
+                    Arbor.i( "offset (a): ${zoom.offset}")
+
+                    viewModel.onPhotoScaleChange(zoom.scale.toDouble())
+                    viewModel.onPhotoOffsetChange(zoom.offset)
                 }
             }
         }

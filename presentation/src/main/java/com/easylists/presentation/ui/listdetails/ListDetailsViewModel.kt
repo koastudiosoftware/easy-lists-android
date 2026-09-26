@@ -177,9 +177,14 @@ class ListDetailsViewModel @Inject constructor(
                 listUid = state.listUid,
                 name = state.itemName,
                 categoryUid = categoryUid,
-                notes = if (state.itemNotes.isEmpty()) null else state.itemNotes,
+                notes = state.itemNotes.ifEmpty { null },
                 quantity = if (state.itemQuantity.isEmpty()) null else state.itemQuantity.toInt(),
+                photoScale = state.photoScale,
+                photoOffsetX = state.photoOffset.x.toDouble(),
+                photoOffsetY = state.photoOffset.y.toDouble(),
             )
+
+            Arbor.i("listItem: $listItem")
 
             if (state.addEditMode == AddEditMode.Add) {
                 addListItemUseCase(listItem = listItem)
@@ -282,6 +287,13 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
+    //region itemPhotoScale()
+    fun itemPhotoScale(): Double {
+        return state.photoScale
+    }
+    //endregion
+
+
     //region listItemIconButtonEnabled()
     fun listItemIconButtonEnabled(): Boolean {
         if (state.itemName.isEmpty()) return false
@@ -342,8 +354,8 @@ class ListDetailsViewModel @Inject constructor(
     fun onItemNameChange(name: String) {
         var itemNameInvalidMessage: String
         val isNameInvalid = (state.listItemList.any {
-            it.name.lowercase() == name.lowercase()
-        } == true).let {
+            it.name.equals(name, ignoreCase = true)
+        }).let {
             itemNameInvalidMessage = if (it) "Name already in use" else ""
             it
         }
@@ -391,7 +403,8 @@ class ListDetailsViewModel @Inject constructor(
 
 
     private fun handleGetListItemState(result: Resultat<List<EasyListsListItem>?>) {
-        result.onSuccess {
+        result.onSuccess { it ->
+            Arbor.i("handleGetListItemState() it: $it")
             var groupedItemList: Map<Pair<Boolean?, String?>, List<EasyListsListItem>>? = null
 
             if (state.categoryList.isNotEmpty()) {
@@ -488,7 +501,7 @@ class ListDetailsViewModel @Inject constructor(
             }.catch {
                 handleGetTagListState(Resultat.failure(it))
 
-                // After this catch the flow is interrupted and it must be collected
+                // After this catch the flow is interrupted, and it must be collected
                 // again to obtain new data. The handleRefresh() method handles this situation.
                 cancelTagFlowCollection()
             }.launchIn(viewModelScope)
@@ -609,6 +622,9 @@ class ListDetailsViewModel @Inject constructor(
             itemNotes = item.notes ?: "",
             itemQuantity = item.quantity?.toString() ?: "",
             itemUid = item.uid.toString(),
+            itemPhotoUri = item.photoUri as Uri?,
+            itemPhotoScale = item.photoScale,
+            itemPhotoOffset = Offset(item.photoOffsetX.toFloat(), item.photoOffsetY.toFloat()),
             selectedCategoryIndex = index,
             showListItemBottomSheet = true
         )
@@ -768,6 +784,20 @@ class ListDetailsViewModel @Inject constructor(
     //region onPhotoOffsetChange()
     fun onPhotoOffsetChange(offset: Offset) {
         state = state.copy(photoOffset = offset)
+    }
+    //endregion
+
+
+    //region onPhotoScaleChange()
+    fun onPhotoScaleChange(scale: Double) {
+        state = state.copy(photoScale = scale)
+    }
+    //endregion
+
+
+    //region onPhotoUriChange()
+    fun onPhotoUriChange(uri: String) {
+        state = state.copy(photoUri = uri)
     }
     //endregion
 }
