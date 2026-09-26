@@ -2,6 +2,7 @@ package com.easylists.presentation.ui.listdetails
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +18,7 @@ import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
+import com.easylists.domain.use_cases.SaveListItemPhotoUseCase
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.AddListItemFlowUseCase
 import com.easylists.domain.use_cases.AddTagListItemUseCase
@@ -33,6 +35,7 @@ import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
+import com.easylists.presentation.common.ImageBitmapLoader
 import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.common.isNumeric
 import com.easylists.presentation.mappers.UiMapper
@@ -50,6 +53,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -72,6 +76,8 @@ class ListDetailsViewModel @Inject constructor(
     private val addListItemUseCase: AddListItemFlowUseCase,
     private val updateListItemUseCase: UpdateListItemFlowUseCase,
     private val removeListItemUseCase: RemoveListItemUseCase,
+    private val saveListItemPhotoUseCase: SaveListItemPhotoUseCase,
+    private val bitmapLoader: ImageBitmapLoader,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
@@ -152,6 +158,9 @@ class ListDetailsViewModel @Inject constructor(
     @OptIn(ExperimentalUuidApi::class)
     fun saveListItem() {
         viewModelScope.launch {
+            saveListItemPhoto()
+            Arbor.i("saveListItem() state.itemPhotoUri: ${state.itemPhotoUri}")
+
             var category: EasyListsCategory
 
             removeTagListItem()
@@ -179,6 +188,7 @@ class ListDetailsViewModel @Inject constructor(
                 categoryUid = categoryUid,
                 notes = state.itemNotes.ifEmpty { null },
                 quantity = if (state.itemQuantity.isEmpty()) null else state.itemQuantity.toInt(),
+                photoUri = state.photoUri,
                 photoScale = state.photoScale,
                 photoOffsetX = state.photoOffset.x.toDouble(),
                 photoOffsetY = state.photoOffset.y.toDouble(),
@@ -615,6 +625,7 @@ class ListDetailsViewModel @Inject constructor(
         val category = state.categoryList.find { it.uid == item.categoryUid }
         val index = state.categoryList.indexOf(category)
 
+        Arbor.i("onListItemInfoClick() item: $item")
         state = state.copy(
             addEditMode = addEditMode,
             categoryText = category?.name ?: "",
@@ -622,7 +633,7 @@ class ListDetailsViewModel @Inject constructor(
             itemNotes = item.notes ?: "",
             itemQuantity = item.quantity?.toString() ?: "",
             itemUid = item.uid.toString(),
-            itemPhotoUri = item.photoUri as Uri?,
+            itemPhotoUri = item.photoUri,
             itemPhotoScale = item.photoScale,
             itemPhotoOffset = Offset(item.photoOffsetX.toFloat(), item.photoOffsetY.toFloat()),
             selectedCategoryIndex = index,
@@ -698,7 +709,7 @@ class ListDetailsViewModel @Inject constructor(
         Arbor.i("Camera image saved")
         Arbor.i("state.tempCameraFileUrl: ${state.tempCameraFileUrl}")
         state = state.copy(
-            itemPhotoUri = state.tempCameraFileUrl,
+            itemPhotoUri = state.tempCameraFileUrl.toString(),
             tempCameraFileUrl = null
         )
 
@@ -754,7 +765,7 @@ class ListDetailsViewModel @Inject constructor(
     //region onFinishPickingImages()
     fun onFinishPickingImages(context: Context, uri: Uri?) {
         Arbor.i("FinishPickingImages() uri: $uri")
-        state = state.copy(itemPhotoUri = uri)
+        state = state.copy(itemPhotoUri = uri.toString())
     }
     //endregion
 
@@ -795,9 +806,32 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
-    //region onPhotoUriChange()
-    fun onPhotoUriChange(uri: String) {
-        state = state.copy(photoUri = uri)
+    //region saveListItemPhoto()
+    // this function saves the temporary photo or loaded image file to app-private storage
+    // the returned string value is the full URI to the saved file which should be saved
+    // to the database along with the rest of the photo-related data (scale, offset)
+    suspend fun saveListItemPhoto() {
+        val imageUri = state.itemPhotoUri ?: return
+        val bitmap = bitmapLoader.load(imageUri)
+            ?: // _saveState.value = SaveState.Error("Could not load image")
+            return
+
+        val bytes = ByteArrayOutputStream().use { stream ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            stream.toByteArray()
+        }
+        val filename = "img_${System.currentTimeMillis()}.png"
+        val result = saveListItemPhotoUseCase(bytes, filename)
+        state = state.copy(photoUri = result.getOrThrow());
+
+        // this code appears to be simply saving the state of the save so the UI
+        // can react to whether the save was successful or not
+        // TODO circle back to this later
+//            _saveState.value = result.fold(
+//                onSuccess = { SaveState.Success(it) },
+//                onFailure = { SaveState.Error(it.message) }
+//            )
     }
     //endregion
+
 }

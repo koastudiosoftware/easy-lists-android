@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
+import coil3.ImageLoader
+import coil3.imageLoader
 import com.easylists.data.db.room.EasyListsDatabase
 import com.easylists.data.db.room.dao.CategoryDao
 import com.easylists.data.db.room.dao.ListDao
@@ -76,5 +78,12 @@ object LocalModule {
     fun provideTagListItemDao(
         easyListsDatabase: EasyListsDatabase
     ): TagListItemDao = easyListsDatabase.tagListItemDao()
+
+
+    @Provides
+    @Singleton
+    fun provideImageLoader(@ApplicationContext context: Context): ImageLoader {
+        return context.imageLoader // Coil3's Context extension, returns the singleton
+    }
 
 }

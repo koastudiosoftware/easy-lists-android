@@ -1,9 +1,35 @@
 package com.easylists.presentation.common
 
+import android.content.Context
+import android.graphics.Bitmap
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import coil3.ImageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.toBitmap
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlin.math.pow
+
+
+//region ImageBitmapLoader
+// Take in a string URI and return a bitmap of that file's content
+class ImageBitmapLoader @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val imageLoader: ImageLoader
+) {
+    suspend fun load(imageUrl: String): Bitmap? {
+        val request = ImageRequest.Builder(context)
+            .data(imageUrl)
+            .build()
+
+        val result = imageLoader.execute(request)
+        return (result as? SuccessResult)?.image?.toBitmap()
+    }
+}
+//endregion
 
 
 //region isNumeric

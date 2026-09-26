@@ -1,6 +1,8 @@
 package com.easylists.presentation.ui.listdetails
 
 import android.Manifest
+import android.content.Context
+import android.graphics.drawable.BitmapDrawable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
@@ -90,8 +92,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import coil3.Bitmap
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.request.allowHardware
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
@@ -120,6 +126,8 @@ import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.pop
+import java.io.File
+import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1249,7 +1257,7 @@ fun ListItemDetailsScreenTagDot(
     viewModel: ListDetailsViewModel,
 ) {
     when {
-        viewModel.state.expandTagPills == false -> {
+        !viewModel.state.expandTagPills -> {
             Row(
                 modifier = Modifier
                     .size(20.dp)

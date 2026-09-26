@@ -1,5 +1,6 @@
 package com.easylists.presentation.models
 
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.ui.geometry.Offset
 import com.easylists.domain.models.EasyListsCategory
@@ -34,7 +35,7 @@ data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
     var itemNameInvalidMessage: String = "",
     var itemNotes: String = "",
     var itemPhotoOffset: Offset = Offset.Zero,
-    val itemPhotoUri: Uri? = null,
+    val itemPhotoUri: String? = null,
     var itemPhotoScale: Double = 0.0,
     var itemQuantity: String = "",
     var itemQuantityInvalid: Boolean = false,
