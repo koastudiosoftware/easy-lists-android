@@ -89,4 +89,8 @@ dependencies {
 
     // colorpicker-compose
     implementation(libs.colorpicker.compose)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 }
