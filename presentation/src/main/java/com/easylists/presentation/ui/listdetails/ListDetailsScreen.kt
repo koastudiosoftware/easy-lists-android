@@ -1154,12 +1154,9 @@ fun Modifier.pinchToZoom(
 @Composable
 fun ListDetailsScreenListItemBottomSheetPhoto(viewModel: ListDetailsViewModel) {
     val zoom = remember { ZoomState(
-        initialScale = viewModel.state.photoScale.toFloat(),
-        initialOffset = viewModel.state.photoOffset
+        initialScale = viewModel.state.itemPhotoScale.toFloat(),
+        initialOffset = viewModel.state.itemPhotoOffset
     ) }
-
-    Arbor.i("scale (b): ${viewModel.state.photoScale}")
-    Arbor.i("offset (b): ${viewModel.state.photoOffset}")
 
     when {
         viewModel.state.itemPhotoUri != null -> {
@@ -1179,10 +1176,6 @@ fun ListDetailsScreenListItemBottomSheetPhoto(viewModel: ListDetailsViewModel) {
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),
                     )
-
-                    Arbor.i("Item photo uri (a): ${viewModel.state.itemPhotoUri}")
-                    Arbor.i( "scale (a): ${zoom.scale}")
-                    Arbor.i( "offset (a): ${zoom.offset}")
 
                     viewModel.onPhotoScaleChange(zoom.scale.toDouble())
                     viewModel.onPhotoOffsetChange(zoom.offset)
