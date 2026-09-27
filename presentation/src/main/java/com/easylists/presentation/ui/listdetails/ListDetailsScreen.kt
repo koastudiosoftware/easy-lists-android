@@ -102,6 +102,7 @@ import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
+import com.easylists.presentation.common.FramedPhoto
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.SortCrossedOffItems
@@ -115,6 +116,7 @@ import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Close_small
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.icons.Info
+import com.easylists.presentation.icons.MaterialIconsBrokenImage
 import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Photo
 import com.easylists.presentation.icons.Photo_camera
@@ -351,7 +353,7 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                         //region uncategorized items that are crossed off
                         groupedItemList?.filterKeys {
                             it.first == true && it.second == "Uncategorized"
-                        }?.keys?.forEach {
+                        }?.keys?.forEach { it ->
                             item {
                                 ListDetailsScreenCategoryTitle(it.second.toString(), true)
                             }
@@ -459,14 +461,20 @@ fun ListDetailsScreenListItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(MaterialTheme.spaces.rowHeightMedium)
-                .padding(start = MaterialTheme.spaces.large)
-                .padding(vertical = MaterialTheme.spaces.medium),
+                .padding(horizontal = MaterialTheme.spaces.small),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            ListDetailsScreenListItemPhoto(
+                item = item,
+                modifier = Modifier,
+                viewModel = viewModel
+            )
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
+                    .padding(start = MaterialTheme.spaces.medium)
                     .padding(end = MaterialTheme.spaces.medium)
             ) {
                 var text = item.name
@@ -531,6 +539,49 @@ fun ListDetailsScreenListItemTags(
             ListItemDetailsScreenTagDot(it, modifier, viewModel)
             ListItemDetailsScreenTagPillSmall(it, modifier, viewModel)
         }
+    }
+}
+//endregion
+
+
+//region ListDetailsScreenListItemIcons
+@Composable
+fun ListDetailsScreenListItemPhoto(
+    item: EasyListsListItem,
+    modifier: Modifier = Modifier,
+    viewModel: ListDetailsViewModel,
+) {
+    // TODO if state.itemPhotoUri is not null or empty, show the photo
+    // TODO else show a placeholder
+    if (item.photoUri.isNullOrEmpty()) {
+        IconButton(onClick = { /* do nothing on click */ }) {
+            Icon(
+                modifier = modifier,
+                imageVector = MaterialIconsBrokenImage,
+                contentDescription = stringResource(R.string.view_item_details),
+                tint = MaterialTheme.colorScheme.surface
+            )
+        }
+        VerticalDivider(
+            modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
+        )
+    } else {
+        FramedPhoto(
+            photoUri = item.photoUri!!,
+            scale = item.photoScale.toFloat(),
+            normalizedOffsetX = item.photoOffsetX.toFloat(),
+            normalizedOffsetY = item.photoOffsetY.toFloat(),
+            modifier = modifier.padding(vertical = MaterialTheme.spaces.none),
+            zoomEnabled = false,
+            onTransformChanged = { newScale, newOffsetX, newOffsetY ->
+                viewModel.updatePhotoTransform(newScale, newOffsetX, newOffsetY)
+            },
+        )
+        VerticalDivider(
+            modifier = Modifier
+                .padding(start = MaterialTheme.spaces.small)
+                .padding(vertical = MaterialTheme.spaces.none)
+        )
     }
 }
 //endregion
@@ -1107,8 +1158,8 @@ fun Modifier.pinchToZoom(
 
                         state.scale = newScale
                         state.offset = Offset(
-                            raw.x.coerceIn(-maxX, maxX),
-                            raw.y.coerceIn(-maxY, maxY),
+                            raw.x.coerceIn(-maxX, maxX) / maxX,
+                            raw.y.coerceIn(-maxY, maxY) / maxY,
                         )
 
                         event.changes.forEach { if (it.positionChanged()) it.consume() }
@@ -1132,8 +1183,8 @@ fun Modifier.pinchToZoom(
                     val raw = (tap - center) * (1f - doubleTapScale)
                     state.scale = doubleTapScale
                     state.offset = Offset(
-                        raw.x.coerceIn(-maxX, maxX),
-                        raw.y.coerceIn(-maxY, maxY),
+                        raw.x.coerceIn(-maxX, maxX) / maxX,
+                        raw.y.coerceIn(-maxY, maxY) / maxY,
                     )
                 }
             },
@@ -1144,8 +1195,8 @@ fun Modifier.pinchToZoom(
     .graphicsLayer {
         scaleX = state.scale
         scaleY = state.scale
-        translationX = state.offset.x
-        translationY = state.offset.y
+        translationX = state.offset.x * size.width
+        translationY = state.offset.y * size.height
     }
 //endregion
 
@@ -1153,36 +1204,56 @@ fun Modifier.pinchToZoom(
 //region ListDetailsScreenListItemBottomSheetPhoto
 @Composable
 fun ListDetailsScreenListItemBottomSheetPhoto(viewModel: ListDetailsViewModel) {
-    val zoom = remember { ZoomState(
-        initialScale = viewModel.state.itemPhotoScale.toFloat(),
-        initialOffset = viewModel.state.itemPhotoOffset
-    ) }
-
     when {
         viewModel.state.itemPhotoUri != null -> {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Box(
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .fillMaxWidth()
-                        .pinchToZoom(zoom),
-                ) {
-                    AsyncImage(
-                        model = ImageRequest
-                            .Builder(LocalContext.current)
-                            .data(viewModel.state.itemPhotoUri)
-                            .build(),
-                        contentDescription = stringResource(R.string.list_item_image),
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-
-                    viewModel.onPhotoScaleChange(zoom.scale.toDouble())
-                    viewModel.onPhotoOffsetChange(zoom.offset)
-                }
+                FramedPhoto(
+                    photoUri = viewModel.state.itemPhotoUri!!,
+                    scale = viewModel.state.itemPhotoScale.toFloat(),
+                    normalizedOffsetX = viewModel.state.itemPhotoOffset.x,
+                    normalizedOffsetY = viewModel.state.itemPhotoOffset.y,
+                    modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+                    zoomEnabled = true,
+                    onTransformChanged = { newScale, newOffsetX, newOffsetY ->
+                        viewModel.updatePhotoTransform(newScale, newOffsetX, newOffsetY)
+                    },
+                )
             }
         }
     }
+
+
+
+//    val zoom = remember { ZoomState(
+//        initialScale = viewModel.state.itemPhotoScale.toFloat(),
+//        initialOffset = viewModel.state.itemPhotoOffset
+//    ) }
+//
+//    when {
+//        viewModel.state.itemPhotoUri != null -> {
+//            Row(modifier = Modifier.fillMaxWidth()) {
+//                Box(
+//                    modifier = Modifier
+//                        .aspectRatio(1f)
+//                        .fillMaxWidth()
+//                        .pinchToZoom(zoom),
+//                ) {
+//                    AsyncImage(
+//                        model = ImageRequest
+//                            .Builder(LocalContext.current)
+//                            .data(viewModel.state.itemPhotoUri)
+//                            .build(),
+//                        contentDescription = stringResource(R.string.list_item_image),
+//                        contentScale = ContentScale.Crop,
+//                        modifier = Modifier.fillMaxSize(),
+//                    )
+//
+//                    viewModel.onPhotoScaleChange(zoom.scale.toDouble())
+//                    viewModel.onPhotoOffsetChange(zoom.offset)
+//                }
+//            }
+//        }
+//    }
 }
 //endregion
 

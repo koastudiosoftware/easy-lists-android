@@ -36,7 +36,7 @@ data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
     var itemNotes: String = "",
     var itemPhotoOffset: Offset = Offset.Zero,
     val itemPhotoUri: String? = null,
-    var itemPhotoScale: Double = 0.0,
+    var itemPhotoScale: Double = 1.0,
     var itemQuantity: String = "",
     var itemQuantityInvalid: Boolean = false,
     var itemQuantityInvalidMessage: String = "",

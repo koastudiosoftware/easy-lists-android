@@ -792,6 +792,17 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
+    //region updatePhotoTransfor()
+    // save the new scale and offset values to state
+    fun updatePhotoTransform(scale: Float, offsetX: Float, offsetY: Float) {
+        state = state.copy(
+            photoScale = scale.toDouble(),
+            photoOffset = Offset(offsetX, offsetY)
+        )
+    }
+    //endregion
+
+
     //region onPhotoOffsetChange()
     fun onPhotoOffsetChange(offset: Offset) {
         state = state.copy(photoOffset = offset)
