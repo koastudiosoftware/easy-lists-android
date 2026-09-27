@@ -47,6 +47,7 @@ import java.io.File
 import javax.inject.Inject
 import kotlin.math.pow
 import androidx.core.net.toUri
+import coil3.size.Size
 
 
 //region ImageBitmapLoader
@@ -85,6 +86,7 @@ fun FramedPhoto(
     onTransformChanged: ((scale: Float, normalizedOffsetX: Float, normalizedOffsetY: Float) -> Unit)? = null,
     zoomEnabled: Boolean = false,
     doubleTapScale: Float = 2.5f,
+    targetSize: Size = Size.ORIGINAL,
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
 

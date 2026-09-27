@@ -98,6 +98,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
+import coil3.size.Size
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
@@ -576,6 +577,7 @@ fun ListDetailsScreenListItemPhoto(
             onTransformChanged = { newScale, newOffsetX, newOffsetY ->
                 viewModel.updatePhotoTransform(newScale, newOffsetX, newOffsetY)
             },
+            targetSize = Size(150, 150),
         )
         VerticalDivider(
             modifier = Modifier
