@@ -55,7 +55,7 @@ import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.icons.MaterialIconsInfo
 import com.easylists.presentation.icons.MaterialIconsMoreVert
-import com.easylists.presentation.icons.Settings
+import com.easylists.presentation.icons.MaterialIconsSettings
 import com.easylists.presentation.icons.Tag
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
@@ -351,7 +351,7 @@ fun MasterListsScreenOverflowMenu(
             },
             leadingIcon = {
                 Icon(
-                    Settings,
+                    MaterialIconsSettings,
                     contentDescription = "Localized description",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

@@ -109,7 +109,7 @@ import com.easylists.presentation.icons.MaterialIconsBrokenImage
 import com.easylists.presentation.icons.MaterialIconsMoreVert
 import com.easylists.presentation.icons.MaterialIconsInsertPhoto
 import com.easylists.presentation.icons.MaterialIconsPhotoCamera
-import com.easylists.presentation.icons.Settings
+import com.easylists.presentation.icons.MaterialIconsSettings
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.models.ZoomState
 import com.easylists.presentation.ui.theme.spaces
@@ -636,7 +636,7 @@ fun ListDetailsScreenOverflowMenu(viewModel: ListDetailsViewModel) {
 //                viewModel.showExportDataBottomSheet()
         }, leadingIcon = {
             Icon(
-                Settings, contentDescription = "Localized description"
+                MaterialIconsSettings, contentDescription = "Localized description"
             )
         })
     }
