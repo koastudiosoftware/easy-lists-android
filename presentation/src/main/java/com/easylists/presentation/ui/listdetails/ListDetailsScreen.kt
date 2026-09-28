@@ -108,7 +108,7 @@ import com.easylists.presentation.icons.MaterialIconsInfo
 import com.easylists.presentation.icons.MaterialIconsBrokenImage
 import com.easylists.presentation.icons.MaterialIconsMoreVert
 import com.easylists.presentation.icons.MaterialIconsInsertPhoto
-import com.easylists.presentation.icons.Photo_camera
+import com.easylists.presentation.icons.MaterialIconsPhotoCamera
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.models.ZoomState
@@ -1052,7 +1052,7 @@ fun ListDetailsScreenListItemBottomSheetCameraIcon(
             ) {
                 Icon(
                     modifier = Modifier,
-                    imageVector = Photo_camera,
+                    imageVector = MaterialIconsPhotoCamera,
                     contentDescription = stringResource(R.string.take_a_picture)
                 )
             }
