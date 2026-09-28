@@ -106,7 +106,7 @@ import com.easylists.presentation.icons.MaterialIconsClose
 import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.icons.MaterialIconsInfo
 import com.easylists.presentation.icons.MaterialIconsBrokenImage
-import com.easylists.presentation.icons.More_vert
+import com.easylists.presentation.icons.MaterialIconsMoreVert
 import com.easylists.presentation.icons.Photo
 import com.easylists.presentation.icons.Photo_camera
 import com.easylists.presentation.icons.Settings
@@ -625,7 +625,7 @@ fun ListDetailsScreenOverflowMenu(viewModel: ListDetailsViewModel) {
         onClick = { expanded = !expanded },
     ) {
         Icon(
-            imageVector = More_vert,
+            imageVector = MaterialIconsMoreVert,
             contentDescription = stringResource(R.string.overflow_menu),
         )
     }

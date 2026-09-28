@@ -54,7 +54,7 @@ import com.easylists.presentation.icons.MaterialIconsCategory
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.icons.MaterialIconsInfo
-import com.easylists.presentation.icons.More_vert
+import com.easylists.presentation.icons.MaterialIconsMoreVert
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.icons.Tag
 import com.easylists.presentation.models.Screen
@@ -291,7 +291,7 @@ fun MasterListsScreenOverflowMenu(
         onClick = { expanded.value = !expanded.value },
     ) {
         Icon(
-            imageVector = More_vert,
+            imageVector = MaterialIconsMoreVert,
             contentDescription = stringResource(R.string.overflow_menu),
             tint = MaterialTheme.colorScheme.onSurface,
         )
