@@ -8,7 +8,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.easylists.presentation.R
-import com.easylists.presentation.icons.Warning
+import com.easylists.presentation.icons.MaterialIconsWarning
 
 @Composable
 fun ConfirmationDialog(
@@ -19,7 +19,7 @@ fun ConfirmationDialog(
 ) {
     AlertDialog(
         icon = {
-            Icon(Warning, contentDescription = stringResource(R.string.confirmation_dialog_warning_icon))
+            Icon(MaterialIconsWarning, contentDescription = stringResource(R.string.confirmation_dialog_warning_icon))
         },
         title = { Text(text = dialogTitle) },
         text = { Text(text = dialogText) },
