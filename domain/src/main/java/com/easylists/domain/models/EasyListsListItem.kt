@@ -17,6 +17,8 @@ data class EasyListsListItem(
     var photoOffsetY: Double = 0.0,
     var photoScale: Double = 0.0,
     var sortOrder: Int? = null,
+    var isDirty: Boolean = false,
+    var isDeleted: Boolean = false,
     var createdTimestamp: Long = Instant.now().epochSecond,
     var modifiedTimestamp: Long = Instant.now().epochSecond,
 )

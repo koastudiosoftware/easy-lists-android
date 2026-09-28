@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class MasterListsViewModel @Inject constructor(
@@ -84,9 +85,9 @@ class MasterListsViewModel @Inject constructor(
     //region addList() :: Add a list to the database
     fun addList() {
         viewModelScope.launch {
-            var list = EasyListsList(
+            val list = EasyListsList(
                 name = state.listName,
-                notes = if (state.listNotes.isEmpty()) null else state.listNotes
+                notes = state.listNotes.ifEmpty { null }
             )
 
             if (state.addEditMode == AddEditMode.Add) {
@@ -230,7 +231,7 @@ class MasterListsViewModel @Inject constructor(
         )
         viewModelScope.launch {
             initListList()
-            delay(500L) // workaround to eliminate sticky pull to refresh indicator
+            delay(500L.milliseconds) // workaround to eliminate sticky pull to refresh indicator
             state = state.copy(isPullToRefreshing = false)
         }
     }

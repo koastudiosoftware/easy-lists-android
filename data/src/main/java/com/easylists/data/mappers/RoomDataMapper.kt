@@ -72,6 +72,9 @@ class RoomDataMapper @Inject constructor(
                 uid = entity.uid,
                 name = entity.name,
                 notes = entity.notes,
+                sortOrder = entity.sortOrder,
+                isDirty = false,
+                isDeleted = false,
                 createdTimestamp = entity.createdTimestamp,
                 modifiedTimestamp = entity.modifiedTimestamp,
             )
@@ -87,6 +90,8 @@ class RoomDataMapper @Inject constructor(
             name = list.name,
             notes = list.notes,
             sortOrder = list.sortOrder,
+            isDirty = list.isDirty,
+            isDeleted = list.isDeleted,
         )
     }
     //endregion
@@ -100,6 +105,8 @@ class RoomDataMapper @Inject constructor(
             name = list.name,
             notes = list.notes,
             sortOrder = list.sortOrder,
+            isDirty = list.isDirty,
+            isDeleted = list.isDeleted,
             modifiedTimestamp = Instant.now().epochSecond,
         )
     }
@@ -128,6 +135,8 @@ class RoomDataMapper @Inject constructor(
                 photoOffsetX = entity.photoOffsetX?: 0.0,
                 photoOffsetY = entity.photoOffsetY?: 0.0,
                 sortOrder = entity.sortOrder,
+                isDirty = false,
+                isDeleted = false,
                 createdTimestamp = entity.createdTimestamp,
                 modifiedTimestamp = entity.modifiedTimestamp,
             )
@@ -152,6 +161,8 @@ class RoomDataMapper @Inject constructor(
             photoScale = listItem.photoScale,
             photoOffsetX = listItem.photoOffsetX,
             photoOffsetY = listItem.photoOffsetY,
+            isDirty = listItem.isDirty,
+            isDeleted = listItem.isDeleted,
         )
     }
     //endregion
@@ -173,6 +184,8 @@ class RoomDataMapper @Inject constructor(
             photoScale = listItem.photoScale,
             photoOffsetX = listItem.photoOffsetX,
             photoOffsetY = listItem.photoOffsetY,
+            isDirty = listItem.isDirty,
+            isDeleted = listItem.isDeleted,
             modifiedTimestamp = Instant.now().epochSecond,
         )
     }

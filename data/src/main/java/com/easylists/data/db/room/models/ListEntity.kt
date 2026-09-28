@@ -26,6 +26,14 @@ data class ListEntity @OptIn(ExperimentalUuidApi::class) constructor(
     @SerializedName(value = "sort_order")
     val sortOrder: Int? = null,
 
+    @ColumnInfo(name = "is_dirty")
+    @SerializedName(value = "is_dirty")
+    var isDirty: Boolean = false,
+
+    @ColumnInfo(name = "is_deleted")
+    @SerializedName(value = "is_deleted")
+    var isDeleted: Boolean = false,
+
     @ColumnInfo(name = "created_timestamp")
     @SerializedName(value = "created_timestamp")
     var createdTimestamp: Long = Instant.now().epochSecond,
