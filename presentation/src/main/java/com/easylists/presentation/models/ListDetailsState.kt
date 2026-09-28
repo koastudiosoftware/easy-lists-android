@@ -23,6 +23,7 @@ data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
     var categoryText: String = "",
     var easyListsTagList: List<EasyListsTag> = emptyList(),
     var enableCamera: Boolean = true,
+    var enablePhotos: Boolean = true,
     var enableTags: Boolean = true,
     var expandTagPills: Boolean = false,
     var groupCrossedOffItems: GroupCrossedOffItems = GroupCrossedOffItems.AllTogether,

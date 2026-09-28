@@ -451,11 +451,16 @@ fun ListDetailsScreenListItem(
                 .padding(horizontal = MaterialTheme.spaces.small),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ListDetailsScreenListItemPhoto(
-                item = item,
-                modifier = Modifier,
-                viewModel = viewModel
-            )
+            when (viewModel.state.enablePhotos) {
+                true -> {
+                    ListDetailsScreenListItemPhoto(
+                        item = item,
+                        modifier = Modifier,
+                        viewModel = viewModel
+                    )
+                }
+                else -> { /* do nothing if photos is disabled */ }
+            }
 
             Column(
                 modifier = Modifier
@@ -709,12 +714,16 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
                         ListDetailsScreenListItemBottomSheetNotes(viewModel)
                     }
 
-                    item {
-                        ListDetailsScreenListItemBottomSheetPhotoTitle(viewModel)
-                    }
+                    when {
+                        viewModel.state.enablePhotos -> {
+                            item {
+                                ListDetailsScreenListItemBottomSheetPhotoTitle(viewModel)
+                            }
 
-                    item {
-                        ListDetailsScreenListItemBottomSheetPhoto(viewModel)
+                            item {
+                                ListDetailsScreenListItemBottomSheetPhoto(viewModel)
+                            }
+                        }
                     }
 
                     when {
@@ -1209,39 +1218,6 @@ fun ListDetailsScreenListItemBottomSheetPhoto(viewModel: ListDetailsViewModel) {
             }
         }
     }
-
-
-
-//    val zoom = remember { ZoomState(
-//        initialScale = viewModel.state.itemPhotoScale.toFloat(),
-//        initialOffset = viewModel.state.itemPhotoOffset
-//    ) }
-//
-//    when {
-//        viewModel.state.itemPhotoUri != null -> {
-//            Row(modifier = Modifier.fillMaxWidth()) {
-//                Box(
-//                    modifier = Modifier
-//                        .aspectRatio(1f)
-//                        .fillMaxWidth()
-//                        .pinchToZoom(zoom),
-//                ) {
-//                    AsyncImage(
-//                        model = ImageRequest
-//                            .Builder(LocalContext.current)
-//                            .data(viewModel.state.itemPhotoUri)
-//                            .build(),
-//                        contentDescription = stringResource(R.string.list_item_image),
-//                        contentScale = ContentScale.Crop,
-//                        modifier = Modifier.fillMaxSize(),
-//                    )
-//
-//                    viewModel.onPhotoScaleChange(zoom.scale.toDouble())
-//                    viewModel.onPhotoOffsetChange(zoom.offset)
-//                }
-//            }
-//        }
-//    }
 }
 //endregion
 

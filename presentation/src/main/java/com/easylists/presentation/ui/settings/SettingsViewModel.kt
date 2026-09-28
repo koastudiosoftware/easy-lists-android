@@ -54,6 +54,9 @@ class SettingsViewModel @Inject constructor(
             val enableCamera =
                 result.find { it[KEY] == AppSettingsKeys.EnableCamera.key }?.get(VALUE)
 
+            val enablePhotos =
+                result.find { it[KEY] == AppSettingsKeys.EnablePhotos.key }?.get(VALUE)
+
             val enableTags =
                 result.find { it[KEY] == AppSettingsKeys.EnableTags.key }?.get(VALUE)
 
@@ -71,6 +74,8 @@ class SettingsViewModel @Inject constructor(
                 ) ?: Capitalization.NoCapitalization,
 
                 enableCamera = enableCamera != "false",
+
+                enablePhotos = enablePhotos != "false",
 
                 enableTags = enableTags != "false",
 
@@ -98,13 +103,19 @@ class SettingsViewModel @Inject constructor(
 
     //region onEnableCameraChanged()
     fun onEnableCameraChanged() {
+        val enableCamera = !state.enableCamera
+        val enablePhotos = if (enableCamera) true else state.enablePhotos
         state = state.copy(
-            enableCamera = !state.enableCamera,
-            enablePhotos = true
+            enableCamera = enableCamera,
+            enablePhotos = enablePhotos
         )
         setBooleanAppSetting(
             key = AppSettingsKeys.EnableCamera.key,
-            value = state.enableCamera
+            value = enableCamera
+        )
+        setBooleanAppSetting(
+            key = AppSettingsKeys.EnablePhotos.key,
+            value = enablePhotos
         )
     }
     //endregion
@@ -112,17 +123,19 @@ class SettingsViewModel @Inject constructor(
 
     //region onEnableCameraChanged()
     fun onEnablePhotosChanged() {
-        state = state.copy(enablePhotos = !state.enablePhotos)
-        if (!state.enablePhotos) {
-            state = state.copy(enableCamera = false)
-        }
+        val enablePhotos = !state.enablePhotos
+        val enableCamera = if (enablePhotos) state.enableCamera else false
+        state = state.copy(
+            enablePhotos = enablePhotos,
+            enableCamera = enableCamera
+        )
         setBooleanAppSetting(
             key = AppSettingsKeys.EnablePhotos.key,
-            value = state.enablePhotos
+            value = enablePhotos
         )
         setBooleanAppSetting(
             key = AppSettingsKeys.EnableCamera.key,
-            value = state.enableCamera
+            value = enableCamera
         )
     }
     //endregion
