@@ -50,7 +50,7 @@ import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.MaterialIconsAdd
-import com.easylists.presentation.icons.Category
+import com.easylists.presentation.icons.MaterialIconsCategory
 import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.icons.Info
@@ -313,7 +313,7 @@ fun MasterListsScreenOverflowMenu(
             },
             leadingIcon = {
                 Icon(
-                    Category,
+                    MaterialIconsCategory,
                     contentDescription = "Localized description",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
