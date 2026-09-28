@@ -98,7 +98,28 @@ class SettingsViewModel @Inject constructor(
 
     //region onEnableCameraChanged()
     fun onEnableCameraChanged() {
-        state = state.copy(enableCamera = !state.enableCamera)
+        state = state.copy(
+            enableCamera = !state.enableCamera,
+            enablePhotos = true
+        )
+        setBooleanAppSetting(
+            key = AppSettingsKeys.EnableCamera.key,
+            value = state.enableCamera
+        )
+    }
+    //endregion
+
+
+    //region onEnableCameraChanged()
+    fun onEnablePhotosChanged() {
+        state = state.copy(enablePhotos = !state.enablePhotos)
+        if (!state.enablePhotos) {
+            state = state.copy(enableCamera = false)
+        }
+        setBooleanAppSetting(
+            key = AppSettingsKeys.EnablePhotos.key,
+            value = state.enablePhotos
+        )
         setBooleanAppSetting(
             key = AppSettingsKeys.EnableCamera.key,
             value = state.enableCamera

@@ -173,6 +173,14 @@ fun SettingsScreenContent(
         }
         item {
             ToggleSettingItem(
+                textLine1 = stringResource(id = R.string.enable_photos),
+                textLine2 = stringResource(id = R.string.enable_photos_description),
+                enabled = viewModel.state.enablePhotos,
+                onCheckedChange = { viewModel.onEnablePhotosChanged() }
+            )
+        }
+        item {
+            ToggleSettingItem(
                 textLine1 = stringResource(id = R.string.enable_tags),
                 textLine2 = stringResource(id = R.string.enable_tags_description),
                 enabled = viewModel.state.enableTags,

@@ -55,6 +55,9 @@
     <string name="enable_camera">Enable Camera</string>
     <string name="enable_camera_description">Enable or disable list item camera</string>
 
+    <string name="enable_photos">Enable Photos</string>
+    <string name="enable_photos_description">Enable or disable photos</string>
+
     <string name="enable_tags">Enable Tags</string>
     <string name="enable_tags_description">Enable or disable list item tags</string>
 

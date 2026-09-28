@@ -34,6 +34,7 @@ enum class Capitalization(val value: String, val keyboardCapitalization: Keyboar
 enum class AppSettingsKeys(val key: String, val type: AppSettingsType) {
     Capitalization("Capitalization", AppSettingsType.String),
     EnableCamera("EnableCamera", AppSettingsType.Boolean),
+    EnablePhotos("EnablePhotos", AppSettingsType.Boolean),
     EnableTags("EnableTags", AppSettingsType.Boolean),
     GroupCrossedOffItems("GroupCrossedOffItems", AppSettingsType.String),
     SortCrossedOffItems("SortCrossedOffItems", AppSettingsType.String),
