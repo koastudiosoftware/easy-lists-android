@@ -63,7 +63,7 @@ import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsCancel
 import com.easylists.presentation.icons.MaterialIconsCheck
-import com.easylists.presentation.icons.Delete
+import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
 import com.github.skydoves.colorpicker.compose.AlphaTile
@@ -180,7 +180,7 @@ fun EditTagsScreenActionIcons(viewModel: EditTagsViewModel) {
             ) {
                 Icon(
                     modifier = Modifier,
-                    imageVector = Delete,
+                    imageVector = MaterialIconsDelete,
                     contentDescription = stringResource(R.string.remove_selected_tags)
                 )
             }
@@ -288,7 +288,7 @@ fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
                                         },
                                     ) {
                                         Icon(
-                                            imageVector = Delete,
+                                            imageVector = MaterialIconsDelete,
                                             contentDescription = stringResource(R.string.add_tag),
                                         )
                                     }
@@ -626,7 +626,7 @@ fun EditTagsScreenColorPickerBottomSheet(
                                     },
                                 ) {
                                     Icon(
-                                        imageVector = Delete,
+                                        imageVector = MaterialIconsDelete,
                                         contentDescription = stringResource(R.string.remove_tag_color),
                                     )
                                 }

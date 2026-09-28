@@ -102,8 +102,8 @@ import com.easylists.presentation.common.toHexCodeWithAlpha
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsCheck
-import com.easylists.presentation.icons.Close_small
-import com.easylists.presentation.icons.Delete
+import com.easylists.presentation.icons.MaterialIconsClose
+import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.icons.Info
 import com.easylists.presentation.icons.MaterialIconsBrokenImage
 import com.easylists.presentation.icons.More_vert
@@ -590,7 +590,7 @@ fun ListDetailsScreenListItemIcons(
             IconButton(onClick = { viewModel.setShowConfirmationDialogState(true) }) {
                 Icon(
                     modifier = modifier,
-                    imageVector = Delete,
+                    imageVector = MaterialIconsDelete,
                     contentDescription = stringResource(R.string.remove_item)
                 )
             }
@@ -1103,7 +1103,7 @@ fun ListDetailsScreenListItemBottomSheetDeleteIcon(
             ) {
                 Icon(
                     modifier = Modifier,
-                    imageVector = Delete,
+                    imageVector = MaterialIconsDelete,
                     contentDescription = stringResource(R.string.take_a_picture)
                 )
             }
@@ -1289,7 +1289,7 @@ fun ListDetailsScreenTagPill(
                     modifier = Modifier
                         .size(16.dp)
                         .padding(horizontal = MaterialTheme.spaces.none),
-                    imageVector = Close_small,
+                    imageVector = MaterialIconsClose,
                     contentDescription = stringResource(R.string.create_new_list),
                     tint = backgroundColor.getContrastColor()
                 )

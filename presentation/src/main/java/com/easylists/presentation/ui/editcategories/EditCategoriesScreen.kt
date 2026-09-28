@@ -53,7 +53,7 @@ import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsCancel
 import com.easylists.presentation.icons.MaterialIconsCheck
-import com.easylists.presentation.icons.Delete
+import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
@@ -170,7 +170,7 @@ fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
             ) {
                 Icon(
                     modifier = Modifier,
-                    imageVector = Delete,
+                    imageVector = MaterialIconsDelete,
                     contentDescription = stringResource(R.string.remove_selected_categories)
                 )
             }
@@ -276,7 +276,7 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
                                         },
                                     ) {
                                         Icon(
-                                            imageVector = Delete,
+                                            imageVector = MaterialIconsDelete,
                                             contentDescription = stringResource(R.string.add_category),
                                         )
                                     }
