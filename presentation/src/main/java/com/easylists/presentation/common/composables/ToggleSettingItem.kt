@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import com.easylists.presentation.icons.Check
+import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.ui.theme.spaces
 
 @Composable
@@ -62,7 +62,7 @@ fun ToggleSettingItem(
                     thumbContent = if (enabled) {
                         {
                             Icon(
-                                imageVector = Check,
+                                imageVector = MaterialIconsCheck,
                                 contentDescription = null,
                                 modifier = Modifier.size(SwitchDefaults.IconSize),
                             )

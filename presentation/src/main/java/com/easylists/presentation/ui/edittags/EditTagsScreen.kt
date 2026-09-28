@@ -62,7 +62,7 @@ import com.easylists.presentation.common.toHexCodeWithAlpha
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsCancel
-import com.easylists.presentation.icons.Check
+import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
@@ -260,7 +260,7 @@ fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
                                     },
                                 ) {
                                     Icon(
-                                        imageVector = Check,
+                                        imageVector = MaterialIconsCheck,
                                         contentDescription = stringResource(R.string.add_tag),
                                     )
                                 }
@@ -615,7 +615,7 @@ fun EditTagsScreenColorPickerBottomSheet(
                                     },
                                 ) {
                                     Icon(
-                                        imageVector = Check,
+                                        imageVector = MaterialIconsCheck,
                                         contentDescription = stringResource(R.string.save_tag_color),
                                     )
                                 }

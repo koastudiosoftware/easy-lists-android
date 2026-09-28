@@ -51,7 +51,7 @@ import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsCategory
-import com.easylists.presentation.icons.Check
+import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.icons.Info
 import com.easylists.presentation.icons.More_vert
@@ -410,7 +410,7 @@ fun MasterListsScreenListBottomSheet(viewModel: MasterListsViewModel) {
                                     },
                                 ) {
                                     Icon(
-                                        imageVector = Check,
+                                        imageVector = MaterialIconsCheck,
                                         contentDescription = stringResource(R.string.add_list),
                                     )
                                 }

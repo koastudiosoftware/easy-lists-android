@@ -52,7 +52,7 @@ import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsCancel
-import com.easylists.presentation.icons.Check
+import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
@@ -250,7 +250,7 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
                                     },
                                 ) {
                                     Icon(
-                                        imageVector = Check,
+                                        imageVector = MaterialIconsCheck,
                                         contentDescription = stringResource(R.string.add_category),
                                     )
                                 }

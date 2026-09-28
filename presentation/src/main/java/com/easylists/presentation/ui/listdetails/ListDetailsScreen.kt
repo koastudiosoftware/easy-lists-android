@@ -101,7 +101,7 @@ import com.easylists.presentation.common.getContrastColor
 import com.easylists.presentation.common.toHexCodeWithAlpha
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
-import com.easylists.presentation.icons.Check
+import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.Close_small
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.icons.Info
@@ -685,7 +685,7 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
                                     onClick = { viewModel.saveListItem() },
                                 ) {
                                     Icon(
-                                        imageVector = Check,
+                                        imageVector = MaterialIconsCheck,
                                         contentDescription = stringResource(R.string.add_list_item),
                                     )
                                 }
