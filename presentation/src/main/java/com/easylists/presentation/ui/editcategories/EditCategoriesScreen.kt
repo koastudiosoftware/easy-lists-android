@@ -51,7 +51,7 @@ import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
-import com.easylists.presentation.icons.Cancel
+import com.easylists.presentation.icons.MaterialIconsCancel
 import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.models.Screen
@@ -179,7 +179,7 @@ fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
             }) {
                 Icon(
                     modifier = Modifier,
-                    imageVector = Cancel,
+                    imageVector = MaterialIconsCancel,
                     contentDescription = stringResource(R.string.cancel_removal_of_selected_categories)
                 )
             }
