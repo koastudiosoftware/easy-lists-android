@@ -49,14 +49,12 @@ import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.EditCategoriesAction
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
-import com.easylists.presentation.icons.Add
-import com.easylists.presentation.icons.Arrow_back
+import com.easylists.presentation.icons.MaterialIconsAdd
+import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.Cancel
 import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Delete
 import com.easylists.presentation.models.Screen
-import com.easylists.presentation.ui.edittags.EditTagsScreenBottomSheetListsAndItems
-import com.easylists.presentation.ui.edittags.EditTagsViewModel
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
@@ -137,7 +135,7 @@ fun EditCategoriesScreenTopAppBarNavigationIcon(navController: NavController<Scr
         onClick = { navController.pop() }
     ) {
         Icon(
-            painter = rememberVectorPainter(Arrow_back),
+            painter = rememberVectorPainter(MaterialIconsArrowBack),
             contentDescription = stringResource(R.string.return_to_previous_screen),
             modifier = Modifier.padding(start = MaterialTheme.spaces.mediumLarge),
         )
@@ -193,7 +191,7 @@ fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
             }) {
                 Icon(
                     modifier = Modifier,
-                    imageVector = Add,
+                    imageVector = MaterialIconsAdd,
                     contentDescription = stringResource(R.string.create_new_list)
                 )
             }

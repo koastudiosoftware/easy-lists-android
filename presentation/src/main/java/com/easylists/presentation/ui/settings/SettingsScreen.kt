@@ -33,7 +33,7 @@ import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.common.composables.ListSettingGroup
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.composables.ToggleSettingItem
-import com.easylists.presentation.icons.Arrow_back
+import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.Info
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
@@ -122,7 +122,7 @@ fun SettingsScreenTopAppBarNavigationIcon(navController: NavController<Screen>) 
         onClick = { navController.pop() }
     ) {
         Icon(
-            painter = rememberVectorPainter(Arrow_back),
+            painter = rememberVectorPainter(MaterialIconsArrowBack),
             contentDescription = stringResource(R.string.return_to_previous_screen),
             modifier = Modifier.padding(start = MaterialTheme.spaces.mediumLarge),
         )

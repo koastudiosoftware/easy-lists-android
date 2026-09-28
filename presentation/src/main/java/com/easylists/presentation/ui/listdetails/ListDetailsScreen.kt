@@ -1,8 +1,6 @@
 package com.easylists.presentation.ui.listdetails
 
 import android.Manifest
-import android.content.Context
-import android.graphics.drawable.BitmapDrawable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
@@ -60,12 +58,9 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,7 +74,6 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -92,12 +86,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
-import coil3.Bitmap
-import coil3.ImageLoader
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.SuccessResult
-import coil3.request.allowHardware
 import coil3.size.Size
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
@@ -111,8 +99,8 @@ import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.getContrastColor
 import com.easylists.presentation.common.toHexCodeWithAlpha
-import com.easylists.presentation.icons.Add
-import com.easylists.presentation.icons.Arrow_back
+import com.easylists.presentation.icons.MaterialIconsAdd
+import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Close_small
 import com.easylists.presentation.icons.Delete
@@ -129,8 +117,6 @@ import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.pop
-import java.io.File
-import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -204,7 +190,7 @@ fun ListDetailsScreenActionIcons(viewModel: ListDetailsViewModel) {
     ) {
         Icon(
             modifier = Modifier,
-            imageVector = Add,
+            imageVector = MaterialIconsAdd,
             contentDescription = stringResource(R.string.create_new_list),
             tint = MaterialTheme.colorScheme.onSurface,
         )
@@ -1421,7 +1407,7 @@ fun ListDetailsScreenTopAppBarNavigationIcon(navController: NavController<Screen
     IconButton(
         onClick = { navController.pop() }) {
         Icon(
-            painter = rememberVectorPainter(Arrow_back),
+            painter = rememberVectorPainter(MaterialIconsArrowBack),
             contentDescription = stringResource(R.string.return_to_previous_screen),
             modifier = Modifier.padding(start = MaterialTheme.spaces.mediumLarge),
         )

@@ -30,7 +30,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -50,7 +49,7 @@ import com.easylists.presentation.common.MasterListsAction
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
-import com.easylists.presentation.icons.Add
+import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.Category
 import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Delete
@@ -130,7 +129,7 @@ fun MasterListsScreenActionIcons(
     }) {
         Icon(
             modifier = Modifier,
-            imageVector = Add,
+            imageVector = MaterialIconsAdd,
             contentDescription = stringResource(R.string.create_new_list),
             tint = MaterialTheme.colorScheme.onSurface,
         )

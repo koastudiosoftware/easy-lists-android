@@ -30,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
@@ -44,7 +43,7 @@ import com.easylists.presentation.R
 import com.easylists.presentation.common.REPOSITORY_DONATE_URL
 import com.easylists.presentation.common.SUPPORT_EMAIL
 import com.easylists.presentation.common.composables.SectionTitle
-import com.easylists.presentation.icons.Arrow_back
+import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.Mail
 import com.easylists.presentation.icons.Monetization_on
 import com.easylists.presentation.models.Screen
@@ -101,7 +100,7 @@ fun AboutScreenTopAppBarNavigationIcon(navController: NavController<Screen>) {
         onClick = { navController.pop() }
     ) {
         Icon(
-            painter = rememberVectorPainter(Arrow_back),
+            painter = rememberVectorPainter(MaterialIconsArrowBack),
             contentDescription = stringResource(R.string.return_to_previous_screen),
             modifier = Modifier.padding(start = MaterialTheme.spaces.mediumLarge),
         )

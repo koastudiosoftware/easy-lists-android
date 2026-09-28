@@ -59,8 +59,8 @@ import com.easylists.presentation.common.EditTagsAction
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.toHexCodeWithAlpha
-import com.easylists.presentation.icons.Add
-import com.easylists.presentation.icons.Arrow_back
+import com.easylists.presentation.icons.MaterialIconsAdd
+import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.Cancel
 import com.easylists.presentation.icons.Check
 import com.easylists.presentation.icons.Delete
@@ -145,7 +145,7 @@ fun EditTagsScreenTopAppBarNavigationIcon(navController: NavController<Screen>) 
         onClick = { navController.pop() }
     ) {
         Icon(
-            painter = rememberVectorPainter(Arrow_back),
+            painter = rememberVectorPainter(MaterialIconsArrowBack),
             contentDescription = stringResource(R.string.return_to_previous_screen),
             modifier = Modifier.padding(start = MaterialTheme.spaces.mediumLarge),
         )
@@ -201,7 +201,7 @@ fun EditTagsScreenActionIcons(viewModel: EditTagsViewModel) {
             }) {
                 Icon(
                     modifier = Modifier,
-                    imageVector = Add,
+                    imageVector = MaterialIconsAdd,
                     contentDescription = stringResource(R.string.create_new_tag)
                 )
             }
