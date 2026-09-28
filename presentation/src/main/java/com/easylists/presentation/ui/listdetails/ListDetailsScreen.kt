@@ -104,7 +104,7 @@ import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsClose
 import com.easylists.presentation.icons.MaterialIconsDelete
-import com.easylists.presentation.icons.Info
+import com.easylists.presentation.icons.MaterialIconsInfo
 import com.easylists.presentation.icons.MaterialIconsBrokenImage
 import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Photo
@@ -605,7 +605,7 @@ fun ListDetailsScreenListItemIcons(
             }) {
                 Icon(
                     modifier = modifier,
-                    imageVector = Info,
+                    imageVector = MaterialIconsInfo,
                     contentDescription = stringResource(R.string.view_item_details)
                 )
             }

@@ -53,7 +53,7 @@ import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsCategory
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsDelete
-import com.easylists.presentation.icons.Info
+import com.easylists.presentation.icons.MaterialIconsInfo
 import com.easylists.presentation.icons.More_vert
 import com.easylists.presentation.icons.Settings
 import com.easylists.presentation.icons.Tag
@@ -225,7 +225,7 @@ fun MasterListItem(
                     ) {
                         Icon(
                             modifier = Modifier,
-                            imageVector = Info,
+                            imageVector = MaterialIconsInfo,
                             contentDescription = stringResource(R.string.create_new_list)
                         )
                     }

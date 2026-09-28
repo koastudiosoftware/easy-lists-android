@@ -34,7 +34,7 @@ import com.easylists.presentation.common.composables.ListSettingGroup
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.composables.ToggleSettingItem
 import com.easylists.presentation.icons.MaterialIconsArrowBack
-import com.easylists.presentation.icons.Info
+import com.easylists.presentation.icons.MaterialIconsInfo
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
@@ -107,7 +107,7 @@ fun SettingsScreenActionIcons(navController: NavController<Screen>) {
     IconButton(onClick = { navController.navigate(Screen.About) }) {
         Icon(
             modifier = Modifier,
-            imageVector = Info,
+            imageVector = MaterialIconsInfo,
             contentDescription = stringResource(R.string.about),
         )
     }
