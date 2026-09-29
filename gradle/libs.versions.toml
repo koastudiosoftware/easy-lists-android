@@ -66,6 +66,7 @@ resultat = { module = "fr.haan.resultat:resultat", version.ref = "resultat" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+hilt-plugin = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 hilt-plugin = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
