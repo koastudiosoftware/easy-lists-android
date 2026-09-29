@@ -76,5 +76,4 @@ dependencies {
 
     // davidepanidev
     implementation(libs.kotlin.extensions)
-
 }
