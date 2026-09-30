@@ -27,9 +27,6 @@ abstract class ListItemDao() {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(listItemEntity: ListItemEntity): Long
 
-    @Query("DELETE FROM list_item WHERE uid = :uid")
-    abstract suspend fun delete(uid: String)
-
     @Query("UPDATE list_item SET category_uid = NULL WHERE category_uid IN (:categoryUid)")
     abstract suspend fun removeCategory(categoryUid: List<String>)
 

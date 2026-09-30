@@ -9,7 +9,7 @@ class RemoveListItemUseCase @Inject constructor(
 
     //region invoke()
     suspend operator fun invoke(uid: String) {
-        listItemRepository.removeListItem(uid = uid)
+//        listItemRepository.removeListItem(uid = uid)
     }
     //endregion
 

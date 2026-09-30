@@ -18,7 +18,6 @@ import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
-import com.easylists.domain.use_cases.SaveListItemPhotoUseCase
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.AddListItemFlowUseCase
 import com.easylists.domain.use_cases.AddTagListItemUseCase
@@ -29,6 +28,7 @@ import com.easylists.domain.use_cases.GetTagFlowUseCase
 import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveListItemUseCase
 import com.easylists.domain.use_cases.RemoveTagListItemUseCase
+import com.easylists.domain.use_cases.SaveListItemPhotoUseCase
 import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
 import com.easylists.presentation.BuildConfig
 import com.easylists.presentation.common.AddEditMode
@@ -197,6 +197,8 @@ class ListDetailsViewModel @Inject constructor(
                 photoScale = state.photoScale,
                 photoOffsetX = state.photoOffset.x.toDouble(),
                 photoOffsetY = state.photoOffset.y.toDouble(),
+                isDirty = true,
+                isDeleted = false,
             )
 
             Arbor.i("listItem: $listItem")
@@ -267,7 +269,15 @@ class ListDetailsViewModel @Inject constructor(
     //region removeListItem() :: remove a list item from the database
     fun removeListItem() {
         viewModelScope.launch {
-            removeListItemUseCase(uid = state.selectedItemUid)
+            // locate the selectedItemUid in the list of items
+            // set its isDeleted flag to true
+            // update the record in the local database
+            val item = state.listItemList.find { it.uid == state.selectedItemUid }
+            item?.isDeleted = true;
+            updateListItemUseCase(item!!)
+
+            // reset the selected list item UID in the state so "add"
+            // doesn't go into "edit" mode
             state = state.copy(selectedItemUid = "")
         }
     }
@@ -613,6 +623,17 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
+    //region onListItemDelete
+    fun onListItemDelete(item: EasyListsListItem) {
+        // update the item
+        item.isDeleted = true
+        viewModelScope.launch {
+            updateListItemUseCase(item)
+        }
+    }
+    //endregion
+
+
     //region onListItemClick
     fun onListItemClick(item: EasyListsListItem) {
         // update the item
@@ -654,7 +675,9 @@ class ListDetailsViewModel @Inject constructor(
     fun deleteAllCrossedOffItems() {
         viewModelScope.launch {
             state.listItemList.filter { it.crossedOff == true }.forEach {
-                removeListItemUseCase(it.uid.toString())
+                Arbor.i("deleteAllCrossedOffItems() it: $it")
+//                removeListItemUseCase(it.uid.toString())
+                updateListItemUseCase(it)
             }
         }
     }
