@@ -437,79 +437,82 @@ fun ListDetailsScreenCategoryTitle(title: String, crossedOff: Boolean = false) {
 fun ListDetailsScreenListItem(
     item: EasyListsListItem, viewModel: ListDetailsViewModel
 ) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = MaterialTheme.spaces.none)
-            .combinedClickable(
-                onClick = { viewModel.onListItemClick(item) },
-                onLongClick = { viewModel.showContextIcons(item) }),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(MaterialTheme.spaces.rowHeightMedium)
-                .padding(horizontal = MaterialTheme.spaces.small),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            when (viewModel.state.enablePhotos) {
-                true -> {
-                    ListDetailsScreenListItemPhoto(
+    when {
+        !item.isDeleted -> {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = MaterialTheme.spaces.none)
+                    .combinedClickable(
+                        onClick = { viewModel.onListItemClick(item) },
+                        onLongClick = { viewModel.showContextIcons(item) }),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(MaterialTheme.spaces.rowHeightMedium)
+                        .padding(horizontal = MaterialTheme.spaces.small),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    when {
+                        viewModel.state.enablePhotos -> {
+                            ListDetailsScreenListItemPhoto(
+                                item = item,
+                                modifier = Modifier,
+                                viewModel = viewModel
+                            )
+                        }
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(start = MaterialTheme.spaces.medium)
+                            .padding(end = MaterialTheme.spaces.medium)
+                    ) {
+                        var text = item.name
+                        if (item.quantity != null) text += " (${item.quantity})"
+                        Text(
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = TextStyle(
+                                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                                textDecoration = if (item.crossedOff == true) TextDecoration.LineThrough else TextDecoration.None
+                            ),
+                            text = text,
+                        )
+                        when {
+                            item.notes?.isNotEmpty() == true -> {
+                                Text(
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    text = item.notes!!,
+                                )
+                            }
+                        }
+                    }
+
+                    when {
+                        viewModel.state.enableTags -> {
+                            ListDetailsScreenListItemTags(
+                                item = item,
+                                modifier = Modifier.weight(0.3f),
+                                viewModel = viewModel,
+                            )
+                        }
+                    }
+
+                    ListDetailsScreenListItemIcons(
                         item = item,
-                        modifier = Modifier,
+                        modifier = Modifier.weight(0.1f),
                         viewModel = viewModel
                     )
                 }
-                else -> { /* do nothing if photos is disabled */ }
+                HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
             }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(start = MaterialTheme.spaces.medium)
-                    .padding(end = MaterialTheme.spaces.medium)
-            ) {
-                var text = item.name
-                if (item.quantity != null) text += " (${item.quantity})"
-                Text(
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                        textDecoration = if (item.crossedOff == true) TextDecoration.LineThrough else TextDecoration.None
-                    ),
-                    text = text,
-                )
-                when {
-                    item.notes?.isNotEmpty() == true -> {
-                        Text(
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodyMedium,
-                            text = item.notes!!,
-                        )
-                    }
-                }
-            }
-    
-            when {
-                viewModel.state.enableTags -> {
-                    ListDetailsScreenListItemTags(
-                        item = item,
-                        modifier = Modifier.weight(0.3f),
-                        viewModel = viewModel,
-                    )
-                }
-            }
-
-            ListDetailsScreenListItemIcons(
-                item = item,
-                modifier = Modifier.weight(0.1f),
-                viewModel = viewModel
-            )
         }
-        HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
     }
 }
 //endregion
