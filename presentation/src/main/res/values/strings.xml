@@ -1,7 +1,7 @@
 <resources>
 
     <string name="app_name">Easy Lists</string>
-    <string name="app_version">0.2.12</string>
+    <string name="app_version">0.2.13</string>
 
     <string name="lists">Lists</string>
     <string name="settings">Settings</string>
@@ -44,7 +44,7 @@
     <string name="support">Support</string>
     <string name="email">Email</string>
     <string name="donate">Donate</string>
-    <string name="copyright">© 2024 David Wiard, All Rights Reserved</string>
+    <string name="copyright">© 2026 David Wiard, All Rights Reserved</string>
 
     <string name="crossed_off">Crossed Off</string>
 
