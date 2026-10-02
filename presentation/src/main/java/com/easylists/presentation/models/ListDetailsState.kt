@@ -1,6 +1,5 @@
 package com.easylists.presentation.models
 
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.ui.geometry.Offset
 import com.easylists.domain.models.EasyListsCategory
@@ -50,7 +49,8 @@ data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
     var selectedCategoryIndex: Int = -1,
     var selectedItemUid: String = "",
     var selectedTagIds: List<Int> = emptyList(),
-    var showConfirmationDialog: Boolean = false,
+    var showConfirmationDialogCrossedOffItems: Boolean = false,
+    var showConfirmationDialogDeleteListItem: Boolean = false,
     var showListItemBottomSheet: Boolean = false,
     var sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
     var tagListItemList: List<TagListItem> = emptyList(),

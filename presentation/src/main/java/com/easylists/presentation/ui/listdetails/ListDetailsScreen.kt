@@ -155,7 +155,7 @@ fun ListDetailsScreen(
             modifier = Modifier.padding(innerPadding),
         ) {
 
-            ConfirmRemoveCrossedOffItems(viewModel)
+            ConfirmDeleteCrossedOffItems(viewModel)
             ConfirmRemoveListItem(viewModel)
 
             ListDetailsScreenListItemBottomSheet(viewModel)
@@ -309,7 +309,7 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                         //region items with a category that are crossed off
                         groupedItemList?.filterKeys {
                             it.first == true && it.second != "Uncategorized"
-                        }?.keys?.forEach {
+                        }?.keys?.forEach { it ->
                             item {
                                 ListDetailsScreenCategoryTitle(it.second.toString(), true)
                             }
@@ -368,6 +368,7 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                         }
                         //endregion
 
+                        //region Delete All Crossed Off Items
                         if (count != null && count > 0) {
                             item {
                                 ListDetailsScreenDeleteCrossedOffItems(viewModel)
@@ -376,6 +377,7 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
                                 HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
                             }
                         }
+                        //endregion
                     }
                 }
                 //endregion
@@ -394,7 +396,7 @@ fun ListDetailsScreenDeleteCrossedOffItems(viewModel: ListDetailsViewModel) {
             .fillMaxWidth()
             .height(52.dp)
             .padding(horizontal = MaterialTheme.spaces.large)
-            .clickable(onClick = { viewModel.setShowConfirmationDialogState(true) }),
+            .clickable(onClick = { viewModel.setShowConfirmationDialogStateCrossedOffItems(true) }),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -437,6 +439,7 @@ fun ListDetailsScreenCategoryTitle(title: String, crossedOff: Boolean = false) {
 fun ListDetailsScreenListItem(
     item: EasyListsListItem, viewModel: ListDetailsViewModel
 ) {
+    Arbor.i("ListDetailsScreenListItem item: $item")
     when {
         !item.isDeleted -> {
             Row(
@@ -1397,16 +1400,16 @@ fun ListDetailsScreenTopAppBarNavigationIcon(navController: NavController<Screen
 
 //region ConfirmRemoveCrossedOffItems
 @Composable
-fun ConfirmRemoveCrossedOffItems(viewModel: ListDetailsViewModel) {
+fun ConfirmDeleteCrossedOffItems(viewModel: ListDetailsViewModel) {
     when {
-        viewModel.state.showConfirmationDialog -> {
+        viewModel.state.showConfirmationDialogCrossedOffItems -> {
             ConfirmationDialog(
                 onDismissRequest = {
-                    viewModel.setShowConfirmationDialogState(false)
+                    viewModel.setShowConfirmationDialogStateCrossedOffItems(false)
                 },
                 onConfirmation = {
-                    viewModel.deleteAllCrossedOffItems()
-                    viewModel.setShowConfirmationDialogState(false)
+                    viewModel.removeAllCrossedOffItems()
+                    viewModel.setShowConfirmationDialogStateCrossedOffItems(false)
                 },
                 dialogTitle = stringResource(R.string.confirm_removal),
                 dialogText = stringResource(R.string.remove_crossed_off_items_warning),
@@ -1421,7 +1424,7 @@ fun ConfirmRemoveCrossedOffItems(viewModel: ListDetailsViewModel) {
 @Composable
 fun ConfirmRemoveListItem(viewModel: ListDetailsViewModel) {
     when {
-        viewModel.state.showConfirmationDialog -> {
+        viewModel.state.showConfirmationDialogDeleteListItem -> {
             ConfirmationDialog(
                 onDismissRequest = {
                     viewModel.setShowConfirmationDialogState(false)

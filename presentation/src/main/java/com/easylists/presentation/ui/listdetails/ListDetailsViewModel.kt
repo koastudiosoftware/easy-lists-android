@@ -448,12 +448,14 @@ class ListDetailsViewModel @Inject constructor(
                 }
             }
 
+            Arbor.i("handleGetListItemState(before) listItemList: ${state.listItemList}")
             state = state.copy(
                 isPullToRefreshing = false,
                 groupedItemList = groupedItemList,
                 listItemList = it?.map { item -> item } ?: emptyList(),
                 nextDataFetchStage = "tag",
             )
+            Arbor.i("handleGetListItemState(after) listItemList: ${state.listItemList}")
         }.onFailure {
             state = state.copy(
                 uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
@@ -671,22 +673,27 @@ class ListDetailsViewModel @Inject constructor(
     //endregion
 
 
-    //region deleteAllCrossedOffItems()
-    fun deleteAllCrossedOffItems() {
+    //region removeAllCrossedOffItems()
+    fun removeAllCrossedOffItems() {
         viewModelScope.launch {
             state.listItemList.filter { it.crossedOff == true }.forEach {
-                Arbor.i("deleteAllCrossedOffItems() it: $it")
-//                removeListItemUseCase(it.uid.toString())
-                updateListItemUseCase(it)
+                updateListItemUseCase(it.copy(isDeleted = true))
             }
         }
     }
     //endregion
 
 
+    //region setShowConfirmationDialogStateCrossedOffItems()
+    fun setShowConfirmationDialogStateCrossedOffItems(newState: Boolean) {
+        state = state.copy(showConfirmationDialogCrossedOffItems = newState)
+    }
+    //endregion
+
+
     //region setShowConfirmationDialogState()
     fun setShowConfirmationDialogState(newState: Boolean) {
-        state = state.copy(showConfirmationDialog = newState)
+        state = state.copy(showConfirmationDialogDeleteListItem = newState)
     }
     //endregion
 
@@ -792,7 +799,6 @@ class ListDetailsViewModel @Inject constructor(
 
     //region onFinishPickingImages()
     fun onFinishPickingImages(context: Context, uri: Uri?) {
-        Arbor.i("FinishPickingImages() uri: $uri")
         state = state.copy(itemPhotoUri = uri.toString())
     }
     //endregion
