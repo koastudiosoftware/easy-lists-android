@@ -73,8 +73,8 @@ class RoomDataMapper @Inject constructor(
                 name = entity.name,
                 notes = entity.notes,
                 sortOrder = entity.sortOrder,
-                isDirty = false,
-                isDeleted = false,
+                isDirty = entity.isDirty,
+                isDeleted = entity.isDeleted,
                 createdTimestamp = entity.createdTimestamp,
                 modifiedTimestamp = entity.modifiedTimestamp,
             )
@@ -135,8 +135,8 @@ class RoomDataMapper @Inject constructor(
                 photoOffsetX = entity.photoOffsetX?: 0.0,
                 photoOffsetY = entity.photoOffsetY?: 0.0,
                 sortOrder = entity.sortOrder,
-                isDirty = false,
-                isDeleted = false,
+                isDirty = entity.isDirty,
+                isDeleted = entity.isDeleted,
                 createdTimestamp = entity.createdTimestamp,
                 modifiedTimestamp = entity.modifiedTimestamp,
             )
