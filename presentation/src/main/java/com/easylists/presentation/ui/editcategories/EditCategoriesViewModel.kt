@@ -11,14 +11,11 @@ import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
-import com.easylists.domain.models.EasyListsTag
-import com.easylists.domain.models.TagListItem
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
-import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
 import com.easylists.domain.use_cases.RemoveCategoryUseCase
 import com.easylists.domain.use_cases.RemoveCategoryFromListItemUseCase
 import com.easylists.domain.use_cases.UpdateCategoryUseCase
@@ -28,7 +25,6 @@ import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.EditCategoriesAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.EditCategoriesState
-import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -267,10 +263,10 @@ class EditCategoriesViewModel @Inject constructor(
         state.categoryList.forEach { it.selectedForRemoval = false }
 
         state = state.copy(
-            actionButtonState = if (state.actionButtonState == EditCategoriesAction.Remove)
+            actionButtonState = if (state.actionButtonState == EditCategoriesAction.Delete)
                 EditCategoriesAction.None
             else
-                EditCategoriesAction.Remove,
+                EditCategoriesAction.Delete,
             selectedItem = item,
             showContextItems = !state.showContextItems
         )
@@ -462,7 +458,7 @@ class EditCategoriesViewModel @Inject constructor(
 
 
     //region configureRemoveCategory
-    fun configureRemoveCategory(
+    fun configureDeleteCategory(
         title: String,
         message: String,
         onConfirmation: () -> Unit,

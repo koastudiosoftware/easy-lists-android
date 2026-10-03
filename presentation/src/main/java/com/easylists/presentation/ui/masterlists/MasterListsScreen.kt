@@ -1,6 +1,5 @@
 package com.easylists.presentation.ui.masterlists
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,6 +62,7 @@ import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.navigate
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MasterListsScreen(
@@ -92,7 +92,7 @@ fun MasterListsScreen(
             modifier = Modifier.padding(innerPadding),
         ) {
 
-            ConfirmRemoveList(viewModel)
+            ConfirmDeleteList(viewModel)
 
             MasterListsScreenListBottomSheet(viewModel)
 
@@ -494,9 +494,9 @@ fun MasterListsScreenListBottomSheetListNotes(viewModel: MasterListsViewModel) {
 //endregion
 
 
-//region ConfirmRemoveList
+//region ConfirmDeleteList
 @Composable
-fun ConfirmRemoveList(viewModel: MasterListsViewModel) {
+fun ConfirmDeleteList(viewModel: MasterListsViewModel) {
     when {
         viewModel.state.showConfirmationDialog -> {
             ConfirmationDialog(
@@ -507,8 +507,8 @@ fun ConfirmRemoveList(viewModel: MasterListsViewModel) {
                     viewModel.deleteList()
                     viewModel.setShowConfirmationDialogState(false)
                 },
-                dialogTitle = stringResource(R.string.confirm_removal),
-                dialogText = stringResource(R.string.remove_list_warning),
+                dialogTitle = stringResource(R.string.confirm_deletion),
+                dialogText = stringResource(R.string.delete_list_warning),
             )
         }
     }

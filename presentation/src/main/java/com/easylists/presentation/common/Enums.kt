@@ -45,7 +45,7 @@ enum class AppSettingsKeys(val key: String, val type: AppSettingsType) {
 
 //region EditCategoriesAction
 enum class EditCategoriesAction(val value: String) {
-    Remove("Remove"),
+    Delete("Delete"),
     None("None"),
 }
 //endregion
@@ -53,7 +53,7 @@ enum class EditCategoriesAction(val value: String) {
 
 //region EditTagsAction
 enum class EditTagsAction(val value: String) {
-    Remove("Remove"),
+    Delete("Delete"),
     None("None"),
 }
 //endregion

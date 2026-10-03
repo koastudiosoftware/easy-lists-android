@@ -265,7 +265,7 @@ class ListDetailsViewModel @Inject constructor(
 
 
     //region removeListItem() :: remove a list item from the database
-    fun removeListItem() {
+    fun deleteListItem() {
         viewModelScope.launch {
             // locate the selectedItemUid in the list of items
             // set its isDeleted flag to true
@@ -672,7 +672,7 @@ class ListDetailsViewModel @Inject constructor(
 
 
     //region removeAllCrossedOffItems()
-    fun removeAllCrossedOffItems() {
+    fun deleteAllCrossedOffItems() {
         viewModelScope.launch {
             state.listItemList.filter { it.crossedOff == true }.forEach {
                 updateListItemUseCase(it.copy(isDeleted = true))

@@ -1,6 +1,5 @@
 package com.easylists.presentation.ui.editcategories
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -102,7 +101,7 @@ fun EditCategoriesScreen(
             },
         ) {
 
-            ConfirmRemove(viewModel)
+            ConfirmDelete(viewModel)
 
             EditCategoriesScreenCategoryBottomSheet(viewModel)
 
@@ -148,13 +147,13 @@ fun EditCategoriesScreenTopAppBarNavigationIcon(navController: NavController<Scr
 @Composable
 fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
     when (viewModel.state.actionButtonState) {
-        EditCategoriesAction.Remove -> {
-            val title = stringResource(R.string.confirm_removal)
-            val message = stringResource(R.string.remove_categories_warning)
+        EditCategoriesAction.Delete -> {
+            val title = stringResource(R.string.confirm_deletion)
+            val message = stringResource(R.string.delete_categories_warning)
             IconButton(
                 enabled = viewModel.state.categoryList.any { it.selectedForRemoval },
                 onClick = {
-                    viewModel.configureRemoveCategory(
+                    viewModel.configureDeleteCategory(
                         title = title,
                         message = message,
                         onConfirmation = {
@@ -171,7 +170,7 @@ fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
                 Icon(
                     modifier = Modifier,
                     imageVector = MaterialIconsDelete,
-                    contentDescription = stringResource(R.string.remove_selected_categories)
+                    contentDescription = stringResource(R.string.delete_selected_categories)
                 )
             }
             IconButton(onClick = {
@@ -180,7 +179,7 @@ fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
                 Icon(
                     modifier = Modifier,
                     imageVector = MaterialIconsCancel,
-                    contentDescription = stringResource(R.string.cancel_removal_of_selected_categories)
+                    contentDescription = stringResource(R.string.cancel_deletion_of_selected_categories)
                 )
             }
         }
@@ -206,7 +205,7 @@ fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
 @Composable
 fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showBottomSheet = remember { mutableStateOf(false) }
+    val showBottomSheet = remember { mutableStateOf(false) }
 
     when (viewModel.state.showCategoryBottomSheet) {
         true -> showBottomSheet.value = true
@@ -255,12 +254,12 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
                                     )
                                 }
                                 if (viewModel.state.addEditMode == AddEditMode.Edit) {
-                                    val title = stringResource(R.string.confirm_removal)
-                                    val message = stringResource(R.string.remove_category_warning)
+                                    val title = stringResource(R.string.confirm_deletion)
+                                    val message = stringResource(R.string.delete_category_warning)
                                     IconButton(
                                         enabled = true,
                                         onClick = {
-                                            viewModel.configureRemoveCategory(
+                                            viewModel.configureDeleteCategory(
                                                 title = title,
                                                 message = message,
                                                 onConfirmation = {
@@ -324,7 +323,7 @@ fun EditCategoriesScreenBottomSheetName(viewModel: EditCategoriesViewModel) {
             isError = viewModel.state.categoryNameInvalid,
             supportingText = {
                 when {
-                    viewModel.state.categoryNameInvalidMessage.isNotEmpty() == true ->
+                    viewModel.state.categoryNameInvalidMessage.isNotEmpty() ->
                         Text(text = viewModel.state.categoryNameInvalidMessage)
 
                     else -> null
@@ -339,7 +338,7 @@ fun EditCategoriesScreenBottomSheetName(viewModel: EditCategoriesViewModel) {
 //region EditCategoriesScreenBottomSheetListsAndItems
 @Composable
 fun EditCategoriesScreenBottomSheetListsAndItems(viewModel: EditCategoriesViewModel) {
-    var lists = viewModel.lists()
+    val lists = viewModel.lists()
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = MaterialTheme.spaces.large)
@@ -417,7 +416,6 @@ fun EditCategoriesScreenContent(viewModel: EditCategoriesViewModel) {
 
 
 //region EditCategoriesScreenCategory
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EditCategoriesScreenCategory(
     item: EasyListsCategory,
@@ -484,13 +482,13 @@ fun CategoryCheckbox(
 
     // uncheck item when context items are not shown
     when {
-        viewModel.state.showContextItems == false || viewModel.state.deselectCheckboxes == true -> {
+        !viewModel.state.showContextItems || viewModel.state.deselectCheckboxes -> {
             onStateChange(false)
         }
     }
 
     when {
-        viewModel.state.showContextItems == true -> {
+        viewModel.state.showContextItems -> {
             Checkbox(
                 modifier = Modifier.padding(MaterialTheme.spaces.none),
                 checked = checkedState,
@@ -507,9 +505,9 @@ fun CategoryCheckbox(
 
 //region ConfirmRemove
 @Composable
-fun ConfirmRemove(viewModel: EditCategoriesViewModel) {
+fun ConfirmDelete(viewModel: EditCategoriesViewModel) {
     when {
-        viewModel.state.showConfirmationDialog == true -> {
+        viewModel.state.showConfirmationDialog -> {
             ConfirmationDialog(
                 onDismissRequest = viewModel.state.confirmationOnDismissRequest,
                 onConfirmation = viewModel.state.confirmationOnConfirmation,

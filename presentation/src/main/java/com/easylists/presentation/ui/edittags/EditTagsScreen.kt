@@ -1,6 +1,5 @@
 package com.easylists.presentation.ui.edittags
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -158,13 +157,13 @@ fun EditTagsScreenTopAppBarNavigationIcon(navController: NavController<Screen>) 
 @Composable
 fun EditTagsScreenActionIcons(viewModel: EditTagsViewModel) {
     when (viewModel.state.actionButtonState) {
-        EditTagsAction.Remove -> {
-            val title = stringResource(R.string.confirm_removal)
-            val message = stringResource(R.string.remove_tags_warning)
+        EditTagsAction.Delete -> {
+            val title = stringResource(R.string.confirm_deletion)
+            val message = stringResource(R.string.delete_tags_warning)
             IconButton(
                 enabled = viewModel.state.tagList.any { it.selectedForRemoval },
                 onClick = {
-                    viewModel.configureRemoveTag(
+                    viewModel.configureDeleteTag(
                         title = title,
                         message = message,
                         onConfirmation = {
@@ -181,7 +180,7 @@ fun EditTagsScreenActionIcons(viewModel: EditTagsViewModel) {
                 Icon(
                     modifier = Modifier,
                     imageVector = MaterialIconsDelete,
-                    contentDescription = stringResource(R.string.remove_selected_tags)
+                    contentDescription = stringResource(R.string.delete_selected_tags)
                 )
             }
             IconButton(onClick = {
@@ -190,7 +189,7 @@ fun EditTagsScreenActionIcons(viewModel: EditTagsViewModel) {
                 Icon(
                     modifier = Modifier,
                     imageVector = MaterialIconsCancel,
-                    contentDescription = stringResource(R.string.cancel_removal_of_selected_tags)
+                    contentDescription = stringResource(R.string.cancel_deletion_of_selected_tags)
                 )
             }
         }
@@ -216,7 +215,7 @@ fun EditTagsScreenActionIcons(viewModel: EditTagsViewModel) {
 @Composable
 fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showBottomSheet = remember { mutableStateOf(false) }
+    val showBottomSheet = remember { mutableStateOf(false) }
 
     when (viewModel.state.showTagBottomSheet) {
         true -> showBottomSheet.value = true
@@ -265,12 +264,12 @@ fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
                                     )
                                 }
                                 if (viewModel.state.addEditMode == AddEditMode.Edit) {
-                                    val title = stringResource(R.string.confirm_removal)
-                                    val message = stringResource(R.string.remove_tag_warning)
+                                    val title = stringResource(R.string.confirm_deletion)
+                                    val message = stringResource(R.string.delete_tag_warning)
                                     IconButton(
                                         enabled = true,
                                         onClick = {
-                                            viewModel.configureRemoveTag(
+                                            viewModel.configureDeleteTag(
                                                 title = title,
                                                 message = message,
                                                 onConfirmation = {
@@ -317,7 +316,7 @@ fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
 //region EditTagsScreenBottomSheetListsAndItems
 @Composable
 fun EditTagsScreenBottomSheetListsAndItems(viewModel: EditTagsViewModel) {
-    var lists = viewModel.lists()
+    val lists = viewModel.lists()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -392,7 +391,7 @@ fun EditTagsScreenBottomSheetName(viewModel: EditTagsViewModel) {
             isError = viewModel.state.tagNameInvalid,
             supportingText = {
                 when {
-                    viewModel.state.tagNameInvalidMessage.isNotEmpty() == true ->
+                    viewModel.state.tagNameInvalidMessage.isNotEmpty() ->
                         Text(text = viewModel.state.tagNameInvalidMessage)
 
                     else -> null
@@ -431,7 +430,6 @@ fun EditTagsScreenContent(viewModel: EditTagsViewModel) {
 
 
 //region EditTagsScreenTag
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EditTagsScreenTag(
     item: EasyListsTag,
@@ -492,11 +490,10 @@ fun EditTagsScreenTag(
 
 
 //region EditTagsScreenTagColor
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EditTagsScreenTagColor(item: EasyListsTag, viewModel: EditTagsViewModel) {
     when {
-        viewModel.state.showContextItems == false -> {
+        !viewModel.state.showContextItems -> {
             Box(
                 modifier = Modifier
                     .padding(horizontal = MaterialTheme.spaces.large)
@@ -529,13 +526,13 @@ fun TagCheckbox(
 
     // uncheck item when context items are not shown
     when {
-        viewModel.state.showContextItems == false || viewModel.state.deselectCheckboxes == true -> {
+        !viewModel.state.showContextItems || viewModel.state.deselectCheckboxes -> {
             onStateChange(false)
         }
     }
 
     when {
-        viewModel.state.showContextItems == true -> {
+        viewModel.state.showContextItems -> {
             Checkbox(
                 modifier = Modifier.padding(MaterialTheme.spaces.none),
                 checked = checkedState,
@@ -554,7 +551,7 @@ fun TagCheckbox(
 @Composable
 fun ConfirmRemove(viewModel: EditTagsViewModel) {
     when {
-        viewModel.state.showConfirmationDialog == true -> {
+        viewModel.state.showConfirmationDialog -> {
             ConfirmationDialog(
                 onDismissRequest = viewModel.state.confirmationOnDismissRequest,
                 onConfirmation = viewModel.state.confirmationOnConfirmation,
@@ -574,7 +571,7 @@ fun EditTagsScreenColorPickerBottomSheet(
     viewModel: EditTagsViewModel
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showBottomSheet = remember { mutableStateOf(false) }
+    val showBottomSheet = remember { mutableStateOf(false) }
     val colorPickerController = rememberColorPickerController()
 
     when (viewModel.state.showColorPickerBottomSheet) {
@@ -665,7 +662,7 @@ fun ColorPickerTextFieldHexCode(
     viewModel: EditTagsViewModel
 ) {
     when {
-        viewModel.state.userUpdatedHexCode == true -> {
+        viewModel.state.userUpdatedHexCode -> {
             val userColor = Color(
                 if (viewModel.state.selectedHexCode.length == 9) viewModel.state.selectedHexCode.toColorInt()
                 else Color.White.toHexCodeWithAlpha().toColorInt()

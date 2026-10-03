@@ -319,10 +319,10 @@ class EditTagsViewModel @Inject constructor(
         state.tagList.forEach { it.selectedForRemoval = false }
 
         state = state.copy(
-            actionButtonState = if (state.actionButtonState == EditTagsAction.Remove)
+            actionButtonState = if (state.actionButtonState == EditTagsAction.Delete)
                 EditTagsAction.None
             else
-                EditTagsAction.Remove,
+                EditTagsAction.Delete,
             selectedItem = item,
             showContextItems = !state.showContextItems
         )
@@ -535,7 +535,7 @@ class EditTagsViewModel @Inject constructor(
 
 
     //region configureRemoveTag
-    fun configureRemoveTag(
+    fun configureDeleteTag(
         title: String,
         message: String,
         onConfirmation: () -> Unit,

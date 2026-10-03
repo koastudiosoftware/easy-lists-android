@@ -101,13 +101,13 @@ import com.easylists.presentation.common.getContrastColor
 import com.easylists.presentation.common.toHexCodeWithAlpha
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
+import com.easylists.presentation.icons.MaterialIconsBrokenImage
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsClose
 import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.icons.MaterialIconsInfo
-import com.easylists.presentation.icons.MaterialIconsBrokenImage
-import com.easylists.presentation.icons.MaterialIconsMoreVert
 import com.easylists.presentation.icons.MaterialIconsInsertPhoto
+import com.easylists.presentation.icons.MaterialIconsMoreVert
 import com.easylists.presentation.icons.MaterialIconsPhotoCamera
 import com.easylists.presentation.icons.MaterialIconsSettings
 import com.easylists.presentation.models.Screen
@@ -156,7 +156,7 @@ fun ListDetailsScreen(
         ) {
 
             ConfirmDeleteCrossedOffItems(viewModel)
-            ConfirmRemoveListItem(viewModel)
+            ConfirmDeleteListItem(viewModel)
 
             ListDetailsScreenListItemBottomSheet(viewModel)
 
@@ -602,7 +602,7 @@ fun ListDetailsScreenListItemIcons(
                 Icon(
                     modifier = modifier,
                     imageVector = MaterialIconsDelete,
-                    contentDescription = stringResource(R.string.remove_item)
+                    contentDescription = stringResource(R.string.delete_item)
                 )
             }
         }
@@ -1398,7 +1398,7 @@ fun ListDetailsScreenTopAppBarNavigationIcon(navController: NavController<Screen
 //endregion
 
 
-//region ConfirmRemoveCrossedOffItems
+//region ConfirmDeleteCrossedOffItems
 @Composable
 fun ConfirmDeleteCrossedOffItems(viewModel: ListDetailsViewModel) {
     when {
@@ -1408,11 +1408,11 @@ fun ConfirmDeleteCrossedOffItems(viewModel: ListDetailsViewModel) {
                     viewModel.setShowConfirmationDialogStateCrossedOffItems(false)
                 },
                 onConfirmation = {
-                    viewModel.removeAllCrossedOffItems()
+                    viewModel.deleteAllCrossedOffItems()
                     viewModel.setShowConfirmationDialogStateCrossedOffItems(false)
                 },
-                dialogTitle = stringResource(R.string.confirm_removal),
-                dialogText = stringResource(R.string.remove_crossed_off_items_warning),
+                dialogTitle = stringResource(R.string.confirm_deletion),
+                dialogText = stringResource(R.string.delete_crossed_off_items_warning),
             )
         }
     }
@@ -1420,9 +1420,9 @@ fun ConfirmDeleteCrossedOffItems(viewModel: ListDetailsViewModel) {
 //endregion
 
 
-//region ConfirmRemoveListItem
+//region ConfirmDeleteListItem
 @Composable
-fun ConfirmRemoveListItem(viewModel: ListDetailsViewModel) {
+fun ConfirmDeleteListItem(viewModel: ListDetailsViewModel) {
     when {
         viewModel.state.showConfirmationDialogDeleteListItem -> {
             ConfirmationDialog(
@@ -1430,11 +1430,11 @@ fun ConfirmRemoveListItem(viewModel: ListDetailsViewModel) {
                     viewModel.setShowConfirmationDialogState(false)
                 },
                 onConfirmation = {
-                    viewModel.removeListItem()
+                    viewModel.deleteListItem()
                     viewModel.setShowConfirmationDialogState(false)
                 },
-                dialogTitle = stringResource(R.string.confirm_removal),
-                dialogText = stringResource(R.string.remove_list_items_warning),
+                dialogTitle = stringResource(R.string.confirm_deletion),
+                dialogText = stringResource(R.string.delete_list_items_warning),
             )
         }
     }

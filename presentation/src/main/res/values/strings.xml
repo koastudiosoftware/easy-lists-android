@@ -1,7 +1,7 @@
 <resources>
 
     <string name="app_name">Easy Lists</string>
-    <string name="app_version">0.2.13</string>
+    <string name="app_version">0.2.14</string>
 
     <string name="lists">Lists</string>
     <string name="settings">Settings</string>
@@ -18,17 +18,17 @@
     <string name="edit_list">Edit List</string>
     <string name="create_new_list">Create new list</string>
     <string name="create_new_tag">Create new easyListsTag</string>
-    <string name="remove_list">Remove list</string>
+    <string name="delete_list">Delete list</string>
     <string name="no_lists_found">No lists found</string>
     <string name="take_a_picture">Take a picture</string>
     <string name="list_item_image">List item picture</string>
 
-    <string name="remove_selected_categories">Remove selected categories</string>
-    <string name="remove_selected_tags">Remove selected tags</string>
-    <string name="cancel_removal_of_selected_categories">Cancel removal of selected categories</string>
-    <string name="cancel_removal_of_selected_tags">Cancel removal of selected tags</string>
+    <string name="delete_selected_categories">Delete selected categories</string>
+    <string name="delete_selected_tags">Delete selected tags</string>
+    <string name="cancel_deletion_of_selected_categories">Cancel deletion of selected categories</string>
+    <string name="cancel_deletion_of_selected_tags">Cancel deletion of selected tags</string>
 
-    <string name="remove_item">Remove item</string>
+    <string name="delete_item">Delete item</string>
     <string name="view_item_details">View item details</string>
     <string name="add_list_item">Add list item</string>
     <string name="add_category">Add Category</string>
@@ -64,14 +64,14 @@
     <string name="confirm">Confirm</string>
     <string name="dismiss">Dismiss</string>
     <string name="confirmation_dialog_warning_icon">Confirmation dialog warning icon</string>
-    <string name="confirm_removal">Confirm Removal</string>
-    <string name="remove_crossed_off_items_warning">Are you sure you want to remove all crossed off items from this list?</string>
-    <string name="remove_list_warning">Are you sure you want to remove the selected list?</string>
-    <string name="remove_list_items_warning">Are you sure you want to remove the selected item from this list?</string>
-    <string name="remove_category_warning">Are you sure you want to remove the selected category? Items in this category will not be removed.</string>
-    <string name="remove_categories_warning">Are you sure you want to remove the selected categories? Items in these categories will not be removed.</string>
-    <string name="remove_tags_warning">Are you sure you want to remove the selected tags? Items with these tags will not be removed.</string>
-    <string name="remove_tag_warning">Are you sure you want to remove the selected tag? Items with this tag will not be removed.</string>
+    <string name="confirm_deletion">Confirm Deletion</string>
+    <string name="delete_crossed_off_items_warning">Are you sure you want to delete all crossed off items from this list?</string>
+    <string name="delete_list_warning">Are you sure you want to delete the selected list?</string>
+    <string name="delete_list_items_warning">Are you sure you want to delete the selected item from this list?</string>
+    <string name="delete_category_warning">Are you sure you want to delete the selected category? Items in this category will not be deleted.</string>
+    <string name="delete_categories_warning">Are you sure you want to delete the selected categories? Items in these categories will not be deleted.</string>
+    <string name="delete_tags_warning">Are you sure you want to delete the selected tags? Items with these tags will not be deleted.</string>
+    <string name="delete_tag_warning">Are you sure you want to delete the selected tag? Items with this tag will not be deleted.</string>
 
     <string name="category_not_used_message">This category is not used by any items on any list.</string>
     <string name="category_used_by_message">This category is used by the following items.</string>
