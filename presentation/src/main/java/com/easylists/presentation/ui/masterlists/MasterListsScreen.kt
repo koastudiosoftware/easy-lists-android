@@ -97,10 +97,8 @@ fun MasterListsScreen(
             MasterListsScreenListBottomSheet(viewModel)
 
             MasterListsScreenContent(navController, viewModel, sharedViewModel)
-
         }
     }
-
 }
 
 
@@ -140,7 +138,6 @@ fun MasterListsScreenActionIcons(
 
 
 //region MasterListItem
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MasterListItem(
     list: EasyListsList,
@@ -148,98 +145,104 @@ fun MasterListItem(
     sharedViewModel: SharedViewModel,
     navController: NavController<Screen>,
 ) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = MaterialTheme.spaces.none)
-            .combinedClickable(
-                onClick = {
-                    sharedViewModel.listUid = list.uid.toString()
-                    sharedViewModel.listName = list.name.toString()
-                    navController.navigate(Screen.ListDetails)
-                },
-                onLongClick = { viewModel.showContextIcons(list) }
-            ),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(MaterialTheme.spaces.rowHeightMedium)
-                .padding(start = MaterialTheme.spaces.large)
-                .padding(vertical = MaterialTheme.spaces.medium),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(
+    when {
+        !list.isDeleted -> {
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(end = MaterialTheme.spaces.medium),
-            ) {
-                Text(
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                        textDecoration = TextDecoration.None,
+                    .padding(horizontal = MaterialTheme.spaces.none)
+                    .combinedClickable(
+                        onClick = {
+                            sharedViewModel.listUid = list.uid.toString()
+                            sharedViewModel.listName = list.name
+                            navController.navigate(Screen.ListDetails)
+                        },
+                        onLongClick = { viewModel.showContextIcons(list) }
                     ),
-                    text = list.name,
-                )
-                when {
-                    list.notes?.isNotEmpty() == true -> {
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(MaterialTheme.spaces.rowHeightMedium)
+                        .padding(start = MaterialTheme.spaces.large)
+                        .padding(vertical = MaterialTheme.spaces.medium),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(end = MaterialTheme.spaces.medium),
+                    ) {
                         Text(
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodyMedium,
-                            text = list.notes!!
+                            style = TextStyle(
+                                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                                textDecoration = TextDecoration.None,
+                            ),
+                            text = list.name,
                         )
-                    }
-                }
-            }
-
-            when {
-                viewModel.state.selectedListUid == list.uid -> {
-                    VerticalDivider(
-                        modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
-                    )
-                    IconButton(
-                        modifier = Modifier.weight(0.12f),
-                        onClick = { viewModel.setShowConfirmationDialogState(true) }
-                    ) {
-                        Icon(
-                            modifier = Modifier,
-                            imageVector = MaterialIconsDelete,
-                            contentDescription = stringResource(R.string.create_new_list),
-                        )
-                    }
-                }
-
-                else -> {
-                    VerticalDivider(
-                        modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
-                    )
-                    IconButton(
-                        modifier = Modifier.weight(0.12f),
-                        onClick = {
-                            viewModel.onListEditButtonClick(list = list)
+                        when {
+                            list.notes?.isNotEmpty() == true -> {
+                                Text(
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    text = list.notes!!
+                                )
+                            }
                         }
-                    ) {
-                        Icon(
-                            modifier = Modifier,
-                            imageVector = MaterialIconsInfo,
-                            contentDescription = stringResource(R.string.create_new_list)
-                        )
+                    }
+
+                    when {
+                        viewModel.state.selectedListUid == list.uid -> {
+                            VerticalDivider(
+                                modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
+                            )
+                            IconButton(
+                                modifier = Modifier.weight(0.12f),
+                                onClick = { viewModel.setShowConfirmationDialogState(true) }
+                            ) {
+                                Icon(
+                                    modifier = Modifier,
+                                    imageVector = MaterialIconsDelete,
+                                    contentDescription = stringResource(R.string.create_new_list),
+                                )
+                            }
+                        }
+
+                        else -> {
+                            VerticalDivider(
+                                modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
+                            )
+                            IconButton(
+                                modifier = Modifier.weight(0.12f),
+                                onClick = {
+                                    viewModel.onListEditButtonClick(list = list)
+                                }
+                            ) {
+                                Icon(
+                                    modifier = Modifier,
+                                    imageVector = MaterialIconsInfo,
+                                    contentDescription = stringResource(R.string.create_new_list)
+                                )
+                            }
+                        }
                     }
                 }
             }
+            HorizontalDivider(
+                modifier =
+                    Modifier.padding(vertical = MaterialTheme.spaces.none)
+            )
         }
     }
-    HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
 }
 //endregion
 
 
 //region MasterListsScreenContent
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MasterListsScreenContent(
     navController: NavController<Screen>,
@@ -254,8 +257,8 @@ fun MasterListsScreenContent(
         item {
             HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
         }
-        when (viewModel.state.listList?.isNotEmpty()) {
-            true -> {
+        when {
+            viewModel.state.listList?.isNotEmpty() == true -> {
                 val masterList = viewModel.state.listList
                 masterList?.forEach { item ->
                     item {
@@ -284,7 +287,7 @@ fun MasterListsScreenOverflowMenu(
     navController: NavController<Screen>,
     viewModel: MasterListsViewModel
 ) {
-    var expanded = remember { mutableStateOf(false) }
+    val expanded = remember { mutableStateOf(false) }
 
     IconButton(
         enabled = true,
@@ -367,7 +370,7 @@ fun MasterListsScreenOverflowMenu(
 @Composable
 fun MasterListsScreenListBottomSheet(viewModel: MasterListsViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showBottomSheet = remember { mutableStateOf(false) }
+    val showBottomSheet = remember { mutableStateOf(false) }
 
     when (viewModel.state.showListBottomSheet) {
         true -> showBottomSheet.value = true
@@ -426,7 +429,6 @@ fun MasterListsScreenListBottomSheet(viewModel: MasterListsViewModel) {
                     item {
                         MasterListsScreenListBottomSheetListNotes(viewModel)
                     }
-
                 }
             }
         }
@@ -457,7 +459,7 @@ fun MasterListsScreenListBottomSheetListName(viewModel: MasterListsViewModel) {
             isError = viewModel.state.listNameInvalid,
             supportingText = {
                 when {
-                    viewModel.state.listNameInvalidMessage.isNotEmpty() == true ->
+                    viewModel.state.listNameInvalidMessage.isNotEmpty() ->
                         Text(text = viewModel.state.listNameInvalidMessage)
 
                     else -> null
@@ -496,13 +498,13 @@ fun MasterListsScreenListBottomSheetListNotes(viewModel: MasterListsViewModel) {
 @Composable
 fun ConfirmRemoveList(viewModel: MasterListsViewModel) {
     when {
-        viewModel.state.showConfirmationDialog == true -> {
+        viewModel.state.showConfirmationDialog -> {
             ConfirmationDialog(
                 onDismissRequest = {
                     viewModel.setShowConfirmationDialogState(false)
                 },
                 onConfirmation = {
-                    viewModel.removeList()
+                    viewModel.deleteList()
                     viewModel.setShowConfirmationDialogState(false)
                 },
                 dialogTitle = stringResource(R.string.confirm_removal),

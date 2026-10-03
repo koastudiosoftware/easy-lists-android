@@ -12,7 +12,6 @@ import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.use_cases.AddListFlowUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
-import com.easylists.domain.use_cases.RemoveListUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.AppSettingsKeys
@@ -41,7 +40,6 @@ class MasterListsViewModel @Inject constructor(
     private val getListListFlowUseCase: GetListFlowUseCase,
     private val addListUseCase: AddListFlowUseCase,
     private val updateListUseCase: UpdateListUseCase,
-    private val removeListUseCase: RemoveListUseCase,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
@@ -110,10 +108,18 @@ class MasterListsViewModel @Inject constructor(
     //endregion
 
 
-    //region removeList() :: remove a list from the database
-    fun removeList() {
+    //region deleteList() :: delete a list from the database
+    fun deleteList() {
         viewModelScope.launch {
-            removeListUseCase(uid = state.selectedListUid)
+            // locate the selectedListUid in the list of lists
+            // set its isDeleted flag to true
+            // update the record in the local database
+            val list = state.listList?.find { it.uid == state.selectedListUid }
+            list?.isDeleted = true;
+            updateListUseCase(list = list!!)
+
+            // reset the selected list item UID in the state so "add"
+            // doesn't go into "edit" mode
             state = state.copy(selectedListUid = "")
         }
     }
@@ -134,7 +140,7 @@ class MasterListsViewModel @Inject constructor(
         if (state.addEditMode == AddEditMode.Edit) return true
 
         // don't allow duplicate list name
-        if (state.listList?.any { it.name.lowercase() == state.listName.lowercase() } == true)
+        if (state.listList?.any { it.name.equals(state.listName, ignoreCase = true) } == true)
             return false
 
         return true
@@ -190,7 +196,7 @@ class MasterListsViewModel @Inject constructor(
             }.catch {
                 handleGetListState(Resultat.failure(it))
 
-                // After this catch the flow is interrupted and it must be collected
+                // After this catch the flow is interrupted, and it must be collected
                 // again to obtain new data. The handleRefresh() method handles this situation.
                 cancelListFlowCollection()
             }.launchIn(viewModelScope)
