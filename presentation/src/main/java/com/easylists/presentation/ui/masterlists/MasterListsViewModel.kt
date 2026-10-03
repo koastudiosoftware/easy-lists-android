@@ -108,7 +108,7 @@ class MasterListsViewModel @Inject constructor(
     //endregion
 
 
-    //region deleteList() :: delete a list from the database
+    //region deleteList() :: delete a list by changing its is_deleted to true
     fun deleteList() {
         viewModelScope.launch {
             // locate the selectedListUid in the list of lists
