@@ -26,7 +26,6 @@ import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
 import com.easylists.domain.use_cases.GetTagFlowUseCase
 import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
-import com.easylists.domain.use_cases.RemoveListItemUseCase
 import com.easylists.domain.use_cases.RemoveTagListItemUseCase
 import com.easylists.domain.use_cases.SaveListItemPhotoUseCase
 import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
@@ -75,7 +74,6 @@ class ListDetailsViewModel @Inject constructor(
     private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val addListItemUseCase: AddListItemFlowUseCase,
     private val updateListItemUseCase: UpdateListItemFlowUseCase,
-    private val removeListItemUseCase: RemoveListItemUseCase,
     private val saveListItemPhotoUseCase: SaveListItemPhotoUseCase,
     private val bitmapLoader: ImageBitmapLoader,
     private val mapper: UiMapper,
