@@ -36,12 +36,6 @@ class ListRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeList(uid: String): Result<Unit> {
-        return Result.runCatching {
-            localSource.delete(uid = uid)
-        }
-    }
-
     override suspend fun updateList(list: EasyListsList): Result<Unit> {
         return Result.runCatching {
             localSource.update(list = list)
@@ -54,7 +48,6 @@ interface ListLocalDataSource {
 
     fun getListsFlow(): Flow<List<EasyListsList>>
     suspend fun insert(list: EasyListsList): Long
-    suspend fun delete(uid: String)
     suspend fun update(list: EasyListsList)
 
 }

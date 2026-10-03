@@ -36,13 +36,6 @@ class RoomListLocalDataSource @Inject constructor(
     //endregion
 
 
-    //region delete()
-    override suspend fun delete(uid: String) {
-        return dao.delete(uid = uid)
-    }
-    //endregion
-
-
     //region update()
     override suspend fun update(list: EasyListsList) {
         val mappedList = mapper.mapEasyListsListToListUpdateEntity(list)

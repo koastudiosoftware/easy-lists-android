@@ -25,7 +25,4 @@ abstract class ListDao() {
     @Update(entity = ListEntity::class)
     abstract suspend fun updatePartial(listUpdateEntity: ListUpdateEntity)
 
-    @Query("DELETE FROM list WHERE uid = :uid")
-    abstract suspend fun delete(uid: String)
-
 }
