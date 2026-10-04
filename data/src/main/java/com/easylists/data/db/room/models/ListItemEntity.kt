@@ -17,7 +17,7 @@ import kotlin.uuid.Uuid
         ForeignKey(entity = ListEntity::class, parentColumns = ["list_id"], childColumns = ["list_id"], onDelete = ForeignKey.CASCADE),
     ],
 )
-data class ListItemEntity @OptIn(ExperimentalUuidApi::class) constructor(
+data class ListItemEntity(
 
     @PrimaryKey
     @ColumnInfo(name = "list_item_id")

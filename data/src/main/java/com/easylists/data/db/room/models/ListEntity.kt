@@ -13,7 +13,7 @@ import kotlin.uuid.Uuid
     tableName = "list",
     indices = [Index(value = ["list_id"], unique = true)],
 )
-data class ListEntity @OptIn(ExperimentalUuidApi::class) constructor(
+data class ListEntity(
 
     @PrimaryKey
     @ColumnInfo(name = "list_id")

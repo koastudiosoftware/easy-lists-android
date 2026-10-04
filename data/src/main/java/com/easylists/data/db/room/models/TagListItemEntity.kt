@@ -18,7 +18,7 @@ import kotlin.uuid.Uuid
     ],
     indices = [Index(value = ["tag_list_item_id"], unique = true)],
 )
-data class TagListItemEntity @OptIn(ExperimentalUuidApi::class) constructor(
+data class TagListItemEntity(
 
     @PrimaryKey
     @ColumnInfo(name = "tag_list_item_id")

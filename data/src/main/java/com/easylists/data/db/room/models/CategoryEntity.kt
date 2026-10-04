@@ -13,7 +13,7 @@ import kotlin.uuid.Uuid
     tableName = "category",
     indices = [Index(value = ["category_id"], unique = true)],
 )
-data class CategoryEntity @OptIn(ExperimentalUuidApi::class) constructor(
+data class CategoryEntity(
 
     @PrimaryKey
     @ColumnInfo(name = "category_id")
