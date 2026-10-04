@@ -55,15 +55,15 @@ class RoomTagLocalDataSource @Inject constructor(
 
 
     //region delete()
-    override suspend fun delete(uid: String) {
-        return dao.delete(uid = uid)
+    override suspend fun delete(tagId: String) {
+        return dao.delete(tagId = tagId)
     }
     //endregion
 
 
     //region delete()
-    override suspend fun delete(uidList: List<String>) {
-        return dao.delete(uidList = uidList)
+    override suspend fun delete(tagIdList: List<String>) {
+        return dao.delete(tagIdList = tagIdList)
     }
     //endregion
 

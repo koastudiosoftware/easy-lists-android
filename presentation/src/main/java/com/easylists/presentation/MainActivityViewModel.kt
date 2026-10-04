@@ -40,7 +40,7 @@ class MainActivityViewModel @Inject constructor(
         viewModelScope.launch {
             themeModeState = getAppSettingsFlowUseCase(
                 keyMap = mapOf(
-                    KEY to AppSettingsKeys.Theme.key.toString(),
+                    KEY to AppSettingsKeys.Theme.key,
                     TYPE to AppSettingsKeys.Theme.type.toString()
                 ),
             ).stateIn(

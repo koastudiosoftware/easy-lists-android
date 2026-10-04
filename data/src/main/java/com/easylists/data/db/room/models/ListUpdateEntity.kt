@@ -10,7 +10,8 @@ import java.time.Instant
 data class ListUpdateEntity(
 
     @PrimaryKey
-    val uid: String,
+    @ColumnInfo(name = "list_id")
+    val listId: String,
 
     val name: String,
 

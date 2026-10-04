@@ -16,7 +16,8 @@ import kotlin.uuid.Uuid
 data class UserEntity @OptIn(ExperimentalUuidApi::class) constructor(
 
     @PrimaryKey
-    val uid: String = Uuid.random().toString(),
+    @ColumnInfo(name = "user_id")
+    val userId: String = Uuid.random().toString(),
 
     val email: String,
 

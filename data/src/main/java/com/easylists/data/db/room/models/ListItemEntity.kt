@@ -13,21 +13,21 @@ import kotlin.uuid.Uuid
 @Entity(
     tableName = "list_item",
     foreignKeys = [
-        ForeignKey(entity = CategoryEntity::class, parentColumns = ["uid"], childColumns = ["category_uid"]),
-        ForeignKey(entity = ListEntity::class, parentColumns = ["uid"], childColumns = ["list_uid"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(entity = CategoryEntity::class, parentColumns = ["category_id"], childColumns = ["category_id"]),
+        ForeignKey(entity = ListEntity::class, parentColumns = ["list_id"], childColumns = ["list_id"], onDelete = ForeignKey.CASCADE),
     ],
-    indices = [Index(value = ["uid"], unique = true)],
 )
 data class ListItemEntity @OptIn(ExperimentalUuidApi::class) constructor(
 
     @PrimaryKey
-    val uid: String = Uuid.random().toString(),
+    @ColumnInfo(name = "list_item_id")
+    val listItemId: String = Uuid.random().toString(),
 
-    @ColumnInfo(name = "list_uid")
-    val listUid: String,
+    @ColumnInfo(name = "list_id")
+    val listId: String,
 
-    @ColumnInfo(name = "category_uid")
-    val categoryUid: String? = null,
+    @ColumnInfo(name = "category_id")
+    val categoryId: String? = null,
 
     val name: String,
 

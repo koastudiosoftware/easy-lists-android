@@ -9,15 +9,15 @@ class RemoveTagFromListItemUseCase @Inject constructor(
 ) {
 
     //region invoke()
-    suspend operator fun invoke(tagUid: String) {
-        tagListItemRepository.removeTag(tagUid = tagUid)
+    suspend operator fun invoke(tagId: String) {
+        tagListItemRepository.removeTag(tagId = tagId)
     }
     //endregion
 
 
     //region invoke()
-    suspend operator fun invoke(tagUid: List<String>) {
-        tagListItemRepository.removeTag(tagUid = tagUid)
+    suspend operator fun invoke(tagIdList: List<String>) {
+        tagListItemRepository.removeTag(tagIdList = tagIdList)
     }
     //endregion
 

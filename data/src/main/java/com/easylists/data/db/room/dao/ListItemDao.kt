@@ -18,8 +18,8 @@ abstract class ListItemDao() {
     abstract fun get(): Flow<List<ListItemEntity>>
 
     @Transaction
-    @Query("SELECT * FROM list_item WHERE list_uid = :listUid ORDER BY name ASC")
-    abstract fun get(listUid: String): Flow<List<ListItemEntity>>
+    @Query("SELECT * FROM list_item WHERE list_id = :listId ORDER BY name ASC")
+    abstract fun get(listId: String): Flow<List<ListItemEntity>>
 
     @Update(entity = ListItemEntity::class)
     abstract suspend fun updatePartial(listItemUpdateEntity: ListItemUpdateEntity)
@@ -27,20 +27,20 @@ abstract class ListItemDao() {
     @Query("""
         UPDATE list_item
         SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
-        WHERE uid IN (:listItemUids) AND is_deleted = 0
+        WHERE list_item_id IN (:listItemIds) AND is_deleted = 0
         """)
-    protected abstract suspend fun deleteChunk(listItemUids: List<String>, now: Long): Int
+    protected abstract suspend fun deleteChunk(listItemIds: List<String>, now: Long): Int
 
     @Transaction
     open suspend fun delete(
-        listItemUids: List<String>,
+        listItemIds: List<String>,
         now: Long = System.currentTimeMillis()
-    ): Int = listItemUids.chunked(500).sumOf { deleteChunk(it, now) }
+    ): Int = listItemIds.chunked(500).sumOf { deleteChunk(it, now) }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(listItemEntity: ListItemEntity): Long
 
-    @Query("UPDATE list_item SET category_uid = NULL WHERE category_uid IN (:categoryUid)")
-    abstract suspend fun removeCategory(categoryUid: List<String>)
+    @Query("UPDATE list_item SET category_id = NULL WHERE category_id IN (:categoryIdList)")
+    abstract suspend fun removeCategory(categoryIdList: List<String>)
 
 }

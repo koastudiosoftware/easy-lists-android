@@ -23,11 +23,11 @@ abstract class TagDao() {
     @Transaction
     @Query("""
         SELECT * FROM tag
-        JOIN tag_list_item ON tag.uid = tag_list_item.list_item_uid
-        WHERE tag_list_item.list_item_uid = :listItemUid
+        JOIN tag_list_item ON tag.tag_id = tag_list_item.list_item_id
+        WHERE tag_list_item.list_item_id = :listItemId
         ORDER BY name ASC
         """)
-    abstract fun get(listItemUid: String): Flow<List<TagEntity>>
+    abstract fun get(listItemId: String): Flow<List<TagEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(tagEntity: TagEntity): Long
@@ -35,10 +35,10 @@ abstract class TagDao() {
     @Update
     abstract suspend fun update(tagEntity: TagEntity)
 
-    @Query("DELETE FROM tag WHERE uid = :uid")
-    abstract suspend fun delete(uid: String)
+    @Query("DELETE FROM tag WHERE tag_id = :tagId")
+    abstract suspend fun delete(tagId: String)
 
-    @Query("DELETE FROM tag WHERE uid IN (:uidList)")
-    abstract suspend fun delete(uidList: List<String>)
+    @Query("DELETE FROM tag WHERE tag_id IN (:tagIdList)")
+    abstract suspend fun delete(tagIdList: List<String>)
 
 }

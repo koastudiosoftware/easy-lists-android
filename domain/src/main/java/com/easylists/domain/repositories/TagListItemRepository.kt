@@ -10,8 +10,8 @@ interface TagListItemRepository {
 
     suspend fun addTagListItem(tagListItem: TagListItem): Result<Long>
     suspend fun addTagListItem(tagListItem: List<TagListItem>): Result<List<Long>>
-    suspend fun removeTag(tagUid: String): Result<Unit>
-    suspend fun removeTag(tagUid: List<String>): Result<Unit>
-    suspend fun removeTagListItem(listItemUid: String, tagUidList: List<String>): Result<Unit>
+    suspend fun removeTag(tagId: String): Result<Unit>
+    suspend fun removeTag(tagIdList: List<String>): Result<Unit>
+    suspend fun removeTagListItem(listItemId: String, tagIdList: List<String>): Result<Unit>
 
 }

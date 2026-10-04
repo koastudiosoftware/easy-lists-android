@@ -21,8 +21,8 @@ abstract class TagListItemDao() {
     abstract fun get(): Flow<List<TagListItemEntity>>
 
     @Transaction
-    @Query("SELECT * FROM tag_list_item WHERE list_item_uid = :listItemUid")
-    abstract fun get(listItemUid: String): Flow<List<TagListItemEntity>>
+    @Query("SELECT * FROM tag_list_item WHERE list_item_id = :listItemId")
+    abstract fun get(listItemId: String): Flow<List<TagListItemEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(tagListItemEntity: TagListItemEntity): Long
@@ -30,13 +30,13 @@ abstract class TagListItemDao() {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(tagListItemEntity: List<TagListItemEntity>): List<Long>
 
-    @Query("DELETE FROM tag_list_item WHERE tag_uid = :tagUid")
-    abstract suspend fun delete(tagUid: String)
+    @Query("DELETE FROM tag_list_item WHERE tag_id = :tagId")
+    abstract suspend fun delete(tagId: String)
 
-    @Query("DELETE FROM tag_list_item WHERE tag_uid IN (:tagUid)")
-    abstract suspend fun delete(tagUid: List<String>)
+    @Query("DELETE FROM tag_list_item WHERE tag_id IN (:tagIdList)")
+    abstract suspend fun delete(tagIdList: List<String>)
 
-    @Query("DELETE FROM tag_list_item WHERE list_item_uid = :listItemUid AND tag_uid IN (:tagUidList)")
-    abstract suspend fun delete(listItemUid: String, tagUidList: List<String>)
+    @Query("DELETE FROM tag_list_item WHERE list_item_id = :listItemId AND tag_id IN (:tagIdList)")
+    abstract suspend fun delete(listItemId: String, tagIdList: List<String>)
 
 }

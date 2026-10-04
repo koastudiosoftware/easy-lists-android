@@ -43,9 +43,9 @@ class CategoryRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeCategories(uid: List<String>): Result<Unit> {
+    override suspend fun removeCategories(categoryIdList: List<String>): Result<Unit> {
         return Result.runCatching {
-            localSource.delete(uid = uid)
+            localSource.delete(categoryIdList = categoryIdList)
         }
     }
 
@@ -56,7 +56,7 @@ interface CategoryLocalDataSource {
     fun getCategoryFlow(): Flow<List<EasyListsCategory>>
     suspend fun insert(category: EasyListsCategory): Long
     suspend fun update(category: EasyListsCategory)
-    suspend fun delete(uid: String)
-    suspend fun delete(uid: List<String>)
+    suspend fun delete(categoryId: String)
+    suspend fun delete(categoryIdList: List<String>)
 
 }

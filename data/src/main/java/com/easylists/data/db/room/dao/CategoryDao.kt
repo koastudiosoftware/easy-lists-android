@@ -22,10 +22,10 @@ abstract class CategoryDao() {
     @Update
     abstract suspend fun update(categoryEntity: CategoryEntity)
 
-    @Query("DELETE FROM category WHERE uid = :uid")
-    abstract suspend fun delete(uid: String)
+    @Query("DELETE FROM category WHERE category_id = :categoryId")
+    abstract suspend fun delete(categoryId: String)
 
-    @Query("DELETE FROM category WHERE uid IN (:uid)")
-    abstract suspend fun delete(uid: List<String>)
+    @Query("DELETE FROM category WHERE category_id IN (:categoryId)")
+    abstract suspend fun delete(categoryId: List<String>)
 
 }

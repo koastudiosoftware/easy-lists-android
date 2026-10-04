@@ -10,6 +10,6 @@ interface CategoryRepository {
 
     suspend fun addCategory(category: EasyListsCategory): Result<Unit>
     suspend fun updateCategory(category: EasyListsCategory): Result<Unit>
-    suspend fun removeCategories(uidList: List<String>): Result<Unit>
+    suspend fun removeCategories(categoryIdList: List<String>): Result<Unit>
 
 }

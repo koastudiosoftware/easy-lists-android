@@ -263,7 +263,7 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
                                                 title = title,
                                                 message = message,
                                                 onConfirmation = {
-                                                    viewModel.onCategorySelectedForRemovalChanged(viewModel.state.selectedItem?.uid)
+                                                    viewModel.onCategorySelectedForRemovalChanged(viewModel.state.selectedItem?.categoryId)
                                                     viewModel.removeCategories()
                                                     viewModel.dismissConfirmationDialog()
                                                     viewModel.showCategoryBottomSheet()
@@ -375,7 +375,7 @@ fun EditCategoriesScreenBottomSheetListsAndItems(viewModel: EditCategoriesViewMo
 
             val listItems = viewModel.listItems()
             listItems.forEach { item ->
-                if (item.listUid == list.uid) {
+                if (item.listId == list.listId) {
                     Text(
                         text = item.name,
                         style = MaterialTheme.typography.bodyMedium,
@@ -494,7 +494,7 @@ fun CategoryCheckbox(
                 checked = checkedState,
                 onCheckedChange = {
                     onStateChange(!checkedState)
-                    viewModel.onCategorySelectedForRemovalChanged(item.uid)
+                    viewModel.onCategorySelectedForRemovalChanged(item.categoryId)
                 },
             )
         }

@@ -171,11 +171,11 @@ class ListDetailsViewModel @Inject constructor(
             removeTagListItem()
             addTagListItem()
 
-            var categoryUid = state.categoryList.find { it.name == state.categoryText }?.uid
+            var categoryUid = state.categoryList.find { it.name == state.categoryText }?.categoryId
             if (categoryUid == null && state.categoryText.isNotEmpty()) {
                 categoryUid = Uuid.random().toString()
                 category = EasyListsCategory(
-                    uid = categoryUid,
+                    categoryId = categoryUid,
                     name = state.categoryText,
                 )
                 addCategoryUseCase(category)
@@ -187,10 +187,10 @@ class ListDetailsViewModel @Inject constructor(
 
             delay(100L.milliseconds)     // allow a short time for the category to be added to the database
             val listItem = EasyListsListItem(
-                uid = state.itemUid,
-                listUid = state.listUid,
+                listItemId = state.itemUid,
+                listId = state.listUid,
                 name = state.itemName,
-                categoryUid = categoryUid,
+                categoryId = categoryUid,
                 notes = state.itemNotes.ifEmpty { null },
                 quantity = if (state.itemQuantity.isEmpty()) null else state.itemQuantity.toInt(),
                 photoUri = state.photoUri,
@@ -230,16 +230,16 @@ class ListDetailsViewModel @Inject constructor(
         val selectedTags = state.easyListsTagList.filter { it.isSelected }
         val tagsToAdd = selectedTags.filter { tag ->
             state.tagListItemList.none { tagListItem ->
-                tagListItem.listItemUid == state.itemUid && tagListItem.tagUid == tag.uid
+                tagListItem.listItemId == state.itemUid && tagListItem.tagId == tag.tagId
             }
         }
 
         viewModelScope.launch {
             addTagListItemUseCase(tagListItem = tagsToAdd.map {
                 TagListItem(
-                    uid = Uuid.random().toString(),
-                    listItemUid = state.itemUid,
-                    tagUid = it.uid.toString()
+                    tagListItemId = Uuid.random().toString(),
+                    listItemId = state.itemUid,
+                    tagId = it.tagId.toString()
                 )
             })
         }
@@ -252,14 +252,14 @@ class ListDetailsViewModel @Inject constructor(
         val deselectedTags = state.easyListsTagList.filter { !it.isSelected }
         val tagsToRemove = deselectedTags.filter { tag ->
             state.tagListItemList.any { tagListItem ->
-                tagListItem.listItemUid == state.itemUid && tagListItem.tagUid == tag.uid
+                tagListItem.listItemId == state.itemUid && tagListItem.tagId == tag.tagId
             }
         }
 
         viewModelScope.launch {
             removeTagListItemUseCase(
-                listItemUid = state.itemUid,
-                tagUidList = tagsToRemove.map { it.uid.toString() }
+                listItemId = state.itemUid,
+                tagIdList = tagsToRemove.map { it.tagId.toString() }
             )
         }
     }
@@ -412,13 +412,13 @@ class ListDetailsViewModel @Inject constructor(
     fun initListItemsList() {
         cancelListItemFlowCollection()
 
-        listItemListFlowJob = getListItemFlowUseCase(listUid = state.listUid)
+        listItemListFlowJob = getListItemFlowUseCase(listId = state.listUid)
             .onEach {
                 handleGetListItemState(Resultat.success(it))
             }.catch {
                 handleGetListItemState(Resultat.failure(it))
 
-                // After this catch the flow is interrupted and it must be collected
+                // After this catch the flow is interrupted, and it must be collected
                 // again to obtain new data. The handleRefresh() method handles this situation.
                 cancelListItemFlowCollection()
             }.launchIn(viewModelScope)
@@ -434,7 +434,7 @@ class ListDetailsViewModel @Inject constructor(
                 // apply category to each item pulled from the database
                 it?.forEach {
                     it.category = state.categoryList.find { category ->
-                        category.uid == it.categoryUid
+                        category.categoryId == it.categoryId
                     }?.name ?: "Uncategorized"
                 }
 
@@ -617,7 +617,7 @@ class ListDetailsViewModel @Inject constructor(
     fun showContextIcons(item: EasyListsListItem?) {
         if (item == null) return
         state = state.copy(
-            selectedItemUid = if (state.selectedItemUid.isEmpty()) item.uid.toString() else "",
+            selectedItemUid = if (state.selectedItemUid.isEmpty()) item.listItemId.toString() else "",
         )
     }
     //endregion
@@ -648,7 +648,7 @@ class ListDetailsViewModel @Inject constructor(
 
     //region onListItemInfoClick()
     fun onListItemInfoClick(item: EasyListsListItem, addEditMode: AddEditMode) {
-        val category = state.categoryList.find { it.uid == item.categoryUid }
+        val category = state.categoryList.find { it.categoryId == item.categoryId }
         val index = state.categoryList.indexOf(category)
 
         Arbor.i("onListItemInfoClick() item: $item")
@@ -658,7 +658,7 @@ class ListDetailsViewModel @Inject constructor(
             itemName = item.name,
             itemNotes = item.notes ?: "",
             itemQuantity = item.quantity?.toString() ?: "",
-            itemUid = item.uid.toString(),
+            itemUid = item.listItemId.toString(),
             itemPhotoUri = item.photoUri,
             itemPhotoScale = item.photoScale,
             itemPhotoOffset = Offset(item.photoOffsetX.toFloat(), item.photoOffsetY.toFloat()),
@@ -709,7 +709,7 @@ class ListDetailsViewModel @Inject constructor(
         val tagList = ArrayList( state.easyListsTagList.map { it.copy() })
 
         tagList.find {
-            it.uid == easyListsTag.uid
+            it.tagId == easyListsTag.tagId
         }?.isSelected = !easyListsTag.isSelected
 
         state = state.copy(easyListsTagList = tagList)
@@ -723,12 +723,12 @@ class ListDetailsViewModel @Inject constructor(
         val tagList = state.easyListsTagList
         val selectedTags = tagList.filter { tag ->
             state.tagListItemList.filter { tagListItem ->
-                tagListItem.listItemUid == state.itemUid
-            }.any { it.tagUid == tag.uid }
+                tagListItem.listItemId == state.itemUid
+            }.any { it.tagId == tag.tagId }
         }
 
         tagList.forEach { tag ->
-            tag.isSelected = selectedTags.any { it.uid == tag.uid }
+            tag.isSelected = selectedTags.any { it.tagId == tag.tagId }
         }
 
         state = state.copy(easyListsTagList = tagList)
@@ -812,11 +812,11 @@ class ListDetailsViewModel @Inject constructor(
     //region listItemTags()
     fun listItemTags(item: EasyListsListItem): List<EasyListsTag> {
         val tagListItems = state.tagListItemList.filter {
-            it.listItemUid == item.uid
+            it.listItemId == item.listItemId
         }
 
         val tags = state.easyListsTagList.filter { tag ->
-            tagListItems.any { it.tagUid == tag.uid }
+            tagListItems.any { it.tagId == tag.tagId }
         }
 
         return tags

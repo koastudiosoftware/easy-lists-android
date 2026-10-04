@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class EditCategoriesViewModel @Inject constructor(
@@ -186,7 +187,7 @@ class EditCategoriesViewModel @Inject constructor(
             }.catch {
                 handleGetListState(Resultat.failure(it))
 
-                // After this catch the flow is interrupted and it must be collected
+                // After this catch the flow is interrupted, and it must be collected
                 // again to obtain new data. The handleRefresh() method handles this situation.
                 cancelListFlowCollection()
             }.launchIn(viewModelScope)
@@ -225,7 +226,7 @@ class EditCategoriesViewModel @Inject constructor(
             initCategoryList()
             initListItemList()
             initListList()
-            delay(500L) // workaround to eliminate sticky pull to refresh indicator
+            delay(500L.milliseconds) // workaround to eliminate sticky pull to refresh indicator
             state = state.copy(isPullToRefreshing = false)
         }
     }
@@ -278,7 +279,7 @@ class EditCategoriesViewModel @Inject constructor(
     fun onCategorySelectedForRemovalChanged(uid: String?) {
         state = state.copy(
             categoryList = state.categoryList.map {
-                if (it.uid == uid) {
+                if (it.categoryId == uid) {
                     it.copy(selectedForRemoval = !it.selectedForRemoval)
                 } else {
                     it
@@ -309,7 +310,7 @@ class EditCategoriesViewModel @Inject constructor(
         viewModelScope.launch {
             updateCategoryUseCase(
                 category = EasyListsCategory(
-                    uid = state.selectedItem?.uid,
+                    categoryId = state.selectedItem?.categoryId,
                     name = state.categoryName,
                     sortOrder = state.selectedItem?.sortOrder,
                     createdTimestamp = state.selectedItem?.createdTimestamp
@@ -331,12 +332,12 @@ class EditCategoriesViewModel @Inject constructor(
     //region removeCategoryFromListItems()
     fun removeCategoryFromListItems() {
         val categoryList = state.categoryList.filter { category ->
-            category.selectedForRemoval == true
-        }.map { it.uid ?: "" }
+            category.selectedForRemoval
+        }.map { it.categoryId ?: "" }
         viewModelScope.launch {
             if (categoryList.isNotEmpty() || categoryList.all { it.isNotEmpty() }) {
                 removeCategoryFromListItemUseCase(
-                    categoryUid = categoryList,
+                    categoryIdList = categoryList,
                 )
             }
             state = state.copy(nextStep = "remove_categories")
@@ -347,13 +348,13 @@ class EditCategoriesViewModel @Inject constructor(
 
     //region removeCategories()
     fun removeCategories() {
-        var categoryList = state.categoryList.filter { category ->
-            category.selectedForRemoval == true
-        }.map { it.uid ?: "" }
+        val categoryList = state.categoryList.filter { category ->
+            category.selectedForRemoval
+        }.map { it.categoryId ?: "" }
 
         viewModelScope.launch {
             if (categoryList.isNotEmpty() || categoryList.all { it.isNotEmpty() }) {
-                removeCategoryUseCase(uidList = categoryList)
+                removeCategoryUseCase(categoryIdList = categoryList)
                 state.categoryList.forEach { it.selectedForRemoval = false }
             }
 
@@ -392,8 +393,8 @@ class EditCategoriesViewModel @Inject constructor(
     fun onCategoryNameChange(name: String) {
         var categoryNameInvalidMessage: String
         val isNameInvalid = (state.categoryList.any {
-            it.name.lowercase() == name.lowercase()
-        } == true).let {
+            it.name.equals(name, ignoreCase = true)
+        }).let {
             categoryNameInvalidMessage = if (it) "Name already in use" else ""
             it
         }
@@ -422,14 +423,14 @@ class EditCategoriesViewModel @Inject constructor(
 
     //region categoryListItemCount()
     fun categoryListItemCount(category: EasyListsCategory): Int {
-        return state.listItemList.count { it.categoryUid == category.uid }
+        return state.listItemList.count { it.categoryId == category.categoryId }
     }
     //endregion
 
 
     //region listItems()
     fun listItems(): List<EasyListsListItem> {
-        return state.listItemList.filter { it.categoryUid == state.selectedItem?.uid }
+        return state.listItemList.filter { it.categoryId == state.selectedItem?.categoryId }
     }
     //endregion
 
@@ -438,7 +439,7 @@ class EditCategoriesViewModel @Inject constructor(
     fun lists(): List<EasyListsList> {
         val listItems = listItems()
         return state.listList.filter { list ->
-            listItems.any { it.listUid == list.uid }
+            listItems.any { it.listId == list.listId }
         }
     }
     //endregion

@@ -28,8 +28,8 @@ class RoomListItemLocalDataSource @Inject constructor(
 
 
     //region getListsFlow()
-    override fun getListItemsFlow(listUid: String): Flow<List<EasyListsListItem>> {
-        return dao.get(listUid = listUid)
+    override fun getListItemsFlow(listId: String): Flow<List<EasyListsListItem>> {
+        return dao.get(listId = listId)
             .flowOn(dispatchers.io)
             .map {
                 mapper.mapListItemEntityListToEasyListsListItemList(it)
@@ -39,8 +39,8 @@ class RoomListItemLocalDataSource @Inject constructor(
 
 
     //region delete()
-    override suspend fun delete(listItemUids: List<String>): Int {
-        return dao.delete(listItemUids = listItemUids)
+    override suspend fun delete(listItemIds: List<String>): Int {
+        return dao.delete(listItemIds = listItemIds)
     }
     //endregion
 
@@ -52,8 +52,8 @@ class RoomListItemLocalDataSource @Inject constructor(
     }
 
     //region removeCategory()
-    override suspend fun removeCategory(categoryUid: List<String>) {
-        return dao.removeCategory(categoryUid = categoryUid)
+    override suspend fun removeCategory(categoryIdList: List<String>) {
+        return dao.removeCategory(categoryIdList = categoryIdList)
     }
     //endregion
 

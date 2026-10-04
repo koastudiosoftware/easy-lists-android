@@ -10,7 +10,7 @@ interface TagRepository {
 
     suspend fun addTag(easyListsTag: EasyListsTag): Result<Unit>
     suspend fun updateTag(easyListsTag: EasyListsTag): Result<Unit>
-    suspend fun removeTag(uid: String): Result<Unit>
-    suspend fun removeTags(uidList: List<String>): Result<Unit>
+    suspend fun removeTag(tagId: String): Result<Unit>
+    suspend fun removeTags(tagIdList: List<String>): Result<Unit>
 
 }

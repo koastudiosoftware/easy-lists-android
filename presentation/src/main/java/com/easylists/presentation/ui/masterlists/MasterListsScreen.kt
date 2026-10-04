@@ -152,7 +152,7 @@ fun MasterListItem(
                     .padding(horizontal = MaterialTheme.spaces.none)
                     .combinedClickable(
                         onClick = {
-                            sharedViewModel.listUid = list.uid.toString()
+                            sharedViewModel.listUid = list.listId.toString()
                             sharedViewModel.listName = list.name
                             navController.navigate(Screen.ListDetails)
                         },
@@ -196,7 +196,7 @@ fun MasterListItem(
                     }
 
                     when {
-                        viewModel.state.selectedListUid == list.uid -> {
+                        viewModel.state.selectedListUid == list.listId -> {
                             VerticalDivider(
                                 modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
                             )

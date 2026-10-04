@@ -10,9 +10,9 @@ class DeleteListItemsUseCase @Inject constructor(
     //region invoke()
     suspend operator fun invoke(id: String) = invoke(listOf(id))
 
-    suspend operator fun invoke(ids: List<String>) {
-        if (ids.isEmpty()) return
-        repository.deleteListItems(ids)
+    suspend operator fun invoke(listItemIds: List<String>) {
+        if (listItemIds.isEmpty()) return
+        repository.deleteListItems(listItemIds = listItemIds)
     }
     //endregion
 

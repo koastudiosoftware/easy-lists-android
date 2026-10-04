@@ -3,7 +3,7 @@ package com.easylists.domain.models
 import java.time.Instant
 
 data class EasyListsTag(
-    val uid: String? = null,
+    val tagId: String? = null,
     val name: String,
     val color: String? = null,
     val createdTimestamp: Long = Instant.now().epochSecond,

@@ -594,7 +594,7 @@ fun ListDetailsScreenListItemIcons(
     viewModel: ListDetailsViewModel,
 ) {
     when {
-        viewModel.state.selectedItemUid == item.uid -> {
+        viewModel.state.selectedItemUid == item.listItemId -> {
             VerticalDivider(
                 modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
             )

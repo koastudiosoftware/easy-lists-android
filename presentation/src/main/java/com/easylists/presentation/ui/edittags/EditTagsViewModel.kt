@@ -334,7 +334,7 @@ class EditTagsViewModel @Inject constructor(
     fun onTagSelectedForRemovalChanged(uid: String?) {
         state = state.copy(
             tagList = state.tagList.map {
-                if (it.uid == uid) {
+                if (it.tagId == uid) {
                     it.copy(selectedForRemoval = !it.selectedForRemoval)
                 } else {
                     it
@@ -350,7 +350,7 @@ class EditTagsViewModel @Inject constructor(
     fun addTag() {
         viewModelScope.launch {
             addTagUseCase(easyListsTag = EasyListsTag(
-                uid = Uuid.random().toString(),
+                tagId = Uuid.random().toString(),
                 name = state.tagName
             ))
             state = state.copy(
@@ -369,7 +369,7 @@ class EditTagsViewModel @Inject constructor(
         viewModelScope.launch {
             updateTagUseCase(
                 easyListsTag = EasyListsTag(
-                    uid = state.selectedItem?.uid,
+                    tagId = state.selectedItem?.tagId,
                     name = state.tagName,
                     color = state.selectedItem?.color,
                     createdTimestamp = state.selectedItem?.createdTimestamp
@@ -391,12 +391,12 @@ class EditTagsViewModel @Inject constructor(
     //region removeTagFromListItems()
     fun removeTagFromListItems() {
         val tagList = state.tagList.filter { category ->
-            category.selectedForRemoval == true
-        }.map { it.uid ?: "" }
+            category.selectedForRemoval
+        }.map { it.tagId ?: "" }
         viewModelScope.launch {
             if (tagList.isNotEmpty() || tagList.all { it.isNotEmpty() }) {
                 removeTagFromListItemUseCase(
-                    tagUid = tagList,
+                    tagIdList = tagList,
                 )
             }
             state = state.copy(nextStep = "remove_tags")
@@ -407,13 +407,13 @@ class EditTagsViewModel @Inject constructor(
 
     //region removeTags()
     fun removeTags() {
-        var tagList = state.tagList.filter { tag ->
-            tag.selectedForRemoval == true
-        }.map { it.uid ?: "" }
+        val tagList = state.tagList.filter { tag ->
+            tag.selectedForRemoval
+        }.map { it.tagId ?: "" }
 
         viewModelScope.launch {
             if (tagList.isNotEmpty() || tagList.all { it.isNotEmpty() }) {
-                removeTagUseCase(uidList = tagList)
+                removeTagUseCase(tagIdList = tagList)
                 state.tagList.forEach { it.selectedForRemoval = false }
             }
 
@@ -452,8 +452,8 @@ class EditTagsViewModel @Inject constructor(
     fun onTagNameChange(name: String) {
         var tagNameInvalidMessage: String
         val isNameInvalid = (state.tagList.any {
-            it.name.lowercase() == name.lowercase()
-        } == true).let {
+            it.name.equals(name, ignoreCase = true)
+        }).let {
             tagNameInvalidMessage = if (it) "Name already in use" else ""
             it
         }
@@ -483,7 +483,7 @@ class EditTagsViewModel @Inject constructor(
 
     //region tagItemCount()
     fun tagListItemCount(tag: EasyListsTag): Int {
-        return state.tagListItemList.count { it.tagUid == tag.uid }
+        return state.tagListItemList.count { it.tagId == tag.tagId }
     }
     //endregion
 
@@ -491,12 +491,12 @@ class EditTagsViewModel @Inject constructor(
     //region listItems()
     fun listItems(): List<EasyListsListItem> {
         val tagListItemList = state.tagListItemList.filter {
-            it.tagUid == state.selectedItem?.uid
+            it.tagId == state.selectedItem?.tagId
         }
 
         val listItems = state.listItemList.filter {
             tagListItemList.any { tagListItem ->
-                tagListItem.listItemUid == it.uid
+                tagListItem.listItemId == it.listItemId
             }
         }
         return listItems
@@ -508,7 +508,7 @@ class EditTagsViewModel @Inject constructor(
     fun lists(): List<EasyListsList> {
         val listItems = listItems()
         return state.listList.filter {
-            listItems.any { listItem -> it.uid == listItem.listUid }
+            listItems.any { listItem -> it.listId == listItem.listId }
         }
     }
     //endregion
@@ -569,7 +569,7 @@ class EditTagsViewModel @Inject constructor(
         viewModelScope.launch {
             updateTagUseCase(
                 easyListsTag = EasyListsTag(
-                    uid = state.selectedItem?.uid,
+                    tagId = state.selectedItem?.tagId,
                     name = state.selectedItem?.name.toString(),
                     color = null,
                     createdTimestamp = state.selectedItem?.createdTimestamp
@@ -594,7 +594,7 @@ class EditTagsViewModel @Inject constructor(
         viewModelScope.launch {
             updateTagUseCase(
                 easyListsTag = EasyListsTag(
-                    uid = state.selectedItem?.uid,
+                    tagId = state.selectedItem?.tagId,
                     name = state.selectedItem?.name.toString(),
                     color = state.selectedHexCode.uppercase(),
                     createdTimestamp = state.selectedItem?.createdTimestamp

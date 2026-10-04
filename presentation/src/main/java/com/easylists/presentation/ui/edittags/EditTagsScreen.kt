@@ -274,7 +274,7 @@ fun EditTagsScreenCategoryBottomSheet(viewModel: EditTagsViewModel) {
                                                 message = message,
                                                 onConfirmation = {
                                                     viewModel.onTagSelectedForRemovalChanged(
-                                                        viewModel.state.selectedItem?.uid
+                                                        viewModel.state.selectedItem?.tagId
                                                     )
                                                     viewModel.removeTags()
                                                     viewModel.dismissConfirmationDialog()
@@ -355,7 +355,7 @@ fun EditTagsScreenBottomSheetListsAndItems(viewModel: EditTagsViewModel) {
 
             val listItems = viewModel.listItems()
             listItems.forEach { item ->
-                if (item.listUid == list.uid) {
+                if (item.listId == list.listId) {
                     Text(
                         text = item.name,
                         style = MaterialTheme.typography.bodyMedium,
@@ -538,7 +538,7 @@ fun TagCheckbox(
                 checked = checkedState,
                 onCheckedChange = {
                     onStateChange(!checkedState)
-                    viewModel.onTagSelectedForRemovalChanged(item.uid)
+                    viewModel.onTagSelectedForRemovalChanged(item.tagId)
                 },
             )
         }

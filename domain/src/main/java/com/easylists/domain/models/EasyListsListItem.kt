@@ -3,10 +3,10 @@ package com.easylists.domain.models
 import java.time.Instant
 
 data class EasyListsListItem(
-    var uid: String? = null,
-    var listUid: String,
+    var listItemId: String? = null,
+    var listId: String,
     var category: String? = null,
-    var categoryUid: String? = null,
+    var categoryId: String? = null,
     var name: String,
     var quantity: Int? = null,
     var crossedOff: Boolean? = false,

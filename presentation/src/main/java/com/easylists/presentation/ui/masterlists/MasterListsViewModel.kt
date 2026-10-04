@@ -91,7 +91,7 @@ class MasterListsViewModel @Inject constructor(
             if (state.addEditMode == AddEditMode.Add) {
                 addListUseCase(list = list)
             } else {
-                list.uid = state.listUid
+                list.listId = state.listUid
                 updateListUseCase(list = list)
             }
 
@@ -114,7 +114,7 @@ class MasterListsViewModel @Inject constructor(
             // locate the selectedListUid in the list of lists
             // set its isDeleted flag to true
             // update the record in the local database
-            val list = state.listList?.find { it.uid == state.selectedListUid }
+            val list = state.listList?.find { it.listId == state.selectedListUid }
             list?.isDeleted = true;
             updateListUseCase(list = list!!)
 
@@ -256,7 +256,7 @@ class MasterListsViewModel @Inject constructor(
     fun onListEditButtonClick(list: EasyListsList) {
         state = state.copy(
             addEditMode = AddEditMode.Edit,
-            listUid = list.uid.toString(),
+            listUid = list.listId.toString(),
             listName = list.name,
             listNotes = list.notes ?: "",
         )
@@ -269,7 +269,7 @@ class MasterListsViewModel @Inject constructor(
     fun showContextIcons(list: EasyListsList?) {
         if (list == null) return
         state = state.copy(
-            selectedListUid = if (state.selectedListUid.isEmpty()) list.uid.toString() else "",
+            selectedListUid = if (state.selectedListUid.isEmpty()) list.listId.toString() else "",
         )
     }
     //endregion

@@ -11,12 +11,13 @@ import kotlin.uuid.Uuid
 
 @Entity(
     tableName = "list",
-    indices = [Index(value = ["uid"], unique = true)],
+    indices = [Index(value = ["list_id"], unique = true)],
 )
 data class ListEntity @OptIn(ExperimentalUuidApi::class) constructor(
 
     @PrimaryKey
-    val uid: String = Uuid.random().toString(),
+    @ColumnInfo(name = "list_id")
+    val listId: String = Uuid.random().toString(),
 
     val name: String,
 

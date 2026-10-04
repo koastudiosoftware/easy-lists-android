@@ -32,8 +32,8 @@ class ListItemRepositoryImpl @Inject constructor(
     //endregion
 
     //region getListItemFlow()
-    override fun getListItemFlow(listUid: String): Flow<List<EasyListsListItem>> {
-        return localSource.getListItemsFlow(listUid = listUid)
+    override fun getListItemFlow(listId: String): Flow<List<EasyListsListItem>> {
+        return localSource.getListItemsFlow(listId = listId)
             .catch {
                 throw if (it is NullPointerException) {
                     EmptyDatabaseException()
@@ -55,17 +55,17 @@ class ListItemRepositoryImpl @Inject constructor(
     //endregion
 
     //region deleteListItems()
-    override suspend fun deleteListItems(listItemUids: List<String>): Result<Int> {
+    override suspend fun deleteListItems(listItemIds: List<String>): Result<Int> {
         return Result.runCatching {
-            localSource.delete(listItemUids = listItemUids)
+            localSource.delete(listItemIds = listItemIds)
         }
     }
     //endregion
 
     //region removeCategoryFromListItem()
-    override suspend fun removeCategoryFromListItem(categoryUid: List<String>): Result<Unit> {
+    override suspend fun removeCategoryFromListItem(categoryIdList: List<String>): Result<Unit> {
         return Result.runCatching {
-            localSource.removeCategory(categoryUid = categoryUid)
+            localSource.removeCategory(categoryIdList = categoryIdList)
         }
     }
     //endregion
@@ -84,10 +84,10 @@ class ListItemRepositoryImpl @Inject constructor(
 interface ListItemLocalDataSource {
 
     fun getListItemsFlow(): Flow<List<EasyListsListItem>>
-    fun getListItemsFlow(listUid: String): Flow<List<EasyListsListItem>>
-    suspend fun delete(listItemUids: List<String>): Int
+    fun getListItemsFlow(listId: String): Flow<List<EasyListsListItem>>
+    suspend fun delete(listItemIds: List<String>): Int
     suspend fun insert(listItem: EasyListsListItem): Long
-    suspend fun removeCategory(categoryUid: List<String>)
+    suspend fun removeCategory(categoryIdList: List<String>)
     suspend fun update(listItem: EasyListsListItem)
 
 }

@@ -29,7 +29,7 @@ class RoomDataMapper @Inject constructor(
     fun mapCategoryEntityListToEasyListsCategoryList(categoryEntityList: List<CategoryEntity>): List<EasyListsCategory> {
         return categoryEntityList.map { entity ->
             EasyListsCategory(
-                uid = entity.uid,
+                categoryId = entity.categoryId,
                 name = entity.name,
                 sortOrder = entity.sortOrder,
                 createdTimestamp = entity.createdTimestamp,
@@ -43,14 +43,14 @@ class RoomDataMapper @Inject constructor(
     //region mapEasyListsListToListEntity()
     // maps an easy list to a list entity
     fun mapEasyListsCategoryToCategoryEntity(category: EasyListsCategory): CategoryEntity {
-        return if (category.uid == null) {
+        return if (category.categoryId == null) {
             CategoryEntity(
                 name = category.name,
                 sortOrder = category.sortOrder,
             )
         } else {
             CategoryEntity(
-                uid = category.uid!!,
+                categoryId = category.categoryId!!,
                 name = category.name,
                 sortOrder = category.sortOrder,
                 createdTimestamp = category.createdTimestamp,
@@ -69,7 +69,7 @@ class RoomDataMapper @Inject constructor(
     fun mapListEntityListToEasyListsListList(listEntityList: List<ListEntity>): List<EasyListsList> {
         return listEntityList.map { entity ->
             EasyListsList(
-                uid = entity.uid,
+                listId = entity.listId,
                 name = entity.name,
                 notes = entity.notes,
                 sortOrder = entity.sortOrder,
@@ -101,7 +101,7 @@ class RoomDataMapper @Inject constructor(
     // maps an easy list to a list entity
     fun mapEasyListsListToListUpdateEntity(list: EasyListsList): ListUpdateEntity {
         return ListUpdateEntity(
-            uid = list.uid.toString(),
+            listId = list.listId.toString(),
             name = list.name,
             notes = list.notes,
             sortOrder = list.sortOrder,
@@ -122,9 +122,9 @@ class RoomDataMapper @Inject constructor(
     fun mapListItemEntityListToEasyListsListItemList(listItemEntityList: List<ListItemEntity>): List<EasyListsListItem> {
         return listItemEntityList.map { entity ->
             EasyListsListItem(
-                uid = entity.uid,
-                listUid = entity.listUid,
-                categoryUid = entity.categoryUid,
+                listItemId = entity.listItemId,
+                listId = entity.listId,
+                categoryId = entity.categoryId,
                 name = entity.name,
                 notes = entity.notes,
                 quantity = entity.quantity,
@@ -152,8 +152,8 @@ class RoomDataMapper @Inject constructor(
             name = listItem.name,
             notes = listItem.notes,
             sortOrder = listItem.sortOrder,
-            listUid = listItem.listUid,
-            categoryUid = listItem.categoryUid,
+            listId = listItem.listId,
+            categoryId = listItem.categoryId,
             quantity = listItem.quantity,
             crossedOff = listItem.crossedOff == true,
             crossedOffTimestamp = listItem.crossedOffTimestamp,
@@ -172,11 +172,11 @@ class RoomDataMapper @Inject constructor(
     // maps an easy list to a list item entity
     fun mapEasyListsListItemToListItemUpdateEntity(listItem: EasyListsListItem): ListItemUpdateEntity {
         return ListItemUpdateEntity(
-            uid = listItem.uid.toString(),
+            listItemId = listItem.listItemId.toString(),
             name = listItem.name,
             notes = listItem.notes,
             sortOrder = listItem.sortOrder,
-            categoryUid = listItem.categoryUid,
+            categoryUid = listItem.categoryId,
             quantity = listItem.quantity,
             crossedOff = listItem.crossedOff == true,
             crossedOffTimestamp = listItem.crossedOffTimestamp,
@@ -200,7 +200,7 @@ class RoomDataMapper @Inject constructor(
     fun mapTagEntityListToTagList(tagEntityList: List<TagEntity>): List<EasyListsTag> {
         return tagEntityList.map { entity ->
             EasyListsTag(
-                uid = entity.uid,
+                tagId = entity.tagId,
                 name = entity.name,
                 color = entity.color,
                 createdTimestamp = entity.createdTimestamp,
@@ -224,7 +224,7 @@ class RoomDataMapper @Inject constructor(
     //region mapTagToTagEntityForUpdate()
     fun mapTagToTagEntityForUpdate(easyListsTag: EasyListsTag): TagEntity {
         return TagEntity(
-            uid = easyListsTag.uid.toString(),
+            tagId = easyListsTag.tagId.toString(),
             name = easyListsTag.name,
             color = easyListsTag.color,
             createdTimestamp = easyListsTag.createdTimestamp,
@@ -241,9 +241,9 @@ class RoomDataMapper @Inject constructor(
     fun mapTagListItemEntityListToTagListItemList(tagListItemEntityList: List<TagListItemEntity>): List<TagListItem> {
         return tagListItemEntityList.map { entity ->
             TagListItem(
-                uid = entity.uid,
-                tagUid = entity.tagUid,
-                listItemUid = entity.listItemUid,
+                tagListItemId = entity.tagListItemId,
+                tagId = entity.tagId,
+                listItemId = entity.listItemId,
                 createdTimestamp = entity.createdTimestamp,
                 modifiedTimestamp = entity.modifiedTimestamp,
             )
@@ -255,9 +255,9 @@ class RoomDataMapper @Inject constructor(
     //region mapTagListItemToTagListItemEntity()
     fun mapTagListItemToTagListItemEntity(tagListItem: TagListItem): TagListItemEntity {
         return TagListItemEntity(
-            uid = tagListItem.uid.toString(),
-            tagUid = tagListItem.tagUid,
-            listItemUid = tagListItem.listItemUid,
+            tagListItemId = tagListItem.tagListItemId.toString(),
+            tagId = tagListItem.tagId,
+            listItemId = tagListItem.listItemId,
         )
     }
     //endregion
@@ -269,9 +269,9 @@ class RoomDataMapper @Inject constructor(
     ): List<TagListItemEntity> {
         return tagListItem.map { tli ->
             TagListItemEntity(
-                uid = tli.uid.toString(),
-                tagUid = tli.tagUid,
-                listItemUid = tli.listItemUid,
+                tagListItemId = tli.tagListItemId.toString(),
+                tagId = tli.tagId,
+                listItemId = tli.listItemId,
             )
         }
     }

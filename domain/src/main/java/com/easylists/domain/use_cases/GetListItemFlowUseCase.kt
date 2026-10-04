@@ -25,10 +25,10 @@ class GetListItemFlowUseCase @Inject constructor(
     //endregion
 
 
-    //region invoke(listUid: String)
-    operator fun invoke(listUid: String): Flow<List<EasyListsListItem>> {
+    //region invoke(listId: String)
+    operator fun invoke(listId: String): Flow<List<EasyListsListItem>> {
         return try {
-            listItemRepository.getListItemFlow(listUid = listUid).map { it }
+            listItemRepository.getListItemFlow(listId = listId).map { it }
         } catch (e: Exception) {
             flow {
                 throw e

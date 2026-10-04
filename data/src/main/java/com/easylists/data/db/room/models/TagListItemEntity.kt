@@ -13,23 +13,24 @@ import kotlin.uuid.Uuid
 @Entity(
     tableName = "tag_list_item",
     foreignKeys = [
-        ForeignKey(entity = ListItemEntity::class, parentColumns = ["uid"], childColumns = ["list_item_uid"], onDelete = ForeignKey.CASCADE),
-        ForeignKey(entity = TagEntity::class, parentColumns = ["uid"], childColumns = ["tag_uid"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(entity = ListItemEntity::class, parentColumns = ["list_item_id"], childColumns = ["list_item_id"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(entity = TagEntity::class, parentColumns = ["tag_id"], childColumns = ["tag_id"], onDelete = ForeignKey.CASCADE),
     ],
-    indices = [Index(value = ["uid"], unique = true)],
+    indices = [Index(value = ["tag_list_item_id"], unique = true)],
 )
 data class TagListItemEntity @OptIn(ExperimentalUuidApi::class) constructor(
 
     @PrimaryKey
-    val uid: String = Uuid.random().toString(),
+    @ColumnInfo(name = "tag_list_item_id")
+    val tagListItemId: String = Uuid.random().toString(),
 
-    @ColumnInfo(name = "tag_uid")
-    @SerializedName(value = "tag_uid")
-    var tagUid: String,
+    @ColumnInfo(name = "tag_id")
+    @SerializedName(value = "tag_id")
+    var tagId: String,
 
-    @ColumnInfo(name = "list_item_uid")
-    @SerializedName(value = "list_item_uid")
-    var listItemUid: String,
+    @ColumnInfo(name = "list_item_id")
+    @SerializedName(value = "list_item_id")
+    var listItemId: String,
 
     @ColumnInfo(name = "created_timestamp")
     @SerializedName(value = "created_timestamp")
