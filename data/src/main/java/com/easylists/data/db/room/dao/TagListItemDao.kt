@@ -17,11 +17,11 @@ import kotlinx.coroutines.flow.Flow
 abstract class TagListItemDao() {
 
     @Transaction
-    @Query("SELECT * FROM tag_list_item")
+    @Query("SELECT * FROM tag_list_items")
     abstract fun get(): Flow<List<TagListItemEntity>>
 
     @Transaction
-    @Query("SELECT * FROM tag_list_item WHERE list_item_id = :listItemId")
+    @Query("SELECT * FROM tag_list_items WHERE list_item_id = :listItemId")
     abstract fun get(listItemId: String): Flow<List<TagListItemEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -34,13 +34,13 @@ abstract class TagListItemDao() {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertAll(tagLinks: MutableList<TagListItemEntity>)
 
-    @Query("DELETE FROM tag_list_item WHERE tag_id = :tagId")
+    @Query("DELETE FROM tag_list_items WHERE tag_id = :tagId")
     abstract suspend fun delete(tagId: String)
 
-    @Query("DELETE FROM tag_list_item WHERE tag_id IN (:tagIdList)")
+    @Query("DELETE FROM tag_list_items WHERE tag_id IN (:tagIdList)")
     abstract suspend fun delete(tagIdList: List<String>)
 
-    @Query("DELETE FROM tag_list_item WHERE list_item_id = :listItemId AND tag_id IN (:tagIdList)")
+    @Query("DELETE FROM tag_list_items WHERE list_item_id = :listItemId AND tag_id IN (:tagIdList)")
     abstract suspend fun delete(listItemId: String, tagIdList: List<String>)
 
 }

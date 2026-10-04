@@ -33,7 +33,6 @@ import com.easylists.data.db.room.models.UserEntity
     ],
     version = 1,
     exportSchema = true,
-    exportSchema = false,
     autoMigrations = [
 //        AutoMigration(from = 1, to = 2)
     ]

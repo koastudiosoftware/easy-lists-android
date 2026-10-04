@@ -14,18 +14,18 @@ import kotlinx.coroutines.flow.Flow
 abstract class ListItemDao() {
 
     @Transaction
-    @Query("SELECT * FROM list_item ORDER BY name ASC")
+    @Query("SELECT * FROM list_items ORDER BY name ASC")
     abstract fun get(): Flow<List<ListItemEntity>>
 
     @Transaction
-    @Query("SELECT * FROM list_item WHERE list_id = :listId ORDER BY name ASC")
+    @Query("SELECT * FROM list_items WHERE list_id = :listId ORDER BY name ASC")
     abstract fun get(listId: String): Flow<List<ListItemEntity>>
 
     @Update(entity = ListItemEntity::class)
     abstract suspend fun updatePartial(listItemUpdateEntity: ListItemUpdateEntity)
 
     @Query("""
-        UPDATE list_item
+        UPDATE list_items
         SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
         WHERE list_item_id IN (:listItemIds) AND is_deleted = 0
         """)
@@ -44,7 +44,7 @@ abstract class ListItemDao() {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertAll(map: List<ListItemEntity>)
 
-    @Query("UPDATE list_item SET category_id = NULL WHERE category_id IN (:categoryIdList)")
+    @Query("UPDATE list_items SET category_id = NULL WHERE category_id IN (:categoryIdList)")
     abstract suspend fun removeCategory(categoryIdList: List<String>)
 
 }

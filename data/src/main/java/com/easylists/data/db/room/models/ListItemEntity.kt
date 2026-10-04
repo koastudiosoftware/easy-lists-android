@@ -11,7 +11,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @Entity(
-    tableName = "list_item",
+    tableName = "list_items",
     foreignKeys = [
         ForeignKey(entity = CategoryEntity::class, parentColumns = ["category_id"], childColumns = ["category_id"]),
         ForeignKey(entity = ListEntity::class, parentColumns = ["list_id"], childColumns = ["list_id"], onDelete = ForeignKey.CASCADE),

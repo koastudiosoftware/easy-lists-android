@@ -10,7 +10,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @Entity(
-    tableName = "tag",
+    tableName = "tags",
     indices = [Index(value = ["tag_id"], unique = true)],
 )
 data class TagEntity(

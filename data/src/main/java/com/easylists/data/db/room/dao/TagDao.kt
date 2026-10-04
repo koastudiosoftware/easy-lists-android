@@ -18,15 +18,15 @@ import kotlinx.coroutines.flow.Flow
 abstract class TagDao() {
 
     @Transaction
-    @Query("SELECT * FROM tag ORDER BY name ASC")
+    @Query("SELECT * FROM tags ORDER BY name ASC")
     abstract fun get(): Flow<List<TagEntity>>
 
     @Transaction
     @Query("""
         SELECT t.tag_id, t.name, t.color, t.created_timestamp, t.modified_timestamp
-        FROM tag t
-        JOIN tag_list_item ON t.tag_id = tag_list_item.list_item_id
-        WHERE tag_list_item.list_item_id = :listItemId
+        FROM tags t
+        JOIN tag_list_items ON t.tag_id = tag_list_items.list_item_id
+        WHERE tag_list_items.list_item_id = :listItemId
         ORDER BY name ASC
         """)
     abstract fun get(listItemId: String): Flow<List<TagEntity>>
@@ -41,10 +41,10 @@ abstract class TagDao() {
     @Update
     abstract suspend fun update(tagEntity: TagEntity)
 
-    @Query("DELETE FROM tag WHERE tag_id = :tagId")
+    @Query("DELETE FROM tags WHERE tag_id = :tagId")
     abstract suspend fun delete(tagId: String)
 
-    @Query("DELETE FROM tag WHERE tag_id IN (:tagIdList)")
+    @Query("DELETE FROM tags WHERE tag_id IN (:tagIdList)")
     abstract suspend fun delete(tagIdList: List<String>)
 
 }

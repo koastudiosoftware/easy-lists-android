@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 abstract class CategoryDao() {
 
     @Transaction
-    @Query("SELECT * FROM category ORDER BY name ASC")
+    @Query("SELECT * FROM categories ORDER BY name ASC")
     abstract fun get(): Flow<List<CategoryEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -26,10 +26,10 @@ abstract class CategoryDao() {
     @Update
     abstract suspend fun update(categoryEntity: CategoryEntity)
 
-    @Query("DELETE FROM category WHERE category_id = :categoryId")
+    @Query("DELETE FROM categories WHERE category_id = :categoryId")
     abstract suspend fun delete(categoryId: String)
 
-    @Query("DELETE FROM category WHERE category_id IN (:categoryId)")
+    @Query("DELETE FROM categories WHERE category_id IN (:categoryId)")
     abstract suspend fun delete(categoryId: List<String>)
 
 
