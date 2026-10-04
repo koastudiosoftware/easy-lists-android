@@ -45,15 +45,6 @@ object LocalModule {
     ): CategoryDao = easyListsDatabase.categoryDao()
 
 
-//    @Provides
-//    @Singleton
-//    fun provideDatabase(@ApplicationContext context: Context): EasyListsDatabase {
-//        return Room.databaseBuilder(context, EasyListsDatabase::class.java, "easy-lists.db")
-//            .createFromAsset("easy-lists.db")
-//            .build()
-//    }
-
-
     @Provides
     @Singleton
     fun provideDatabase(
@@ -64,11 +55,11 @@ object LocalModule {
            .addCallback(SeedDatabaseCallback(context, database = { databaseProvider.get() }))
            .build()
 
+
     // DAOs as usual, e.g.:
     @Provides fun provideUserDao(
         easyListsDatabase: EasyListsDatabase
     ): UserDao = easyListsDatabase.userDao()
-
 
 
     @Provides
