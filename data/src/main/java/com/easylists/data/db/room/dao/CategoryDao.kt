@@ -19,6 +19,10 @@ abstract class CategoryDao() {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(categoryEntity: CategoryEntity): Long
 
+    // insertAll is only used for initial database seed data population
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertAll(map: List<CategoryEntity>)
+
     @Update
     abstract suspend fun update(categoryEntity: CategoryEntity)
 
@@ -27,5 +31,6 @@ abstract class CategoryDao() {
 
     @Query("DELETE FROM category WHERE category_id IN (:categoryId)")
     abstract suspend fun delete(categoryId: List<String>)
+
 
 }

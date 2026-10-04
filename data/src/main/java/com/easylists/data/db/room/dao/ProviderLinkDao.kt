@@ -42,7 +42,7 @@ abstract class ProviderLinkDao {
     @Query("""
         SELECT u.*
         FROM users u
-        JOIN provider_links pl ON pl.user_id = u.uid
+        JOIN provider_links pl ON pl.user_id = u.user_id
         WHERE pl.provider = :provider
           AND pl.provider_user_id = :providerUserId
     """)

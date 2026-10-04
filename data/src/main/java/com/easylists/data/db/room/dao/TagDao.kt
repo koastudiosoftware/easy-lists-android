@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
 import com.easylists.data.db.room.models.ListItemUpdateEntity
@@ -31,6 +32,10 @@ abstract class TagDao() {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(tagEntity: TagEntity): Long
+
+    // insertAll is only used for initial database seed data population
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertAll(map: List<TagEntity>)
 
     @Update
     abstract suspend fun update(tagEntity: TagEntity)

@@ -30,6 +30,10 @@ abstract class TagListItemDao() {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(tagListItemEntity: List<TagListItemEntity>): List<Long>
 
+    // insertAll is only used for initial database seed data population
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertAll(tagLinks: MutableList<TagListItemEntity>)
+
     @Query("DELETE FROM tag_list_item WHERE tag_id = :tagId")
     abstract suspend fun delete(tagId: String)
 

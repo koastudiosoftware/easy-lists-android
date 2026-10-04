@@ -14,11 +14,13 @@ import com.easylists.data.db.room.dao.ListDao
 import com.easylists.data.db.room.dao.ListItemDao
 import com.easylists.data.db.room.dao.TagDao
 import com.easylists.data.db.room.dao.TagListItemDao
+import com.easylists.data.db.room.dao.UserDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Provider
 import javax.inject.Singleton
 
 @Module
@@ -43,13 +45,30 @@ object LocalModule {
     ): CategoryDao = easyListsDatabase.categoryDao()
 
 
+//    @Provides
+//    @Singleton
+//    fun provideDatabase(@ApplicationContext context: Context): EasyListsDatabase {
+//        return Room.databaseBuilder(context, EasyListsDatabase::class.java, "easy-lists.db")
+//            .createFromAsset("easy-lists.db")
+//            .build()
+//    }
+
+
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): EasyListsDatabase {
-        return Room.databaseBuilder(context, EasyListsDatabase::class.java, "easy-lists.db")
-            .createFromAsset("easy-lists.db")
-            .build()
-    }
+    fun provideDatabase(
+        @ApplicationContext context: Context,
+        databaseProvider: Provider<EasyListsDatabase>,
+    ): EasyListsDatabase =
+       Room.databaseBuilder(context, EasyListsDatabase::class.java, "easy-lists.db")
+           .addCallback(SeedDatabaseCallback(context, database = { databaseProvider.get() }))
+           .build()
+
+    // DAOs as usual, e.g.:
+    @Provides fun provideUserDao(
+        easyListsDatabase: EasyListsDatabase
+    ): UserDao = easyListsDatabase.userDao()
+
 
 
     @Provides

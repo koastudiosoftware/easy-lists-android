@@ -40,6 +40,10 @@ abstract class ListItemDao() {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(listItemEntity: ListItemEntity): Long
 
+    // insertAll is only used for initial database seed data population
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertAll(map: List<ListItemEntity>)
+
     @Query("UPDATE list_item SET category_id = NULL WHERE category_id IN (:categoryIdList)")
     abstract suspend fun removeCategory(categoryIdList: List<String>)
 

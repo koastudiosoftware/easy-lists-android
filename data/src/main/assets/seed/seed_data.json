@@ -1,0 +1,119 @@
+{
+    "categories": [
+        "Alcohol",
+        "Baby",
+        "Bakery",
+        "Baking",
+        "Beverages",
+        "Bread",
+        "Candy",
+        "Cereal",
+        "Cleaning",
+        "Clothing",
+        "Coffee",
+        "Condiments",
+        "Dairy",
+        "Deli",
+        "Dry Goods",
+        "Electronics",
+        "Frozen",
+        "Furniture",
+        "Household",
+        "Meat",
+        "Office",
+        "Pasta",
+        "Personal Care",
+        "Pet Care",
+        "Produce",
+        "Rice",
+        "Sauces & Oils",
+        "Snacks",
+        "Tea",
+        "Toiletries"
+    ],
+    "tags": [
+        "Cage Free",
+        "Carry-on",
+        "Checked Baggage",
+        "Organic"
+    ],
+    "lists": [
+        {
+            "name": "Groceries",
+            "notes": "Weekly grocery list",
+            "items": [
+                {
+                    "name": "apples",
+                    "notes": "fuji, gala",
+                    "category": "Produce",
+                    "tags": [
+                        "Organic"
+                    ]
+                },
+                {
+                    "name": "bread",
+                    "notes": "wheat",
+                    "category": "Bakery"
+                },
+                {
+                    "name": "butter",
+                    "category": "Dairy",
+                    "crossedOff": true
+                },
+                {
+                    "name": "eggs",
+                    "category": "Dairy",
+                    "tags": [
+                        "Cage Free"
+                    ]
+                },
+                {
+                    "name": "kale",
+                    "category": "Produce",
+                    "tags": [
+                        "Organic"
+                    ]
+                },
+                {
+                    "name": "milk",
+                    "category": "Dairy"
+                }
+            ]
+        },
+        {
+            "name": "Travel Packing",
+            "items": [
+                {
+                    "name": "Hat",
+                    "notes": "The good one!",
+                    "category": "Clothing"
+                },
+                {
+                    "name": "Socks",
+                    "category": "Clothing"
+                },
+                {
+                    "name": "Tablet",
+                    "category": "Electronics",
+                    "tags": [
+                        "Carry-on"
+                    ]
+                },
+                {
+                    "name": "Toothbrush",
+                    "category": "Toiletries",
+                    "tags": [
+                        "Checked Baggage"
+                    ]
+                },
+                {
+                    "name": "Toothpaste",
+                    "category": "Toiletries",
+                    "tags": [
+                        "Checked Baggage"
+                    ]
+                }
+            ]
+        }
+    ]
+}

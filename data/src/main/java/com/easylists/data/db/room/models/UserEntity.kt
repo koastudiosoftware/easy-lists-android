@@ -19,7 +19,7 @@ data class UserEntity @OptIn(ExperimentalUuidApi::class) constructor(
     @ColumnInfo(name = "user_id")
     val userId: String = Uuid.random().toString(),
 
-    val email: String,
+    val email: String? = null,
 
     val displayName: String? = null,
 

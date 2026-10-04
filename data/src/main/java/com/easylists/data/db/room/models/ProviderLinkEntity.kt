@@ -9,16 +9,16 @@ import java.time.Instant
 
 @Entity(
     tableName = "provider_links",
-    primaryKeys = ["provider", "providerUserId"],
+    primaryKeys = ["provider", "provider_user_id"],
     foreignKeys = [
         ForeignKey(
             entity = UserEntity::class,
-            parentColumns = ["userId"],
-            childColumns = ["userId"],
+            parentColumns = ["user_id"],
+            childColumns = ["user_id"],
             onDelete = ForeignKey.CASCADE,
         ),
     ],
-    indices = [Index(value = ["userId"])],
+    indices = [Index(value = ["user_id"])],
 )
 data class ProviderLinkEntity(
 
