@@ -3,7 +3,6 @@ package com.easylists.data.repositories.local
 import com.easylists.data.db.room.dao.ListItemDao
 import com.easylists.data.mappers.RoomDataMapper
 import com.easylists.data.repositories.ListItemLocalDataSource
-import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.github.davidepanidev.kotlinextensions.utils.dispatchers.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
@@ -35,6 +34,13 @@ class RoomListItemLocalDataSource @Inject constructor(
             .map {
                 mapper.mapListItemEntityListToEasyListsListItemList(it)
             }
+    }
+    //endregion
+
+
+    //region delete()
+    override suspend fun delete(listItemUids: List<String>): Int {
+        return dao.delete(listItemUids = listItemUids)
     }
     //endregion
 

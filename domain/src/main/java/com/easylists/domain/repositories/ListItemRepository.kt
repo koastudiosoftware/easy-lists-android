@@ -9,6 +9,7 @@ interface ListItemRepository {
     fun getListItemFlow(listUid: String): Flow<List<EasyListsListItem>>
 
     suspend fun addListItem(listItem: EasyListsListItem): Result<Unit>
+    suspend fun deleteListItems(listItemUids: List<String>): Result<Int>
     suspend fun removeCategoryFromListItem(categoryUid: List<String>): Result<Unit>
     suspend fun updateListItem(listItem: EasyListsListItem): Result<Unit>
 

@@ -2,7 +2,6 @@ package com.easylists.domain.use_cases
 
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.repositories.ListItemRepository
-import com.toxicbakery.logging.Arbor
 import javax.inject.Inject
 
 class UpdateListItemFlowUseCase @Inject constructor(

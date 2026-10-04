@@ -21,6 +21,7 @@ import com.easylists.domain.models.TagListItem
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.AddListItemFlowUseCase
 import com.easylists.domain.use_cases.AddTagListItemUseCase
+import com.easylists.domain.use_cases.DeleteListItemsUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
@@ -73,6 +74,7 @@ class ListDetailsViewModel @Inject constructor(
     private val removeTagListItemUseCase: RemoveTagListItemUseCase,
     private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val addListItemUseCase: AddListItemFlowUseCase,
+    private val deleteListItemUseCase: DeleteListItemsUseCase,
     private val updateListItemUseCase: UpdateListItemFlowUseCase,
     private val saveListItemPhotoUseCase: SaveListItemPhotoUseCase,
     private val bitmapLoader: ImageBitmapLoader,
@@ -270,9 +272,7 @@ class ListDetailsViewModel @Inject constructor(
             // locate the selectedItemUid in the list of items
             // set its isDeleted flag to true
             // update the record in the local database
-            val item = state.listItemList.find { it.uid == state.selectedItemUid }
-            item?.isDeleted = true;
-            updateListItemUseCase(item!!)
+            deleteListItemUseCase(state.selectedItemUid)
 
             // reset the selected list item UID in the state so "add"
             // doesn't go into "edit" mode

@@ -24,6 +24,19 @@ abstract class ListItemDao() {
     @Update(entity = ListItemEntity::class)
     abstract suspend fun updatePartial(listItemUpdateEntity: ListItemUpdateEntity)
 
+    @Query("""
+        UPDATE list_item
+        SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
+        WHERE uid IN (:listItemUids) AND is_deleted = 0
+        """)
+    protected abstract suspend fun deleteChunk(listItemUids: List<String>, now: Long): Int
+
+    @Transaction
+    open suspend fun delete(
+        listItemUids: List<String>,
+        now: Long = System.currentTimeMillis()
+    ): Int = listItemUids.chunked(500).sumOf { deleteChunk(it, now) }
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(listItemEntity: ListItemEntity): Long
 
