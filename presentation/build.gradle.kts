@@ -93,4 +93,12 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+
+    // Google OAuth
+    //noinspection LoginCredentials
+    implementation(libs.androidx.credentials)
+    //noinspection LoginCredentials
+    implementation(libs.androidx.credentials.play.services.auth)
+    //noinspection LoginCredentials
+    implementation(libs.googleid)
 }
