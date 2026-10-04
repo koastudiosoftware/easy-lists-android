@@ -23,8 +23,9 @@ abstract class TagDao() {
 
     @Transaction
     @Query("""
-        SELECT * FROM tag
-        JOIN tag_list_item ON tag.tag_id = tag_list_item.list_item_id
+        SELECT t.tag_id, t.name, t.color, t.created_timestamp, t.modified_timestamp
+        FROM tag t
+        JOIN tag_list_item ON t.tag_id = tag_list_item.list_item_id
         WHERE tag_list_item.list_item_id = :listItemId
         ORDER BY name ASC
         """)

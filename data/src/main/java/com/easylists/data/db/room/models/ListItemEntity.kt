@@ -16,6 +16,10 @@ import kotlin.uuid.Uuid
         ForeignKey(entity = CategoryEntity::class, parentColumns = ["category_id"], childColumns = ["category_id"]),
         ForeignKey(entity = ListEntity::class, parentColumns = ["list_id"], childColumns = ["list_id"], onDelete = ForeignKey.CASCADE),
     ],
+    indices = [
+        Index(value = ["list_id", "is_deleted", "sort_order"]),
+        Index(value = ["category_id"]),
+    ],
 )
 data class ListItemEntity(
 

@@ -16,7 +16,11 @@ import kotlin.uuid.Uuid
         ForeignKey(entity = ListItemEntity::class, parentColumns = ["list_item_id"], childColumns = ["list_item_id"], onDelete = ForeignKey.CASCADE),
         ForeignKey(entity = TagEntity::class, parentColumns = ["tag_id"], childColumns = ["tag_id"], onDelete = ForeignKey.CASCADE),
     ],
-    indices = [Index(value = ["tag_list_item_id"], unique = true)],
+    indices = [
+        Index(value = ["tag_list_item_id"], unique = true),
+        Index(value = ["tag_id"]),
+        Index(value = ["list_item_id"]),
+    ],
 )
 data class TagListItemEntity(
 
