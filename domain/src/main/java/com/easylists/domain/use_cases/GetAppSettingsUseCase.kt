@@ -23,7 +23,7 @@ class GetAppSettingsUseCase @Inject constructor(
 
                 when (type) {
                     AppSettingsType.Boolean.toString() -> {
-                        val value = settingsRepository.getBooleanAppSetting(key = keyName).toString()
+                        val value = settingsRepository.getBooleanAppSetting(key = keyName)
                         if (value.isNotEmpty()) {
                             values.add(mapOf(KEY to keyName, VALUE to value))
                         }
@@ -35,7 +35,7 @@ class GetAppSettingsUseCase @Inject constructor(
                         }
                     }
                     else -> {
-                        val value = settingsRepository.getStringAppSetting(key = keyName).toString()
+                        val value = settingsRepository.getStringAppSetting(key = keyName)
                         if (value.isNotEmpty()) {
                             values.add(mapOf(KEY to keyName, VALUE to value))
                         }

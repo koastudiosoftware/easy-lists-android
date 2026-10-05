@@ -31,7 +31,7 @@ enum class Themes(val value: String) {
     companion object {
         val Default = Solarized
 
-        infix fun from(value: String): Themes? = Themes.entries.firstOrNull { it.value == value }
+        infix fun from(value: String): Themes = Themes.entries.firstOrNull { it.value == value } ?: Default
     }
 }
 //endregion

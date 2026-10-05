@@ -325,8 +325,6 @@ fun EditCategoriesScreenBottomSheetName(viewModel: EditCategoriesViewModel) {
                 when {
                     viewModel.state.categoryNameInvalidMessage.isNotEmpty() ->
                         Text(text = viewModel.state.categoryNameInvalidMessage)
-
-                    else -> null
                 }
             }
         )

@@ -17,4 +17,6 @@ interface SettingsRepository {
 
     suspend fun removeAppSetting(key: String, type: String)
 
+    // New: emits the stored value as a string, "" when unset
+    fun getAppSettingFlow(key: String, type: String): Flow<String>
 }

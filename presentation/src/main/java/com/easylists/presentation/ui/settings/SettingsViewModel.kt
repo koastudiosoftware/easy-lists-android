@@ -87,7 +87,7 @@ class SettingsViewModel @Inject constructor(
                     sortCrossedOffItems ?: SortCrossedOffItems.MostRecentOnTop.toString()
                 ) ?: SortCrossedOffItems.MostRecentOnTop,
 
-                theme = Themes.from(theme ?: Themes.Solarized.toString()) ?: Themes.Solarized,
+                theme = Themes.from(theme ?: Themes.Solarized.toString()),
             )
         }
     }

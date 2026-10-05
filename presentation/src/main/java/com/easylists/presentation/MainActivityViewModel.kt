@@ -15,8 +15,13 @@ import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.models.MainActivityState
 import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,30 +29,27 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val getAppSettingsFlowUseCase: GetAppSettingsFlowUseCase,
-//    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
     var state by mutableStateOf(MainActivityState())
 
-    lateinit var themeModeState: StateFlow<Any>
+    private val _themeModeState = MutableStateFlow(Themes.Default)
+    val themeModeState: StateFlow<Themes> = _themeModeState.asStateFlow()
+
 
     fun init() {
-        initAppSettings()
+        loadTheme()
     }
 
-
-    fun initAppSettings() {
+    private fun loadTheme() {
         viewModelScope.launch {
-            themeModeState = getAppSettingsFlowUseCase(
-                keyMap = mapOf(
-                    KEY to AppSettingsKeys.Theme.key,
-                    TYPE to AppSettingsKeys.Theme.type.toString()
-                ),
-            ).stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000L),
-                initialValue = Themes.Default
-            )
+            getAppSettingsFlowUseCase(mapOf(
+                KEY to AppSettingsKeys.Theme.key,
+                TYPE to AppSettingsKeys.Theme.type.toString()
+
+            ))
+            .map { Themes.from(it) ?: Themes.Default }
+            .collect { _themeModeState.value = it }
         }
     }
 

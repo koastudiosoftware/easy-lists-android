@@ -1,6 +1,5 @@
 package com.easylists.data.di
 
-import com.easylists.data.repositories.AppSettingsRepositoryImpl
 import com.easylists.data.repositories.CategoryLocalDataSource
 import com.easylists.data.repositories.CategoryRepositoryImpl
 import com.easylists.data.repositories.ImageRepositoryImpl
@@ -9,6 +8,7 @@ import com.easylists.data.repositories.ListItemRepositoryImpl
 import com.easylists.data.repositories.ListLocalDataSource
 import com.easylists.data.repositories.ListRepositoryImpl
 import com.easylists.data.repositories.SessionRepositoryImpl
+import com.easylists.data.repositories.SettingsRepositoryImpl
 import com.easylists.data.repositories.TagListItemLocalDataSource
 import com.easylists.data.repositories.TagListItemRepositoryImpl
 import com.easylists.data.repositories.TagLocalDataSource
@@ -42,7 +42,7 @@ abstract class DataModule {
 
     // Settings
     @Binds
-    abstract fun bindAppRepository(appSettingsRepository: AppSettingsRepositoryImpl): SettingsRepository
+    abstract fun bindAppRepository(appSettingsRepository: SettingsRepositoryImpl): SettingsRepository
 
 
     // Category
