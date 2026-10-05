@@ -8,6 +8,7 @@ import com.easylists.data.repositories.ListItemLocalDataSource
 import com.easylists.data.repositories.ListItemRepositoryImpl
 import com.easylists.data.repositories.ListLocalDataSource
 import com.easylists.data.repositories.ListRepositoryImpl
+import com.easylists.data.repositories.SessionRepositoryImpl
 import com.easylists.data.repositories.TagListItemLocalDataSource
 import com.easylists.data.repositories.TagListItemRepositoryImpl
 import com.easylists.data.repositories.TagLocalDataSource
@@ -21,6 +22,7 @@ import com.easylists.domain.repositories.CategoryRepository
 import com.easylists.domain.repositories.ImageRepository
 import com.easylists.domain.repositories.ListItemRepository
 import com.easylists.domain.repositories.ListRepository
+import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.repositories.SettingsRepository
 import com.easylists.domain.repositories.TagListItemRepository
 import com.easylists.domain.repositories.TagRepository
@@ -32,6 +34,11 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class DataModule {
+
+    // Session
+    @Binds
+    abstract fun bindSessionRepository(sessionRepository: SessionRepositoryImpl): SessionRepository
+
 
     // Settings
     @Binds
