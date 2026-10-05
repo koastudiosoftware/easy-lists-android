@@ -30,8 +30,11 @@ class RoomDataMapper @Inject constructor(
         return categoryEntityList.map { entity ->
             EasyListsCategory(
                 categoryId = entity.categoryId,
+                ownerId = entity.ownerId,
                 name = entity.name,
                 sortOrder = entity.sortOrder,
+                isDirty = entity.isDirty,
+                isDeleted = entity.isDeleted,
                 createdTimestamp = entity.createdTimestamp,
                 modifiedTimestamp = entity.modifiedTimestamp,
             )
@@ -46,13 +49,19 @@ class RoomDataMapper @Inject constructor(
         return if (category.categoryId == null) {
             CategoryEntity(
                 name = category.name,
+                ownerId = category.ownerId,
                 sortOrder = category.sortOrder,
+                isDirty = category.isDirty,
+
             )
         } else {
             CategoryEntity(
                 categoryId = category.categoryId!!,
+                ownerId = category.ownerId,
                 name = category.name,
                 sortOrder = category.sortOrder,
+                isDirty = category.isDirty,
+                isDeleted = category.isDeleted,
                 createdTimestamp = category.createdTimestamp,
             )
         }
@@ -70,6 +79,7 @@ class RoomDataMapper @Inject constructor(
         return listEntityList.map { entity ->
             EasyListsList(
                 listId = entity.listId,
+                ownerId = entity.ownerId,
                 name = entity.name,
                 notes = entity.notes,
                 sortOrder = entity.sortOrder,
@@ -88,6 +98,7 @@ class RoomDataMapper @Inject constructor(
     fun mapEasyListsListToListEntity(list: EasyListsList): ListEntity {
         return ListEntity(
             name = list.name,
+            ownerId = list.ownerId,
             notes = list.notes,
             sortOrder = list.sortOrder,
             isDirty = list.isDirty,
@@ -201,8 +212,11 @@ class RoomDataMapper @Inject constructor(
         return tagEntityList.map { entity ->
             EasyListsTag(
                 tagId = entity.tagId,
+                ownerId = entity.ownerId,
                 name = entity.name,
                 color = entity.color,
+                isDirty = entity.isDirty,
+                isDeleted = entity.isDeleted,
                 createdTimestamp = entity.createdTimestamp,
                 modifiedTimestamp = entity.modifiedTimestamp,
             )
@@ -215,7 +229,9 @@ class RoomDataMapper @Inject constructor(
     fun mapTagToTagEntity(easyListsTag: EasyListsTag): TagEntity {
         return TagEntity(
             name = easyListsTag.name,
+            ownerId = easyListsTag.ownerId,
             color = easyListsTag.color,
+            isDirty = easyListsTag.isDirty
         )
     }
     //endregion
@@ -225,8 +241,11 @@ class RoomDataMapper @Inject constructor(
     fun mapTagToTagEntityForUpdate(easyListsTag: EasyListsTag): TagEntity {
         return TagEntity(
             tagId = easyListsTag.tagId.toString(),
+            ownerId = easyListsTag.ownerId,
             name = easyListsTag.name,
             color = easyListsTag.color,
+            isDirty = easyListsTag.isDirty,
+            isDeleted = easyListsTag.isDeleted,
             createdTimestamp = easyListsTag.createdTimestamp,
         )
     }

@@ -32,7 +32,7 @@ interface UserDao {
     // --- Read ---
 
     @Query("SELECT user_id FROM users LIMIT 1")
-    suspend fun getUserId(): String
+    fun observeUserId(): Flow<String?>
 
     @Query("SELECT * FROM users WHERE user_id = :userId")
     fun observeById(userId: String): Flow<UserEntity?>

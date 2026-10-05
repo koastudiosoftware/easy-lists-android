@@ -4,6 +4,7 @@ import java.time.Instant
 
 data class EasyListsList(
     var listId: String? = null,
+    var ownerId: String,
     var name: String,
     var notes: String? = null,
     var sortOrder: Int? = null,

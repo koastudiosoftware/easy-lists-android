@@ -18,6 +18,7 @@ import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
+import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.AddListItemFlowUseCase
 import com.easylists.domain.use_cases.AddTagListItemUseCase
@@ -78,9 +79,12 @@ class ListDetailsViewModel @Inject constructor(
     private val updateListItemUseCase: UpdateListItemFlowUseCase,
     private val saveListItemPhotoUseCase: SaveListItemPhotoUseCase,
     private val bitmapLoader: ImageBitmapLoader,
+    private val session: SessionRepository,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
+
+    var userId: String = ""
 
     private var categoryListFlowJob: Job? = null
     private var listItemListFlowJob: Job? = null
@@ -108,6 +112,10 @@ class ListDetailsViewModel @Inject constructor(
     //region initAppSettings()
     fun initAppSettings() {
         viewModelScope.launch {
+            // TODO we should do something more proactive if the userId cannot be fetched
+            userId = session.getUserId()
+            if (userId.isEmpty()) return@launch
+
             val result = getAppSettingsUseCase(
                 keys = AppSettingsKeys.entries.map {
                     mapOf(
@@ -164,7 +172,6 @@ class ListDetailsViewModel @Inject constructor(
     fun saveListItem() {
         viewModelScope.launch {
             saveListItemPhoto()
-            Arbor.i("saveListItem() state.itemPhotoUri: ${state.itemPhotoUri}")
 
             var category: EasyListsCategory
 
@@ -176,6 +183,7 @@ class ListDetailsViewModel @Inject constructor(
                 categoryUid = Uuid.random().toString()
                 category = EasyListsCategory(
                     categoryId = categoryUid,
+                    ownerId = userId,
                     name = state.categoryText,
                 )
                 addCategoryUseCase(category)

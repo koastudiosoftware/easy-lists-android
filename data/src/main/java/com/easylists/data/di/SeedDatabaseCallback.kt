@@ -75,7 +75,7 @@ class SeedDatabaseCallback(
             Gson().fromJson(it, SeedData::class.java)
         }
         val db = database()
-        val now = Instant.now().epochSecond
+        val now = System.currentTimeMillis()
 
         // One transaction: either everything is seeded or nothing is.
         db.withTransaction {
@@ -100,9 +100,9 @@ class SeedDatabaseCallback(
                 seedData.categories.map {
                     CategoryEntity(
                         categoryId = categoryIds.getValue(it),
-//                        ownerId = ownerId,
+                        ownerId = ownerId,
                         name = it,
-//                        isDirty = true, // so seeded rows sync if the user later enables sync
+                        isDirty = true,
                         createdTimestamp = now,
                         modifiedTimestamp = now,
                     )
@@ -113,9 +113,9 @@ class SeedDatabaseCallback(
                 seedData.tags.map {
                     TagEntity(
                         tagId = tagIds.getValue(it),
-//                        ownerId = ownerId,
+                        ownerId = ownerId,
                         name = it,
-//                        isDirty = true,
+                        isDirty = true,
                         createdTimestamp = now,
                         modifiedTimestamp = now,
                     )
@@ -127,7 +127,7 @@ class SeedDatabaseCallback(
                 db.listDao().insert(
                     ListEntity(
                         listId = listId,
-//                        ownerId = ownerId,
+                        ownerId = ownerId,
                         name = seedList.name,
                         notes = seedList.notes,
                         isDirty = true,
@@ -158,8 +158,6 @@ class SeedDatabaseCallback(
                         tagLinks += TagListItemEntity(
                             tagId = requireNotNull(tagIds[tagName]) { "Seed item '${item.name}' has unknown tag '$tagName'" },
                             listItemId = listItemId,
-//                            ownerId = ownerId,
-//                            isDirty = true,
                             createdTimestamp = now,
                             modifiedTimestamp = now,
                         )

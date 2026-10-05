@@ -45,7 +45,7 @@ data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
     var nextDataFetchStage: String = "category",
     var photoOffset: Offset = Offset.Zero,
     var photoScale: Double = 1.0,
-    var photoUri: String = "",
+    var photoUri: String? = null,
     var selectedCategoryIndex: Int = -1,
     var selectedItemUid: String = "",
     var selectedTagIds: List<Int> = emptyList(),

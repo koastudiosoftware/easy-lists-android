@@ -9,6 +9,7 @@ import com.easylists.domain.common.KEY
 import com.easylists.domain.common.TYPE
 import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsList
+import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddListFlowUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
@@ -20,6 +21,7 @@ import com.easylists.presentation.common.MasterListsAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListListUiState
 import com.easylists.presentation.models.MasterListsState
+import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -41,8 +43,11 @@ class MasterListsViewModel @Inject constructor(
     private val addListUseCase: AddListFlowUseCase,
     private val updateListUseCase: UpdateListUseCase,
     private val mapper: UiMapper,
+    private val session: SessionRepository,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
+
+    var userId: String = ""
 
     private var listListFlowJob: Job? = null
 
@@ -58,6 +63,10 @@ class MasterListsViewModel @Inject constructor(
     //region initAppSettings()
     fun initAppSettings() {
         viewModelScope.launch {
+            // TODO we should do something more proactive if the userId cannot be fetched
+            userId = session.getUserId()
+            if (userId.isEmpty()) return@launch
+
             val result = getAppSettingsUseCase(
                 keys = AppSettingsKeys.entries.map {
                     mapOf(
@@ -85,6 +94,8 @@ class MasterListsViewModel @Inject constructor(
         viewModelScope.launch {
             val list = EasyListsList(
                 name = state.listName,
+                ownerId = userId,
+                isDirty = true,
                 notes = state.listNotes.ifEmpty { null }
             )
 

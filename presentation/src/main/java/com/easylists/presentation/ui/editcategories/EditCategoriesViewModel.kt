@@ -11,6 +11,7 @@ import com.easylists.domain.common.VALUE
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
+import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
@@ -25,6 +26,7 @@ import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.EditCategoriesAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.EditCategoriesState
+import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -32,7 +34,10 @@ import fr.haan.resultat.onLoading
 import fr.haan.resultat.onSuccess
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -50,9 +55,12 @@ class EditCategoriesViewModel @Inject constructor(
     private val updateCategoryUseCase: UpdateCategoryUseCase,
     private val getListItemFlowUseCase: GetListItemFlowUseCase,
     private val getListListFlowUseCase: GetListFlowUseCase,
+    private val session: SessionRepository,
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
+
+    var userId: String = ""
 
     private var categoryListFlowJob: Job? = null
     private var listItemListFlowJob: Job? = null
@@ -72,6 +80,10 @@ class EditCategoriesViewModel @Inject constructor(
     //region initAppSettings()
     fun initAppSettings() {
         viewModelScope.launch {
+            // TODO we should do something more proactive if the userId cannot be fetched
+            userId = session.getUserId()
+            if (userId.isEmpty()) return@launch
+
             val result = getAppSettingsUseCase(
                 keys = AppSettingsKeys.entries.map {
                     mapOf(
@@ -293,7 +305,10 @@ class EditCategoriesViewModel @Inject constructor(
     //region addCategory()
     fun addCategory() {
         viewModelScope.launch {
-            addCategoryUseCase(category = EasyListsCategory(name = state.categoryName))
+            addCategoryUseCase(category = EasyListsCategory(
+                ownerId = userId,
+                name = state.categoryName
+            ))
             state = state.copy(
                 categoryName = "",
                 categoryNameInvalid = false,
@@ -311,8 +326,11 @@ class EditCategoriesViewModel @Inject constructor(
             updateCategoryUseCase(
                 category = EasyListsCategory(
                     categoryId = state.selectedItem?.categoryId,
+                    ownerId = state.selectedItem?.ownerId ?: "",
                     name = state.categoryName,
                     sortOrder = state.selectedItem?.sortOrder,
+                    isDirty = true,
+                    isDeleted = false,
                     createdTimestamp = state.selectedItem?.createdTimestamp
                         ?: Instant.now().epochSecond,
                 )
@@ -354,7 +372,7 @@ class EditCategoriesViewModel @Inject constructor(
 
         viewModelScope.launch {
             if (categoryList.isNotEmpty() || categoryList.all { it.isNotEmpty() }) {
-                removeCategoryUseCase(categoryIdList = categoryList)
+                removeCategoryUseCase(categoryIds = categoryList)
                 state.categoryList.forEach { it.selectedForRemoval = false }
             }
 

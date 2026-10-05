@@ -29,8 +29,18 @@ abstract class CategoryDao() {
     @Query("DELETE FROM categories WHERE category_id = :categoryId")
     abstract suspend fun delete(categoryId: String)
 
-    @Query("DELETE FROM categories WHERE category_id IN (:categoryId)")
-    abstract suspend fun delete(categoryId: List<String>)
+    @Query("""
+        UPDATE categories
+        SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
+        WHERE category_id IN (:categoryIds) AND is_deleted = 0
+        """)
+    protected abstract suspend fun deleteChunk(categoryIds: List<String>, now: Long): Int
+
+    @Transaction
+    open suspend fun delete(
+        categoryIds: List<String>,
+        now: Long = System.currentTimeMillis()
+    ): Int = categoryIds.chunked(500).sumOf { deleteChunk(it, now) }
 
 
 }

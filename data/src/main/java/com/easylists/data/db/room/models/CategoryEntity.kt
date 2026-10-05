@@ -19,11 +19,23 @@ data class CategoryEntity(
     @ColumnInfo(name = "category_id")
     val categoryId: String = Uuid.random().toString(),
 
+    @ColumnInfo(name = "owner_id")
+    @SerializedName(value = "owner_id")
+    val ownerId: String,
+
     val name: String,
 
     @ColumnInfo(name = "sort_order")
     @SerializedName(value = "sort_order")
     val sortOrder: Int? = null,
+
+    @ColumnInfo(name = "is_dirty")
+    @SerializedName(value = "is_dirty")
+    var isDirty: Boolean = false,
+
+    @ColumnInfo(name = "is_deleted")
+    @SerializedName(value = "is_deleted")
+    var isDeleted: Boolean = false,
 
     @ColumnInfo(name = "created_timestamp")
     @SerializedName(value = "created_timestamp")

@@ -19,6 +19,10 @@ data class ListEntity(
     @ColumnInfo(name = "list_id")
     val listId: String = Uuid.random().toString(),
 
+    @ColumnInfo(name = "owner_id")
+    @SerializedName(value = "owner_id")
+    val ownerId: String,
+
     val name: String,
 
     val notes: String? = "",

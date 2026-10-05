@@ -13,6 +13,7 @@ import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
+import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddTagUseCase
 import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
@@ -42,6 +43,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -57,8 +59,11 @@ class EditTagsViewModel @Inject constructor(
     private val getTagListItemFlowUseCase: GetTagListItemFlowUseCase,
     private val getListListFlowUseCase: GetListFlowUseCase,
     private val mapper: UiMapper,
+    private val session: SessionRepository,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
+
+    var userId: String = ""
 
     private var listItemListFlowJob: Job? = null
     private var listListFlowJob: Job? = null
@@ -80,6 +85,10 @@ class EditTagsViewModel @Inject constructor(
     //region initAppSettings()
     fun initAppSettings() {
         viewModelScope.launch {
+            // TODO we should do something more proactive if the userId cannot be fetched
+            userId = session.getUserId()
+            if (userId.isEmpty()) return@launch
+
             val result = getAppSettingsUseCase(
                 keys = AppSettingsKeys.entries.map {
                     mapOf(
@@ -281,7 +290,7 @@ class EditTagsViewModel @Inject constructor(
             initListItemList()
             initTagListItemList()
             initListList()
-            delay(500L) // workaround to eliminate sticky pull to refresh indicator
+            delay(500L.milliseconds) // workaround to eliminate sticky pull to refresh indicator
             state = state.copy(isPullToRefreshing = false)
         }
     }
@@ -351,7 +360,9 @@ class EditTagsViewModel @Inject constructor(
         viewModelScope.launch {
             addTagUseCase(easyListsTag = EasyListsTag(
                 tagId = Uuid.random().toString(),
-                name = state.tagName
+                ownerId = userId,
+                name = state.tagName,
+                isDirty = true
             ))
             state = state.copy(
                 tagName = "",
@@ -370,8 +381,10 @@ class EditTagsViewModel @Inject constructor(
             updateTagUseCase(
                 easyListsTag = EasyListsTag(
                     tagId = state.selectedItem?.tagId,
+                    ownerId = userId,
                     name = state.tagName,
                     color = state.selectedItem?.color,
+                    isDirty = true,
                     createdTimestamp = state.selectedItem?.createdTimestamp
                         ?: Instant.now().epochSecond,
                 )
@@ -570,8 +583,10 @@ class EditTagsViewModel @Inject constructor(
             updateTagUseCase(
                 easyListsTag = EasyListsTag(
                     tagId = state.selectedItem?.tagId,
+                    ownerId = userId,
                     name = state.selectedItem?.name.toString(),
                     color = null,
+                    isDirty = true,
                     createdTimestamp = state.selectedItem?.createdTimestamp
                         ?: Instant.now().epochSecond,
                 )
@@ -595,8 +610,10 @@ class EditTagsViewModel @Inject constructor(
             updateTagUseCase(
                 easyListsTag = EasyListsTag(
                     tagId = state.selectedItem?.tagId,
+                    ownerId = userId,
                     name = state.selectedItem?.name.toString(),
                     color = state.selectedHexCode.uppercase(),
+                    isDirty = true,
                     createdTimestamp = state.selectedItem?.createdTimestamp
                         ?: Instant.now().epochSecond,
                 )

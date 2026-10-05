@@ -23,7 +23,7 @@ abstract class TagDao() {
 
     @Transaction
     @Query("""
-        SELECT t.tag_id, t.name, t.color, t.created_timestamp, t.modified_timestamp
+        SELECT t.tag_id, t.owner_id, t.name, t.color, t.is_dirty, t.is_deleted, t.created_timestamp, t.modified_timestamp
         FROM tags t
         JOIN tag_list_items ON t.tag_id = tag_list_items.list_item_id
         WHERE tag_list_items.list_item_id = :listItemId

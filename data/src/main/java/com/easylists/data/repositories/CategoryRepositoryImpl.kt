@@ -43,9 +43,9 @@ class CategoryRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeCategories(categoryIdList: List<String>): Result<Unit> {
+    override suspend fun deleteCategories(categoryIds: List<String>): Result<Int> {
         return Result.runCatching {
-            localSource.delete(categoryIdList = categoryIdList)
+            localSource.delete(categoryIds = categoryIds)
         }
     }
 
@@ -57,6 +57,6 @@ interface CategoryLocalDataSource {
     suspend fun insert(category: EasyListsCategory): Long
     suspend fun update(category: EasyListsCategory)
     suspend fun delete(categoryId: String)
-    suspend fun delete(categoryIdList: List<String>)
+    suspend fun delete(categoryIds: List<String>): Int
 
 }
