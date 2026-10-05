@@ -393,8 +393,6 @@ fun EditTagsScreenBottomSheetName(viewModel: EditTagsViewModel) {
                 when {
                     viewModel.state.tagNameInvalidMessage.isNotEmpty() ->
                         Text(text = viewModel.state.tagNameInvalidMessage)
-
-                    else -> null
                 }
             }
         )
