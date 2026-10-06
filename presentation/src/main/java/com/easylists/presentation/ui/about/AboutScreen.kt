@@ -49,6 +49,7 @@ import com.easylists.presentation.icons.MaterialIconsMonetizationOn
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
+import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.pop
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,7 +58,8 @@ fun AboutScreen(
     navController: NavController<Screen>,
     onLinkClick: (String) -> Unit,
     onEmailClick: (String, String) -> Unit,
-    onPlayStoreClick: () -> Unit
+    onPlayStoreClick: () -> Unit,
+    viewModel: AboutViewModel = hiltViewModel()
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -73,7 +75,14 @@ fun AboutScreen(
         }
     ) { innerPadding ->
 
-        AboutScreenContent(innerPadding, onLinkClick, onEmailClick, onPlayStoreClick, navController)
+        AboutScreenContent(
+            innerPadding,
+            onLinkClick,
+            onEmailClick,
+            onPlayStoreClick,
+            navController,
+            viewModel
+        )
 
     }
 }
@@ -117,6 +126,7 @@ fun AboutScreenContent(
     onEmailClick: (String, String) -> Unit,
     onPlayStoreClick: () -> Unit,
     navController: NavController<Screen>,
+    viewModel: AboutViewModel,
 ) {
     LazyColumn(
         Modifier
@@ -137,7 +147,7 @@ fun AboutScreenContent(
         }
 
         item {
-            Version(modifier = Modifier.fillMaxWidth())
+            Version(modifier = Modifier.fillMaxWidth(), viewModel)
         }
 
         item {
@@ -241,7 +251,7 @@ private fun Copyright(modifier: Modifier = Modifier) {
 
 //region Version
 @Composable
-private fun Version(modifier: Modifier = Modifier) {
+private fun Version(modifier: Modifier = Modifier, viewModel: AboutViewModel) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
@@ -249,7 +259,9 @@ private fun Version(modifier: Modifier = Modifier) {
     ) {
         Text(
             modifier = Modifier.padding(top = MaterialTheme.spaces.small),
-            text = "v" + stringResource(id = R.string.app_version),
+            text = stringResource(
+                id = R.string.app_version, viewModel.appVersion.name,
+            ),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
         )
@@ -276,7 +288,10 @@ fun SectionInfoItemAbout(
     Row(
         modifier = Modifier
             .clickable { onClick.invoke() }
-            .padding(horizontal = MaterialTheme.spaces.large, vertical = MaterialTheme.spaces.medium)
+            .padding(
+                horizontal = MaterialTheme.spaces.large,
+                vertical = MaterialTheme.spaces.medium
+            )
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spaces.large),
         verticalAlignment = Alignment.CenterVertically,

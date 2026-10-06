@@ -1,5 +1,7 @@
 package com.easylists.di
 
+import com.easylists.BuildConfig
+import com.easylists.presentation.models.AppVersion
 import com.github.davidepanidev.kotlinextensions.utils.dispatchers.DefaultDispatcherProvider
 import com.github.davidepanidev.kotlinextensions.utils.dispatchers.DispatcherProvider
 import com.github.davidepanidev.kotlinextensions.utils.serialization.SerializationManager
@@ -13,6 +15,11 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object HiltModule {
+
+    @Provides
+    @Singleton
+    fun provideAppVersion(): AppVersion =
+        AppVersion(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
 
     @Provides
     @Singleton

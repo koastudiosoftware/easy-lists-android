@@ -7,6 +7,16 @@ plugins {
     alias(libs.plugins.hilt.plugin)
 }
 
+fun git(vararg args: String): String? = try {
+    providers.exec {
+        commandLine("git", *args)
+        isIgnoreExitValue = true
+    }.standardOutput.asText.get().trim().ifEmpty { null }
+} catch (e: Exception) { null }
+
+val commitCount = git("rev-list", "--count", "HEAD")?.toIntOrNull() ?: 1
+val baseVersion = "0.2"   // edit only for deliberate minor/major bumps
+
 android {
     namespace = "com.easylists"
     compileSdk = 37
@@ -15,8 +25,8 @@ android {
         applicationId = "com.easylists"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = commitCount
+        versionName = "$baseVersion.$commitCount"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -36,6 +46,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
