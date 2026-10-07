@@ -30,6 +30,24 @@ enum class Capitalization(val value: String, val keyboardCapitalization: Keyboar
 //endregion
 
 
+//region ViewMode
+enum class ViewMode(val value: String) {
+    Card("Card"),
+    List("List"),
+    ;
+
+    override fun toString(): String {
+        return value
+    }
+
+    companion object {
+        infix fun from(value: String): ViewMode? =
+            ViewMode.entries.firstOrNull { it.value == value }
+    }
+}
+//endregion
+
+
 //region AppSettingsKeys
 enum class AppSettingsKeys(val key: String, val type: AppSettingsType) {
     Capitalization("Capitalization", AppSettingsType.String),
@@ -39,6 +57,7 @@ enum class AppSettingsKeys(val key: String, val type: AppSettingsType) {
     GroupCrossedOffItems("GroupCrossedOffItems", AppSettingsType.String),
     SortCrossedOffItems("SortCrossedOffItems", AppSettingsType.String),
     Theme("Theme", AppSettingsType.String),
+    ViewMode("ViewMode", AppSettingsType.Boolean),
 }
 //endregion
 

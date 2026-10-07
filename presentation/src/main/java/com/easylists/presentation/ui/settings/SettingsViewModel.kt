@@ -16,6 +16,7 @@ import com.easylists.presentation.common.AppSettingsKeys
 import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SortCrossedOffItems
+import com.easylists.presentation.common.ViewMode
 import com.easylists.presentation.models.SettingsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -68,6 +69,9 @@ class SettingsViewModel @Inject constructor(
 
             val theme = result.find { it[KEY] == AppSettingsKeys.Theme.key }?.get(VALUE)
 
+            val viewMode = result.find { it[KEY] == AppSettingsKeys.ViewMode.key }?.get(VALUE)
+                ?: "true"
+
             state = state.copy(
                 capitalization = Capitalization.from(
                     capitalization ?: Capitalization.NoCapitalization.toString()
@@ -88,6 +92,8 @@ class SettingsViewModel @Inject constructor(
                 ) ?: SortCrossedOffItems.MostRecentOnTop,
 
                 theme = Themes.from(theme ?: Themes.Solarized.toString()),
+
+                viewMode = if (viewMode == "true") ViewMode.Card else ViewMode.List,
             )
         }
     }
@@ -136,6 +142,17 @@ class SettingsViewModel @Inject constructor(
         setBooleanAppSetting(
             key = AppSettingsKeys.EnableCamera.key,
             value = enableCamera
+        )
+    }
+    //endregion
+
+
+    //region onEnableViewMode()
+    fun onEnableViewMode() {
+        state = state.copy(viewMode = if (state.viewMode == ViewMode.List) ViewMode.Card else ViewMode.List)
+        setBooleanAppSetting(
+            key = AppSettingsKeys.ViewMode.key,
+            value = state.viewMode.toString() == ViewMode.Card.toString()
         )
     }
     //endregion

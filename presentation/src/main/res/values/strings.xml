@@ -52,6 +52,11 @@
     <string name="display">Display</string>
     <string name="adding_and_editing">Adding and Editing</string>
 
+    <string name="view_mode">View Mode</string>
+    <string name="view_mode_description">View mode for lists and list items</string>
+    <string name="list_view_mode">List View Mode</string>
+    <string name="card_view_mode">Card View Mode</string>
+
     <string name="enable_camera">Enable Camera</string>
     <string name="enable_camera_description">Enable or disable list item camera</string>
 

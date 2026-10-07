@@ -5,6 +5,7 @@ import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.MasterListsAction
 import com.easylists.presentation.common.SortCrossedOffItems
+import com.easylists.presentation.common.ViewMode
 
 data class SettingsState(
     var actionButtonState: MasterListsAction = MasterListsAction.None,
@@ -17,4 +18,5 @@ data class SettingsState(
     var restartActivity: Boolean? = null,
     var sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
     var theme: Themes = Themes.Solarized,
+    var viewMode: ViewMode = ViewMode.Card,
 )

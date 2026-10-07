@@ -30,6 +30,7 @@ import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.SortCrossedOffItems
+import com.easylists.presentation.common.ViewMode
 import com.easylists.presentation.common.composables.ListSettingGroup
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.composables.ToggleSettingItem
@@ -223,7 +224,32 @@ fun SettingsScreenContent(
                 viewModel
             )
         }
-    }
 
+        item {
+            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.medium))
+        }
+        item {
+            SectionTitle(
+                title = stringResource(id = R.string.view_mode),
+                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)
+            )
+        }
+        item {
+            ToggleSettingItem(
+                textLine1 = stringResource(id = R.string.view_mode_description),
+                textLine2 = when {
+                    viewModel.state.viewMode == ViewMode.List -> {
+                        stringResource(id = R.string.list_view_mode)
+                    }
+                    else -> {
+                        stringResource(id = R.string.card_view_mode)
+                    }
+                },
+                enabled = viewModel.state.viewMode == ViewMode.Card,
+                onCheckedChange = { viewModel.onEnableViewMode() }
+            )
+        }
+
+    }
 }
 //endregion
