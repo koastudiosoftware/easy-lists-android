@@ -44,6 +44,7 @@ import com.easylists.presentation.common.REPOSITORY_DONATE_URL
 import com.easylists.presentation.common.SUPPORT_EMAIL
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.MaterialIconsArrowBack
+import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsEmail
 import com.easylists.presentation.icons.MaterialIconsMonetizationOn
 import com.easylists.presentation.models.Screen
@@ -297,13 +298,13 @@ fun SectionInfoItemAbout(
         verticalAlignment = Alignment.CenterVertically,
     ) {
 
-        Image(
-            modifier = Modifier
-                .size(size = MaterialTheme.spaces.extraLarge)
-                .clip(shape = MaterialTheme.shapes.small),
-            painter = rememberVectorPainter(icon),
-            contentDescription = null,
-        )
+        IconButton(onClick = onClick,) {
+            Icon(
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                imageVector = icon,
+                contentDescription = stringResource(R.string.add_list_item),
+            )
+        }
         Column {
             Text(
                 text = name,
