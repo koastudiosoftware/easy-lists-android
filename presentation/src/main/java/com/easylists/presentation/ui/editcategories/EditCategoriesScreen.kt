@@ -134,9 +134,8 @@ fun EditCategoriesScreenTopAppBarNavigationIcon(navController: NavController<Scr
         onClick = { navController.pop() }
     ) {
         Icon(
-            painter = rememberVectorPainter(MaterialIconsArrowBack),
+            imageVector = MaterialIconsArrowBack,
             contentDescription = stringResource(R.string.return_to_previous_screen),
-            modifier = Modifier.padding(start = MaterialTheme.spaces.mediumLarge),
         )
     }
 }
