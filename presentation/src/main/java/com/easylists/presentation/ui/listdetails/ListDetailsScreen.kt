@@ -105,6 +105,7 @@ import com.easylists.presentation.icons.MaterialIconsBrokenImage
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsClose
 import com.easylists.presentation.icons.MaterialIconsDelete
+import com.easylists.presentation.icons.MaterialIconsEdit
 import com.easylists.presentation.icons.MaterialIconsInfo
 import com.easylists.presentation.icons.MaterialIconsInsertPhoto
 import com.easylists.presentation.icons.MaterialIconsMoreVert
@@ -434,12 +435,10 @@ fun ListDetailsScreenCategoryTitle(title: String, crossedOff: Boolean = false) {
 
 
 //region ListDetailsScreenListItem
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListDetailsScreenListItem(
     item: EasyListsListItem, viewModel: ListDetailsViewModel
 ) {
-    Arbor.i("ListDetailsScreenListItem item: $item")
     when {
         !item.isDeleted -> {
             Row(
@@ -476,6 +475,7 @@ fun ListDetailsScreenListItem(
                         var text = item.name
                         if (item.quantity != null) text += " (${item.quantity})"
                         Text(
+                            color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = TextStyle(
@@ -487,7 +487,7 @@ fun ListDetailsScreenListItem(
                         when {
                             item.notes?.isNotEmpty() == true -> {
                                 Text(
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     style = MaterialTheme.typography.bodyMedium,
@@ -596,11 +596,13 @@ fun ListDetailsScreenListItemIcons(
     when {
         viewModel.state.selectedItemUid == item.listItemId -> {
             VerticalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant,
                 modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
             )
             IconButton(onClick = { viewModel.setShowConfirmationDialogState(true) }) {
                 Icon(
-                    modifier = modifier,
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(20.dp),
                     imageVector = MaterialIconsDelete,
                     contentDescription = stringResource(R.string.delete_item)
                 )
@@ -609,14 +611,16 @@ fun ListDetailsScreenListItemIcons(
 
         else -> {
             VerticalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant,
                 modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
             )
             IconButton(onClick = {
                 viewModel.onListItemInfoClick(item, AddEditMode.Edit)
             }) {
                 Icon(
-                    modifier = modifier,
-                    imageVector = MaterialIconsInfo,
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(20.dp),
+                    imageVector = MaterialIconsEdit,
                     contentDescription = stringResource(R.string.view_item_details)
                 )
             }
@@ -696,6 +700,7 @@ fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
                                     onClick = { viewModel.saveListItem() },
                                 ) {
                                     Icon(
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                         imageVector = MaterialIconsCheck,
                                         contentDescription = stringResource(R.string.add_list_item),
                                     )
@@ -778,7 +783,8 @@ fun ListDetailsScreenListItemBottomSheetName(viewModel: ListDetailsViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = MaterialTheme.spaces.medium)
-                .padding(top = MaterialTheme.spaces.medium),
+//                .padding(bottom = MaterialTheme.spaces.small)
+            ,
             value = viewModel.itemName(),
             onValueChange = { viewModel.onItemNameChange(it) },
             label = { Text(text = stringResource(R.string.name)) },
@@ -808,7 +814,8 @@ fun ListDetailsScreenListItemBottomSheetNotes(viewModel: ListDetailsViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = MaterialTheme.spaces.medium)
-                .padding(top = MaterialTheme.spaces.medium),
+//                .padding(top = MaterialTheme.spaces.medium)
+            ,
             value = viewModel.itemNotes(),
             onValueChange = { viewModel.onItemNotesChange(it) },
             label = { Text(text = stringResource(R.string.notes)) },
@@ -830,7 +837,9 @@ fun ListDetailsScreenListItemBottomSheetQuantity(viewModel: ListDetailsViewModel
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spaces.medium),
+                .padding(horizontal = MaterialTheme.spaces.medium)
+                .padding(bottom = MaterialTheme.spaces.large)
+            ,
             value = viewModel.itemQuantity(),
             onValueChange = { viewModel.onItemQuantityChange(it) },
             label = { Text(text = stringResource(R.string.quantity)) },
@@ -860,7 +869,10 @@ fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel
     }
 
     ExposedDropdownMenuBox(
-        modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
+        modifier = Modifier
+            .padding(horizontal = MaterialTheme.spaces.medium)
+            .padding(bottom = MaterialTheme.spaces.large)
+        ,
         expanded = expanded,
         onExpandedChange = { expanded = it },
     ) {
@@ -1389,7 +1401,6 @@ fun ListDetailsScreenTopAppBarNavigationIcon(navController: NavController<Screen
         Icon(
             painter = rememberVectorPainter(MaterialIconsArrowBack),
             contentDescription = stringResource(R.string.return_to_previous_screen),
-            modifier = Modifier.padding(start = MaterialTheme.spaces.mediumLarge),
         )
     }
 }

@@ -16,18 +16,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.easylists.domain.common.Themes
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.about.AboutScreen
 import com.easylists.presentation.ui.editcategories.EditCategoriesScreen
 import com.easylists.presentation.ui.edittags.EditTagsScreen
 import com.easylists.presentation.ui.listdetails.ListDetailsScreen
-import com.easylists.presentation.ui.lists.MasterListsScreen
 import com.easylists.presentation.ui.lists.ListsViewModel
+import com.easylists.presentation.ui.lists.MasterListsScreen
 import com.easylists.presentation.ui.settings.SettingsScreen
 import com.easylists.presentation.ui.theme.EasyListsTheme
 import com.easylists.presentation.ui.theme.spaces
+//import com.easylists.presentation.ui.theme.EasyListsTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dev.olshevski.navigation.reimagined.NavBackHandler
 import dev.olshevski.navigation.reimagined.NavHost
@@ -46,9 +46,9 @@ class MainActivity : ComponentActivity() {
         viewModel.init()
 
         setContent {
-            val themeMode by viewModel.themeModeState.collectAsStateWithLifecycle()
+//            val themeMode by viewModel.themeModeState.collectAsStateWithLifecycle()
 
-            EasyListsTheme(themeMode = themeMode, dynamicColor = false) {
+            EasyListsTheme() {
                 val navController = rememberNavController<Screen>(
                     startDestination = Screen.MasterLists
                 )

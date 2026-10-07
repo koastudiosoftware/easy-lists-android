@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.easylists.domain.models.EasyListsList
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
@@ -52,6 +54,7 @@ import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsCategory
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsDelete
+import com.easylists.presentation.icons.MaterialIconsEdit
 import com.easylists.presentation.icons.MaterialIconsInfo
 import com.easylists.presentation.icons.MaterialIconsMoreVert
 import com.easylists.presentation.icons.MaterialIconsSettings
@@ -174,6 +177,7 @@ fun MasterListItem(
                             .padding(end = MaterialTheme.spaces.medium),
                     ) {
                         Text(
+                            color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = TextStyle(
@@ -185,7 +189,7 @@ fun MasterListItem(
                         when {
                             list.notes?.isNotEmpty() == true -> {
                                 Text(
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     style = MaterialTheme.typography.bodyMedium,
@@ -198,6 +202,7 @@ fun MasterListItem(
                     when {
                         viewModel.state.selectedListUid == list.listId -> {
                             VerticalDivider(
+                                color = MaterialTheme.colorScheme.outlineVariant,
                                 modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
                             )
                             IconButton(
@@ -205,7 +210,8 @@ fun MasterListItem(
                                 onClick = { viewModel.setShowConfirmationDialogState(true) }
                             ) {
                                 Icon(
-                                    modifier = Modifier,
+                                    tint = MaterialTheme.colorScheme.outline,
+                                    modifier = Modifier.size(20.dp),
                                     imageVector = MaterialIconsDelete,
                                     contentDescription = stringResource(R.string.create_new_list),
                                 )
@@ -214,6 +220,7 @@ fun MasterListItem(
 
                         else -> {
                             VerticalDivider(
+                                color = MaterialTheme.colorScheme.outlineVariant,
                                 modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
                             )
                             IconButton(
@@ -223,8 +230,9 @@ fun MasterListItem(
                                 }
                             ) {
                                 Icon(
-                                    modifier = Modifier,
-                                    imageVector = MaterialIconsInfo,
+                                    tint = MaterialTheme.colorScheme.outline,
+                                    modifier = Modifier.size(20.dp),
+                                    imageVector = MaterialIconsEdit,
                                     contentDescription = stringResource(R.string.create_new_list)
                                 )
                             }
@@ -413,6 +421,7 @@ fun MasterListsScreenListBottomSheet(viewModel: ListsViewModel) {
                                     },
                                 ) {
                                     Icon(
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                         imageVector = MaterialIconsCheck,
                                         contentDescription = stringResource(R.string.add_list),
                                     )
@@ -444,8 +453,7 @@ fun MasterListsScreenListBottomSheetListName(viewModel: ListsViewModel) {
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spaces.medium)
-                .padding(top = MaterialTheme.spaces.medium),
+                .padding(horizontal = MaterialTheme.spaces.medium),
             value = viewModel.listName(),
             onValueChange = { viewModel.onListNameChange(it) },
             label = { Text(text = stringResource(R.string.name)) },
@@ -476,8 +484,7 @@ fun MasterListsScreenListBottomSheetListNotes(viewModel: ListsViewModel) {
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spaces.medium)
-                .padding(top = MaterialTheme.spaces.medium),
+                .padding(horizontal = MaterialTheme.spaces.medium),
             value = viewModel.listNotes(),
             onValueChange = { viewModel.onListNotesChange(it) },
             label = { Text(text = stringResource(R.string.notes)) },
