@@ -1,7 +1,11 @@
 package com.easylists.presentation.mappers
 
+import androidx.annotation.StringRes
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import com.easylists.domain.common.Capitalization
 import com.easylists.domain.exceptions.TemporarilyUnavailableNetworkServiceException
 import com.easylists.presentation.BuildConfig
+import com.easylists.presentation.R
 import com.toxicbakery.logging.Arbor
 import java.io.IOException
 import java.net.SocketException
@@ -31,5 +35,19 @@ class UiMapper @Inject constructor() {
         }
     }
     //endregion
+
+
+    fun Capitalization.toKeyboardCapitalization(): KeyboardCapitalization = when (this) {
+        Capitalization.NoCapitalization -> KeyboardCapitalization.None
+        Capitalization.CapitalizeFirstLetter -> KeyboardCapitalization.Sentences
+        Capitalization.CapitalizeAllWords -> KeyboardCapitalization.Words
+    }
+
+    @StringRes
+    fun Capitalization.labelRes(): Int = when (this) {
+        Capitalization.NoCapitalization -> R.string.capitalization_none
+        Capitalization.CapitalizeFirstLetter -> R.string.capitalization_first_letter
+        Capitalization.CapitalizeAllWords -> R.string.capitalization_all_words
+    }
 
 }

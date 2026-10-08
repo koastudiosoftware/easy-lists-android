@@ -86,15 +86,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.size.Size
+import com.easylists.domain.common.GroupCrossedOffItems
+import com.easylists.domain.common.SortCrossedOffItems
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.FramedPhoto
-import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
-import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.getContrastColor
@@ -106,7 +107,6 @@ import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsClose
 import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.icons.MaterialIconsEdit
-import com.easylists.presentation.icons.MaterialIconsInfo
 import com.easylists.presentation.icons.MaterialIconsInsertPhoto
 import com.easylists.presentation.icons.MaterialIconsMoreVert
 import com.easylists.presentation.icons.MaterialIconsPhotoCamera
@@ -126,6 +126,9 @@ fun ListDetailsScreen(
     sharedViewModel: SharedViewModel,
     viewModel: ListDetailsViewModel = hiltViewModel()
 ) {
+
+    val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -790,11 +793,12 @@ fun ListDetailsScreenListItemBottomSheetName(viewModel: ListDetailsViewModel) {
             label = { Text(text = stringResource(R.string.name)) },
             singleLine = true,
             maxLines = 1,
-            keyboardOptions = KeyboardOptions(
-                capitalization = viewModel.state.capitalization.keyboardCapitalization,
-                keyboardType = KeyboardType.Text,
-                showKeyboardOnFocus = true,
-            ),
+// TODO fix capitalization
+//            keyboardOptions = KeyboardOptions(
+//                capitalization = viewModel.state.capitalization.keyboardCapitalization,
+//                keyboardType = KeyboardType.Text,
+//                showKeyboardOnFocus = true,
+//            ),
             isError = viewModel.state.itemNameInvalid,
             supportingText = {
                 when {
@@ -819,11 +823,12 @@ fun ListDetailsScreenListItemBottomSheetNotes(viewModel: ListDetailsViewModel) {
             value = viewModel.itemNotes(),
             onValueChange = { viewModel.onItemNotesChange(it) },
             label = { Text(text = stringResource(R.string.notes)) },
-            keyboardOptions = KeyboardOptions(
-                capitalization = viewModel.state.capitalization.keyboardCapitalization,
-                keyboardType = KeyboardType.Text,
-                showKeyboardOnFocus = true,
-            ),
+// TODO fix capitalization
+//            keyboardOptions = KeyboardOptions(
+//                capitalization = viewModel.state.capitalization.keyboardCapitalization,
+//                keyboardType = KeyboardType.Text,
+//                showKeyboardOnFocus = true,
+//            ),
         )
     }
 }

@@ -1,8 +1,8 @@
 package com.easylists.presentation.models
 
+import com.easylists.domain.common.Capitalization
 import com.easylists.domain.models.EasyListsList
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.MasterListsAction
 
 data class MasterListsState(

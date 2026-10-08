@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -39,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -55,7 +53,6 @@ import com.easylists.presentation.icons.MaterialIconsCategory
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.icons.MaterialIconsEdit
-import com.easylists.presentation.icons.MaterialIconsInfo
 import com.easylists.presentation.icons.MaterialIconsMoreVert
 import com.easylists.presentation.icons.MaterialIconsSettings
 import com.easylists.presentation.icons.MaterialIconsTag
@@ -459,11 +456,12 @@ fun MasterListsScreenListBottomSheetListName(viewModel: ListsViewModel) {
             label = { Text(text = stringResource(R.string.name)) },
             singleLine = true,
             maxLines = 1,
-            keyboardOptions = KeyboardOptions(
-                capitalization = viewModel.state.capitalization.keyboardCapitalization,
-                keyboardType = KeyboardType.Text,
-                showKeyboardOnFocus = true,
-            ),
+// TODO fix capitalization
+//            keyboardOptions = KeyboardOptions(
+//                capitalization = viewModel.state.capitalization.keyboardCapitalization,
+//                keyboardType = KeyboardType.Text,
+//                showKeyboardOnFocus = true,
+//            ),
             isError = viewModel.state.listNameInvalid,
             supportingText = {
                 when {
@@ -488,11 +486,12 @@ fun MasterListsScreenListBottomSheetListNotes(viewModel: ListsViewModel) {
             value = viewModel.listNotes(),
             onValueChange = { viewModel.onListNotesChange(it) },
             label = { Text(text = stringResource(R.string.notes)) },
-            keyboardOptions = KeyboardOptions(
-                capitalization = viewModel.state.capitalization.keyboardCapitalization,
-                keyboardType = KeyboardType.Text,
-                showKeyboardOnFocus = true,
-            ),
+// TODO fix capitalization
+//            keyboardOptions = KeyboardOptions(
+//                capitalization = viewModel.state.capitalization.keyboardCapitalization,
+//                keyboardType = KeyboardType.Text,
+//                showKeyboardOnFocus = true,
+//            ),
         )
     }
 }

@@ -34,6 +34,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,6 +52,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
@@ -80,6 +82,9 @@ fun EditTagsScreen(
     navController: NavController<Screen>,
     viewModel: EditTagsViewModel = hiltViewModel()
 ) {
+    val settings by viewModel.settings.collectAsStateWithLifecycle()
+
+    val s = settings ?: return
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -382,11 +387,12 @@ fun EditTagsScreenBottomSheetName(viewModel: EditTagsViewModel) {
             label = { Text(text = stringResource(R.string.name)) },
             singleLine = true,
             maxLines = 1,
-            keyboardOptions = KeyboardOptions(
-                capitalization = viewModel.state.capitalization.keyboardCapitalization,
-                keyboardType = KeyboardType.Text,
-                autoCorrectEnabled = true,
-            ),
+// TODO fix capitalization
+//            keyboardOptions = KeyboardOptions(
+//                capitalization = viewModel.settings.capitalization,
+//                keyboardType = KeyboardType.Text,
+//                autoCorrectEnabled = true,
+//            ),
             isError = viewModel.state.tagNameInvalid,
             supportingText = {
                 when {

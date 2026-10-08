@@ -2,19 +2,18 @@ package com.easylists.presentation.models
 
 import android.net.Uri
 import androidx.compose.ui.geometry.Offset
+import com.easylists.domain.common.Capitalization
+import com.easylists.domain.common.GroupCrossedOffItems
+import com.easylists.domain.common.SortCrossedOffItems
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.Capitalization
-import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.MasterListsAction
-import com.easylists.presentation.common.SortCrossedOffItems
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-data class ListDetailsState @OptIn(ExperimentalUuidApi::class) constructor(
+data class ListDetailsState(
     var actionButtonState: MasterListsAction = MasterListsAction.None,
     var addEditMode: AddEditMode = AddEditMode.Add,
     var capitalization: Capitalization = Capitalization.NoCapitalization,

@@ -15,15 +15,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import com.easylists.presentation.ui.settings.SettingsViewModel
 import com.easylists.presentation.ui.theme.spaces
+import com.toxicbakery.logging.Arbor
 
 @Composable
-fun <E : Enum<E>> ListSettingGroup(
+fun <T> ListSettingGroup(
     title: String,
-    options: List<E>,
-    index: Int,
-    viewModel: SettingsViewModel
+    options: List<T>,
+    selected: T,
+    optionLabel: @Composable (T) -> String,
+    onSelected: (T) -> Unit,
 ) {
-    var showList = remember { mutableStateOf(false) }
+    val showList = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -54,7 +56,7 @@ fun <E : Enum<E>> ListSettingGroup(
                         .fillMaxWidth()
                         .padding(horizontal = MaterialTheme.spaces.large)
                 ) {
-                    Text(text = viewModel.listSettingsSelected(options[index]))
+                    Text(text = optionLabel(selected))
                 }
             }
         }
@@ -66,11 +68,11 @@ fun <E : Enum<E>> ListSettingGroup(
             ) {
                 options.forEach { option ->
                     ListSettingItem(
-                        option = option.toString(),
-                        selected = viewModel.listSettingsSelected(option),
+                        option = optionLabel(option),
+                        selected = optionLabel(selected),
                         onClick = {
-                            viewModel.onListSettingsChanged(option)
-                            showList.value = !showList.value
+                            onSelected(option)
+                            showList.value = false
                         }
                     )
                 }

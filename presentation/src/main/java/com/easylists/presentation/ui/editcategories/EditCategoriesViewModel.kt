@@ -5,28 +5,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.easylists.domain.common.KEY
-import com.easylists.domain.common.TYPE
-import com.easylists.domain.common.VALUE
+import com.easylists.domain.common.AppSettings
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddCategoryUseCase
-import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
-import com.easylists.domain.use_cases.RemoveCategoryUseCase
+import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveCategoryFromListItemUseCase
+import com.easylists.domain.use_cases.RemoveCategoryUseCase
 import com.easylists.domain.use_cases.UpdateCategoryUseCase
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.AppSettingsKeys
-import com.easylists.presentation.common.Capitalization
 import com.easylists.presentation.common.EditCategoriesAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.EditCategoriesState
-import com.toxicbakery.logging.Arbor
+import com.easylists.presentation.models.SettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
 import fr.haan.resultat.onFailure
@@ -34,12 +30,14 @@ import fr.haan.resultat.onLoading
 import fr.haan.resultat.onSuccess
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
@@ -47,7 +45,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class EditCategoriesViewModel @Inject constructor(
-    private val getAppSettingsUseCase: GetAppSettingsUseCase,
+    observeAppSettings: ObserveAppSettingsUseCase,
     private val getCategoryFlowUseCase: GetCategoryFlowUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
     private val removeCategoryUseCase: RemoveCategoryUseCase,
@@ -57,8 +55,20 @@ class EditCategoriesViewModel @Inject constructor(
     private val getListListFlowUseCase: GetListFlowUseCase,
     private val session: SessionRepository,
     private val mapper: UiMapper,
-//    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
+
+    // Persisted settings. DataStore is the single source of truth.
+    // null = DataStore hasn't emitted yet.
+    val settings: StateFlow<AppSettings?> = observeAppSettings()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null,
+        )
+
+    // Transient screen state
+    private val _uiState = MutableStateFlow(SettingsUiState())
+    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     var userId: String = ""
 
@@ -84,23 +94,23 @@ class EditCategoriesViewModel @Inject constructor(
             userId = session.getUserId()
             if (userId.isEmpty()) return@launch
 
-            val result = getAppSettingsUseCase(
-                keys = AppSettingsKeys.entries.map {
-                    mapOf(
-                        KEY to it.key,
-                        TYPE to it.type.toString()
-                    )
-                },
-            )
-
-            val capitalization =
-                result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
-
-            state = state.copy(
-                capitalization = Capitalization.from(
-                    capitalization ?: Capitalization.NoCapitalization.toString()
-                ) ?: Capitalization.NoCapitalization,
-            )
+//            val result = getAppSettingsUseCase(
+//                keys = AppSettingsKeys.entries.map {
+//                    mapOf(
+//                        KEY to it.key,
+//                        TYPE to it.type.toString()
+//                    )
+//                },
+//            )
+//
+//            val capitalization =
+//                result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
+//
+//            state = state.copy(
+//                capitalization = Capitalization.from(
+//                    capitalization ?: Capitalization.NoCapitalization.toString()
+//                ) ?: Capitalization.NoCapitalization,
+//            )
         }
     }
     //endregion

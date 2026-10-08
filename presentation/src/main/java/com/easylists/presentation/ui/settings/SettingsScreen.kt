@@ -19,25 +19,30 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
-import com.easylists.domain.common.Themes
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.easylists.domain.common.AppSettings
+import com.easylists.domain.common.Capitalization
+import com.easylists.domain.common.GroupCrossedOffItems
+import com.easylists.domain.common.SortCrossedOffItems
+import com.easylists.domain.common.ViewMode
 import com.easylists.presentation.R
-import com.easylists.presentation.common.Capitalization
-import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.SharedViewModel
-import com.easylists.presentation.common.SortCrossedOffItems
-import com.easylists.presentation.common.ViewMode
 import com.easylists.presentation.common.composables.ListSettingGroup
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.composables.ToggleSettingItem
+import com.easylists.presentation.common.labelRes
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsInfo
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
+import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.navigate
@@ -50,6 +55,8 @@ fun SettingsScreen(
     sharedViewModel: SharedViewModel,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -67,24 +74,23 @@ fun SettingsScreen(
 
         val pullToRefreshState = rememberPullToRefreshState()
         PullToRefreshBox(
-            isRefreshing = viewModel.state.isPullToRefreshing,
-            onRefresh = viewModel.onPullToRefresh(true),
+            isRefreshing = uiState.isPullToRefreshing,
+            onRefresh = { viewModel.onPullToRefresh(true) },
             state = pullToRefreshState,
             modifier = Modifier.padding(innerPadding),
             indicator = {
                 Indicator(
                     modifier = Modifier.align(Alignment.TopCenter),
-                    isRefreshing = viewModel.state.isPullToRefreshing,
+                    isRefreshing = uiState.isPullToRefreshing,
                     state = pullToRefreshState
                 )
             },
         ) {
-
-            SettingsScreenContent(navController, viewModel)
-
+            settings?.let { s ->
+                SettingsScreenContent(navController, s, viewModel)
+            }
         }
     }
-
 }
 
 
@@ -135,6 +141,7 @@ fun SettingsScreenTopAppBarNavigationIcon(navController: NavController<Screen>) 
 @Composable
 fun SettingsScreenContent(
     navController: NavController<Screen>,
+    settings: AppSettings,
     viewModel: SettingsViewModel
 ) {
 
@@ -149,25 +156,27 @@ fun SettingsScreenContent(
         }
         item {
             ListSettingGroup(
-                stringResource(R.string.group_crossed_off_items),
-                GroupCrossedOffItems.entries.toList(),
-                GroupCrossedOffItems.entries.indexOf(viewModel.state.groupCrossedOffItems),
-                viewModel
+                title = stringResource(R.string.group_crossed_off_items),
+                options = GroupCrossedOffItems.entries,
+                selected = settings.groupCrossedOffItems,
+                optionLabel = { stringResource(it.labelRes()) },
+                onSelected = viewModel::onGroupCrossedOffItemsChanged,
             )
         }
         item {
             ListSettingGroup(
-                stringResource(R.string.sort_crossed_off_items),
-                SortCrossedOffItems.entries.toList(),
-                SortCrossedOffItems.entries.indexOf(viewModel.state.sortCrossedOffItems),
-                viewModel
+                title = stringResource(R.string.sort_crossed_off_items),
+                options = SortCrossedOffItems.entries,
+                selected = settings.sortCrossedOffItems,
+                optionLabel = { stringResource(it.labelRes()) },
+                onSelected = viewModel::onSortCrossedOffItemsChanged,
             )
         }
         item {
             ToggleSettingItem(
                 textLine1 = stringResource(id = R.string.enable_camera),
                 textLine2 = stringResource(id = R.string.enable_camera_description),
-                enabled = viewModel.state.enableCamera,
+                enabled = settings.enableCamera,
                 onCheckedChange = { viewModel.onEnableCameraChanged() }
             )
         }
@@ -175,7 +184,7 @@ fun SettingsScreenContent(
             ToggleSettingItem(
                 textLine1 = stringResource(id = R.string.enable_photos),
                 textLine2 = stringResource(id = R.string.enable_photos_description),
-                enabled = viewModel.state.enablePhotos,
+                enabled = settings.enablePhotos,
                 onCheckedChange = { viewModel.onEnablePhotosChanged() }
             )
         }
@@ -183,26 +192,8 @@ fun SettingsScreenContent(
             ToggleSettingItem(
                 textLine1 = stringResource(id = R.string.enable_tags),
                 textLine2 = stringResource(id = R.string.enable_tags_description),
-                enabled = viewModel.state.enableTags,
+                enabled = settings.enableTags,
                 onCheckedChange = { viewModel.onEnableTagsChanged() }
-            )
-        }
-
-        item {
-            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.medium))
-        }
-        item {
-            SectionTitle(
-                title = stringResource(id = R.string.display),
-                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)
-            )
-        }
-        item {
-            ListSettingGroup(
-                stringResource(R.string.theme),
-                Themes.entries.toList(),
-                Themes.entries.indexOf(viewModel.state.theme),
-                viewModel
             )
         }
 
@@ -217,10 +208,11 @@ fun SettingsScreenContent(
         }
         item {
             ListSettingGroup(
-                stringResource(R.string.capitalization),
-                Capitalization.entries.toList(),
-                Capitalization.entries.indexOf(viewModel.state.capitalization),
-                viewModel
+                title = stringResource(R.string.capitalization),
+                options = Capitalization.entries,
+                selected = settings.capitalization,
+                optionLabel = { stringResource(it.labelRes()) },
+                onSelected = viewModel::onCapitalizationChanged,
             )
         }
 
@@ -236,19 +228,14 @@ fun SettingsScreenContent(
         item {
             ToggleSettingItem(
                 textLine1 = stringResource(id = R.string.view_mode_description),
-                textLine2 = when {
-                    viewModel.state.viewMode == ViewMode.List -> {
-                        stringResource(id = R.string.list_view_mode)
-                    }
-                    else -> {
-                        stringResource(id = R.string.card_view_mode)
-                    }
+                textLine2 = when (settings.viewMode) {
+                    ViewMode.List -> stringResource(id = R.string.list_view_mode)
+                    ViewMode.Card -> stringResource(id = R.string.card_view_mode)
                 },
-                enabled = viewModel.state.viewMode == ViewMode.Card,
-                onCheckedChange = { viewModel.onEnableViewMode() }
+                enabled = settings.viewMode == ViewMode.Card,
+                onCheckedChange = { viewModel.onViewModeToggled() }
             )
         }
-
     }
 }
 //endregion

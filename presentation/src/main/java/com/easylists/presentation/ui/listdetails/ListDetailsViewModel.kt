@@ -11,9 +11,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.easylists.domain.common.KEY
-import com.easylists.domain.common.TYPE
-import com.easylists.domain.common.VALUE
+import com.easylists.domain.common.AppSettings
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
@@ -23,25 +21,22 @@ import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.AddListItemFlowUseCase
 import com.easylists.domain.use_cases.AddTagListItemUseCase
 import com.easylists.domain.use_cases.DeleteListItemsUseCase
-import com.easylists.domain.use_cases.GetAppSettingsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
 import com.easylists.domain.use_cases.GetTagFlowUseCase
 import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
+import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveTagListItemUseCase
 import com.easylists.domain.use_cases.SaveListItemPhotoUseCase
 import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
 import com.easylists.presentation.BuildConfig
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.AppSettingsKeys
-import com.easylists.presentation.common.Capitalization
-import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.ImageBitmapLoader
-import com.easylists.presentation.common.SortCrossedOffItems
 import com.easylists.presentation.common.isNumeric
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListDetailsState
 import com.easylists.presentation.models.ListListUiState
+import com.easylists.presentation.models.SettingsUiState
 import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.haan.resultat.Resultat
@@ -50,9 +45,14 @@ import fr.haan.resultat.onLoading
 import fr.haan.resultat.onSuccess
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -66,7 +66,7 @@ import kotlin.uuid.Uuid
 
 @HiltViewModel
 class ListDetailsViewModel @Inject constructor(
-    private val getAppSettingsUseCase: GetAppSettingsUseCase,
+    observeAppSettings: ObserveAppSettingsUseCase,
     private val getCategoryFlowUseCase: GetCategoryFlowUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
     private val getTagFlowUseCase: GetTagFlowUseCase,
@@ -83,6 +83,19 @@ class ListDetailsViewModel @Inject constructor(
     private val mapper: UiMapper,
 //    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
+
+    // Persisted settings. DataStore is the single source of truth.
+    // null = DataStore hasn't emitted yet.
+    val settings: StateFlow<AppSettings?> = observeAppSettings()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null,
+        )
+
+    // Transient screen state
+    private val _uiState = MutableStateFlow(SettingsUiState())
+    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     var userId: String = ""
 
@@ -116,52 +129,52 @@ class ListDetailsViewModel @Inject constructor(
             userId = session.getUserId()
             if (userId.isEmpty()) return@launch
 
-            val result = getAppSettingsUseCase(
-                keys = AppSettingsKeys.entries.map {
-                    mapOf(
-                        KEY to it.key,
-                        TYPE to it.type.toString()
-                    )
-                },
-            )
-
-            val capitalization =
-                result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
-
-            val enableCamera =
-                result.find { it[KEY] == AppSettingsKeys.EnableCamera.key }?.get(VALUE)
-
-            val enablePhotos =
-                result.find { it[KEY] == AppSettingsKeys.EnablePhotos.key }?.get(VALUE)
-
-            val enableTags =
-                result.find { it[KEY] == AppSettingsKeys.EnableTags.key }?.get(VALUE)
-
-            val groupCrossedOffItems =
-                result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
-
-            val sortCrossedOffItems =
-                result.find { it[KEY] == AppSettingsKeys.SortCrossedOffItems.key }?.get(VALUE)
-
-            state = state.copy(
-                capitalization = Capitalization.from(
-                    capitalization ?: Capitalization.NoCapitalization.toString()
-                ) ?: Capitalization.NoCapitalization,
-
-                enableCamera = enableCamera != "false",
-
-                enablePhotos = enablePhotos != "false",
-
-                enableTags = enableTags != "false",
-
-                groupCrossedOffItems = GroupCrossedOffItems.from(
-                    groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
-                ) ?: GroupCrossedOffItems.AllTogether,
-
-                sortCrossedOffItems = SortCrossedOffItems.from(
-                    sortCrossedOffItems ?: SortCrossedOffItems.MostRecentOnTop.toString()
-                ) ?: SortCrossedOffItems.MostRecentOnTop,
-            )
+//            val result = getAppSettingsUseCase(
+//                keys = AppSettingsKeys.entries.map {
+//                    mapOf(
+//                        KEY to it.key,
+//                        TYPE to it.type.toString()
+//                    )
+//                },
+//            )
+//
+//            val capitalization =
+//                result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
+//
+//            val enableCamera =
+//                result.find { it[KEY] == AppSettingsKeys.EnableCamera.key }?.get(VALUE)
+//
+//            val enablePhotos =
+//                result.find { it[KEY] == AppSettingsKeys.EnablePhotos.key }?.get(VALUE)
+//
+//            val enableTags =
+//                result.find { it[KEY] == AppSettingsKeys.EnableTags.key }?.get(VALUE)
+//
+//            val groupCrossedOffItems =
+//                result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
+//
+//            val sortCrossedOffItems =
+//                result.find { it[KEY] == AppSettingsKeys.SortCrossedOffItems.key }?.get(VALUE)
+//
+//            state = state.copy(
+//                capitalization = Capitalization.from(
+//                    capitalization ?: Capitalization.NoCapitalization.toString()
+//                ) ?: Capitalization.NoCapitalization,
+//
+//                enableCamera = enableCamera != "false",
+//
+//                enablePhotos = enablePhotos != "false",
+//
+//                enableTags = enableTags != "false",
+//
+//                groupCrossedOffItems = GroupCrossedOffItems.from(
+//                    groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
+//                ) ?: GroupCrossedOffItems.AllTogether,
+//
+//                sortCrossedOffItems = SortCrossedOffItems.from(
+//                    sortCrossedOffItems ?: SortCrossedOffItems.MostRecentOnTop.toString()
+//                ) ?: SortCrossedOffItems.MostRecentOnTop,
+//            )
         }
     }
     //endregion

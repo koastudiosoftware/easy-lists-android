@@ -84,7 +84,13 @@
     <string name="tag_used_by_message">This tag is used by the following items.</string>
 
     <string name="group_crossed_off_items">Group crossed-off items</string>
+    <string name="group_crossed_off_all_together">All together</string>
+    <string name="group_crossed_off_by_category">By category</string>
+
     <string name="sort_crossed_off_items">Sort crossed-off items</string>
+    <string name="sort_crossed_off_most_recent_on_top">Most recent on top</string>
+    <string name="sort_crossed_off_alphabetically">Alphabetically</string>
+
     <string name="delete_all_crossed_off_items">Delete All Crossed Off Items</string>
 
     <string name="tags">Tags</string>
@@ -99,5 +105,9 @@
     <string name="remove_tag_color">Remove tag color</string>
     <string name="hex_placeholder">FFFFFF</string>
     <string name="rgb">RGB</string>
+
+    <string name="capitalization_none">None</string>
+    <string name="capitalization_first_letter">Capitalize first letter</string>
+    <string name="capitalization_all_words">Capitalize all words</string>
 
 </resources>

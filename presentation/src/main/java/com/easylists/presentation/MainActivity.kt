@@ -43,11 +43,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.init()
-
         setContent {
-//            val themeMode by viewModel.themeModeState.collectAsStateWithLifecycle()
-
             EasyListsTheme() {
                 val navController = rememberNavController<Screen>(
                     startDestination = Screen.MasterLists

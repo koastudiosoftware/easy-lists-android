@@ -10,10 +10,10 @@ class GetAppSettingsFlowUseCase @Inject constructor(
     private val repository: SettingsRepository   // interface, defined in domain
 ) {
 
-    operator fun invoke(keyMap: Map<String, String>): Flow<String> =
-        repository.getAppSettingFlow(
-            key = keyMap[KEY].orEmpty(),
-            type = keyMap[TYPE].orEmpty(),
-        )
+//    operator fun invoke(keyMap: Map<String, String>): Flow<String> =
+//        repository.getAppSettingFlow(
+//            key = keyMap[KEY].orEmpty(),
+//            type = keyMap[TYPE].orEmpty(),
+//        )
 
 }

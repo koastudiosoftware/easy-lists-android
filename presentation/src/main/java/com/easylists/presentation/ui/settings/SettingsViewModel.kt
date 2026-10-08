@@ -1,229 +1,89 @@
 package com.easylists.presentation.ui.settings
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.easylists.domain.common.AppSettingsType
-import com.easylists.domain.common.KEY
-import com.easylists.domain.common.TYPE
-import com.easylists.domain.common.Themes
-import com.easylists.domain.common.VALUE
-import com.easylists.domain.use_cases.GetAppSettingsUseCase
-import com.easylists.domain.use_cases.SetAppSettingsUseCase
-import com.easylists.presentation.common.AppSettingsKeys
-import com.easylists.presentation.common.Capitalization
-import com.easylists.presentation.common.GroupCrossedOffItems
-import com.easylists.presentation.common.SortCrossedOffItems
-import com.easylists.presentation.common.ViewMode
-import com.easylists.presentation.models.SettingsState
+import com.easylists.domain.common.AppSettings
+import com.easylists.domain.common.Capitalization
+import com.easylists.domain.common.GroupCrossedOffItems
+import com.easylists.domain.common.SortCrossedOffItems
+import com.easylists.domain.common.ViewMode
+import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
+import com.easylists.domain.use_cases.UpdateAppSettingsUseCase
+import com.easylists.presentation.models.SettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val getAppSettingsUseCase: GetAppSettingsUseCase,
-    private val setAppSettingsUseCase: SetAppSettingsUseCase,
-//    private val dispatcherProvider: DispatcherProvider,
+    observeAppSettings: ObserveAppSettingsUseCase,
+    private val updateAppSettings: UpdateAppSettingsUseCase,
 ) : ViewModel() {
 
-    var state by mutableStateOf( SettingsState() )
+    // Persisted settings. DataStore is the single source of truth.
+    // null = DataStore hasn't emitted yet.
+    val settings: StateFlow<AppSettings?> = observeAppSettings()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null,
+        )
+
+    // Transient screen state
+    private val _uiState = MutableStateFlow(SettingsUiState())
+    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
 
-    init {
-        initAppSettings()
-    }
-
-
-    //region initAppSettings()
-    fun initAppSettings() {
-        viewModelScope.launch {
-            val result = getAppSettingsUseCase(
-                keys = AppSettingsKeys.entries.map {
-                    mapOf(
-                        KEY to it.key,
-                        TYPE to it.type.toString()
-                    )
-                },
-            )
-
-            val capitalization =
-                result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
-
-            val enableCamera =
-                result.find { it[KEY] == AppSettingsKeys.EnableCamera.key }?.get(VALUE)
-
-            val enablePhotos =
-                result.find { it[KEY] == AppSettingsKeys.EnablePhotos.key }?.get(VALUE)
-
-            val enableTags =
-                result.find { it[KEY] == AppSettingsKeys.EnableTags.key }?.get(VALUE)
-
-            val groupCrossedOffItems =
-                result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
-
-            val sortCrossedOffItems =
-                result.find { it[KEY] == AppSettingsKeys.SortCrossedOffItems.key }?.get(VALUE)
-
-            val theme = result.find { it[KEY] == AppSettingsKeys.Theme.key }?.get(VALUE)
-
-            val viewMode = result.find { it[KEY] == AppSettingsKeys.ViewMode.key }?.get(VALUE)
-                ?: "true"
-
-            state = state.copy(
-                capitalization = Capitalization.from(
-                    capitalization ?: Capitalization.NoCapitalization.toString()
-                ) ?: Capitalization.NoCapitalization,
-
-                enableCamera = enableCamera != "false",
-
-                enablePhotos = enablePhotos != "false",
-
-                enableTags = enableTags != "false",
-
-                groupCrossedOffItems = GroupCrossedOffItems.from(
-                    groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
-                ) ?: GroupCrossedOffItems.AllTogether,
-
-                sortCrossedOffItems = SortCrossedOffItems.from(
-                    sortCrossedOffItems ?: SortCrossedOffItems.MostRecentOnTop.toString()
-                ) ?: SortCrossedOffItems.MostRecentOnTop,
-
-                theme = Themes.from(theme ?: Themes.Solarized.toString()),
-
-                viewMode = if (viewMode == "true") ViewMode.Card else ViewMode.List,
-            )
-        }
+    //region UI state
+    fun onPullToRefresh(isRefreshing: Boolean) {
+        _uiState.update { it.copy(isPullToRefreshing = isRefreshing) }
     }
     //endregion
 
 
-    //region onPullToRefresh()
-    fun onPullToRefresh(isRefreshing: Boolean): () -> Unit = {
-        state = state.copy(isPullToRefreshing = isRefreshing)
-    }
-    //endregion
-
-
-    //region onEnableCameraChanged()
-    fun onEnableCameraChanged() {
-        val enableCamera = !state.enableCamera
-        val enablePhotos = if (enableCamera) true else state.enablePhotos
-        state = state.copy(
-            enableCamera = enableCamera,
-            enablePhotos = enablePhotos
-        )
-        setBooleanAppSetting(
-            key = AppSettingsKeys.EnableCamera.key,
-            value = enableCamera
-        )
-        setBooleanAppSetting(
-            key = AppSettingsKeys.EnablePhotos.key,
-            value = enablePhotos
+    //region Toggles
+    fun onEnableCameraChanged() = update {
+        val camera = !it.enableCamera
+        it.copy(
+            enableCamera = camera,
+            enablePhotos = it.enablePhotos || camera, // camera on forces photos on
         )
     }
-    //endregion
 
-
-    //region onEnableCameraChanged()
-    fun onEnablePhotosChanged() {
-        val enablePhotos = !state.enablePhotos
-        val enableCamera = if (enablePhotos) state.enableCamera else false
-        state = state.copy(
-            enablePhotos = enablePhotos,
-            enableCamera = enableCamera
-        )
-        setBooleanAppSetting(
-            key = AppSettingsKeys.EnablePhotos.key,
-            value = enablePhotos
-        )
-        setBooleanAppSetting(
-            key = AppSettingsKeys.EnableCamera.key,
-            value = enableCamera
+    fun onEnablePhotosChanged() = update {
+        val photos = !it.enablePhotos
+        it.copy(
+            enablePhotos = photos,
+            enableCamera = it.enableCamera && photos, // photos off forces camera off
         )
     }
-    //endregion
 
+    fun onEnableTagsChanged() = update { it.copy(enableTags = !it.enableTags) }
 
-    //region onEnableViewMode()
-    fun onEnableViewMode() {
-        state = state.copy(viewMode = if (state.viewMode == ViewMode.List) ViewMode.Card else ViewMode.List)
-        setBooleanAppSetting(
-            key = AppSettingsKeys.ViewMode.key,
-            value = state.viewMode.toString() == ViewMode.Card.toString()
-        )
+    fun onViewModeToggled() = update {
+        it.copy(viewMode = if (it.viewMode == ViewMode.List) ViewMode.Card else ViewMode.List)
     }
     //endregion
 
 
-    //region onEnableTagsChanged()
-    fun onEnableTagsChanged() {
-        state = state.copy(enableTags = !state.enableTags)
-        setBooleanAppSetting(
-            key = AppSettingsKeys.EnableTags.key,
-            value = state.enableTags
-        )
-    }
-    //endregion
+    //region List settings
+    fun onCapitalizationChanged(value: Capitalization) =
+        update { it.copy(capitalization = value) }
 
+    fun onGroupCrossedOffItemsChanged(value: GroupCrossedOffItems) =
+        update { it.copy(groupCrossedOffItems = value) }
 
-    //region setBooleanAppSetting()
-    fun setBooleanAppSetting(key: String, value: Boolean) {
-        viewModelScope.launch {
-            setAppSettingsUseCase(key = key, value = value,
-                type = AppSettingsType.Boolean.toString())
-        }
-    }
-    //endregion
+    fun onSortCrossedOffItemsChanged(value: SortCrossedOffItems) =
+        update { it.copy(sortCrossedOffItems = value) }
 
-
-    //region setStringAppSetting()
-    fun setStringAppSetting(key: String, value: String) {
-        viewModelScope.launch {
-            setAppSettingsUseCase(key = key, value = value)
-        }
-    }
-    //endregion
-
-
-    //region onListSettingsChanged()
-    fun <E : Enum<E>> onListSettingsChanged(e: E) {
-        when (e) {
-            is Capitalization -> {
-                state = state.copy(capitalization = e)
-                setStringAppSetting(key = AppSettingsKeys.Capitalization.key, value = e.value)
-            }
-
-            is GroupCrossedOffItems -> {
-                state = state.copy(groupCrossedOffItems = e)
-                setStringAppSetting(key = AppSettingsKeys.GroupCrossedOffItems.key, value = e.value)
-            }
-
-            is SortCrossedOffItems -> {
-                state = state.copy(sortCrossedOffItems = e)
-                setStringAppSetting(key = AppSettingsKeys.SortCrossedOffItems.key, value = e.value)
-            }
-
-            is Themes -> {
-                state = state.copy(theme = e)
-                setStringAppSetting(key = AppSettingsKeys.Theme.key, value = e.value)
-            }
-        }
-    }
-    //endregion
-
-
-    //region listSettingsSelected()
-    fun <E : Enum<E>> listSettingsSelected(e: E): String {
-        return when (e) {
-            is Capitalization -> state.capitalization.toString()
-            is GroupCrossedOffItems -> state.groupCrossedOffItems.toString()
-            is SortCrossedOffItems -> state.sortCrossedOffItems.toString()
-            is Themes -> state.theme.toString()
-            else -> ""
-        }
+    private fun update(transform: (AppSettings) -> AppSettings) {
+        viewModelScope.launch { updateAppSettings(transform) }
     }
     //endregion
 

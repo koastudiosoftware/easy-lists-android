@@ -314,11 +314,12 @@ fun EditCategoriesScreenBottomSheetName(viewModel: EditCategoriesViewModel) {
             label = { Text(text = stringResource(R.string.name)) },
             singleLine = true,
             maxLines = 1,
-            keyboardOptions = KeyboardOptions(
-                capitalization = viewModel.state.capitalization.keyboardCapitalization,
-                keyboardType = KeyboardType.Text,
-                autoCorrectEnabled = true,
-            ),
+// TODO fix capitalization
+//            keyboardOptions = KeyboardOptions(
+//                capitalization = viewModel.settings.,
+//                keyboardType = KeyboardType.Text,
+//                autoCorrectEnabled = true,
+//            ),
             isError = viewModel.state.categoryNameInvalid,
             supportingText = {
                 when {

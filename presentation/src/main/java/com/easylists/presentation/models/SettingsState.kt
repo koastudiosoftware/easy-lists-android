@@ -1,22 +1,9 @@
 package com.easylists.presentation.models
 
-import com.easylists.domain.common.Themes
-import com.easylists.presentation.common.Capitalization
-import com.easylists.presentation.common.GroupCrossedOffItems
 import com.easylists.presentation.common.MasterListsAction
-import com.easylists.presentation.common.SortCrossedOffItems
-import com.easylists.presentation.common.ViewMode
 
-data class SettingsState(
-    var actionButtonState: MasterListsAction = MasterListsAction.None,
-    var capitalization: Capitalization = Capitalization.NoCapitalization,
-    var enableCamera: Boolean = true,
-    var enablePhotos: Boolean = true,
-    var enableTags: Boolean = true,
-    var groupCrossedOffItems: GroupCrossedOffItems = GroupCrossedOffItems.AllTogether,
-    var isPullToRefreshing: Boolean = false,
-    var restartActivity: Boolean? = null,
-    var sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
-    var theme: Themes = Themes.Solarized,
-    var viewMode: ViewMode = ViewMode.Card,
+data class SettingsUiState(
+    val actionButtonState: MasterListsAction = MasterListsAction.None,
+    val isPullToRefreshing: Boolean = false,
+    val restartActivity: Boolean? = null,
 )
