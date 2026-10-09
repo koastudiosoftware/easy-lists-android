@@ -91,8 +91,8 @@ dependencies {
     implementation(libs.colorpicker.compose)
 
     // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
+//    implementation(platform(libs.firebase.bom))
+//    implementation(libs.firebase.analytics)
 
     // Google OAuth
     //noinspection LoginCredentials

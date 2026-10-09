@@ -69,8 +69,8 @@ dependencies {
     implementation(libs.arbor.jvm)
 
     // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
+//    implementation(platform(libs.firebase.bom))
+//    implementation(libs.firebase.analytics)
 
     // Coil (for AsyncImage-related dependencies)
     implementation(libs.coil.compose)
