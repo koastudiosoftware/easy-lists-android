@@ -47,6 +47,7 @@ import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.EditCategoriesAction
 import com.easylists.presentation.common.composables.ConfirmationDialog
+import com.easylists.presentation.common.composables.KeyboardOptionsTextField
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
@@ -304,29 +305,12 @@ fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) 
 @Composable
 fun EditCategoriesScreenBottomSheetName(viewModel: EditCategoriesViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spaces.medium)
-                .padding(top = MaterialTheme.spaces.medium),
+        KeyboardOptionsTextField(
             value = viewModel.categoryName(),
-            onValueChange = { viewModel.onCategoryNameChange(it) },
-            label = { Text(text = stringResource(R.string.name)) },
-            singleLine = true,
-            maxLines = 1,
-// TODO fix capitalization
-//            keyboardOptions = KeyboardOptions(
-//                capitalization = viewModel.settings.,
-//                keyboardType = KeyboardType.Text,
-//                autoCorrectEnabled = true,
-//            ),
+            onValueChange = viewModel::onCategoryNameChange,
+            label = stringResource(R.string.name),
             isError = viewModel.state.categoryNameInvalid,
-            supportingText = {
-                when {
-                    viewModel.state.categoryNameInvalidMessage.isNotEmpty() ->
-                        Text(text = viewModel.state.categoryNameInvalidMessage)
-                }
-            }
+            errorMessage = viewModel.state.categoryNameInvalidMessage,
         )
     }
 }

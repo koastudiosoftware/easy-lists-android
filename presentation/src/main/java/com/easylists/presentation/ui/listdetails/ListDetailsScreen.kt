@@ -97,6 +97,7 @@ import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.FramedPhoto
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.composables.ConfirmationDialog
+import com.easylists.presentation.common.composables.KeyboardOptionsTextField
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.getContrastColor
 import com.easylists.presentation.common.toHexCodeWithAlpha
@@ -782,29 +783,13 @@ fun ListDetailsScreenListItemBottomSheetTagsTitle(viewModel: ListDetailsViewMode
 @Composable
 fun ListDetailsScreenListItemBottomSheetName(viewModel: ListDetailsViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spaces.medium)
-//                .padding(bottom = MaterialTheme.spaces.small)
-            ,
+        KeyboardOptionsTextField(
             value = viewModel.itemName(),
-            onValueChange = { viewModel.onItemNameChange(it) },
-            label = { Text(text = stringResource(R.string.name)) },
-            singleLine = true,
-            maxLines = 1,
-// TODO fix capitalization
-//            keyboardOptions = KeyboardOptions(
-//                capitalization = viewModel.state.capitalization.keyboardCapitalization,
-//                keyboardType = KeyboardType.Text,
-//                showKeyboardOnFocus = true,
-//            ),
+            onValueChange = viewModel::onItemNameChange,
+            label = stringResource(R.string.name),
             isError = viewModel.state.itemNameInvalid,
-            supportingText = {
-                when {
-                    viewModel.state.itemNameInvalidMessage.isNotEmpty() -> Text(text = viewModel.state.itemNameInvalidMessage)
-                }
-            })
+            errorMessage = viewModel.state.itemNameInvalidMessage,
+        )
     }
 }
 //endregion
@@ -814,21 +799,11 @@ fun ListDetailsScreenListItemBottomSheetName(viewModel: ListDetailsViewModel) {
 @Composable
 fun ListDetailsScreenListItemBottomSheetNotes(viewModel: ListDetailsViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spaces.medium)
-//                .padding(top = MaterialTheme.spaces.medium)
-            ,
+        KeyboardOptionsTextField(
             value = viewModel.itemNotes(),
-            onValueChange = { viewModel.onItemNotesChange(it) },
-            label = { Text(text = stringResource(R.string.notes)) },
-// TODO fix capitalization
-//            keyboardOptions = KeyboardOptions(
-//                capitalization = viewModel.state.capitalization.keyboardCapitalization,
-//                keyboardType = KeyboardType.Text,
-//                showKeyboardOnFocus = true,
-//            ),
+            onValueChange = viewModel::onItemNotesChange,
+            label = stringResource(R.string.notes),
+            singleLine = false,
         )
     }
 }
@@ -1244,7 +1219,6 @@ fun ListDetailsScreenListItemBottomSheetPhoto(viewModel: ListDetailsViewModel) {
 
 
 //region ListDetailsScreenTagPill
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListDetailsScreenTagPill(
     easyListsTag: EasyListsTag,

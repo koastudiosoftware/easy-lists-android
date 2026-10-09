@@ -46,7 +46,9 @@ import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.MasterListsAction
 import com.easylists.presentation.common.SharedViewModel
+import com.easylists.presentation.common.appKeyboardOptions
 import com.easylists.presentation.common.composables.ConfirmationDialog
+import com.easylists.presentation.common.composables.KeyboardOptionsTextField
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsCategory
@@ -447,28 +449,12 @@ fun MasterListsScreenListBottomSheet(viewModel: ListsViewModel) {
 @Composable
 fun MasterListsScreenListBottomSheetListName(viewModel: ListsViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spaces.medium),
+        KeyboardOptionsTextField(
             value = viewModel.listName(),
-            onValueChange = { viewModel.onListNameChange(it) },
-            label = { Text(text = stringResource(R.string.name)) },
-            singleLine = true,
-            maxLines = 1,
-// TODO fix capitalization
-//            keyboardOptions = KeyboardOptions(
-//                capitalization = viewModel.state.capitalization.keyboardCapitalization,
-//                keyboardType = KeyboardType.Text,
-//                showKeyboardOnFocus = true,
-//            ),
+            onValueChange = viewModel::onListNameChange,
+            label = stringResource(R.string.name),
             isError = viewModel.state.listNameInvalid,
-            supportingText = {
-                when {
-                    viewModel.state.listNameInvalidMessage.isNotEmpty() ->
-                        Text(text = viewModel.state.listNameInvalidMessage)
-                }
-            }
+            errorMessage = viewModel.state.listNameInvalidMessage,
         )
     }
 }
@@ -479,19 +465,11 @@ fun MasterListsScreenListBottomSheetListName(viewModel: ListsViewModel) {
 @Composable
 fun MasterListsScreenListBottomSheetListNotes(viewModel: ListsViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spaces.medium),
+        KeyboardOptionsTextField(
             value = viewModel.listNotes(),
-            onValueChange = { viewModel.onListNotesChange(it) },
-            label = { Text(text = stringResource(R.string.notes)) },
-// TODO fix capitalization
-//            keyboardOptions = KeyboardOptions(
-//                capitalization = viewModel.state.capitalization.keyboardCapitalization,
-//                keyboardType = KeyboardType.Text,
-//                showKeyboardOnFocus = true,
-//            ),
+            onValueChange = viewModel::onListNotesChange,
+            label = stringResource(R.string.notes),
+            singleLine = false,
         )
     }
 }
