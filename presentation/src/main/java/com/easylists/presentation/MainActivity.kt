@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.easylists.domain.common.Capitalization
+import com.easylists.presentation.common.LocalCapitalization
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.about.AboutScreen
@@ -44,84 +47,89 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            EasyListsTheme() {
-                val navController = rememberNavController<Screen>(
-                    startDestination = Screen.MasterLists
-                )
+            val settings by viewModel.settings.collectAsStateWithLifecycle()
+            CompositionLocalProvider(
+                LocalCapitalization provides (settings?.capitalization ?: Capitalization.NoCapitalization)
+            ) {
+                EasyListsTheme() {
+                    val navController = rememberNavController<Screen>(
+                        startDestination = Screen.MasterLists
+                    )
 
-                NavBackHandler(navController)
+                    NavBackHandler(navController)
 
-                val isBackStackEmpty by remember {
-                    derivedStateOf {
-                        navController.backstack.entries.size == 1
+                    val isBackStackEmpty by remember {
+                        derivedStateOf {
+                            navController.backstack.entries.size == 1
+                        }
                     }
-                }
 
-                BackHandler(enabled = isBackStackEmpty) {
-                    finish()
-                }
-
-                val currentDestination by remember {
-                    derivedStateOf {
-                        navController.backstack.entries.first().destination
+                    BackHandler(enabled = isBackStackEmpty) {
+                        finish()
                     }
-                }
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    contentWindowInsets = WindowInsets(MaterialTheme.spaces.none),
-                    bottomBar = {}
-                ) { innerPadding ->
+                    val currentDestination by remember {
+                        derivedStateOf {
+                            navController.backstack.entries.first().destination
+                        }
+                    }
 
-                    Surface(modifier = Modifier.padding(innerPadding)) {
-                        NavHost(controller = navController) { route ->
-                            when (route) {
-                                is Screen.MasterLists -> {
-                                    MasterListsScreen(
-                                        navController = navController,
-                                        sharedViewModel = sharedViewModel,
-                                        viewModel = startDestinationViewModel
-                                    )
-                                }
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        contentWindowInsets = WindowInsets(MaterialTheme.spaces.none),
+                        bottomBar = {}
+                    ) { innerPadding ->
 
-                                is Screen.ListDetails -> {
-                                    ListDetailsScreen(
-                                        navController = navController,
-                                        sharedViewModel = sharedViewModel
-                                    )
-                                }
+                        Surface(modifier = Modifier.padding(innerPadding)) {
+                            NavHost(controller = navController) { route ->
+                                when (route) {
+                                    is Screen.MasterLists -> {
+                                        MasterListsScreen(
+                                            navController = navController,
+                                            sharedViewModel = sharedViewModel,
+                                            viewModel = startDestinationViewModel
+                                        )
+                                    }
 
-                                is Screen.EditCategories -> {
-                                    EditCategoriesScreen(navController = navController)
-                                }
+                                    is Screen.ListDetails -> {
+                                        ListDetailsScreen(
+                                            navController = navController,
+                                            sharedViewModel = sharedViewModel
+                                        )
+                                    }
 
-                                is Screen.EditTags -> {
-                                    EditTagsScreen(navController = navController)
-                                }
+                                    is Screen.EditCategories -> {
+                                        EditCategoriesScreen(navController = navController)
+                                    }
 
-                                is Screen.Settings -> {
-                                    SettingsScreen(
-                                        navController = navController,
-                                        sharedViewModel = sharedViewModel
-                                    )
-                                }
+                                    is Screen.EditTags -> {
+                                        EditTagsScreen(navController = navController)
+                                    }
 
-                                is Screen.About -> {
-                                    AboutScreen(
-                                        navController = navController,
-                                        onLinkClick = { _ ->
+                                    is Screen.Settings -> {
+                                        SettingsScreen(
+                                            navController = navController,
+                                            sharedViewModel = sharedViewModel
+                                        )
+                                    }
+
+                                    is Screen.About -> {
+                                        AboutScreen(
+                                            navController = navController,
+                                            onLinkClick = { _ ->
 //                                            this@MainActivity.openUrlInExternalBrowser(url = url)
-                                        },
-                                        onEmailClick = { _, _ ->
+                                            },
+                                            onEmailClick = { _, _ ->
 //                                            this@MainActivity.openEmailInExternalApp(
 //                                                toEmailAddresses = setOf(email),
 //                                                subject = subject
 //                                            )
-                                        },
-                                        onPlayStoreClick = {
+                                            },
+                                            onPlayStoreClick = {
 //                                            openAppInPlayStore(packageName = packageName)
-                                        }
-                                    )
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
