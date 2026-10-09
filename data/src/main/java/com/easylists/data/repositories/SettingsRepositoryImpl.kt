@@ -51,7 +51,6 @@ class SettingsRepositoryImpl @Inject constructor(
             prefs[Keys.enableTags] = updated.enableTags
             prefs[Keys.groupCrossedOffItems] = updated.groupCrossedOffItems.id
             prefs[Keys.sortCrossedOffItems] = updated.sortCrossedOffItems.id
-            prefs[Keys.theme] = updated.theme.id
             prefs[Keys.viewMode] = updated.viewMode.id
         }
     }
@@ -68,7 +67,6 @@ class SettingsRepositoryImpl @Inject constructor(
                 ?: defaults.groupCrossedOffItems,
             sortCrossedOffItems = SortCrossedOffItems.from(this[Keys.sortCrossedOffItems])
                 ?: defaults.sortCrossedOffItems,
-            theme = Themes.from(this[Keys.theme]) ?: defaults.theme,
             viewMode = ViewMode.from(this[Keys.viewMode]) ?: defaults.viewMode,
         )
     }
