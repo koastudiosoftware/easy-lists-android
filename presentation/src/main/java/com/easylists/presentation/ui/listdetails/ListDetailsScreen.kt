@@ -97,7 +97,7 @@ import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.FramedPhoto
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.composables.ConfirmationDialog
-import com.easylists.presentation.common.composables.KeyboardOptionsTextField
+import com.easylists.presentation.common.composables.AppTextField
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.getContrastColor
 import com.easylists.presentation.common.toHexCodeWithAlpha
@@ -783,7 +783,7 @@ fun ListDetailsScreenListItemBottomSheetTagsTitle(viewModel: ListDetailsViewMode
 @Composable
 fun ListDetailsScreenListItemBottomSheetName(viewModel: ListDetailsViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        KeyboardOptionsTextField(
+        AppTextField(
             value = viewModel.itemName(),
             onValueChange = viewModel::onItemNameChange,
             label = stringResource(R.string.name),
@@ -799,7 +799,7 @@ fun ListDetailsScreenListItemBottomSheetName(viewModel: ListDetailsViewModel) {
 @Composable
 fun ListDetailsScreenListItemBottomSheetNotes(viewModel: ListDetailsViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        KeyboardOptionsTextField(
+        AppTextField(
             value = viewModel.itemNotes(),
             onValueChange = viewModel::onItemNotesChange,
             label = stringResource(R.string.notes),

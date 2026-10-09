@@ -110,4 +110,6 @@
     <string name="capitalization_first_letter">Capitalize first letter</string>
     <string name="capitalization_all_words">Capitalize all words</string>
 
+    <string name="list_name_in_use">List name in use</string>
+    <string name="retry">Retry</string>
 </resources>

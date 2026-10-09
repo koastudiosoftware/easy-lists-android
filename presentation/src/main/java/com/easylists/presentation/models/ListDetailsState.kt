@@ -54,7 +54,7 @@ data class ListDetailsState(
     var sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
     var tagListItemList: List<TagListItem> = emptyList(),
     val tempCameraFileUrl: Uri? = null,
-    var uiState: ListListUiState = ListListUiState.Idle
+//    var uiState: ListListUiState = ListListUiState.Idle
 )
 
 

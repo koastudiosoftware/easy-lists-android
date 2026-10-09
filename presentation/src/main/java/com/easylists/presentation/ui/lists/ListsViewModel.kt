@@ -9,295 +9,148 @@ import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddListFlowUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
-import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.MasterListsAction
 import com.easylists.presentation.mappers.UiMapper
+import com.easylists.presentation.models.ListEditorState
 import com.easylists.presentation.models.ListListUiState
-import com.easylists.presentation.models.MasterListsState
+import com.easylists.presentation.models.ListsInteractionState
+import com.easylists.presentation.models.validate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.haan.resultat.Resultat
-import fr.haan.resultat.onFailure
-import fr.haan.resultat.onLoading
-import fr.haan.resultat.onSuccess
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ListsViewModel @Inject constructor(
-    observeAppSettings: ObserveAppSettingsUseCase,
-    private val getListListFlowUseCase: GetListFlowUseCase,
+    getListListFlowUseCase: GetListFlowUseCase,
     private val addListUseCase: AddListFlowUseCase,
     private val updateListUseCase: UpdateListUseCase,
     private val mapper: UiMapper,
     private val session: SessionRepository,
 ) : ViewModel() {
 
-    var userId: String = ""
+    private val refreshTrigger = MutableStateFlow(0)
 
-    private var listListFlowJob: Job? = null
-
-    var state by mutableStateOf( MasterListsState() )
-
-
-    init {
-        initAppSettings()
-        initListList()
-    }
-
-
-    //region initAppSettings()
-    fun initAppSettings() {
-        viewModelScope.launch {
-            // TODO we should do something more proactive if the userId cannot be fetched
-            userId = session.getUserId()
-            if (userId.isEmpty()) return@launch
-
-//            val result = getAppSettingsUseCase(
-//                keys = AppSettingsKeys.entries.map {
-//                    mapOf(
-//                        KEY to it.key,
-//                        TYPE to it.type.toString()
-//                    )
-//                },
-//            )
-//
-//            val capitalization =
-//                result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
-//
-//            state = state.copy(
-//                capitalization = Capitalization.from(
-//                    capitalization ?: Capitalization.NoCapitalization.toString()
-//                ) ?: Capitalization.NoCapitalization,
-//            )
+    // Observed from the data layer, never copied. An error ends the inner flow;
+    // bumping refreshTrigger restarts it.
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val lists: StateFlow<ListListUiState> = refreshTrigger
+        .flatMapLatest {
+            getListListFlowUseCase()
+                .map<List<EasyListsList>?, ListListUiState> { all ->
+                    ListListUiState.Success(all.orEmpty().filterNot { it.isDeleted })
+                }
+                .catch { emit(ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))) }
         }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ListListUiState.Loading)
+
+    // Add/edit form. null = bottom sheet closed.
+    // Compose state (not a flow) so TextFields read and write it synchronously.
+    var editor by mutableStateOf<ListEditorState?>(null)
+        private set
+
+    var interaction by mutableStateOf(ListsInteractionState())
+        private set
+
+    private val currentLists: List<EasyListsList>
+        get() = (lists.value as? ListListUiState.Success)?.lists.orEmpty()
+
+
+    //region Add / edit form
+    fun onActionButtonClick(action: MasterListsAction) {
+        interaction = interaction.copy(actionButtonState = action)
+        editor = ListEditorState()
     }
-    //endregion
 
+    fun onListEditButtonClick(list: EasyListsList) {
+        editor = ListEditorState(
+            mode = AddEditMode.Edit,
+            listId = list.listId.toString(),
+            name = list.name,
+            notes = list.notes.orEmpty(),
+        )
+    }
 
-    //region addList() :: Add a list to the database
-    fun addList() {
+    fun onListNameChange(name: String) { editor = editor?.copy(name = name) }
+
+    fun onListNotesChange(notes: String) { editor = editor?.copy(notes = notes) }
+
+    fun onListBottomSheetDismiss() { editor = null }
+
+    fun addList(onSaved: () -> Unit) {
+        val form = editor ?: return
+        if (!form.validate(currentLists).canSave) return
+
         viewModelScope.launch {
+            // TODO surface an error if the userId can't be fetched
+            val userId = session.getUserId().ifEmpty { return@launch }
+
             val list = EasyListsList(
-                name = state.listName,
+                name = form.name.trim(),
                 ownerId = userId,
                 isDirty = true,
-                notes = state.listNotes.ifEmpty { null }
+                notes = form.notes.ifEmpty { null },
             )
 
-            if (state.addEditMode == AddEditMode.Add) {
+            if (form.mode == AddEditMode.Add) {
                 addListUseCase(list = list)
             } else {
-                list.listId = state.listUid
+                list.listId = form.listId
                 updateListUseCase(list = list)
             }
 
-            showListBottomSheet()
-            state = state.copy(
-                listName = "",
-                listNotes = "",
-                listNameInvalid = false,
-                listNameInvalidMessage = "",
-                selectedListUid = ""
-            )
+            editor = null
+            interaction = interaction.copy(selectedListId = null)
+            onSaved() // replaces `editor = null`
         }
     }
     //endregion
 
 
-    //region deleteList() :: delete a list by changing its is_deleted to true
-    fun deleteList() {
-        viewModelScope.launch {
-            // locate the selectedListUid in the list of lists
-            // set its isDeleted flag to true
-            // update the record in the local database
-            val list = state.listList?.find { it.listId == state.selectedListUid }
-            list?.isDeleted = true;
-            updateListUseCase(list = list!!)
-
-            // reset the selected list item UID in the state so "add"
-            // doesn't go into "edit" mode
-            state = state.copy(selectedListUid = "")
-        }
-    }
-    //endregion
-
-
-    //region showListBottomSheet()
-    fun showListBottomSheet() {
-        state = state.copy(showListBottomSheet = !state.showListBottomSheet)
-    }
-    //endregion
-
-
-    //region listIconButtonEnabled()
-    fun listIconButtonEnabled(): Boolean {
-        if (state.listName.isEmpty()) return false
-
-        if (state.addEditMode == AddEditMode.Edit) return true
-
-        // don't allow duplicate list name
-        if (state.listList?.any { it.name.equals(state.listName, ignoreCase = true) } == true)
-            return false
-
-        return true
-    }
-    //endregion
-
-
-    //region listName()
-    fun listName(): String {
-        return state.listName
-    }
-    //endregion
-
-
-    //region listName()
-    fun listNotes(): String {
-        return state.listNotes
-    }
-    //endregion
-
-
-    //region onListNameChange()
-    fun onListNameChange(name: String) {
-        var listNameInvalidMessage: String
-        val isNameInvalid = (state.listList?.any{ it.name == name } == true).let {
-            listNameInvalidMessage = if (it) "Name already in use" else ""
-            it
-        }
-
-        state = state.copy(
-            listName = name,
-            listNameInvalid = isNameInvalid,
-            listNameInvalidMessage = listNameInvalidMessage
-        )
-    }
-    //endregion
-
-
-    //region onListNotesChange()
-    fun onListNotesChange(notes: String) {
-        state = state.copy(listNotes = notes)
-    }
-    //endregion
-
-
-    //region initListList() :: initialize list of lists from the database
-    fun initListList() {
-        cancelListFlowCollection()
-
-        listListFlowJob = getListListFlowUseCase()
-            .onEach {
-                handleGetListState(Resultat.success(it))
-            }.catch {
-                handleGetListState(Resultat.failure(it))
-
-                // After this catch the flow is interrupted, and it must be collected
-                // again to obtain new data. The handleRefresh() method handles this situation.
-                cancelListFlowCollection()
-            }.launchIn(viewModelScope)
-    }
-
-
-    private fun handleGetListState(result: Resultat<List<EasyListsList>?>) {
-        result.onSuccess {
-            state = state.copy(
-                isPullToRefreshing = false,
-                // TODO this is where the sorting order should be applied
-                listList = it ?: emptyList(),
-            )
-        }.onFailure {
-            state = state.copy(
-                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
-            )
-        }.onLoading {
-//            state = state.copy(
-//                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
-//            )
-        }
-    }
-
-
-    private fun cancelListFlowCollection() {
-        listListFlowJob?.cancel()
-        listListFlowJob = null
-    }
-    //endregion
-
-
-    //region onPullToRefresh()
-    fun onPullToRefresh(): () -> Unit = {
-        state = state.copy(
-            isPullToRefreshing = true,
-            listList = emptyList(),
-        )
-        viewModelScope.launch {
-            initListList()
-            delay(500L.milliseconds) // workaround to eliminate sticky pull to refresh indicator
-            state = state.copy(isPullToRefreshing = false)
-        }
-    }
-    //endregion
-
-
-    //region onActionButtonClick()
-    fun onActionButtonClick(action: MasterListsAction) {
-        state = state.copy(actionButtonState = action)
-        showListBottomSheet()
-    }
-    //endregion
-
-
-    //region onListEditButtonClick()
-    fun onListEditButtonClick(list: EasyListsList) {
-        state = state.copy(
-            addEditMode = AddEditMode.Edit,
-            listUid = list.listId.toString(),
-            listName = list.name,
-            listNotes = list.notes ?: "",
-        )
-        showListBottomSheet()
-    }
-    //endregion
-
-
-    //region showContextIcons()
+    //region Selection / delete
     fun showContextIcons(list: EasyListsList?) {
         if (list == null) return
-        state = state.copy(
-            selectedListUid = if (state.selectedListUid.isEmpty()) list.listId.toString() else "",
+        interaction = interaction.copy(
+            selectedListId = if (interaction.selectedListId == null) list.listId.toString() else null,
         )
     }
-    //endregion
 
+    fun deleteList() {
+        val id = interaction.selectedListId ?: return
+        val list = currentLists.find { it.listId == id } ?: return
 
-    //region setShowConfirmationDialogState()
-    fun setShowConfirmationDialogState(newState: Boolean) {
-        state = state.copy(showConfirmationDialog = newState)
+        viewModelScope.launch {
+            updateListUseCase(list = list.copy(isDeleted = true))
+            interaction = interaction.copy(selectedListId = null)
+        }
+    }
+
+    fun setShowConfirmationDialogState(show: Boolean) {
+        interaction = interaction.copy(showConfirmationDialog = show)
     }
     //endregion
 
 
-    //region onItemBottomSheetDismiss()
-    fun onListBottomSheetDismiss() {
-        state = state.copy(
-            addEditMode = AddEditMode.Add,
-            listUid = "",
-            listName = "",
-            listNotes = "",
-            listNameInvalid = false,
-            listNameInvalidMessage = "",
-            showListBottomSheet = !state.showListBottomSheet,
-        )
+    //region Refresh
+    fun onRefresh() {
+        interaction = interaction.copy(isRefreshing = true)
+        refreshTrigger.update { it + 1 }
+        viewModelScope.launch {
+            delay(500.milliseconds) // keeps the indicator from flickering
+            interaction = interaction.copy(isRefreshing = false)
+        }
     }
     //endregion
-
 }

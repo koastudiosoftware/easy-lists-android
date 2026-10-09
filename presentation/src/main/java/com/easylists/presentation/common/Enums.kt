@@ -1,63 +1,9 @@
 package com.easylists.presentation.common
 
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import com.easylists.domain.common.AppSettingsType
-
 //region AddEditMode
 enum class AddEditMode() {
     Add,
     Edit,
-}
-//endregion
-
-
-//region Capitalization
-//enum class Capitalization(val value: String, val keyboardCapitalization: KeyboardCapitalization) {
-//    NoCapitalization("No capitalization", KeyboardCapitalization.None),
-//    CapitalizeFirstLetter("Capitalize first letter", KeyboardCapitalization.Sentences),
-//    CapitalizeAllWords("Capitalize all words", KeyboardCapitalization.Words),
-//    ;
-//
-//    override fun toString(): String {
-//        return value
-//    }
-//
-//    companion object {
-//        infix fun from(value: String): Capitalization? =
-//            Capitalization.entries.firstOrNull { it.value == value }
-//    }
-//}
-//endregion
-
-
-//region ViewMode
-//enum class ViewMode(val value: String) {
-//    Card("Card"),
-//    List("List"),
-//    ;
-//
-//    override fun toString(): String {
-//        return value
-//    }
-//
-//    companion object {
-//        infix fun from(value: String): ViewMode? =
-//            ViewMode.entries.firstOrNull { it.value == value }
-//    }
-//}
-//endregion
-
-
-//region AppSettingsKeys
-enum class AppSettingsKeys(val key: String, val type: AppSettingsType) {
-    Capitalization("Capitalization", AppSettingsType.String),
-    EnableCamera("EnableCamera", AppSettingsType.Boolean),
-    EnablePhotos("EnablePhotos", AppSettingsType.Boolean),
-    EnableTags("EnableTags", AppSettingsType.Boolean),
-    GroupCrossedOffItems("GroupCrossedOffItems", AppSettingsType.String),
-    SortCrossedOffItems("SortCrossedOffItems", AppSettingsType.String),
-    Theme("Theme", AppSettingsType.String),
-    ViewMode("ViewMode", AppSettingsType.Boolean),
 }
 //endregion
 
@@ -78,45 +24,9 @@ enum class EditTagsAction(val value: String) {
 //endregion
 
 
-//region GroupCrossedOffItems
-//enum class GroupCrossedOffItems(val value: String) {
-//    AllTogether("All together"),
-//    ByCategory("By category"),
-//    ;
-//
-//    override fun toString(): String {
-//        return value
-//    }
-//
-//    companion object {
-//        infix fun from(value: String): GroupCrossedOffItems? =
-//            GroupCrossedOffItems.entries.firstOrNull { it.value == value }
-//    }
-//}
-//endregion
-
-
 //region MasterListsAction
 enum class MasterListsAction(val value: String) {
     Add("Add"),
     None("None"),
 }
-//endregion
-
-
-//region SortCrossedOffItems
-//enum class SortCrossedOffItems(val value: String) {
-//    Alphabetically("Alphabetically"),
-//    MostRecentOnTop("Most recently crossed off on top"),
-//    ;
-//
-//    override fun toString(): String {
-//        return value
-//    }
-//
-//    companion object {
-//        infix fun from(value: String): SortCrossedOffItems? =
-//            SortCrossedOffItems.entries.firstOrNull { it.value == value }
-//    }
-//}
 //endregion

@@ -128,60 +128,12 @@ class ListDetailsViewModel @Inject constructor(
             // TODO we should do something more proactive if the userId cannot be fetched
             userId = session.getUserId()
             if (userId.isEmpty()) return@launch
-
-//            val result = getAppSettingsUseCase(
-//                keys = AppSettingsKeys.entries.map {
-//                    mapOf(
-//                        KEY to it.key,
-//                        TYPE to it.type.toString()
-//                    )
-//                },
-//            )
-//
-//            val capitalization =
-//                result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
-//
-//            val enableCamera =
-//                result.find { it[KEY] == AppSettingsKeys.EnableCamera.key }?.get(VALUE)
-//
-//            val enablePhotos =
-//                result.find { it[KEY] == AppSettingsKeys.EnablePhotos.key }?.get(VALUE)
-//
-//            val enableTags =
-//                result.find { it[KEY] == AppSettingsKeys.EnableTags.key }?.get(VALUE)
-//
-//            val groupCrossedOffItems =
-//                result.find { it[KEY] == AppSettingsKeys.GroupCrossedOffItems.key }?.get(VALUE)
-//
-//            val sortCrossedOffItems =
-//                result.find { it[KEY] == AppSettingsKeys.SortCrossedOffItems.key }?.get(VALUE)
-//
-//            state = state.copy(
-//                capitalization = Capitalization.from(
-//                    capitalization ?: Capitalization.NoCapitalization.toString()
-//                ) ?: Capitalization.NoCapitalization,
-//
-//                enableCamera = enableCamera != "false",
-//
-//                enablePhotos = enablePhotos != "false",
-//
-//                enableTags = enableTags != "false",
-//
-//                groupCrossedOffItems = GroupCrossedOffItems.from(
-//                    groupCrossedOffItems ?: GroupCrossedOffItems.AllTogether.toString()
-//                ) ?: GroupCrossedOffItems.AllTogether,
-//
-//                sortCrossedOffItems = SortCrossedOffItems.from(
-//                    sortCrossedOffItems ?: SortCrossedOffItems.MostRecentOnTop.toString()
-//                ) ?: SortCrossedOffItems.MostRecentOnTop,
-//            )
         }
     }
     //endregion
 
 
     //region saveListItem() :: save a list item to the database
-    @OptIn(ExperimentalUuidApi::class)
     fun saveListItem() {
         viewModelScope.launch {
             saveListItemPhoto()
@@ -221,8 +173,6 @@ class ListDetailsViewModel @Inject constructor(
                 isDirty = true,
                 isDeleted = false,
             )
-
-            Arbor.i("listItem: $listItem")
 
             if (state.addEditMode == AddEditMode.Add) {
                 addListItemUseCase(listItem = listItem)
@@ -476,9 +426,9 @@ class ListDetailsViewModel @Inject constructor(
             )
             Arbor.i("handleGetListItemState(after) listItemList: ${state.listItemList}")
         }.onFailure {
-            state = state.copy(
-                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
-            )
+//            state = state.copy(
+//                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
+//            )
         }.onLoading {
 //            state = state.copy(
 //                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
@@ -519,9 +469,9 @@ class ListDetailsViewModel @Inject constructor(
                 nextDataFetchStage = "list item",
             )
         }.onFailure {
-            state = state.copy(
-                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
-            )
+//            state = state.copy(
+//                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
+//            )
         }.onLoading {
 //            state = state.copy(
 //                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
@@ -562,9 +512,9 @@ class ListDetailsViewModel @Inject constructor(
                 nextDataFetchStage = "tag list item",
             )
         }.onFailure {
-            state = state.copy(
-                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
-            )
+//            state = state.copy(
+//                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
+//            )
         }.onLoading {
 //            state = state.copy(
 //                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
@@ -606,9 +556,9 @@ class ListDetailsViewModel @Inject constructor(
                 nextDataFetchStage = "",
             )
         }.onFailure {
-            state = state.copy(
-                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
-            )
+//            state = state.copy(
+//                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
+//            )
         }.onLoading {
 //            state = state.copy(
 //                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)

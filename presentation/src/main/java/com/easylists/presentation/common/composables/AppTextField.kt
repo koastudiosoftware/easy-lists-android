@@ -13,7 +13,7 @@ import com.easylists.presentation.common.appKeyboardOptions
 import com.easylists.presentation.ui.theme.spaces
 
 @Composable
-fun KeyboardOptionsTextField(
+fun AppTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
@@ -32,7 +32,6 @@ fun KeyboardOptionsTextField(
         onValueChange = onValueChange,
         label = { Text(text = label) },
         singleLine = singleLine,
-        maxLines = 1,
         keyboardOptions = appKeyboardOptions(keyboardType, imeAction),
         isError = isError,
         supportingText = {

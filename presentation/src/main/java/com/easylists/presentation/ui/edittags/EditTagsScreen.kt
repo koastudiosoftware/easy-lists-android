@@ -41,13 +41,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -58,7 +56,7 @@ import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.EditTagsAction
 import com.easylists.presentation.common.composables.ConfirmationDialog
-import com.easylists.presentation.common.composables.KeyboardOptionsTextField
+import com.easylists.presentation.common.composables.AppTextField
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.toHexCodeWithAlpha
 import com.easylists.presentation.icons.MaterialIconsAdd
@@ -378,7 +376,7 @@ fun EditTagsScreenBottomSheetListsAndItems(viewModel: EditTagsViewModel) {
 @Composable
 fun EditTagsScreenBottomSheetName(viewModel: EditTagsViewModel) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        KeyboardOptionsTextField(
+        AppTextField(
             value = viewModel.tagName(),
             onValueChange = viewModel::onTagNameChange,
             label = stringResource(R.string.name),
