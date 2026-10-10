@@ -6,8 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
-import java.time.Instant
-import kotlin.uuid.ExperimentalUuidApi
+import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 @Entity(
@@ -77,10 +76,10 @@ data class ListItemEntity(
 
     @ColumnInfo(name = "created_timestamp")
     @SerializedName(value = "created_timestamp")
-    var createdTimestamp: Long = Instant.now().epochSecond,
+    var createdTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
 
     @ColumnInfo(name = "modified_timestamp")
     @SerializedName(value = "modified_timestamp")
-    var modifiedTimestamp: Long = Instant.now().epochSecond,
+    var modifiedTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
 
-)
+    )

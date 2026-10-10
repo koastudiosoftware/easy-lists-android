@@ -2,7 +2,7 @@ package com.easylists.presentation.models
 
 import com.easylists.domain.models.EasyListsList
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.MasterListsAction
+import com.easylists.presentation.common.ListsAction
 
 sealed interface ListListUiState {
     object Loading : ListListUiState
@@ -19,7 +19,7 @@ data class ListEditorState(
 
 data class ListsInteractionState(
     val selectedListId: String? = null,
-    val actionButtonState: MasterListsAction = MasterListsAction.None,
+    val actionButtonState: ListsAction = ListsAction.None,
     val showConfirmationDialog: Boolean = false,
     val isRefreshing: Boolean = false,
 )

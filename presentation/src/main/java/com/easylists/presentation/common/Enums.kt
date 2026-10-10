@@ -24,8 +24,8 @@ enum class EditTagsAction(val value: String) {
 //endregion
 
 
-//region MasterListsAction
-enum class MasterListsAction(val value: String) {
+//region ListsAction
+enum class ListsAction(val value: String) {
     Add("Add"),
     None("None"),
 }

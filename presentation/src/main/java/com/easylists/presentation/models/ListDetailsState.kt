@@ -1,65 +1,104 @@
 package com.easylists.presentation.models
 
-import android.net.Uri
-import androidx.compose.ui.geometry.Offset
-import com.easylists.domain.common.Capitalization
-import com.easylists.domain.common.GroupCrossedOffItems
-import com.easylists.domain.common.SortCrossedOffItems
+import com.easylists.domain.common.AppSettings
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.MasterListsAction
-import kotlin.uuid.Uuid
 
-data class ListDetailsState(
-    var actionButtonState: MasterListsAction = MasterListsAction.None,
-    var addEditMode: AddEditMode = AddEditMode.Add,
-    var capitalization: Capitalization = Capitalization.NoCapitalization,
-    var categoryList: List<EasyListsCategory> = emptyList(),
-    var categoryText: String = "",
-    var easyListsTagList: List<EasyListsTag> = emptyList(),
-    var enableCamera: Boolean = true,
-    var enablePhotos: Boolean = true,
-    var enableTags: Boolean = true,
-    var expandTagPills: Boolean = false,
-    var groupCrossedOffItems: GroupCrossedOffItems = GroupCrossedOffItems.AllTogether,
-    var groupedItemList: Map<Pair<Boolean?, String?>, List<EasyListsListItem>>? = null,
-    var isPullToRefreshing: Boolean = false,
-    val listItemList: List<EasyListsListItem> = emptyList(),
-    var itemUid: String = Uuid.random().toString(),
-    var itemName: String = "",
-    var itemNameInvalid: Boolean = false,
-    var itemNameInvalidMessage: String = "",
-    var itemNotes: String = "",
-    var itemPhotoOffset: Offset = Offset.Zero,
-    val itemPhotoUri: String? = null,
-    var itemPhotoScale: Double = 1.0,
-    var itemQuantity: String = "",
-    var itemQuantityInvalid: Boolean = false,
-    var itemQuantityInvalidMessage: String = "",
-    var listName: String = "",
-    var listUid: String = "",
-    var nextDataFetchStage: String = "category",
-    var photoOffset: Offset = Offset.Zero,
-    var photoScale: Double = 1.0,
-    var photoUri: String? = null,
-    var selectedCategoryIndex: Int = -1,
-    var selectedItemUid: String = "",
-    var selectedTagIds: List<Int> = emptyList(),
-    var showConfirmationDialogCrossedOffItems: Boolean = false,
-    var showConfirmationDialogDeleteListItem: Boolean = false,
-    var showListItemBottomSheet: Boolean = false,
-    var sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
-    var tagListItemList: List<TagListItem> = emptyList(),
-    val tempCameraFileUrl: Uri? = null,
-//    var uiState: ListListUiState = ListListUiState.Idle
+sealed interface ListDetailsUiState {
+    object Loading : ListDetailsUiState
+
+    data class Success(
+        val rows: List<ListRow>,
+        val items: List<EasyListsListItem>,        // not deleted; used for validation
+        val categories: List<EasyListsCategory>,
+        val tags: List<EasyListsTag>,
+        val tagLinks: List<TagListItem>,
+        val settings: AppSettings,
+    ) : ListDetailsUiState
+
+    data class Error(val message: String) : ListDetailsUiState
+}
+
+
+//region ListRow
+sealed interface ListRow {
+    val key: String
+
+    // categoryName == null means "uncategorized" (the UI supplies the localized title)
+    data class CategoryHeader(val categoryName: String?, val crossedOff: Boolean) : ListRow {
+        override val key = "header_${crossedOff}_${categoryName ?: "uncategorized"}"
+    }
+
+    object CrossedOffHeader : ListRow {
+        override val key = "crossed_off_header"
+    }
+
+    data class Item(val item: EasyListsListItem, val tags: List<EasyListsTag>) : ListRow {
+        override val key = "item_${item.listItemId}"
+    }
+
+    object DeleteCrossedOff : ListRow {
+        override val key = "delete_crossed_off"
+    }
+}
+//endregion
+
+
+//region Photo state
+data class PhotoTransform(
+    val scale: Float = 1f,
+    val offsetX: Float = 0f,
+    val offsetY: Float = 0f,
 )
 
 
-sealed interface ListItemListUiState {
-    object Idle : ListItemListUiState
-    data class Refreshing(val isAutomaticRefresh: Boolean) : ListItemListUiState
-    data class Error(val message: String) : ListItemListUiState
+// FramedPhoto is given `initial` and reports into `current`; see the note above.
+data class PhotoDraft(
+    val uri: String,
+    val initial: PhotoTransform = PhotoTransform(),
+    val current: PhotoTransform = initial,
+)
+//endregion
+
+
+//region ItemEditorState
+data class ItemEditorState(
+    val itemId: String,
+    val original: EasyListsListItem? = null,    // non-null when editing
+    val name: String = "",
+    val quantity: String = "",
+    val notes: String = "",
+    val categoryName: String = "",
+    val selectedTagIds: Set<String> = emptySet(),
+    val photo: PhotoDraft? = null,
+) {
+    val mode: AddEditMode get() = if (original == null) AddEditMode.Add else AddEditMode.Edit
 }
+
+enum class ItemNameError { Duplicate }
+
+data class ItemEditorValidation(val nameError: ItemNameError?, val canSave: Boolean)
+
+fun ItemEditorState.validate(existing: List<EasyListsListItem>): ItemEditorValidation {
+    val trimmed = name.trim()
+    val duplicate = trimmed.isNotEmpty() && existing.any {
+        it.listItemId != itemId && it.name.equals(trimmed, ignoreCase = true)
+    }
+    return ItemEditorValidation(
+        nameError = if (duplicate) ItemNameError.Duplicate else null,
+        canSave = trimmed.isNotEmpty() && !duplicate,
+    )
+}
+//endregion
+
+
+data class ListDetailsInteractionState(
+    val selectedItemId: String? = null,
+    val showDeleteItemDialog: Boolean = false,
+    val showDeleteCrossedOffDialog: Boolean = false,
+    val expandTagPills: Boolean = false,
+    val isRefreshing: Boolean = false,
+)

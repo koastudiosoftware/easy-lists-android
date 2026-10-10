@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -33,6 +35,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -46,16 +49,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.easylists.domain.models.EasyListsList
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.MasterListsAction
+import com.easylists.presentation.common.ListsAction
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.AppTextField
 import com.easylists.presentation.common.composables.ScreenLoading
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.MaterialIconsAdd
+import com.easylists.presentation.icons.MaterialIconsCategory
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.icons.MaterialIconsEdit
+import com.easylists.presentation.icons.MaterialIconsMoreVert
+import com.easylists.presentation.icons.MaterialIconsSettings
+import com.easylists.presentation.icons.MaterialIconsTag
 import com.easylists.presentation.models.ListEditorState
 import com.easylists.presentation.models.ListEditorValidation
 import com.easylists.presentation.models.ListListUiState
@@ -69,9 +76,10 @@ import dev.olshevski.navigation.reimagined.navigate
 import kotlinx.coroutines.launch
 
 
+//region ListsScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MasterListsScreen(
+fun ListsScreen(
     navController: NavController<Screen>,
     sharedViewModel: SharedViewModel,
     viewModel: ListsViewModel = hiltViewModel()
@@ -87,11 +95,11 @@ fun MasterListsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { MasterListsScreenTitle() },
+                title = { ListsScreenTitle() },
                 actions = {
-                    MasterListsScreenActionIcons(
+                    ListsScreenActionIcons(
                         navController = navController,
-                        onAddClick = { viewModel.onActionButtonClick(MasterListsAction.Add) },
+                        onAddClick = { viewModel.onActionButtonClick(ListsAction.Add) },
                     )
                 },
             )
@@ -113,7 +121,7 @@ fun MasterListsScreen(
                     onRetry = viewModel::onRefresh,
                 )
 
-                is ListListUiState.Success -> MasterListsScreenContent(
+                is ListListUiState.Success -> ListsScreenContent(
                     lists = state.lists,
                     selectedListId = interaction.selectedListId,
                     onListClick = { list ->
@@ -129,7 +137,7 @@ fun MasterListsScreen(
         }
     }
 
-    // Windows: they don't need to live inside the PullToRefreshBox
+    // dialogs and bottom sheets: they don't need to live inside the PullToRefreshBox
     if (interaction.showConfirmationDialog) {
         ConfirmationDialog(
             onDismissRequest = { viewModel.setShowConfirmationDialogState(false) },
@@ -146,7 +154,7 @@ fun MasterListsScreen(
         val existing = (lists as? ListListUiState.Success)?.lists.orEmpty()
         val validation = remember(editor, existing) { editor.validate(existing) }
 
-        MasterListsScreenListBottomSheet(
+        ListsScreenListBottomSheet(
             editor = editor,
             validation = validation,
             onNameChange = viewModel::onListNameChange,
@@ -156,9 +164,12 @@ fun MasterListsScreen(
         )
     }
 }
+//endregion
 
+
+//region ListsScreenTitle
 @Composable
-fun MasterListsScreenTitle() {
+fun ListsScreenTitle() {
     Row(
         modifier = Modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -167,11 +178,12 @@ fun MasterListsScreenTitle() {
         Text(text = stringResource(R.string.app_name))
     }
 }
+//endregion
 
 
-//region MasterListsScreenActionIcons
+//region ListsScreenActionIcons
 @Composable
-fun MasterListsScreenActionIcons(
+fun ListsScreenActionIcons(
     navController: NavController<Screen>,
     onAddClick: () -> Unit,
 ) {
@@ -183,14 +195,14 @@ fun MasterListsScreenActionIcons(
             tint = MaterialTheme.colorScheme.onSurface,
         )
     }
-    MasterListsScreenOverflowMenu(navController)
+    ListsScreenOverflowMenu(navController)
 }
 //endregion
 
 
-//region MasterListItem
+//region ListItem
 @Composable
-fun MasterListItem(
+fun ListItem(
     list: EasyListsList,
     isSelected: Boolean,
     onClick: () -> Unit,
@@ -253,9 +265,9 @@ fun MasterListItem(
 //endregion
 
 
-//region MasterListsScreenContent
+//region ListsScreenContent
 @Composable
-fun MasterListsScreenContent(
+fun ListsScreenContent(
     lists: List<EasyListsList>,
     selectedListId: String?,
     onListClick: (EasyListsList) -> Unit,
@@ -275,7 +287,7 @@ fun MasterListsScreenContent(
             }
         } else {
             items(items = lists, key = { it.listId.toString() }) { list ->
-                MasterListItem(
+                ListItem(
                     list = list,
                     isSelected = selectedListId == list.listId,
                     onClick = { onListClick(list) },
@@ -290,18 +302,91 @@ fun MasterListsScreenContent(
 //endregion
 
 
-//region MasterListsScreenOverflowMenu
+//region ListsScreenOverflowMenu
 @Composable
-fun MasterListsScreenOverflowMenu(navController: NavController<Screen>) {
-    // body unchanged; only the unused viewModel parameter was removed
+fun ListsScreenOverflowMenu(navController: NavController<Screen>) {
+    val expanded = remember { mutableStateOf(false) }
+
+    IconButton(
+        enabled = true,
+        onClick = { expanded.value = !expanded.value },
+    ) {
+        Icon(
+            imageVector = MaterialIconsMoreVert,
+            contentDescription = stringResource(R.string.overflow_menu),
+            tint = MaterialTheme.colorScheme.onSurface,
+        )
+    }
+    DropdownMenu(
+        expanded = expanded.value,
+        onDismissRequest = { expanded.value = false }
+    ) {
+        DropdownMenuItem(
+            text = {
+                Text(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = stringResource(R.string.edit_categories),
+                )
+            },
+            onClick = {
+                expanded.value = !expanded.value
+                navController.navigate(Screen.EditCategories)
+            },
+            leadingIcon = {
+                Icon(
+                    MaterialIconsCategory,
+                    contentDescription = "Localized description",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = stringResource(R.string.edit_tags),
+                )
+            },
+            onClick = {
+                expanded.value = !expanded.value
+                navController.navigate(Screen.EditTags)
+            },
+            leadingIcon = {
+                Icon(
+                    MaterialIconsTag,
+                    contentDescription = "Localized description",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = stringResource(R.string.settings),
+                )
+            },
+            onClick = {
+                expanded.value = !expanded.value
+                navController.navigate(Screen.Settings)
+            },
+            leadingIcon = {
+                Icon(
+                    MaterialIconsSettings,
+                    contentDescription = "Localized description",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        )
+    }
 }
 //endregion
 
 
-//region MasterListsScreenListBottomSheet
+//region ListsScreenListBottomSheet
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MasterListsScreenListBottomSheet(
+fun ListsScreenListBottomSheet(
     editor: ListEditorState,
     validation: ListEditorValidation,
     onNameChange: (String) -> Unit,

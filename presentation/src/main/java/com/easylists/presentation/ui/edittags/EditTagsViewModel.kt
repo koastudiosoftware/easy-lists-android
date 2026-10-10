@@ -43,8 +43,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.Instant
 import javax.inject.Inject
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -402,7 +402,7 @@ class EditTagsViewModel @Inject constructor(
                     color = state.selectedItem?.color,
                     isDirty = true,
                     createdTimestamp = state.selectedItem?.createdTimestamp
-                        ?: Instant.now().epochSecond,
+                        ?: Clock.System.now().toEpochMilliseconds(),
                 )
             )
 
@@ -604,7 +604,7 @@ class EditTagsViewModel @Inject constructor(
                     color = null,
                     isDirty = true,
                     createdTimestamp = state.selectedItem?.createdTimestamp
-                        ?: Instant.now().epochSecond,
+                        ?: Clock.System.now().toEpochMilliseconds(),
                 )
             )
 
@@ -631,7 +631,7 @@ class EditTagsViewModel @Inject constructor(
                     color = state.selectedHexCode.uppercase(),
                     isDirty = true,
                     createdTimestamp = state.selectedItem?.createdTimestamp
-                        ?: Instant.now().epochSecond,
+                        ?: Clock.System.now().toEpochMilliseconds(),
                 )
             )
 

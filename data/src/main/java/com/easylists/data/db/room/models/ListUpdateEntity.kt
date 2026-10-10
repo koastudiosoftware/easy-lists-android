@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
-import java.time.Instant
+import kotlin.time.Clock
 
 @Entity
 data class ListUpdateEntity(
@@ -31,6 +31,6 @@ data class ListUpdateEntity(
 
     @ColumnInfo(name = "modified_timestamp")
     @SerializedName(value = "modified_timestamp")
-    var modifiedTimestamp: Long = Instant.now().epochSecond,
+    var modifiedTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
 
-)
+    )

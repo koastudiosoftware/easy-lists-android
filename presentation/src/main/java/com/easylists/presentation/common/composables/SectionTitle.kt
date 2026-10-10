@@ -20,9 +20,9 @@ import com.easylists.presentation.ui.theme.spaces
 @Composable
 fun SectionTitle(
     title: String,
+    modifier: Modifier = Modifier,
     icon: @Composable (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

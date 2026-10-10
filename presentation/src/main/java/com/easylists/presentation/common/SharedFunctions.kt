@@ -2,18 +2,11 @@ package com.easylists.presentation.common
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.calculateCentroid
-import androidx.compose.foundation.gestures.calculatePan
-import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,30 +17,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
+import coil3.size.Size
 import coil3.toBitmap
-import com.easylists.presentation.models.ZoomState
-import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import javax.inject.Inject
 import kotlin.math.pow
-import androidx.core.net.toUri
-import coil3.size.Size
 
 
 //region ImageBitmapLoader
@@ -159,90 +147,6 @@ fun FramedPhoto(
         )
     }
 }
-//endregion
-
-
-//region Modifier.pinchToZoom, used for pinch to zoom on Add/Edit Item bottom sheet
-fun Modifier.pinchToZoom(
-    state: ZoomState,
-    maxScale: Float = 5f,
-    doubleTapScale: Float = 2.5f,
-    onTap: (() -> Unit)? = null,
-): Modifier = this
-    .pointerInput(state) {
-        awaitEachGesture {
-            // Initial pass: runs before the bottom sheet / LazyColumn see the events
-            awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
-            do {
-                val event = awaitPointerEvent(PointerEventPass.Initial)
-                val fingers = event.changes.count { it.pressed }
-
-                if (fingers >= 2 || state.isZoomed) {
-                    val zoom = if (fingers >= 2) event.calculateZoom() else 1f
-                    val pan = event.calculatePan()
-                    val centroid = event.calculateCentroid()
-
-                    if (centroid.isSpecified) {
-                        val center = Offset(size.width / 2f, size.height / 2f)
-                        val newScale = (state.scale * zoom).coerceIn(1f, maxScale)
-                        val z = newScale / state.scale
-
-                        // Keep the content point under the fingers stationary
-                        val raw = (centroid - center) * (1f - z) + state.offset * z + pan
-
-                        val maxX = size.width * (newScale - 1f) / 2f
-                        val maxY = size.height * (newScale - 1f) / 2f
-
-                        state.scale = newScale
-                        state.offset = Offset(
-                            raw.x.coerceIn(-maxX, maxX) / maxX,
-                            raw.y.coerceIn(-maxY, maxY) / maxY,
-                        )
-
-                        event.changes.forEach { if (it.positionChanged()) it.consume() }
-                    }
-                }
-            } while (event.changes.any { it.pressed })
-            // No reset here: the image stays zoomed after the fingers lift.
-        }
-    }
-    .pointerInput(state, onTap) {
-        detectTapGestures(
-            onTap = { onTap?.invoke() },
-            onDoubleTap = { tap ->
-                if (state.isZoomed) {
-                    state.reset()
-                    // reset view model values to defaults
-                } else {
-                    val center = Offset(size.width / 2f, size.height / 2f)
-                    val maxX = size.width * (doubleTapScale - 1f) / 2f
-                    val maxY = size.height * (doubleTapScale - 1f) / 2f
-                    val raw = (tap - center) * (1f - doubleTapScale)
-                    state.scale = doubleTapScale
-                    state.offset = Offset(
-                        raw.x.coerceIn(-maxX, maxX) / maxX,
-                        raw.y.coerceIn(-maxY, maxY) / maxY,
-                    )
-                }
-            },
-        )
-    }
-    // Clip to the Box's original bounds (the sheet clips anyway), OUTSIDE the layer
-    .clipToBounds()
-    .graphicsLayer {
-        scaleX = state.scale
-        scaleY = state.scale
-        translationX = state.offset.x * size.width
-        translationY = state.offset.y * size.height
-    }
-//endregion
-
-
-//region isNumeric
-fun isNumeric(str: String): Boolean = str
-    .removePrefix("-")
-    .removePrefix("+")
-    .all { it in '0'..'9' }
 //endregion
 
 

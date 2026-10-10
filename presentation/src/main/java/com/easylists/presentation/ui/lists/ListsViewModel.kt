@@ -11,7 +11,7 @@ import com.easylists.domain.use_cases.AddListFlowUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.MasterListsAction
+import com.easylists.presentation.common.ListsAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListEditorState
 import com.easylists.presentation.models.ListListUiState
@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
@@ -69,7 +70,7 @@ class ListsViewModel @Inject constructor(
 
 
     //region Add / edit form
-    fun onActionButtonClick(action: MasterListsAction) {
+    fun onActionButtonClick(action: ListsAction) {
         interaction = interaction.copy(actionButtonState = action)
         editor = ListEditorState()
     }
@@ -97,19 +98,25 @@ class ListsViewModel @Inject constructor(
             // TODO surface an error if the userId can't be fetched
             val userId = session.getUserId().ifEmpty { return@launch }
 
-            val list = EasyListsList(
-                name = form.name.trim(),
-                ownerId = userId,
-                isDirty = true,
-                notes = form.notes.ifEmpty { null },
-            )
-
-            if (form.mode == AddEditMode.Add) {
-                addListUseCase(list = list)
+            val list = if (form.mode == AddEditMode.Add) {
+                EasyListsList(
+                    name = form.name.trim(),
+                    ownerId = userId,
+                    isDirty = true,
+                    notes = form.notes.ifEmpty { null },
+                )
             } else {
-                list.listId = form.listId
-                updateListUseCase(list = list)
+                currentLists.find { it.listId == form.listId }
+                    ?.copy(
+                        name = form.name.trim(),
+                        notes = form.notes.ifEmpty { null },
+                        isDirty = true,
+                        modifiedTimestamp = Clock.System.now().toEpochMilliseconds(),
+                    )
+                    ?: return@launch
             }
+
+            if (form.mode == AddEditMode.Add) addListUseCase(list = list) else updateListUseCase(list = list)
 
             editor = null
             interaction = interaction.copy(selectedListId = null)

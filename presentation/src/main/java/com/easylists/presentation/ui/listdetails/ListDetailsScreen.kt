@@ -1,24 +1,12 @@
 package com.easylists.presentation.ui.listdetails
 
-import android.Manifest
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.calculateCentroid
-import androidx.compose.foundation.gestures.calculatePan
-import androidx.compose.foundation.gestures.calculateZoom
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -28,14 +16,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -54,53 +38,42 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChanged
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.size.Size
-import com.easylists.domain.common.GroupCrossedOffItems
-import com.easylists.domain.common.SortCrossedOffItems
+import com.easylists.domain.common.AppSettings
+import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.FramedPhoto
 import com.easylists.presentation.common.SharedViewModel
-import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.AppTextField
+import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.getContrastColor
-import com.easylists.presentation.common.toHexCodeWithAlpha
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsBrokenImage
@@ -109,16 +82,22 @@ import com.easylists.presentation.icons.MaterialIconsClose
 import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.icons.MaterialIconsEdit
 import com.easylists.presentation.icons.MaterialIconsInsertPhoto
-import com.easylists.presentation.icons.MaterialIconsMoreVert
 import com.easylists.presentation.icons.MaterialIconsPhotoCamera
-import com.easylists.presentation.icons.MaterialIconsSettings
+import com.easylists.presentation.models.ItemEditorState
+import com.easylists.presentation.models.ItemEditorValidation
+import com.easylists.presentation.models.ItemNameError
+import com.easylists.presentation.models.ListDetailsUiState
+import com.easylists.presentation.models.ListRow
 import com.easylists.presentation.models.Screen
-import com.easylists.presentation.models.ZoomState
+import com.easylists.presentation.models.validate
+import com.easylists.presentation.ui.lists.ScreenError
+import com.easylists.presentation.ui.lists.ScreenLoading
 import com.easylists.presentation.ui.theme.spaces
-import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.pop
+import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -127,77 +106,123 @@ fun ListDetailsScreen(
     sharedViewModel: SharedViewModel,
     viewModel: ListDetailsViewModel = hiltViewModel()
 ) {
-
-    val settings by viewModel.settings.collectAsStateWithLifecycle()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(key1 = null) {
+    LaunchedEffect(Unit) {
         viewModel.init(sharedViewModel.listUid, sharedViewModel.listName)
     }
 
-    when (viewModel.state.nextDataFetchStage) {
-        "category" -> viewModel.initCategoryList()
-        "list item" -> viewModel.initListItemsList()
-        "tag" -> viewModel.initTagList()
-        "tag list item" -> viewModel.initTagListItemList()
-    }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val interaction = viewModel.interaction
+    val editor = viewModel.editor
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Scaffold(modifier = Modifier, snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
-        TopAppBar(
-            title = { ListDetailsScreenTitle(viewModel) },
-            navigationIcon = { ListDetailsScreenTopAppBarNavigationIcon(navController) },
-            actions = { ListDetailsScreenActionIcons(viewModel) },
-        )
-    }) { innerPadding ->
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        topBar = {
+            TopAppBar(
+                title = { Text(text = viewModel.listName) },
+                navigationIcon = { ListDetailsScreenTopAppBarNavigationIcon(navController) },
+                actions = {
+                    IconButton(onClick = viewModel::onAddItemClick) {
+                        Icon(
+                            imageVector = MaterialIconsAdd,
+                            contentDescription = stringResource(R.string.add_item),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                },
+            )
+        }
+    ) { innerPadding ->
 
-        val pullToRefreshState = rememberPullToRefreshState()
         PullToRefreshBox(
-            isRefreshing = viewModel.state.isPullToRefreshing,
-            onRefresh = viewModel.onPullToRefresh(),
-            state = pullToRefreshState,
+            isRefreshing = interaction.isRefreshing,
+            onRefresh = viewModel::onRefresh,
             modifier = Modifier.padding(innerPadding),
         ) {
+            when (val state = uiState) {
+                ListDetailsUiState.Loading -> ScreenLoading()
 
-            ConfirmDeleteCrossedOffItems(viewModel)
-            ConfirmDeleteListItem(viewModel)
+                is ListDetailsUiState.Error -> ScreenError(
+                    message = state.message,
+                    onRetry = viewModel::onRefresh,
+                )
 
-            ListDetailsScreenListItemBottomSheet(viewModel)
-
-            ListDetailsScreenContent(viewModel)
-
+                is ListDetailsUiState.Success -> ListDetailsScreenContent(
+                    state = state,
+                    selectedItemId = interaction.selectedItemId,
+                    expandTagPills = interaction.expandTagPills,
+                    onItemClick = viewModel::onListItemClick,
+                    onItemLongClick = viewModel::showContextIcons,
+                    onItemEdit = viewModel::onEditItemClick,
+                    onItemDelete = { viewModel.setShowDeleteItemDialog(true) },
+                    onTagPillsClick = viewModel::onToggleTagPills,
+                    onDeleteCrossedOff = { viewModel.setShowDeleteCrossedOffDialog(true) },
+                )
+            }
         }
     }
 
-}
+    if (interaction.showDeleteCrossedOffDialog) {
+        ConfirmationDialog(
+            onDismissRequest = { viewModel.setShowDeleteCrossedOffDialog(false) },
+            onConfirmation = {
+                viewModel.deleteAllCrossedOffItems()
+                viewModel.setShowDeleteCrossedOffDialog(false)
+            },
+            dialogTitle = stringResource(R.string.confirm_deletion),
+            dialogText = stringResource(R.string.delete_crossed_off_items_warning),
+        )
+    }
 
+    if (interaction.showDeleteItemDialog) {
+        ConfirmationDialog(
+            onDismissRequest = { viewModel.setShowDeleteItemDialog(false) },
+            onConfirmation = {
+                viewModel.deleteListItem()
+                viewModel.setShowDeleteItemDialog(false)
+            },
+            dialogTitle = stringResource(R.string.confirm_deletion),
+            dialogText = stringResource(R.string.delete_list_items_warning),
+        )
+    }
 
-//region ListDetailsScreenTitle
-@Composable
-fun ListDetailsScreenTitle(viewModel: ListDetailsViewModel) {
-    Row(
-        modifier = Modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Text(text = viewModel.state.listName)
+    val success = uiState as? ListDetailsUiState.Success
+    if (editor != null && success != null) {
+        val validation = remember(editor, success.items) { editor.validate(success.items) }
+        val actions = remember(viewModel) {
+            ItemEditorActions(
+                onNameChange = viewModel::onItemNameChange,
+                onQuantityChange = viewModel::onItemQuantityChange,
+                onNotesChange = viewModel::onItemNotesChange,
+                onCategoryChange = viewModel::onCategoryChange,
+                onTagClick = viewModel::onTagClick,
+                onPhotoChosen = viewModel::onPhotoChosen,
+                onPhotoTransformChanged = viewModel::onPhotoTransformChanged,
+                onPhotoRemove = viewModel::onPhotoRemove,
+                onSave = viewModel::saveListItem,
+                onDismiss = viewModel::onEditorDismiss,
+            )
+        }
+
+        ListDetailsScreenListItemBottomSheet(
+            editor = editor,
+            validation = validation,
+            categories = success.categories,
+            tags = success.tags,
+            settings = success.settings,
+            actions = actions,
+        )
     }
 }
-//endregion
 
 
-//region ListDetailsScreenActionIcons
+//region ListDetailsScreenTopAppBarNavigationIcon
 @Composable
-fun ListDetailsScreenActionIcons(viewModel: ListDetailsViewModel) {
-    IconButton(
-        onClick = { viewModel.showListItemBottomSheet() }
-    ) {
+fun ListDetailsScreenTopAppBarNavigationIcon(navController: NavController<Screen>) {
+    IconButton(onClick = { navController.pop() }) {
         Icon(
-            modifier = Modifier,
-            imageVector = MaterialIconsAdd,
-            contentDescription = stringResource(R.string.create_new_list),
-            tint = MaterialTheme.colorScheme.onSurface,
+            painter = rememberVectorPainter(MaterialIconsArrowBack),
+            contentDescription = stringResource(R.string.return_to_previous_screen),
         )
     }
 }
@@ -205,187 +230,51 @@ fun ListDetailsScreenActionIcons(viewModel: ListDetailsViewModel) {
 
 
 //region ListDetailsScreenContent
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
-    val lazyColumnState = rememberLazyListState()
+fun ListDetailsScreenContent(
+    state: ListDetailsUiState.Success,
+    selectedItemId: String?,
+    expandTagPills: Boolean,
+    onItemClick: (EasyListsListItem) -> Unit,
+    onItemLongClick: (EasyListsListItem) -> Unit,
+    onItemEdit: (EasyListsListItem) -> Unit,
+    onItemDelete: () -> Unit,
+    onTagPillsClick: () -> Unit,
+    onDeleteCrossedOff: () -> Unit,
+) {
     LazyColumn(
-        state = lazyColumnState,
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spaces.none),
     ) {
-        item {
-            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-        }
+        item { HorizontalDivider() }
 
-        when {
-            viewModel.state.groupedItemList != null -> {
-                val groupedItemList = viewModel.state.groupedItemList
+        items(items = state.rows, key = { it.key }) { row ->
+            when (row) {
+                is ListRow.CategoryHeader -> ListDetailsScreenCategoryTitle(
+                    title = row.categoryName ?: stringResource(R.string.uncategorized),
+                    crossedOff = row.crossedOff,
+                )
 
-                //region items with a category that are not crossed off
-                groupedItemList?.filterKeys {
-                    it.first == false && it.second != "Uncategorized"
-                }?.keys?.forEach { it ->
-                    item {
-                        ListDetailsScreenCategoryTitle(it.second.toString())
-                    }
-                    groupedItemList.getValue(it).forEach {
-                        item {
-                            ListDetailsScreenListItem(it, viewModel)
-                        }
-                        item {
-                            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-                        }
-                    }
-                }
-                //endregion
+                ListRow.CrossedOffHeader -> ListDetailsScreenCategoryTitle(
+                    title = stringResource(R.string.crossed_off),
+                    crossedOff = true,
+                )
 
-                //region uncategorized items that are not crossed off
-                groupedItemList?.filterKeys {
-                    it.first == false && it.second == "Uncategorized"
-                }?.keys?.forEach { it ->
-                    item {
-                        ListDetailsScreenCategoryTitle(it.second.toString())
-                    }
-                    groupedItemList.getValue(it).forEach {
-                        item {
-                            ListDetailsScreenListItem(it, viewModel)
-                        }
-                        item {
-                            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-                        }
-                    }
-                }
-                //endregion
+                is ListRow.Item -> ListDetailsScreenListItem(
+                    row = row,
+                    settings = state.settings,
+                    isSelected = row.item.listItemId == selectedItemId,
+                    expandTagPills = expandTagPills,
+                    onClick = { onItemClick(row.item) },
+                    onLongClick = { onItemLongClick(row.item) },
+                    onEdit = { onItemEdit(row.item) },
+                    onDelete = onItemDelete,
+                    onTagPillsClick = onTagPillsClick,
+                )
 
-                //region crossed off items
-                val count = groupedItemList?.filterKeys {
-                    it.first == true
-                }?.count()
-                when (viewModel.state.groupCrossedOffItems) {
-                    GroupCrossedOffItems.AllTogether -> {
-                        if (count != null && count > 0) {
-                            item {
-                                ListDetailsScreenCategoryTitle(
-                                    stringResource(R.string.crossed_off), true
-                                )
-                            }
-                        }
-
-                        val crossedOffItems = groupedItemList?.filterKeys {
-                            it.first == true
-                        }?.keys?.flatMap {
-                            groupedItemList.getValue(it)
-                        }
-
-                        if (viewModel.state.sortCrossedOffItems == SortCrossedOffItems.MostRecentOnTop) {
-                            crossedOffItems?.sortedByDescending {
-                                it.crossedOffTimestamp
-                            }?.forEach {
-                                item {
-                                    ListDetailsScreenListItem(it, viewModel)
-                                }
-                                item {
-                                    HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-                                }
-                            }
-                        } else {
-                            crossedOffItems?.sortedBy {
-                                it.name
-                            }?.forEach {
-                                item {
-                                    ListDetailsScreenListItem(it, viewModel)
-                                }
-                                item {
-                                    HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-                                }
-                            }
-                        }
-                        if (count != null && count > 0) {
-                            item {
-                                ListDetailsScreenDeleteCrossedOffItems(viewModel)
-                            }
-                            item {
-                                HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-                            }
-                        }
-                    }
-
-                    GroupCrossedOffItems.ByCategory -> {
-                        //region items with a category that are crossed off
-                        groupedItemList?.filterKeys {
-                            it.first == true && it.second != "Uncategorized"
-                        }?.keys?.forEach { it ->
-                            item {
-                                ListDetailsScreenCategoryTitle(it.second.toString(), true)
-                            }
-                            if (viewModel.state.sortCrossedOffItems == SortCrossedOffItems.MostRecentOnTop) {
-                                groupedItemList.getValue(it).sortedByDescending {
-                                    it.crossedOffTimestamp
-                                }.forEach {
-                                    item {
-                                        ListDetailsScreenListItem(it, viewModel)
-                                    }
-                                    item {
-                                        HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-                                    }
-                                }
-                            } else {
-                                groupedItemList.getValue(it).forEach {
-                                    item {
-                                        ListDetailsScreenListItem(it, viewModel)
-                                    }
-                                    item {
-                                        HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-                                    }
-                                }
-                            }
-                        }
-                        //endregion
-
-                        //region uncategorized items that are crossed off
-                        groupedItemList?.filterKeys {
-                            it.first == true && it.second == "Uncategorized"
-                        }?.keys?.forEach { it ->
-                            item {
-                                ListDetailsScreenCategoryTitle(it.second.toString(), true)
-                            }
-                            if (viewModel.state.sortCrossedOffItems == SortCrossedOffItems.MostRecentOnTop) {
-                                groupedItemList.getValue(it).sortedByDescending {
-                                    it.crossedOffTimestamp
-                                }.forEach {
-                                    item {
-                                        ListDetailsScreenListItem(it, viewModel)
-                                    }
-                                    item {
-                                        HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-                                    }
-                                }
-                            } else {
-                                groupedItemList.getValue(it).forEach {
-                                    item {
-                                        ListDetailsScreenListItem(it, viewModel)
-                                    }
-                                    item {
-                                        HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-                                    }
-                                }
-                            }
-                        }
-                        //endregion
-
-                        //region Delete All Crossed Off Items
-                        if (count != null && count > 0) {
-                            item {
-                                ListDetailsScreenDeleteCrossedOffItems(viewModel)
-                            }
-                            item {
-                                HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-                            }
-                        }
-                        //endregion
-                    }
-                }
-                //endregion
+                ListRow.DeleteCrossedOff -> ListDetailsScreenDeleteCrossedOffItems(
+                    onClick = onDeleteCrossedOff
+                )
             }
         }
     }
@@ -395,19 +284,22 @@ fun ListDetailsScreenContent(viewModel: ListDetailsViewModel) {
 
 //region ListDetailsScreenDeleteCrossedOffItems
 @Composable
-fun ListDetailsScreenDeleteCrossedOffItems(viewModel: ListDetailsViewModel) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(52.dp)
-            .padding(horizontal = MaterialTheme.spaces.large)
-            .clickable(onClick = { viewModel.setShowConfirmationDialogStateCrossedOffItems(true) }),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            text = stringResource(R.string.delete_all_crossed_off_items),
-        )
+fun ListDetailsScreenDeleteCrossedOffItems(onClick: () -> Unit) {
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp)
+                .clickable(onClick = onClick)
+                .padding(horizontal = MaterialTheme.spaces.large),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                text = stringResource(R.string.delete_all_crossed_off_items),
+            )
+        }
+        HorizontalDivider()
     }
 }
 //endregion
@@ -419,7 +311,6 @@ fun ListDetailsScreenCategoryTitle(title: String, crossedOff: Boolean = false) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.spaces.none)
             .background(
                 if (crossedOff) MaterialTheme.colorScheme.tertiaryContainer
                 else MaterialTheme.colorScheme.primaryContainer
@@ -427,7 +318,8 @@ fun ListDetailsScreenCategoryTitle(title: String, crossedOff: Boolean = false) {
     ) {
         Text(
             modifier = Modifier.padding(
-                horizontal = MaterialTheme.spaces.large, vertical = MaterialTheme.spaces.medium
+                horizontal = MaterialTheme.spaces.large,
+                vertical = MaterialTheme.spaces.medium
             ),
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             fontWeight = FontWeight.Bold,
@@ -441,393 +333,348 @@ fun ListDetailsScreenCategoryTitle(title: String, crossedOff: Boolean = false) {
 //region ListDetailsScreenListItem
 @Composable
 fun ListDetailsScreenListItem(
-    item: EasyListsListItem, viewModel: ListDetailsViewModel
+    row: ListRow.Item,
+    settings: AppSettings,
+    isSelected: Boolean,
+    expandTagPills: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onTagPillsClick: () -> Unit,
 ) {
-    when {
-        !item.isDeleted -> {
-            Row(
+    val item = row.item
+
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                .height(MaterialTheme.spaces.rowHeightMedium)
+                .padding(horizontal = MaterialTheme.spaces.small),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (settings.enablePhotos) {
+                ListDetailsScreenListItemPhoto(item)
+            }
+
+            Column(
                 modifier = Modifier
-                    .padding(horizontal = MaterialTheme.spaces.none)
-                    .combinedClickable(
-                        onClick = { viewModel.onListItemClick(item) },
-                        onLongClick = { viewModel.showContextIcons(item) }),
+                    .weight(1f)
+                    .padding(horizontal = MaterialTheme.spaces.medium)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(MaterialTheme.spaces.rowHeightMedium)
-                        .padding(horizontal = MaterialTheme.spaces.small),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    when {
-                        viewModel.state.enablePhotos -> {
-                            ListDetailsScreenListItemPhoto(
-                                item = item,
-                                modifier = Modifier,
-                                viewModel = viewModel
-                            )
-                        }
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(start = MaterialTheme.spaces.medium)
-                            .padding(end = MaterialTheme.spaces.medium)
-                    ) {
-                        var text = item.name
-                        if (item.quantity != null) text += " (${item.quantity})"
-                        Text(
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = TextStyle(
-                                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                                textDecoration = if (item.crossedOff == true) TextDecoration.LineThrough else TextDecoration.None
-                            ),
-                            text = text,
-                        )
-                        when {
-                            item.notes?.isNotEmpty() == true -> {
-                                Text(
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    text = item.notes!!,
-                                )
-                            }
-                        }
-                    }
-
-                    when {
-                        viewModel.state.enableTags -> {
-                            ListDetailsScreenListItemTags(
-                                item = item,
-                                modifier = Modifier.weight(0.3f),
-                                viewModel = viewModel,
-                            )
-                        }
-                    }
-
-                    ListDetailsScreenListItemIcons(
-                        item = item,
-                        modifier = Modifier.weight(0.1f),
-                        viewModel = viewModel
+                Text(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = TextStyle(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        textDecoration = if (item.crossedOff == true) TextDecoration.LineThrough
+                        else TextDecoration.None
+                    ),
+                    text = item.quantity?.let { "${item.name} ($it)" } ?: item.name,
+                )
+                item.notes?.takeIf { it.isNotEmpty() }?.let { notes ->
+                    Text(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyMedium,
+                        text = notes,
                     )
                 }
-                HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
+            }
+
+            if (settings.enableTags) {
+                ListDetailsScreenListItemTags(
+                    tags = row.tags,
+                    expanded = expandTagPills,
+                    onClick = onTagPillsClick,
+                )
+            }
+
+            VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            IconButton(onClick = if (isSelected) onDelete else onEdit) {
+                Icon(
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(20.dp),
+                    imageVector = if (isSelected) MaterialIconsDelete else MaterialIconsEdit,
+                    contentDescription = stringResource(
+                        if (isSelected) R.string.delete_item else R.string.view_item_details
+                    ),
+                )
             }
         }
+        HorizontalDivider()
     }
 }
 //endregion
 
 
-//region ListDetailsScreenListItemTags
+//region ListDetailsScreenListItemPhoto
 @Composable
-fun ListDetailsScreenListItemTags(
-    item: EasyListsListItem,
-    modifier: Modifier = Modifier,
-    viewModel: ListDetailsViewModel
-) {
-    Column(
-        modifier = Modifier.padding(end = MaterialTheme.spaces.medium),
-        horizontalAlignment = Alignment.End
-    ) {
-        val tags = viewModel.listItemTags(item)
-        tags.take(2).forEach {
-            ListItemDetailsScreenTagDot(it, modifier, viewModel)
-            ListItemDetailsScreenTagPillSmall(it, modifier, viewModel)
-        }
-    }
-}
-//endregion
+fun ListDetailsScreenListItemPhoto(item: EasyListsListItem) {
+    val photoUri = item.photoUri
 
-
-//region ListDetailsScreenListItemIcons
-@Composable
-fun ListDetailsScreenListItemPhoto(
-    item: EasyListsListItem,
-    modifier: Modifier = Modifier,
-    viewModel: ListDetailsViewModel,
-) {
-    // TODO if state.itemPhotoUri is not null or empty, show the photo
-    // TODO else show a placeholder
-    if (item.photoUri.isNullOrEmpty()) {
-        IconButton(onClick = { /* do nothing on click */ }) {
+    if (photoUri.isNullOrEmpty()) {
+        IconButton(onClick = { /* placeholder, nothing to do */ }) {
             Icon(
-                modifier = modifier,
                 imageVector = MaterialIconsBrokenImage,
                 contentDescription = stringResource(R.string.view_item_details),
                 tint = MaterialTheme.colorScheme.surface
             )
         }
-        VerticalDivider(
-            modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
-        )
+        VerticalDivider()
     } else {
         FramedPhoto(
-            photoUri = item.photoUri!!,
-            scale = item.photoScale.toFloat(),
+            photoUri = photoUri,
+            scale = item.photoScale.toFloat().takeIf { it > 0f } ?: 1f,
             normalizedOffsetX = item.photoOffsetX.toFloat(),
             normalizedOffsetY = item.photoOffsetY.toFloat(),
-            modifier = modifier.padding(vertical = MaterialTheme.spaces.none),
             zoomEnabled = false,
-            onTransformChanged = { newScale, newOffsetX, newOffsetY ->
-                viewModel.updatePhotoTransform(newScale, newOffsetX, newOffsetY)
-            },
             targetSize = Size(150, 150),
         )
-        VerticalDivider(
-            modifier = Modifier
-                .padding(start = MaterialTheme.spaces.small)
-                .padding(vertical = MaterialTheme.spaces.none)
-        )
+        VerticalDivider(modifier = Modifier.padding(start = MaterialTheme.spaces.small))
     }
 }
 //endregion
 
 
-//region ListDetailsScreenListItemIcons
+//region Tags in the item row
 @Composable
-fun ListDetailsScreenListItemIcons(
-    item: EasyListsListItem,
-    modifier: Modifier = Modifier,
-    viewModel: ListDetailsViewModel,
+fun ListDetailsScreenListItemTags(
+    tags: List<EasyListsTag>,
+    expanded: Boolean,
+    onClick: () -> Unit,
 ) {
-    when {
-        viewModel.state.selectedItemUid == item.listItemId -> {
-            VerticalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant,
-                modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
-            )
-            IconButton(onClick = { viewModel.setShowConfirmationDialogState(true) }) {
-                Icon(
-                    tint = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.size(20.dp),
-                    imageVector = MaterialIconsDelete,
-                    contentDescription = stringResource(R.string.delete_item)
-                )
-            }
-        }
-
-        else -> {
-            VerticalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant,
-                modifier = Modifier.padding(vertical = MaterialTheme.spaces.none)
-            )
-            IconButton(onClick = {
-                viewModel.onListItemInfoClick(item, AddEditMode.Edit)
-            }) {
-                Icon(
-                    tint = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.size(20.dp),
-                    imageVector = MaterialIconsEdit,
-                    contentDescription = stringResource(R.string.view_item_details)
-                )
-            }
+    Column(
+        modifier = Modifier.padding(end = MaterialTheme.spaces.medium),
+        horizontalAlignment = Alignment.End
+    ) {
+        tags.take(2).forEach { tag ->
+            if (expanded) ListItemDetailsScreenTagPillSmall(tag, onClick)
+            else ListItemDetailsScreenTagDot(tag, onClick)
         }
     }
 }
-//endregion
 
-
-//region ListDetailsScreenOverflowMenu
 @Composable
-fun ListDetailsScreenOverflowMenu(viewModel: ListDetailsViewModel) {
-    var expanded by remember { mutableStateOf(false) }
+fun ListItemDetailsScreenTagDot(tag: EasyListsTag, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(20.dp)
+            .padding(MaterialTheme.spaces.extraSmall)
+            .clip(CircleShape)
+            .background(tagBackground(tag, isSelected = true))
+            .clickable(onClick = onClick)
+    )
+}
 
-    IconButton(
-        enabled = true,
-        onClick = { expanded = !expanded },
+@Composable
+fun ListItemDetailsScreenTagPillSmall(
+    tag: EasyListsTag,
+    onClick: () -> Unit,
+) {
+    val backgroundColor = tagBackground(tag, isSelected = false)
+    val shape = RoundedCornerShape(10.dp)
+
+    Box(
+        modifier = Modifier
+            .padding(MaterialTheme.spaces.extraSmall)
+            .clip(shape)
+            .background(backgroundColor)
+            .clickable(onClick = onClick)
     ) {
-        Icon(
-            imageVector = MaterialIconsMoreVert,
-            contentDescription = stringResource(R.string.overflow_menu),
+        Text(
+            modifier = Modifier.padding(
+                start = MaterialTheme.spaces.medium,
+                end = MaterialTheme.spaces.small
+            ),
+            color = backgroundColor.getContrastColor(),
+            style = MaterialTheme.typography.labelSmall,
+            text = tag.name
         )
     }
-    DropdownMenu(
-        expanded = expanded, onDismissRequest = { expanded = false }) {
-        DropdownMenuItem(text = { Text(text = stringResource(R.string.settings)) }, onClick = {
-            expanded = !expanded
-//                viewModel.showExportDataBottomSheet()
-        }, leadingIcon = {
-            Icon(
-                MaterialIconsSettings, contentDescription = "Localized description"
-            )
-        })
-    }
 }
+
+@Composable
+private fun tagBackground(tag: EasyListsTag, isSelected: Boolean): Color =
+    tag.color?.let { runCatching { Color(it.toColorInt()) }.getOrNull() }
+        ?: if (isSelected) MaterialTheme.colorScheme.secondaryContainer
+        else MaterialTheme.colorScheme.tertiaryContainer
 //endregion
 
 
-//region ListDetailsScreenListItemBottomSheet
+//region Add / edit bottom sheet
+class ItemEditorActions(
+    val onNameChange: (String) -> Unit,
+    val onQuantityChange: (String) -> Unit,
+    val onNotesChange: (String) -> Unit,
+    val onCategoryChange: (String) -> Unit,
+    val onTagClick: (EasyListsTag) -> Unit,
+    val onPhotoChosen: (String) -> Unit,
+    val onPhotoTransformChanged: (Float, Float, Float) -> Unit,
+    val onPhotoRemove: () -> Unit,
+    val onSave: (onSaved: () -> Unit) -> Unit,
+    val onDismiss: () -> Unit,
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListDetailsScreenListItemBottomSheet(viewModel: ListDetailsViewModel) {
+fun ListDetailsScreenListItemBottomSheet(
+    editor: ItemEditorState,
+    validation: ItemEditorValidation,
+    categories: List<EasyListsCategory>,
+    tags: List<EasyListsTag>,
+    settings: AppSettings,
+    actions: ItemEditorActions,
+) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showBottomSheet by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val photoActions = rememberPhotoActions(onPhotoChosen = actions.onPhotoChosen)
 
-    showBottomSheet = when (viewModel.state.showListItemBottomSheet) {
-        true -> true
-        false -> false
+    // slide the sheet away, then clear the editor
+    val hideAndDismiss: () -> Unit = {
+        scope.launch { sheetState.hide() }.invokeOnCompletion {
+            if (!sheetState.isVisible) actions.onDismiss()
+        }
     }
 
-    if (showBottomSheet) {
-        ModalBottomSheet(sheetState = sheetState, onDismissRequest = {
-            showBottomSheet = false
-            viewModel.onItemBottomSheetDismiss()
-        }, dragHandle = {
+    ModalBottomSheet(
+        sheetState = sheetState,
+        onDismissRequest = actions.onDismiss,
+        dragHandle = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 BottomSheetDefaults.DragHandle()
             }
-        }) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.9f)
-            ) {
-                LazyColumn(modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)) {
+        }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.9f)
+        ) {
+            LazyColumn(modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)) {
+                item {
+                    SectionTitle(
+                        title = stringResource(
+                            if (editor.mode == AddEditMode.Add) R.string.add_item
+                            else R.string.edit_item
+                        ),
+                        icon = {
+                            IconButton(
+                                enabled = validation.canSave,
+                                onClick = { actions.onSave(hideAndDismiss) },
+                            ) {
+                                Icon(
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    imageVector = MaterialIconsCheck,
+                                    contentDescription = stringResource(R.string.add_list_item),
+                                )
+                            }
+                        },
+                        modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
+                    )
+                }
+
+                item {
+                    AppTextField(
+                        value = editor.name,
+                        onValueChange = actions.onNameChange,
+                        label = stringResource(R.string.name),
+                        isError = validation.nameError != null,
+                        errorMessage = if (validation.nameError == ItemNameError.Duplicate)
+                            stringResource(R.string.item_name_in_use) else "",
+                    )
+                }
+
+                item {
+                    AppTextField(
+                        modifier = Modifier.padding(bottom = MaterialTheme.spaces.large),
+                        value = editor.quantity,
+                        onValueChange = actions.onQuantityChange,
+                        label = stringResource(R.string.quantity),
+                        keyboardType = KeyboardType.Number,
+                    )
+                }
+
+                item {
+                    ListDetailsScreenListItemBottomSheetCategory(
+                        categoryName = editor.categoryName,
+                        categories = categories,
+                        onCategoryChange = actions.onCategoryChange,
+                    )
+                }
+
+                item {
+                    AppTextField(
+                        value = editor.notes,
+                        onValueChange = actions.onNotesChange,
+                        label = stringResource(R.string.notes),
+                        singleLine = false,
+                    )
+                }
+
+                if (settings.enablePhotos) {
                     item {
-                        SectionTitle(
-                            title = stringResource(
-                                if (viewModel.state.addEditMode == AddEditMode.Add) R.string.add_item
-                                else R.string.edit_item
-                            ), icon = {
-                                IconButton(
-                                    enabled = viewModel.listItemIconButtonEnabled(),
-                                    onClick = { viewModel.saveListItem() },
-                                ) {
-                                    Icon(
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        imageVector = MaterialIconsCheck,
-                                        contentDescription = stringResource(R.string.add_list_item),
-                                    )
-                                }
-                            }, modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
+                        ListDetailsScreenListItemBottomSheetPhotoTitle(
+                            enableCamera = settings.enableCamera,
+                            hasPhoto = editor.photo != null,
+                            onTakePhoto = photoActions.takePhoto,
+                            onPickPhoto = photoActions.pickPhoto,
+                            onRemovePhoto = actions.onPhotoRemove,
                         )
                     }
 
-                    item {
-                        ListDetailsScreenListItemBottomSheetName(viewModel)
-                    }
-
-                    item {
-                        ListDetailsScreenListItemBottomSheetQuantity(viewModel)
-                    }
-
-                    item {
-                        ListDetailsScreenListItemBottomSheetCategory(viewModel)
-                    }
-
-                    item {
-                        ListDetailsScreenListItemBottomSheetNotes(viewModel)
-                    }
-
-                    when {
-                        viewModel.state.enablePhotos -> {
-                            item {
-                                ListDetailsScreenListItemBottomSheetPhotoTitle(viewModel)
-                            }
-
-                            item {
-                                ListDetailsScreenListItemBottomSheetPhoto(viewModel)
-                            }
-                        }
-                    }
-
-                    when {
-                        viewModel.state.enableTags -> {
-                            item {
-                                ListDetailsScreenListItemBottomSheetTagsTitle(viewModel)
-                            }
-
-                            item {
-                                ListDetailsScreenListItemBottomSheetTags(viewModel)
+                    editor.photo?.let { photo ->
+                        item {
+                            // keyed by uri so a newly chosen photo starts with fresh zoom state
+                            key(photo.uri) {
+                                FramedPhoto(
+                                    photoUri = photo.uri,
+                                    scale = photo.initial.scale,
+                                    normalizedOffsetX = photo.initial.offsetX,
+                                    normalizedOffsetY = photo.initial.offsetY,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1f),
+                                    zoomEnabled = true,
+                                    onTransformChanged = actions.onPhotoTransformChanged,
+                                )
                             }
                         }
                     }
                 }
+
+                if (settings.enableTags && tags.isNotEmpty()) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = MaterialTheme.spaces.large)
+                                .padding(horizontal = MaterialTheme.spaces.large)
+                        ) {
+                            Text(
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodyLarge,
+                                text = stringResource(R.string.tags),
+                            )
+                        }
+                    }
+
+                    item {
+                        ListDetailsScreenListItemBottomSheetTags(
+                            tags = tags,
+                            selectedTagIds = editor.selectedTagIds,
+                            onTagClick = actions.onTagClick,
+                        )
+                    }
+                }
             }
         }
-    }
-}
-//endregion
-
-
-//region ListDetailsScreenListItemBottomSheetTagsTitle
-@Composable
-fun ListDetailsScreenListItemBottomSheetTagsTitle(viewModel: ListDetailsViewModel) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = MaterialTheme.spaces.large)
-            .padding(horizontal = MaterialTheme.spaces.large)
-    ) {
-        Text(
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.bodyLarge,
-            text = stringResource(R.string.tags),
-        )
-    }
-}
-//endregion
-
-
-//region ListDetailsScreenListBottomSheetListItemName
-@Composable
-fun ListDetailsScreenListItemBottomSheetName(viewModel: ListDetailsViewModel) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        AppTextField(
-            value = viewModel.itemName(),
-            onValueChange = viewModel::onItemNameChange,
-            label = stringResource(R.string.name),
-            isError = viewModel.state.itemNameInvalid,
-            errorMessage = viewModel.state.itemNameInvalidMessage,
-        )
-    }
-}
-//endregion
-
-
-//region ListDetailsScreenListItemBottomSheetListItemNotes
-@Composable
-fun ListDetailsScreenListItemBottomSheetNotes(viewModel: ListDetailsViewModel) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        AppTextField(
-            value = viewModel.itemNotes(),
-            onValueChange = viewModel::onItemNotesChange,
-            label = stringResource(R.string.notes),
-            singleLine = false,
-        )
-    }
-}
-//endregion
-
-
-//region ListDetailsScreenListItemBottomSheetQuantity
-@Composable
-fun ListDetailsScreenListItemBottomSheetQuantity(viewModel: ListDetailsViewModel) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spaces.medium)
-                .padding(bottom = MaterialTheme.spaces.large)
-            ,
-            value = viewModel.itemQuantity(),
-            onValueChange = { viewModel.onItemQuantityChange(it) },
-            label = { Text(text = stringResource(R.string.quantity)) },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                showKeyboardOnFocus = true,
-            ),
-        )
     }
 }
 //endregion
@@ -836,37 +683,29 @@ fun ListDetailsScreenListItemBottomSheetQuantity(viewModel: ListDetailsViewModel
 //region ListDetailsScreenListItemBottomSheetCategory
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel) {
+fun ListDetailsScreenListItemBottomSheetCategory(
+    categoryName: String,
+    categories: List<EasyListsCategory>,
+    onCategoryChange: (String) -> Unit,
+) {
     var expanded by remember { mutableStateOf(false) }
-    val textFieldState = rememberTextFieldState("")
-
-    when {
-        viewModel.state.categoryText.isNotEmpty() -> {
-            textFieldState.setTextAndPlaceCursorAtEnd(
-                viewModel.categoryFromIndex()
-            )
-        }
-    }
 
     ExposedDropdownMenuBox(
         modifier = Modifier
             .padding(horizontal = MaterialTheme.spaces.medium)
-            .padding(bottom = MaterialTheme.spaces.large)
-        ,
+            .padding(bottom = MaterialTheme.spaces.large),
         expanded = expanded,
         onExpandedChange = { expanded = it },
     ) {
         TextField(
-            // The `menuAnchor` modifier must be passed to the text field to handle
-            // expanding/collapsing the menu on click. A read-only text field has
-            // the anchor type `PrimaryNotEditable`.
+            // editable: the user can type a new category or pick an existing one
             modifier = Modifier
-                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
                 .fillMaxWidth(),
             label = { Text(text = stringResource(R.string.category)) },
-            onValueChange = { viewModel.onCategoryChange(it) },
-            readOnly = false,
-            value = viewModel.state.categoryText,
+            value = categoryName,
+            onValueChange = onCategoryChange,
+            singleLine = true,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
         )
         ExposedDropdownMenu(
@@ -874,140 +713,36 @@ fun ListDetailsScreenListItemBottomSheetCategory(viewModel: ListDetailsViewModel
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            when {
-                viewModel.state.categoryList.isNotEmpty() -> {
-                    viewModel.state.categoryList.forEachIndexed { index, option ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = option.name,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                )
-                            },
-                            onClick = {
-                                textFieldState.setTextAndPlaceCursorAtEnd(option.name)
-                                expanded = false
-                                viewModel.onCategoryChange(index)
-                            },
-                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+            categories.forEach { category ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = category.name,
+                            style = MaterialTheme.typography.bodyLarge,
                         )
-                    }
-                }
+                    },
+                    onClick = {
+                        onCategoryChange(category.name)
+                        expanded = false
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                )
             }
         }
     }
-
-}
-//endregion
-
-
-//region ListDetailsScreenListItemBottomSheetTags
-@Composable
-fun ListDetailsScreenListItemBottomSheetTags(viewModel: ListDetailsViewModel) {
-    when {
-        viewModel.state.easyListsTagList.isNotEmpty() -> {
-            BoxWithConstraints(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(MaterialTheme.spaces.medium)
-            ) {
-                val boxWithConstraintsScope = this
-                var widthConsumed: Dp = MaterialTheme.spaces.none
-
-                var nextIndex = 0
-                var lastIndex = -1
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(MaterialTheme.spaces.none)
-                ) {
-                    while (lastIndex < viewModel.state.easyListsTagList.size - 1) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = MaterialTheme.spaces.none)
-                        ) {
-                            run breaking@{
-                                viewModel.state.easyListsTagList.forEachIndexed { index, tag ->
-                                    lastIndex = index
-
-                                    // skip items already added to previous row(s)
-                                    if (index < nextIndex) return@forEachIndexed
-
-                                    // calculate width of tag pill
-                                    var width = measureTextWidth(
-                                        tag.name, MaterialTheme.typography.bodyMedium
-                                    ) + (MaterialTheme.spaces.small * 2) + (MaterialTheme.spaces.medium * 2)
-                                    if (tag.isSelected) {
-                                        width += 16.dp
-                                    }
-
-                                    if (widthConsumed + width > boxWithConstraintsScope.maxWidth) {
-                                        // reduce last index by 1 as we didn't actually display the last item
-                                        lastIndex = index - 1
-                                        nextIndex = index
-                                        widthConsumed = MaterialTheme.spaces.none
-
-                                        // break here because we have to start a new row
-                                        return@breaking
-                                    }
-
-                                    ListDetailsScreenTagPill(
-                                        easyListsTag = tag, viewModel = viewModel
-                                    )
-
-                                    widthConsumed += width
-                                    lastIndex = index
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
 }
 //endregion
 
 
 //region ListDetailsScreenListItemBottomSheetPhotoTitle
 @Composable
-fun ListDetailsScreenListItemBottomSheetPhotoTitle(viewModel: ListDetailsViewModel) {
-    val currentContext = LocalContext.current
-
-    val pickImageFromAlbumLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        viewModel.onFinishPickingImages(currentContext, uri)
-    }
-    val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isImageSaved ->
-            if (isImageSaved) {
-                viewModel.onCameraImageSaved(currentContext)
-            } else {
-                viewModel.onCameraImageSavingCanceled()
-            }
-        }
-
-    val permissionLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permissionGranted ->
-            if (permissionGranted) {
-                viewModel.onCameraPermissionGranted(currentContext)
-            } else {
-                viewModel.onCameraPermissionDenied()
-            }
-        }
-
-    // this ensures that the camera is launched only once when the url of the temp file changes
-    LaunchedEffect(key1 = viewModel.state.tempCameraFileUrl) {
-        viewModel.state.tempCameraFileUrl?.let {
-            cameraLauncher.launch(it)
-        }
-    }
-
-
+fun ListDetailsScreenListItemBottomSheetPhotoTitle(
+    enableCamera: Boolean,
+    hasPhoto: Boolean,
+    onTakePhoto: () -> Unit,
+    onPickPhoto: () -> Unit,
+    onRemovePhoto: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1021,95 +756,27 @@ fun ListDetailsScreenListItemBottomSheetPhotoTitle(viewModel: ListDetailsViewMod
             text = stringResource(R.string.photo),
         )
 
-        ListDetailsScreenListItemBottomSheetCameraIcon(
-            permissionLauncher = permissionLauncher,
-            modifier = Modifier.weight(0.13f),
-            viewModel = viewModel
-        )
-
-        ListDetailsScreenListItemBottomSheetPhotoIcon(
-            pickImageFromAlbumLauncher = pickImageFromAlbumLauncher,
-            modifier = Modifier.weight(0.13f),
-            viewModel = viewModel
-        )
-
-        ListDetailsScreenListItemBottomSheetDeleteIcon(
-            modifier = Modifier.weight(0.13f),
-            viewModel = viewModel
-        )
-    }
-}
-//endregion
-
-
-//region ListDetailsScreenListItemBottomSheetCameraIcon
-@Composable
-fun ListDetailsScreenListItemBottomSheetCameraIcon(
-    permissionLauncher: ActivityResultLauncher<String>,
-    modifier: Modifier = Modifier,
-    viewModel: ListDetailsViewModel
-) {
-    when {
-        viewModel.state.enableCamera -> {
-            IconButton(
-                modifier = modifier,
-                onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }
-            ) {
+        if (enableCamera) {
+            IconButton(modifier = Modifier.weight(0.13f), onClick = onTakePhoto) {
                 Icon(
-                    modifier = Modifier,
                     imageVector = MaterialIconsPhotoCamera,
                     contentDescription = stringResource(R.string.take_a_picture)
                 )
             }
         }
-    }
-}
-//endregion
 
-
-//region ListDetailsScreenListItemBottomSheetPhotoIcon
-@Composable
-fun ListDetailsScreenListItemBottomSheetPhotoIcon(
-    pickImageFromAlbumLauncher: ActivityResultLauncher<PickVisualMediaRequest>,
-    modifier: Modifier = Modifier,
-    viewModel: ListDetailsViewModel
-) {
-    IconButton(
-        modifier = modifier,
-        onClick = {
-            pickImageFromAlbumLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        IconButton(modifier = Modifier.weight(0.13f), onClick = onPickPhoto) {
+            Icon(
+                imageVector = MaterialIconsInsertPhoto,
+                contentDescription = stringResource(R.string.choose_photo)
             )
         }
-    ) {
-        Icon(
-            modifier = Modifier,
-            imageVector = MaterialIconsInsertPhoto,
-            contentDescription = stringResource(R.string.take_a_picture)
-        )
-    }
-}
-//endregion
 
-
-//region ListDetailsScreenListItemBottomSheetDeleteIcon
-@Composable
-fun ListDetailsScreenListItemBottomSheetDeleteIcon(
-    modifier: Modifier = Modifier,
-    viewModel: ListDetailsViewModel
-) {
-    when {
-        viewModel.state.itemPhotoUri != null -> {
-            IconButton(
-                modifier = modifier,
-                onClick = {
-                    Arbor.i("Delete photo")
-                }
-            ) {
+        if (hasPhoto) {
+            IconButton(modifier = Modifier.weight(0.13f), onClick = onRemovePhoto) {
                 Icon(
-                    modifier = Modifier,
                     imageVector = MaterialIconsDelete,
-                    contentDescription = stringResource(R.string.take_a_picture)
+                    contentDescription = stringResource(R.string.remove_photo)
                 )
             }
         }
@@ -1118,312 +785,66 @@ fun ListDetailsScreenListItemBottomSheetDeleteIcon(
 //endregion
 
 
-//region Modifier.pinchToZoom, used for pinch to zoom on Add/Edit Item bottom sheet
-fun Modifier.pinchToZoom(
-    state: ZoomState,
-    maxScale: Float = 5f,
-    doubleTapScale: Float = 2.5f,
-    onTap: (() -> Unit)? = null,
-): Modifier = this
-    .pointerInput(state) {
-        awaitEachGesture {
-            // Initial pass: runs before the bottom sheet / LazyColumn see the events
-            awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
-            do {
-                val event = awaitPointerEvent(PointerEventPass.Initial)
-                val fingers = event.changes.count { it.pressed }
-
-                if (fingers >= 2 || state.isZoomed) {
-                    val zoom = if (fingers >= 2) event.calculateZoom() else 1f
-                    val pan = event.calculatePan()
-                    val centroid = event.calculateCentroid()
-
-                    if (centroid.isSpecified) {
-                        val center = Offset(size.width / 2f, size.height / 2f)
-                        val newScale = (state.scale * zoom).coerceIn(1f, maxScale)
-                        val z = newScale / state.scale
-
-                        // Keep the content point under the fingers stationary
-                        val raw = (centroid - center) * (1f - z) + state.offset * z + pan
-
-                        val maxX = size.width * (newScale - 1f) / 2f
-                        val maxY = size.height * (newScale - 1f) / 2f
-
-                        state.scale = newScale
-                        state.offset = Offset(
-                            raw.x.coerceIn(-maxX, maxX) / maxX,
-                            raw.y.coerceIn(-maxY, maxY) / maxY,
-                        )
-
-                        event.changes.forEach { if (it.positionChanged()) it.consume() }
-                    }
-                }
-            } while (event.changes.any { it.pressed })
-            // No reset here: the image stays zoomed after the fingers lift.
-        }
-    }
-    .pointerInput(state, onTap) {
-        detectTapGestures(
-            onTap = { onTap?.invoke() },
-            onDoubleTap = { tap ->
-                if (state.isZoomed) {
-                    state.reset()
-                    // reset view model values to defaults
-                } else {
-                    val center = Offset(size.width / 2f, size.height / 2f)
-                    val maxX = size.width * (doubleTapScale - 1f) / 2f
-                    val maxY = size.height * (doubleTapScale - 1f) / 2f
-                    val raw = (tap - center) * (1f - doubleTapScale)
-                    state.scale = doubleTapScale
-                    state.offset = Offset(
-                        raw.x.coerceIn(-maxX, maxX) / maxX,
-                        raw.y.coerceIn(-maxY, maxY) / maxY,
-                    )
-                }
-            },
-        )
-    }
-    // Clip to the Box's original bounds (the sheet clips anyway), OUTSIDE the layer
-    .clipToBounds()
-    .graphicsLayer {
-        scaleX = state.scale
-        scaleY = state.scale
-        translationX = state.offset.x * size.width
-        translationY = state.offset.y * size.height
-    }
-//endregion
-
-
-//region ListDetailsScreenListItemBottomSheetPhoto
+//region ListDetailsScreenListItemBottomSheetTags
 @Composable
-fun ListDetailsScreenListItemBottomSheetPhoto(viewModel: ListDetailsViewModel) {
-    when {
-        viewModel.state.itemPhotoUri != null -> {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                FramedPhoto(
-                    photoUri = viewModel.state.itemPhotoUri!!,
-                    scale = viewModel.state.itemPhotoScale.toFloat(),
-                    normalizedOffsetX = viewModel.state.itemPhotoOffset.x,
-                    normalizedOffsetY = viewModel.state.itemPhotoOffset.y,
-                    modifier = Modifier.fillMaxWidth().aspectRatio(1f),
-                    zoomEnabled = true,
-                    onTransformChanged = { newScale, newOffsetX, newOffsetY ->
-                        viewModel.updatePhotoTransform(newScale, newOffsetX, newOffsetY)
-                    },
-                )
-            }
+fun ListDetailsScreenListItemBottomSheetTags(
+    tags: List<EasyListsTag>,
+    selectedTagIds: Set<String>,
+    onTagClick: (EasyListsTag) -> Unit,
+) {
+    FlowRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(MaterialTheme.spaces.medium)
+    ) {
+        tags.forEach { tag ->
+            ListDetailsScreenTagPill(
+                tag = tag,
+                isSelected = tag.tagId?.let { it in selectedTagIds } == true,
+                onClick = { onTagClick(tag) },
+            )
         }
     }
 }
-//endregion
 
 
-//region ListDetailsScreenTagPill
 @Composable
 fun ListDetailsScreenTagPill(
-    easyListsTag: EasyListsTag,
-    viewModel: ListDetailsViewModel,
+    tag: EasyListsTag,
+    isSelected: Boolean,
+    onClick: () -> Unit,
 ) {
-    val backgroundColor = Color(
-        easyListsTag.color?.toColorInt()
-            ?: if (easyListsTag.isSelected)
-                MaterialTheme.colorScheme.secondaryContainer.toHexCodeWithAlpha()
-                    .toColorInt()
-            else MaterialTheme.colorScheme.tertiaryContainer.toHexCodeWithAlpha().toColorInt()
-    )
+    val backgroundColor = tagBackground(tag, isSelected)
+    val shape = RoundedCornerShape(25.dp)
 
     Box(
         modifier = Modifier
             .padding(MaterialTheme.spaces.small)
-            .combinedClickable(onClick = { viewModel.onTagClick(easyListsTag) }, onLongClick = {})
-            .background(
-                color = backgroundColor,
-                RoundedCornerShape(25.dp)
-            )
-            .clip(RoundedCornerShape(25.dp))
+            .clip(shape)
+            .background(backgroundColor)
+            .clickable(onClick = onClick)
     ) {
         Row(
             modifier = Modifier.padding(
-                start = MaterialTheme.spaces.medium, end = MaterialTheme.spaces.small
-            ), verticalAlignment = Alignment.CenterVertically
+                start = MaterialTheme.spaces.medium,
+                end = MaterialTheme.spaces.small
+            ),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 color = backgroundColor.getContrastColor(),
-                modifier = Modifier.padding(
-                    start = MaterialTheme.spaces.none, end = MaterialTheme.spaces.small
-                ),
+                modifier = Modifier.padding(end = MaterialTheme.spaces.small),
                 style = MaterialTheme.typography.bodyMedium,
-                text = easyListsTag.name
+                text = tag.name
             )
-            if (easyListsTag.isSelected) {
+            if (isSelected) {
                 Icon(
-                    modifier = Modifier
-                        .size(16.dp)
-                        .padding(horizontal = MaterialTheme.spaces.none),
+                    modifier = Modifier.size(16.dp),
                     imageVector = MaterialIconsClose,
-                    contentDescription = stringResource(R.string.create_new_list),
+                    contentDescription = stringResource(R.string.remove_tag),
                     tint = backgroundColor.getContrastColor()
                 )
             }
-        }
-    }
-}
-//endregion
-
-
-//region ListItemDetailsScreenTagDot
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun ListItemDetailsScreenTagDot(
-    easyListsTag: EasyListsTag,
-    modifier: Modifier = Modifier,
-    viewModel: ListDetailsViewModel,
-) {
-    when {
-        !viewModel.state.expandTagPills -> {
-            Row(
-                modifier = Modifier
-                    .size(20.dp)
-            ) {
-                Box(
-                    modifier = modifier
-                        .size(20.dp)
-                        .height(20.dp)
-                        .padding(MaterialTheme.spaces.extraSmall)
-                        .combinedClickable(
-                            onClick = { viewModel.expandTagPills() },
-                            onLongClick = {}
-                        )
-                        .clip(CircleShape)
-                        .background(
-                            color = Color(
-                                easyListsTag.color?.toColorInt()
-                                    ?: MaterialTheme.colorScheme.secondaryContainer.toHexCodeWithAlpha()
-                                        .toColorInt()
-                            ),
-                        )
-                )
-            }
-        }
-    }
-}
-//endregion
-
-
-//region ListDetailsScreenTagPillSmall
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun ListItemDetailsScreenTagPillSmall(
-    easyListsTag: EasyListsTag,
-    modifier: Modifier = Modifier,
-    viewModel: ListDetailsViewModel,
-) {
-    when {
-        viewModel.state.expandTagPills -> {
-            val backgroundColor = Color(
-                easyListsTag.color?.toColorInt()
-                    ?: if (easyListsTag.isSelected)
-                        MaterialTheme.colorScheme.secondaryContainer.toHexCodeWithAlpha()
-                            .toColorInt()
-                    else MaterialTheme.colorScheme.tertiaryContainer.toHexCodeWithAlpha().toColorInt()
-            )
-            Box(
-                modifier = Modifier
-                    .padding(MaterialTheme.spaces.extraSmall)
-                    .combinedClickable(
-                        onClick = { viewModel.expandTagPills() },
-                        onLongClick = {}
-                    )
-                    .background(
-                        color = backgroundColor,
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                    .clip(RoundedCornerShape(10.dp))
-            ) {
-                Row(
-                    modifier = Modifier.padding(
-                        start = MaterialTheme.spaces.medium, end = MaterialTheme.spaces.small
-                    ), verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        color = backgroundColor.getContrastColor(),
-                        modifier = Modifier.padding(
-                            start = MaterialTheme.spaces.none, end = MaterialTheme.spaces.small
-                        ),
-                        style = MaterialTheme.typography.labelSmall,
-                        text = easyListsTag.name
-                    )
-                }
-            }
-        }
-    }
-
-}
-//endregion
-
-
-//region measureTextWidth
-@Composable
-fun measureTextWidth(text: String, style: TextStyle): Dp {
-    val textMeasurer = rememberTextMeasurer()
-    val widthInPixels = textMeasurer.measure(text, style).size.width
-    return with(LocalDensity.current) { widthInPixels.toDp() }
-}
-//endregion
-
-
-//region ListDetailsScreenTopAppBarNavigationIcon
-@Composable
-fun ListDetailsScreenTopAppBarNavigationIcon(navController: NavController<Screen>) {
-    IconButton(
-        onClick = { navController.pop() }) {
-        Icon(
-            painter = rememberVectorPainter(MaterialIconsArrowBack),
-            contentDescription = stringResource(R.string.return_to_previous_screen),
-        )
-    }
-}
-//endregion
-
-
-//region ConfirmDeleteCrossedOffItems
-@Composable
-fun ConfirmDeleteCrossedOffItems(viewModel: ListDetailsViewModel) {
-    when {
-        viewModel.state.showConfirmationDialogCrossedOffItems -> {
-            ConfirmationDialog(
-                onDismissRequest = {
-                    viewModel.setShowConfirmationDialogStateCrossedOffItems(false)
-                },
-                onConfirmation = {
-                    viewModel.deleteAllCrossedOffItems()
-                    viewModel.setShowConfirmationDialogStateCrossedOffItems(false)
-                },
-                dialogTitle = stringResource(R.string.confirm_deletion),
-                dialogText = stringResource(R.string.delete_crossed_off_items_warning),
-            )
-        }
-    }
-}
-//endregion
-
-
-//region ConfirmDeleteListItem
-@Composable
-fun ConfirmDeleteListItem(viewModel: ListDetailsViewModel) {
-    when {
-        viewModel.state.showConfirmationDialogDeleteListItem -> {
-            ConfirmationDialog(
-                onDismissRequest = {
-                    viewModel.setShowConfirmationDialogState(false)
-                },
-                onConfirmation = {
-                    viewModel.deleteListItem()
-                    viewModel.setShowConfirmationDialogState(false)
-                },
-                dialogTitle = stringResource(R.string.confirm_deletion),
-                dialogText = stringResource(R.string.delete_list_items_warning),
-            )
         }
     }
 }

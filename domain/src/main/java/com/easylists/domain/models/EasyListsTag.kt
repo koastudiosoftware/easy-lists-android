@@ -1,6 +1,6 @@
 package com.easylists.domain.models
 
-import java.time.Instant
+import kotlin.time.Clock
 
 data class EasyListsTag(
     val tagId: String? = null,
@@ -9,8 +9,8 @@ data class EasyListsTag(
     val color: String? = null,
     val isDirty: Boolean = false,
     val isDeleted: Boolean = false,
-    val createdTimestamp: Long = Instant.now().epochSecond,
-    val modifiedTimestamp: Long = Instant.now().epochSecond,
+    val createdTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
+    val modifiedTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
 
     var isSelected: Boolean = false,
     var selectedForRemoval: Boolean = false,

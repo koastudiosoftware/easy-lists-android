@@ -49,6 +49,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.ui)
 
     implementation(libs.androidx.core.ktx)

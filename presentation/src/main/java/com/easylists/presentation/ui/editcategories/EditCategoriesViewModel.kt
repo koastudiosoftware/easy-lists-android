@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
@@ -342,7 +343,7 @@ class EditCategoriesViewModel @Inject constructor(
                     isDirty = true,
                     isDeleted = false,
                     createdTimestamp = state.selectedItem?.createdTimestamp
-                        ?: Instant.now().epochSecond,
+                        ?: Clock.System.now().toEpochMilliseconds(),
                 )
             )
 

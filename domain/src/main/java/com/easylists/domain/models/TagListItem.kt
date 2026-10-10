@@ -1,11 +1,11 @@
 package com.easylists.domain.models
 
-import java.time.Instant
+import kotlin.time.Clock
 
 data class TagListItem(
     val tagListItemId: String? = null,
     val tagId: String,
     val listItemId: String,
-    val createdTimestamp: Long = Instant.now().epochSecond,
-    val modifiedTimestamp: Long = Instant.now().epochSecond,
+    val createdTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
+    val modifiedTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
 )

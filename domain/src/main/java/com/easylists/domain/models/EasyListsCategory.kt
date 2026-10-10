@@ -1,6 +1,6 @@
 package com.easylists.domain.models
 
-import java.time.Instant
+import kotlin.time.Clock
 
 data class EasyListsCategory(
     var categoryId: String? = null,
@@ -9,8 +9,8 @@ data class EasyListsCategory(
     var sortOrder: Int? = null,
     var isDirty: Boolean = false,
     var isDeleted: Boolean = false,
-    var createdTimestamp: Long = Instant.now().epochSecond,
-    var modifiedTimestamp: Long = Instant.now().epochSecond,
+    var createdTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
+    var modifiedTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
 
     var selectedForRemoval: Boolean = false,
 )

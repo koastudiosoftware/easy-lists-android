@@ -26,7 +26,7 @@ import com.easylists.presentation.ui.editcategories.EditCategoriesScreen
 import com.easylists.presentation.ui.edittags.EditTagsScreen
 import com.easylists.presentation.ui.listdetails.ListDetailsScreen
 import com.easylists.presentation.ui.lists.ListsViewModel
-import com.easylists.presentation.ui.lists.MasterListsScreen
+import com.easylists.presentation.ui.lists.ListsScreen
 import com.easylists.presentation.ui.settings.SettingsScreen
 import com.easylists.presentation.ui.theme.EasyListsTheme
 import com.easylists.presentation.ui.theme.spaces
@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
                             NavHost(controller = navController) { route ->
                                 when (route) {
                                     is Screen.MasterLists -> {
-                                        MasterListsScreen(
+                                        ListsScreen(
                                             navController = navController,
                                             sharedViewModel = sharedViewModel,
                                             viewModel = startDestinationViewModel

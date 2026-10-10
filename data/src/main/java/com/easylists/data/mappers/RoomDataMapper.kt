@@ -13,8 +13,8 @@ import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
 import com.github.davidepanidev.kotlinextensions.utils.serialization.SerializationManager
-import java.time.Instant
 import javax.inject.Inject
+import kotlin.time.Clock
 
 class RoomDataMapper @Inject constructor(
     private val serializationManager: SerializationManager,
@@ -118,7 +118,7 @@ class RoomDataMapper @Inject constructor(
             sortOrder = list.sortOrder,
             isDirty = list.isDirty,
             isDeleted = list.isDeleted,
-            modifiedTimestamp = Instant.now().epochSecond,
+            modifiedTimestamp = Clock.System.now().toEpochMilliseconds(),
         )
     }
     //endregion
@@ -197,7 +197,7 @@ class RoomDataMapper @Inject constructor(
             photoOffsetY = listItem.photoOffsetY,
             isDirty = listItem.isDirty,
             isDeleted = listItem.isDeleted,
-            modifiedTimestamp = Instant.now().epochSecond,
+            modifiedTimestamp = Clock.System.now().toEpochMilliseconds(),
         )
     }
     //endregion

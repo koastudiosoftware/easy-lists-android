@@ -33,6 +33,7 @@ roomCompiler = "2.8.5"
 roomKtx = "2.8.5"
 roomRuntime = "2.8.5"
 ui = "1.12.1"
+runtime = "1.12.1"
 
 [libraries]
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -74,6 +75,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 reimagined-hilt = { module = "dev.olshevski.navigation:reimagined-hilt", version.ref = "reimaginedHilt" }
 resultat = { module = "fr.haan.resultat:resultat", version.ref = "resultat" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
