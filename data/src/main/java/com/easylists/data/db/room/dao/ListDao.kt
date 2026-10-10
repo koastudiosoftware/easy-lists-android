@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 abstract class ListDao() {
 
     @Transaction
-    @Query("SELECT * FROM lists ORDER BY name ASC")
+    @Query("SELECT * FROM lists ORDER BY name COLLATE NOCASE ASC")
     abstract fun get(): Flow<List<ListEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
