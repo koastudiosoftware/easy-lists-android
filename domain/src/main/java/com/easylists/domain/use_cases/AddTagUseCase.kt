@@ -9,8 +9,8 @@ class AddTagUseCase @Inject constructor(
 ) {
 
     //region invoke()
-    suspend operator fun invoke(easyListsTag: EasyListsTag) {
-        tagRepository.addTag(easyListsTag = easyListsTag)
+    suspend operator fun invoke(easyListsTag: EasyListsTag): Result<Unit> {
+        return tagRepository.addTag(easyListsTag = easyListsTag)
     }
     //endregion
 
