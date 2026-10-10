@@ -117,4 +117,16 @@
     <string name="choose_photo">Choose photo</string>
     <string name="remove_photo">Remove photo</string>
     <string name="remove_tag">Remove tag</string>
+
+    <string name="save_tag">Save tag</string>
+    <string name="delete_tag">Delete tag</string>
+    <string name="tag_not_used">Not used</string>
+    <string name="tag_name_in_use">Name already in use</string>
+    <string name="error_loading_tags">Couldn\'t load tags</string>
+    <string name="error_saving_tag">Couldn\'t save the tag</string>
+    <string name="error_deleting_tags">Couldn\'t delete the tags</string>
+    <plurals name="tag_used_by_list_items">
+        <item quantity="one">Used by %d list item</item>
+        <item quantity="other">Used by %d list items</item>
+    </plurals>
 </resources>
