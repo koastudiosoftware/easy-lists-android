@@ -1,9 +1,9 @@
 package com.easylists.presentation.ui.edittags
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.easylists.domain.common.AppSettings
@@ -21,46 +21,41 @@ import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveTagFromListItemUseCase
 import com.easylists.domain.use_cases.RemoveTagUseCase
 import com.easylists.domain.use_cases.UpdateTagUseCase
+import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.EditTagsAction
-import com.easylists.presentation.common.toHexCodeWithAlpha
-import com.easylists.presentation.mappers.UiMapper
+import com.easylists.presentation.models.ColorEditorState
 import com.easylists.presentation.models.EditTagsState
-import com.easylists.presentation.models.SettingsUiState
+import com.easylists.presentation.models.PendingDelete
+import com.easylists.presentation.models.TagSheetState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.haan.resultat.Resultat
-import fr.haan.resultat.onFailure
-import fr.haan.resultat.onLoading
-import fr.haan.resultat.onSuccess
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+
+private const val DEFAULT_COLOR_HEX = "#FFFFFFFF"
+private val HEX_COLOR = Regex("^#[0-9A-F]{8}$")
 
 @HiltViewModel
 class EditTagsViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
-    private val getTagFlowUseCase: GetTagFlowUseCase,
+    getTagFlowUseCase: GetTagFlowUseCase,
+    getListListFlowUseCase: GetListFlowUseCase,
+    getListItemFlowUseCase: GetListItemFlowUseCase,
+    getTagListItemFlowUseCase: GetTagListItemFlowUseCase,
     private val addTagUseCase: AddTagUseCase,
+    private val updateTagUseCase: UpdateTagUseCase,
     private val removeTagUseCase: RemoveTagUseCase,
     private val removeTagFromListItemUseCase: RemoveTagFromListItemUseCase,
-    private val updateTagUseCase: UpdateTagUseCase,
-    private val getListItemFlowUseCase: GetListItemFlowUseCase,
-    private val getTagListItemFlowUseCase: GetTagListItemFlowUseCase,
-    private val getListListFlowUseCase: GetListFlowUseCase,
-    private val mapper: UiMapper,
     private val session: SessionRepository,
 ) : ViewModel() {
 
@@ -73,630 +68,303 @@ class EditTagsViewModel @Inject constructor(
             initialValue = null,
         )
 
-    // Transient screen state
-    private val _uiState = MutableStateFlow(SettingsUiState())
-    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+    // Transient screen state. Only the ViewModel writes it.
+    var state by mutableStateOf(EditTagsState())
+        private set
 
-
-
-    var userId: String = ""
-
-    private var listItemListFlowJob: Job? = null
-    private var listListFlowJob: Job? = null
-    private var tagListFlowJob: Job? = null
-    private var tagListItemFlowJob: Job? = null
-
-    var state by mutableStateOf( EditTagsState() )
-
+    private data class Snapshot(
+        val tags: List<EasyListsTag>,
+        val lists: List<EasyListsList>,
+        val listItems: List<EasyListsListItem>,
+        val tagListItems: List<TagListItem>,
+    )
 
     init {
-        initAppSettings()
-        initTagList()
-        initListList()
-        initListItemList()
-        initTagListItemList()
-    }
-
-
-    //region initAppSettings()
-    fun initAppSettings() {
-        viewModelScope.launch {
-            // TODO we should do something more proactive if the userId cannot be fetched
-            userId = session.getUserId()
-            if (userId.isEmpty()) return@launch
-
-//            val result = getAppSettingsUseCase(
-//                keys = AppSettingsKeys.entries.map {
-//                    mapOf(
-//                        KEY to it.key,
-//                        TYPE to it.type.toString()
-//                    )
-//                },
-//            )
-//
-//            val capitalization =
-//                result.find { it[KEY] == AppSettingsKeys.Capitalization.key }?.get(VALUE)
-//
-//            state = state.copy(
-//                capitalization = Capitalization.from(
-//                    capitalization ?: Capitalization.NoCapitalization.toString()
-//                ) ?: Capitalization.NoCapitalization,
-//            )
-        }
-    }
-    //endregion
-
-
-    //region initTagList() :: initialize list of tags from the database
-    fun initTagList() {
-        cancelTagFlowCollection()
-
-        tagListFlowJob = getTagFlowUseCase()
-            .onEach {
-                handleGetTagState(Resultat.success(it))
-            }.catch {
-                handleGetTagState(Resultat.failure(it))
-
-                // After this catch the flow is interrupted and it must be collected
-                // again to obtain new data. The handleRefresh() method handles this situation.
-                cancelTagFlowCollection()
-            }.launchIn(viewModelScope)
-    }
-
-
-    private fun handleGetTagState(result: Resultat<List<EasyListsTag>?>) {
-        result.onSuccess {
-            state = state.copy(
-                isPullToRefreshing = false,
-                // TODO this is where the sorting order should be applied
-                tagList = it?.map { item -> item } ?: emptyList(),
+        // One combined collection instead of four independent ones, so the state is never
+        // updated with, say, new tag/list-item links but stale list items.
+        combine(
+            getTagFlowUseCase(),
+            getListListFlowUseCase(),
+            getListItemFlowUseCase(),
+            getTagListItemFlowUseCase(),
+        ) { tags, lists, listItems, tagListItems ->
+            Snapshot(
+                tags = tags.orEmpty(),
+                lists = lists.orEmpty(),
+                listItems = listItems.orEmpty(),
+                tagListItems = tagListItems.orEmpty(),
             )
-        }.onFailure {
-//            state = state.copy(
-//                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
-//            )
-        }.onLoading {
-//            state = state.copy(
-//                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
-//            )
         }
+            .onEach(::applySnapshot)
+            .catch { state = state.copy(messageRes = R.string.error_loading_tags) }
+            .launchIn(viewModelScope)
     }
 
 
-    private fun cancelTagFlowCollection() {
-        tagListFlowJob?.cancel()
-        tagListFlowJob = null
-    }
-    //endregion
+    //region applySnapshot()
+    private fun applySnapshot(snapshot: Snapshot) {
+        val tagIds = snapshot.tags.mapNotNull { it.tagId }.toSet()
 
-
-    //region initTagListItemList() :: initialize list of tag list items from the database
-    fun initTagListItemList() {
-        cancelTagListItemFlowCollection()
-
-        tagListItemFlowJob = getTagListItemFlowUseCase()
-            .onEach {
-                handleGetTagListItemState(Resultat.success(it))
-            }.catch {
-                handleGetTagListItemState(Resultat.failure(it))
-
-                // After this catch the flow is interrupted and it must be collected
-                // again to obtain new data. The handleRefresh() method handles this situation.
-                cancelTagListItemFlowCollection()
-            }.launchIn(viewModelScope)
-    }
-
-
-    private fun handleGetTagListItemState(result: Resultat<List<TagListItem>?>) {
-        result.onSuccess {
-            state = state.copy(
-                isPullToRefreshing = false,
-                // TODO this is where the sorting order should be applied
-                tagListItemList = it?.map { item -> item } ?: emptyList(),
-            )
-        }.onFailure {
-//            state = state.copy(
-//                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
-//            )
-        }.onLoading {
-//            state = state.copy(
-//                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
-//            )
+        val counts = HashMap<String, Int>()
+        snapshot.tagListItems.forEach { item ->
+            val id = item.tagId ?: return@forEach
+            counts[id] = (counts[id] ?: 0) + 1
         }
-    }
 
-
-    private fun cancelTagListItemFlowCollection() {
-        tagListItemFlowJob?.cancel()
-        tagListItemFlowJob = null
-    }
-    //endregion
-
-
-    //region initListItemList() :: initialize list of list items from the database
-    fun initListItemList() {
-        cancelListItemFlowCollection()
-
-        listItemListFlowJob = getListItemFlowUseCase()
-            .onEach {
-                handleGetListItemState(Resultat.success(it))
-            }.catch {
-                handleGetListItemState(Resultat.failure(it))
-
-                // After this catch the flow is interrupted and it must be collected
-                // again to obtain new data. The handleRefresh() method handles this situation.
-                cancelListItemFlowCollection()
-            }.launchIn(viewModelScope)
-    }
-
-
-    private fun handleGetListItemState(result: Resultat<List<EasyListsListItem>?>) {
-        result.onSuccess {
-            state = state.copy(
-                isPullToRefreshing = false,
-                listItemList = it?.map { item -> item } ?: emptyList(),
-            )
-        }.onFailure {
-//            state = state.copy(
-//                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
-//            )
-        }.onLoading {
-//            state = state.copy(
-//                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
-//            )
-        }
-    }
-
-
-    private fun cancelListItemFlowCollection() {
-        listItemListFlowJob?.cancel()
-        listItemListFlowJob = null
-    }
-    //endregion
-
-
-    //region initListList() :: initialize list of lists from the database
-    fun initListList() {
-        cancelListFlowCollection()
-
-        listListFlowJob = getListListFlowUseCase()
-            .onEach {
-                handleGetListState(Resultat.success(it))
-            }.catch {
-                handleGetListState(Resultat.failure(it))
-
-                // After this catch the flow is interrupted and it must be collected
-                // again to obtain new data. The handleRefresh() method handles this situation.
-                cancelListFlowCollection()
-            }.launchIn(viewModelScope)
-    }
-
-
-    private fun handleGetListState(result: Resultat<List<EasyListsList>?>) {
-        result.onSuccess {
-            state = state.copy(
-                isPullToRefreshing = false,
-                // TODO this is where the sorting order should be applied
-                listList = it ?: emptyList(),
-            )
-        }.onFailure {
-//            state = state.copy(
-//                uiState = ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
-//            )
-        }.onLoading {
-//            state = state.copy(
-//                state = CoinsListUiState.Refreshing(isAutomaticRefresh = true)
-//            )
-        }
-    }
-
-
-    private fun cancelListFlowCollection() {
-        listListFlowJob?.cancel()
-        listListFlowJob = null
-    }
-    //endregion
-
-
-    //region onPullToRefresh()
-    fun onPullToRefresh(): () -> Unit = {
-        state = state.copy(isPullToRefreshing = true)
-        viewModelScope.launch {
-            initTagList()
-            initListItemList()
-            initTagListItemList()
-            initListList()
-            delay(500L.milliseconds) // workaround to eliminate sticky pull to refresh indicator
-            state = state.copy(isPullToRefreshing = false)
-        }
-    }
-    //endregion
-
-
-    //region showTagBottomSheet()
-    fun showTagBottomSheet() {
-        state = state.copy(showTagBottomSheet = !state.showTagBottomSheet)
-    }
-    //endregion
-
-
-    //region setShowConfirmationDialogState()
-    fun setShowConfirmationDialogState(newState: Boolean) {
-        state = state.copy(showConfirmationDialog = newState)
-    }
-    //endregion
-
-
-    //region onTagClick()
-    fun onTagClick(item: EasyListsTag) {
         state = state.copy(
-            addEditMode = AddEditMode.Edit,
-            tagName = item.name,
-            selectedItem = item,
-            showTagBottomSheet = true,
+            tagList = snapshot.tags,
+            listList = snapshot.lists,
+            listItemList = snapshot.listItems,
+            tagListItemList = snapshot.tagListItems,
+            tagUsageCounts = counts,
+            // drop anything that no longer exists (deleted here, or removed by a sync)
+            selectedTagIds = state.selectedTagIds.intersect(tagIds),
+            tagSheet = state.tagSheet?.takeIf {
+                it.mode == AddEditMode.Add || it.tagId in tagIds
+            },
+            colorEditor = state.colorEditor?.takeIf { it.tagId in tagIds },
         )
     }
     //endregion
 
 
-    //region showContextIcons()
-    fun showContextIcons(item: EasyListsTag? = null) {
-        state.tagList.forEach { it.selectedForRemoval = false }
-
-        state = state.copy(
-            actionButtonState = if (state.actionButtonState == EditTagsAction.Delete)
-                EditTagsAction.None
-            else
-                EditTagsAction.Delete,
-            selectedItem = item,
-            showContextItems = !state.showContextItems
-        )
+    //region messages
+    fun onMessageShown() {
+        state = state.copy(messageRes = null)
     }
     //endregion
 
 
-    //region onTagSelectedForRemovalChanged()
-    fun onTagSelectedForRemovalChanged(uid: String?) {
-        state = state.copy(
-            tagList = state.tagList.map {
-                if (it.tagId == uid) {
-                    it.copy(selectedForRemoval = !it.selectedForRemoval)
-                } else {
-                    it
-                }
-            }
-        )
-    }
-    //endregion
-
-
-    //region addTag()
-    @OptIn(ExperimentalUuidApi::class)
-    fun addTag() {
-        viewModelScope.launch {
-            addTagUseCase(easyListsTag = EasyListsTag(
-                tagId = Uuid.random().toString(),
-                ownerId = userId,
-                name = state.tagName,
-                isDirty = true
-            ))
+    //region selection mode
+    fun onTagClick(tag: EasyListsTag) {
+        val id = tag.tagId ?: return
+        if (state.selectionMode) {
+            toggleSelection(id)
+        } else {
             state = state.copy(
-                tagName = "",
-                tagNameInvalid = false,
-                tagNameInvalidMessage = "",
-                showTagBottomSheet = false
+                tagSheet = TagSheetState(mode = AddEditMode.Edit, tagId = id, name = tag.name)
             )
         }
     }
-    //endregion
 
-
-    //region updateTag()
-    fun updateTag() {
-        viewModelScope.launch {
-            updateTagUseCase(
-                easyListsTag = EasyListsTag(
-                    tagId = state.selectedItem?.tagId,
-                    ownerId = userId,
-                    name = state.tagName,
-                    color = state.selectedItem?.color,
-                    isDirty = true,
-                    createdTimestamp = state.selectedItem?.createdTimestamp
-                        ?: Clock.System.now().toEpochMilliseconds(),
-                )
-            )
-
-            state = state.copy(
-                tagName = "",
-                tagNameInvalid = false,
-                tagNameInvalidMessage = "",
-                showTagBottomSheet = false
-            )
+    fun onTagLongClick(tag: EasyListsTag) {
+        val id = tag.tagId ?: return
+        if (!state.selectionMode) {
+            state = state.copy(selectionMode = true, selectedTagIds = setOf(id))
         }
     }
-    //endregion
 
-
-    //region removeTagFromListItems()
-    fun removeTagFromListItems() {
-        val tagList = state.tagList.filter { category ->
-            category.selectedForRemoval
-        }.map { it.tagId ?: "" }
-        viewModelScope.launch {
-            if (tagList.isNotEmpty() || tagList.all { it.isNotEmpty() }) {
-                removeTagFromListItemUseCase(
-                    tagIdList = tagList,
-                )
-            }
-            state = state.copy(nextStep = "remove_tags")
+    fun toggleSelection(tagId: String) {
+        val ids = if (tagId in state.selectedTagIds) {
+            state.selectedTagIds - tagId
+        } else {
+            state.selectedTagIds + tagId
         }
+        state = state.copy(selectedTagIds = ids)
+    }
+
+    fun exitSelectionMode() {
+        state = state.copy(selectionMode = false, selectedTagIds = emptySet())
     }
     //endregion
 
 
-    //region removeTags()
-    fun removeTags() {
-        val tagList = state.tagList.filter { tag ->
-            tag.selectedForRemoval
-        }.map { it.tagId ?: "" }
-
-        viewModelScope.launch {
-            if (tagList.isNotEmpty() || tagList.all { it.isNotEmpty() }) {
-                removeTagUseCase(tagIdList = tagList)
-                state.tagList.forEach { it.selectedForRemoval = false }
-            }
-
-            state = state.copy(
-                deselectCheckboxes = false,
-                nextStep = ""
-            )
-        }
+    //region add / edit tag sheet
+    fun onAddTagClick() {
+        state = state.copy(tagSheet = TagSheetState(mode = AddEditMode.Add))
     }
-    //endregion
 
-
-    //region deselectCheckboxes()
-    fun deselectCheckboxes() {
-        state = state.copy(deselectCheckboxes = true)
+    fun onTagSheetDismiss() {
+        state = state.copy(tagSheet = null)
     }
-    //endregion
 
-
-    //region tagIconButtonEnabled()
-    fun tagIconButtonEnabled(): Boolean {
-        return state.tagName.isNotEmpty() &&
-                state.tagList.all { it.name != state.tagName }
-    }
-    //endregion
-
-
-    //region tagName()
-    fun tagName(): String {
-        return state.tagName
-    }
-    //endregion
-
-
-    //region onTagNameChange()
     fun onTagNameChange(name: String) {
-        var tagNameInvalidMessage: String
-        val isNameInvalid = (state.tagList.any {
-            it.name.equals(name, ignoreCase = true)
-        }).let {
-            tagNameInvalidMessage = if (it) "Name already in use" else ""
-            it
+        val sheet = state.tagSheet ?: return
+        state = state.copy(tagSheet = sheet.copy(name = name))
+    }
+
+    fun saveTag() {
+        val sheet = state.tagSheet ?: return
+        if (!state.canSaveTag) return
+
+        val name = sheet.name.trim()
+        state = state.copy(tagSheet = sheet.copy(isSaving = true))
+
+        launchCatching(
+            errorRes = R.string.error_saving_tag,
+            onError = {
+                state.tagSheet?.let { state = state.copy(tagSheet = it.copy(isSaving = false)) }
+            },
+        ) {
+            if (sheet.mode == AddEditMode.Add) {
+                addTag(name)
+            } else {
+                updateTagName(sheet.tagId, name)
+            }
+            state = state.copy(tagSheet = null)
         }
+    }
 
-        state = state.copy(
-            tagName = name,
-            tagNameInvalid = isNameInvalid,
-            tagNameInvalidMessage = tagNameInvalidMessage
-        )
+    private suspend fun addTag(name: String) {
+        val ownerId = session.getUserId()
+        check(ownerId.isNotEmpty()) { "No signed-in user" }
+
+        addTagUseCase(
+            easyListsTag = EasyListsTag(
+                tagId = Uuid.random().toString(),
+                ownerId = ownerId,
+                name = name,
+                isDirty = true,
+            )
+        ).getOrThrow()
+    }
+
+    private suspend fun updateTagName(tagId: String?, name: String) {
+        val tag = state.tagList.firstOrNull { it.tagId == tagId } ?: error("Tag not found")
+        updateTagUseCase(
+            easyListsTag = tag.copy(
+                name = name,
+                isDirty = true,
+                modifiedTimestamp = nowMillis(),
+            )
+        ).getOrThrow()
     }
     //endregion
 
 
-    //region onTagBottomSheetDismiss()
-    fun onTagBottomSheetDismiss() {
-        state = state.copy(
-            addEditMode = AddEditMode.Add,
-            selectedItem = null,
-            showTagBottomSheet = !state.showTagBottomSheet,
-            tagName = "",
-            tagNameInvalid = false,
-            tagNameInvalidMessage = "",
-        )
-    }
-    //endregion
-
-
-    //region tagItemCount()
-    fun tagListItemCount(tag: EasyListsTag): Int {
-        return state.tagListItemList.count { it.tagId == tag.tagId }
-    }
-    //endregion
-
-
-    //region listItems()
-    fun listItems(): List<EasyListsListItem> {
-        val tagListItemList = state.tagListItemList.filter {
-            it.tagId == state.selectedItem?.tagId
+    //region delete
+    fun requestDeleteSelected() {
+        if (state.selectedTagIds.isNotEmpty()) {
+            state = state.copy(pendingDelete = PendingDelete.Selected)
         }
+    }
 
-        val listItems = state.listItemList.filter {
-            tagListItemList.any { tagListItem ->
-                tagListItem.listItemId == it.listItemId
+    fun requestDeleteTag(tagId: String?) {
+        if (tagId == null) return
+        state = state.copy(pendingDelete = PendingDelete.Single(tagId))
+    }
+
+    fun onDeleteDismissed() {
+        state = state.copy(pendingDelete = null)
+    }
+
+    fun onDeleteConfirmed() {
+        val pending = state.pendingDelete ?: return
+        val ids = when (pending) {
+            is PendingDelete.Single -> listOf(pending.tagId)
+            PendingDelete.Selected -> state.selectedTagIds.toList()
+        }
+        // hide the dialog right away so a double tap can't start a second delete
+        state = state.copy(pendingDelete = null)
+        if (ids.isEmpty()) return
+
+        launchCatching(errorRes = R.string.error_deleting_tags) {
+            // both delete paths clear the tag/list-item links first, then the tags themselves
+            removeTagFromListItemUseCase(tagIdList = ids)
+            removeTagUseCase(tagIdList = ids).getOrThrow()
+
+            state = when (pending) {
+                is PendingDelete.Single -> state.copy(tagSheet = null)
+                PendingDelete.Selected -> state.copy(
+                    selectionMode = false,
+                    selectedTagIds = emptySet(),
+                )
             }
         }
-        return listItems
     }
     //endregion
 
 
-    //region lists()
-    fun lists(): List<EasyListsList> {
-        val listItems = listItems()
-        return state.listList.filter {
-            listItems.any { listItem -> it.listId == listItem.listId }
+    //region color picker
+    fun onTagColorClick(tag: EasyListsTag) {
+        val id = tag.tagId ?: return
+        val hex = tag.color?.uppercase()?.takeIf { HEX_COLOR.matches(it) } ?: DEFAULT_COLOR_HEX
+        state = state.copy(
+            colorEditor = ColorEditorState(
+                tagId = id,
+                hexCode = hex,
+                hexInput = hex.takeLast(6),
+            )
+        )
+    }
+
+    fun onColorEditorDismiss() {
+        state = state.copy(colorEditor = null)
+    }
+
+    /** Called by the color wheel / brightness slider. [hexCode] is "AARRGGBB" without '#'. */
+    fun onWheelColorChanged(hexCode: String) {
+        val editor = state.colorEditor ?: return
+        val hex = hexCode.removePrefix("#").uppercase()
+        if (hex.length != 8) return
+        state = state.copy(
+            colorEditor = editor.copy(hexCode = "#$hex", hexInput = hex.takeLast(6))
+        )
+    }
+
+    /** Called by the hex text field. Accepts "#RRGGBB", "RRGGBB" or a pasted "#AARRGGBB". */
+    fun onHexInputChanged(raw: String) {
+        val editor = state.colorEditor ?: return
+
+        var hex = raw
+            .uppercase()
+            .filter { it in '0'..'9' || it in 'A'..'F' }
+        if (hex.length == 8) hex = hex.drop(2)
+        hex = hex.take(6)
+
+        state = state.copy(
+            colorEditor = if (hex.length == 6) {
+                editor.copy(
+                    hexInput = hex,
+                    hexCode = "#FF$hex",
+                    hexSyncCount = editor.hexSyncCount + 1,
+                )
+            } else {
+                editor.copy(hexInput = hex)
+            }
+        )
+    }
+
+    fun saveTagColor() = updateSelectedTagColor(state.colorEditor?.hexCode?.uppercase())
+
+    fun removeTagColor() = updateSelectedTagColor(null)
+
+    private fun updateSelectedTagColor(color: String?) {
+        val editor = state.colorEditor ?: return
+        val tag = state.tagList.firstOrNull { it.tagId == editor.tagId } ?: return
+        state = state.copy(colorEditor = null)
+
+        launchCatching(errorRes = R.string.error_saving_tag) {
+            updateTagUseCase(
+                easyListsTag = tag.copy(
+                    color = color,
+                    isDirty = true,
+                    modifiedTimestamp = nowMillis(),
+                )
+            )
         }
     }
     //endregion
 
 
-    //region dismissConfirmationDialog()
-    fun dismissConfirmationDialog() {
-        state = state.copy(
-            actionButtonState = EditTagsAction.None,
-            confirmationTitle = "",
-            confirmationMessage = "",
-            confirmationOnConfirmation = {},
-            confirmationOnDismissRequest = {},
-            selectedHexCode = "",
-            showConfirmationDialog = false,
-            showTagBottomSheet = false,
-            tagName = "",
-            tagNameInvalid = false,
-            tagNameInvalidMessage = "",
-            textFieldHexCode = "",
-        )
-    }
-    //endregion
+    //region helpers
+    private fun nowMillis(): Long = Clock.System.now().toEpochMilliseconds()
 
-
-    //region configureRemoveTag
-    fun configureDeleteTag(
-        title: String,
-        message: String,
-        onConfirmation: () -> Unit,
-        onDismissRequest: () -> Unit
+    private fun launchCatching(
+        @StringRes errorRes: Int,
+        onError: () -> Unit = {},
+        block: suspend () -> Unit,
     ) {
-        state = state.copy(
-            confirmationTitle = title,
-            confirmationMessage = message,
-            confirmationOnConfirmation = onConfirmation,
-            confirmationOnDismissRequest = onDismissRequest,
-        )
-
-        setShowConfirmationDialogState(true)
-    }
-    //endregion
-
-
-    //region onTagColorChangeClicked
-    fun onTagColorChangeClicked(item: EasyListsTag) {
-        state = state.copy(
-            selectedItem = item,
-            selectedHexCode = item.color ?: Color.White.toHexCodeWithAlpha(),
-            showColorPickerBottomSheet = true,
-        )
-    }
-    //endregion
-
-
-    //region removeTagColor()
-    fun removeTagColor() {
         viewModelScope.launch {
-            updateTagUseCase(
-                easyListsTag = EasyListsTag(
-                    tagId = state.selectedItem?.tagId,
-                    ownerId = userId,
-                    name = state.selectedItem?.name.toString(),
-                    color = null,
-                    isDirty = true,
-                    createdTimestamp = state.selectedItem?.createdTimestamp
-                        ?: Clock.System.now().toEpochMilliseconds(),
-                )
-            )
-
-            state = state.copy(
-                selectedHexCode = Color.White.toHexCodeWithAlpha(),
-                selectedItem = null,
-                showColorPickerBottomSheet = false,
-            )
+            try {
+                block()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                onError()
+                state = state.copy(messageRes = errorRes)
+            }
         }
-    }
-    //endregion
-
-
-    //region updateTagColor()
-    fun updateTagColor() {
-        // store the color with format "#AARRGGBB" so it can be directly parsed in the UI
-        // store the color code in all uppercase letters
-        viewModelScope.launch {
-            updateTagUseCase(
-                easyListsTag = EasyListsTag(
-                    tagId = state.selectedItem?.tagId,
-                    ownerId = userId,
-                    name = state.selectedItem?.name.toString(),
-                    color = state.selectedHexCode.uppercase(),
-                    isDirty = true,
-                    createdTimestamp = state.selectedItem?.createdTimestamp
-                        ?: Clock.System.now().toEpochMilliseconds(),
-                )
-            )
-
-            state = state.copy(
-                selectedHexCode = Color.White.toHexCodeWithAlpha(),
-                selectedItem = null,
-                showColorPickerBottomSheet = false,
-            )
-        }
-    }
-    //endregion
-
-
-    //region onColorPickerBottomSheetDismiss()
-    fun onColorPickerBottomSheetDismiss() {
-        state = state.copy(
-            showColorPickerBottomSheet = !state.showColorPickerBottomSheet,
-            selectedHexCode = Color.White.toHexCodeWithAlpha(),
-            selectedItem = null,
-        )
-    }
-    //endregion
-
-
-    //region updateTextFieldHexCode
-    fun updateTextFieldHexCode(updatedTextFieldHexCode: String) {
-        state = state.copy(userUpdatedHexCode = true)
-
-        var hexCode = updatedTextFieldHexCode.removePrefix("#")
-        if (hexCode.length == 8) {
-            hexCode = hexCode.removePrefix("FF").removePrefix("ff")
-        }
-
-        if (hexCode.contains("[^0-9a-fA-F]".toRegex())) {
-            return
-        }
-
-        if (hexCode.length > 6) {
-            return
-        }
-
-        state = state.copy(textFieldHexCode = hexCode)
-
-        // update the color wheel and brightness slider values only once there's a full hex value
-        if (hexCode.length == 6) {
-            state = state.copy(selectedHexCode = "#ff$hexCode")
-        }
-    }
-    //endregion
-
-
-    //region updateSelectedHexCode()
-    fun updateSelectedHexCode(updatedHexCode: String) {
-        state = state.copy(userUpdatedHexCode = false)
-
-        // remove leading #FF, if present, to update the text field value
-        var hexCode = updatedHexCode.removePrefix("#")
-        if (hexCode.length == 8) {
-            hexCode = hexCode.removePrefix("FF").removePrefix("ff")
-        }
-
-        state = state.copy(
-            selectedHexCode = "#$updatedHexCode",
-            textFieldHexCode = hexCode
-        )
     }
     //endregion
 

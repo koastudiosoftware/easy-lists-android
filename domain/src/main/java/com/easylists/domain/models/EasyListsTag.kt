@@ -11,7 +11,4 @@ data class EasyListsTag(
     val isDeleted: Boolean = false,
     val createdTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
     val modifiedTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
-
-    var isSelected: Boolean = false,
-    var selectedForRemoval: Boolean = false,
 )
