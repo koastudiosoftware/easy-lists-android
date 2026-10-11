@@ -13,10 +13,10 @@ import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddTagUseCase
-import com.easylists.domain.use_cases.GetListFlowUseCase
-import com.easylists.domain.use_cases.GetListItemFlowUseCase
-import com.easylists.domain.use_cases.GetTagFlowUseCase
-import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
+import com.easylists.domain.use_cases.GetListUseCase
+import com.easylists.domain.use_cases.GetListItemUseCase
+import com.easylists.domain.use_cases.GetTagUseCase
+import com.easylists.domain.use_cases.GetTagListItemUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveTagFromListItemUseCase
 import com.easylists.domain.use_cases.DeleteTagsUseCase
@@ -47,10 +47,10 @@ private val HEX_COLOR = Regex("^#[0-9A-F]{8}$")
 @HiltViewModel
 class TagsViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
-    getTagFlowUseCase: GetTagFlowUseCase,
-    getListFlowUseCase: GetListFlowUseCase,
-    getListItemFlowUseCase: GetListItemFlowUseCase,
-    getTagListItemFlowUseCase: GetTagListItemFlowUseCase,
+    getTagUseCase: GetTagUseCase,
+    getListUseCase: GetListUseCase,
+    getListItemUseCase: GetListItemUseCase,
+    getTagListItemUseCase: GetTagListItemUseCase,
     private val addTagUseCase: AddTagUseCase,
     private val updateTagUseCase: UpdateTagUseCase,
     private val deleteTagsUseCase: DeleteTagsUseCase,
@@ -82,10 +82,10 @@ class TagsViewModel @Inject constructor(
         // One combined collection instead of four independent ones, so the state is never
         // updated with, say, new tag/list-item links but stale list items.
         combine(
-            getTagFlowUseCase(),
-            getListFlowUseCase(),
-            getListItemFlowUseCase(),
-            getTagListItemFlowUseCase(),
+            getTagUseCase(),
+            getListUseCase(),
+            getListItemUseCase(),
+            getTagListItemUseCase(),
         ) { tags, lists, listItems, tagListItems ->
             TagSnapshot(
                 tags = tags.orEmpty(),

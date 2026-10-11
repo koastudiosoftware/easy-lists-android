@@ -12,9 +12,9 @@ import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddCategoryUseCase
-import com.easylists.domain.use_cases.GetCategoryFlowUseCase
-import com.easylists.domain.use_cases.GetListFlowUseCase
-import com.easylists.domain.use_cases.GetListItemFlowUseCase
+import com.easylists.domain.use_cases.GetCategoryUseCase
+import com.easylists.domain.use_cases.GetListUseCase
+import com.easylists.domain.use_cases.GetListItemUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveCategoryFromListItemUseCase
 import com.easylists.domain.use_cases.DeleteCategoriesUseCase
@@ -41,9 +41,9 @@ import kotlin.uuid.Uuid
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
-    getCategoryFlowUseCase: GetCategoryFlowUseCase,
-    getListItemFlowUseCase: GetListItemFlowUseCase,
-    getListFlowUseCase: GetListFlowUseCase,
+    getCategoryUseCase: GetCategoryUseCase,
+    getListItemUseCase: GetListItemUseCase,
+    getListUseCase: GetListUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
     private val updateCategoryUseCase: UpdateCategoryUseCase,
     private val removeCategoryFromListItemsUseCase: RemoveCategoryFromListItemUseCase,
@@ -74,9 +74,9 @@ class CategoriesViewModel @Inject constructor(
         // One combined collection instead of four independent ones, so the state is never
         // updated with, say, new tag/list-item links but stale list items.
         combine(
-            getCategoryFlowUseCase(),
-            getListFlowUseCase(),
-            getListItemFlowUseCase(),
+            getCategoryUseCase(),
+            getListUseCase(),
+            getListItemUseCase(),
         ) { categories, lists, listItems ->
             CategoriesSnapshot(
                 categories = categories.orEmpty(),

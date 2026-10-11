@@ -15,10 +15,10 @@ import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.AddListItemUseCase
 import com.easylists.domain.use_cases.AddTagListItemUseCase
 import com.easylists.domain.use_cases.DeleteListItemsUseCase
-import com.easylists.domain.use_cases.GetCategoryFlowUseCase
-import com.easylists.domain.use_cases.GetListItemFlowUseCase
-import com.easylists.domain.use_cases.GetTagFlowUseCase
-import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
+import com.easylists.domain.use_cases.GetCategoryUseCase
+import com.easylists.domain.use_cases.GetListItemUseCase
+import com.easylists.domain.use_cases.GetTagUseCase
+import com.easylists.domain.use_cases.GetTagListItemUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveTagListItemUseCase
 import com.easylists.domain.use_cases.SaveListItemPhotoUseCase
@@ -58,10 +58,10 @@ import kotlin.uuid.Uuid
 @HiltViewModel
 class ListItemsViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
-    getListItemFlowUseCase: GetListItemFlowUseCase,
-    getCategoryFlowUseCase: GetCategoryFlowUseCase,
-    getTagFlowUseCase: GetTagFlowUseCase,
-    getTagListItemFlowUseCase: GetTagListItemFlowUseCase,
+    getListItemUseCase: GetListItemUseCase,
+    getCategoryUseCase: GetCategoryUseCase,
+    getTagUseCase: GetTagUseCase,
+    getTagListItemUseCase: GetTagListItemUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
     private val addTagListItemUseCase: AddTagListItemUseCase,
     private val removeTagListItemUseCase: RemoveTagListItemUseCase,
@@ -88,10 +88,10 @@ class ListItemsViewModel @Inject constructor(
         combine(listId.filterNotNull(), refreshTrigger) { id, _ -> id }
             .flatMapLatest { id ->
                 combine(
-                    getListItemFlowUseCase(listId = id),
-                    getCategoryFlowUseCase(),
-                    getTagFlowUseCase(),
-                    getTagListItemFlowUseCase(),
+                    getListItemUseCase(listId = id),
+                    getCategoryUseCase(),
+                    getTagUseCase(),
+                    getTagListItemUseCase(),
                     observeAppSettings(),
                 ) { items, categories, tags, tagLinks, settings ->
                     buildListDetailsState(

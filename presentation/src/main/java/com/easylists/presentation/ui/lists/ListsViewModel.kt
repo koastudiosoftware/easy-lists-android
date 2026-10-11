@@ -9,7 +9,7 @@ import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddListUseCase
 import com.easylists.domain.use_cases.DeleteListsUseCase
-import com.easylists.domain.use_cases.GetListFlowUseCase
+import com.easylists.domain.use_cases.GetListUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ListsAction
@@ -36,7 +36,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ListsViewModel @Inject constructor(
-    getListListFlowUseCase: GetListFlowUseCase,
+    getListListFlowUseCase: GetListUseCase,
     private val addListUseCase: AddListUseCase,
     private val deleteListsUseCase: DeleteListsUseCase,
     private val updateListUseCase: UpdateListUseCase,
