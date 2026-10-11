@@ -8,6 +8,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.easylists.data.db.room.models.CategoryEntity
 import kotlinx.coroutines.flow.Flow
+import kotlin.time.Clock
 
 @Dao
 abstract class CategoryDao() {
@@ -38,11 +39,21 @@ abstract class CategoryDao() {
         """)
     protected abstract suspend fun deleteChunk(categoryIds: List<String>, now: Long): Int
 
+    @Query("""
+        UPDATE list_items
+        SET category_id = NULL, is_dirty = 1, modified_timestamp = :now
+        WHERE category_id IN (:categoryIds) AND is_deleted = 0
+        """)
+    protected abstract suspend fun removeCategoryFromListItems(categoryIds: List<String>, now: Long): Int
+
     @Transaction
     open suspend fun delete(
         categoryIds: List<String>,
-        now: Long = System.currentTimeMillis()
-    ): Int = categoryIds.chunked(500).sumOf { deleteChunk(it, now) }
-
+        now: Long = Clock.System.now().toEpochMilliseconds()
+    ): Int {
+        var rows = removeCategoryFromListItems(categoryIds, now)
+        rows = categoryIds.chunked(500).sumOf { deleteChunk(it, now) }
+        return rows
+    }
 
 }
