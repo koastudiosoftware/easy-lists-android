@@ -260,7 +260,7 @@ class EditTagsViewModel @Inject constructor(
         launchCatching(errorRes = R.string.error_deleting_tags) {
             // both delete paths clear the tag/list-item links first, then the tags themselves
             removeTagFromListItemUseCase(tagIdList = ids)
-            removeTagUseCase(tagIdList = ids).getOrThrow()
+            removeTagUseCase(tagIds = ids).getOrThrow()
 
             state = when (pending) {
                 is TagPendingDelete.Single -> state.copy(tagSheet = null)

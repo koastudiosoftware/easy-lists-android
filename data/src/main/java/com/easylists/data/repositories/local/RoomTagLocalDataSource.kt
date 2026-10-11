@@ -47,7 +47,7 @@ class RoomTagLocalDataSource @Inject constructor(
 
 
     //region update()
-    override suspend fun update(easyListsTag: EasyListsTag){
+    override suspend fun update(easyListsTag: EasyListsTag) {
         val mappedTag = mapper.mapTagToTagEntityForUpdate(easyListsTag)
         return dao.update(tagEntity = mappedTag)
     }
@@ -55,15 +55,8 @@ class RoomTagLocalDataSource @Inject constructor(
 
 
     //region delete()
-    override suspend fun delete(tagId: String) {
-        return dao.delete(tagId = tagId)
-    }
-    //endregion
-
-
-    //region delete()
-    override suspend fun delete(tagIdList: List<String>) {
-        return dao.delete(tagIdList = tagIdList)
+    override suspend fun delete(tagIds: List<String>): Int {
+        return dao.delete(tagIds = tagIds)
     }
     //endregion
 

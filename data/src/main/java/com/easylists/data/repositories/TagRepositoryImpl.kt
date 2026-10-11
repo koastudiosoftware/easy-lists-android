@@ -54,15 +54,9 @@ class TagRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeTag(tagId: String): Result<Unit> {
+    override suspend fun removeTags(tagIds: List<String>): Result<Int> {
         return Result.runCatching {
-            localSource.delete(tagId = tagId)
-        }
-    }
-
-    override suspend fun removeTags(tagIdList: List<String>): Result<Unit> {
-        return Result.runCatching {
-            localSource.delete(tagIdList = tagIdList)
+            localSource.delete(tagIds = tagIds)
         }
     }
 
@@ -74,7 +68,6 @@ interface TagLocalDataSource {
     fun getTagListFlow(listItemUid: String): Flow<List<EasyListsTag>>
     suspend fun insert(easyListsTag: EasyListsTag): Long
     suspend fun update(easyListsTag: EasyListsTag)
-    suspend fun delete(tagId: String)
-    suspend fun delete(tagIdList: List<String>)
+    suspend fun delete(tagIds: List<String>): Int
 
 }
