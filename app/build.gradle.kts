@@ -15,7 +15,7 @@ fun git(vararg args: String): String? = try {
 } catch (e: Exception) { null }
 
 val commitCount = git("rev-list", "--count", "HEAD")?.toIntOrNull() ?: 1
-val baseVersion = "0.2"   // edit only for deliberate minor/major bumps
+val baseVersion = "0.3"   // edit only for deliberate minor/major bumps
 
 android {
     namespace = "com.easylists"
