@@ -254,12 +254,10 @@ class EditCategoriesViewModel @Inject constructor(
 
             state = when (pending) {
                 is CategoryPendingDelete.Single -> state.copy(categorySheet = null)
-                TagPendingDelete.Selected -> state.copy(
+                CategoryPendingDelete.Selected -> state.copy(
                     selectionMode = false,
                     selectedCategoryIds = emptySet(),
                 )
-
-                CategoryPendingDelete.Selected -> TODO()
             }
         }
     }
