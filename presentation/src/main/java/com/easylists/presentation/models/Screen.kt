@@ -6,16 +6,16 @@ import kotlinx.parcelize.Parcelize
 sealed interface Screen : Parcelable {
 
     @Parcelize
-    object EditCategories : Screen
+    object Categories : Screen
 
     @Parcelize
-    object EditTags : Screen
+    object Tags : Screen
 
     @Parcelize
-    object MasterLists : Screen
+    object Lists : Screen
 
     @Parcelize
-    object ListDetails : Screen
+    data class ListItems(val listId: String, val listName: String) : Screen
 
     @Parcelize
     object Settings : Screen

@@ -50,9 +50,8 @@ import com.easylists.domain.models.EasyListsList
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ListsAction
-import com.easylists.presentation.common.SharedViewModel
-import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.AppTextField
+import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.ScreenLoading
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.MaterialIconsAdd
@@ -81,7 +80,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun ListsScreen(
     navController: NavController<Screen>,
-    sharedViewModel: SharedViewModel,
     viewModel: ListsViewModel = hiltViewModel()
 ) {
     val lists by viewModel.lists.collectAsStateWithLifecycle()
@@ -125,9 +123,12 @@ fun ListsScreen(
                     lists = state.lists,
                     selectedListId = interaction.selectedListId,
                     onListClick = { list ->
-                        sharedViewModel.listUid = list.listId.toString()
-                        sharedViewModel.listName = list.name
-                        navController.navigate(Screen.ListDetails)
+                        navController.navigate(
+                            Screen.ListItems(
+                                list.listId.toString(),
+                                list.name
+                            )
+                        )
                     },
                     onListLongClick = viewModel::showContextIcons,
                     onListEdit = viewModel::onListEditButtonClick,
@@ -330,7 +331,7 @@ fun ListsScreenOverflowMenu(navController: NavController<Screen>) {
             },
             onClick = {
                 expanded.value = !expanded.value
-                navController.navigate(Screen.EditCategories)
+                navController.navigate(Screen.Categories)
             },
             leadingIcon = {
                 Icon(
@@ -349,7 +350,7 @@ fun ListsScreenOverflowMenu(navController: NavController<Screen>) {
             },
             onClick = {
                 expanded.value = !expanded.value
-                navController.navigate(Screen.EditTags)
+                navController.navigate(Screen.Tags)
             },
             leadingIcon = {
                 Icon(

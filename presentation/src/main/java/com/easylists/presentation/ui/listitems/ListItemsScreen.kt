@@ -69,7 +69,6 @@ import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.FramedPhoto
-import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.common.composables.AppTextField
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
@@ -103,11 +102,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun ListItemsScreen(
     navController: NavController<Screen>,
-    sharedViewModel: SharedViewModel,
+    listId: String,
+    listName: String,
     viewModel: ListItemsViewModel = hiltViewModel()
 ) {
+
     LaunchedEffect(Unit) {
-        viewModel.init(sharedViewModel.listUid, sharedViewModel.listName)
+        viewModel.init(listId, listName)
     }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

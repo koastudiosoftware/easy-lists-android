@@ -1,5 +1,6 @@
 package com.easylists.presentation
 
+//import com.easylists.presentation.ui.theme.EasyListsTheme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -19,18 +20,16 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.easylists.domain.common.Capitalization
 import com.easylists.presentation.common.LocalCapitalization
-import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.about.AboutScreen
 import com.easylists.presentation.ui.categories.CategoriesScreen
-import com.easylists.presentation.ui.tags.TagsScreen
 import com.easylists.presentation.ui.listitems.ListItemsScreen
-import com.easylists.presentation.ui.lists.ListsViewModel
 import com.easylists.presentation.ui.lists.ListsScreen
+import com.easylists.presentation.ui.lists.ListsViewModel
 import com.easylists.presentation.ui.settings.SettingsScreen
+import com.easylists.presentation.ui.tags.TagsScreen
 import com.easylists.presentation.ui.theme.EasyListsTheme
 import com.easylists.presentation.ui.theme.spaces
-//import com.easylists.presentation.ui.theme.EasyListsTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dev.olshevski.navigation.reimagined.NavBackHandler
 import dev.olshevski.navigation.reimagined.NavHost
@@ -40,7 +39,6 @@ import dev.olshevski.navigation.reimagined.rememberNavController
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainActivityViewModel by viewModels()
-    private val sharedViewModel: SharedViewModel by viewModels()
     private val startDestinationViewModel: ListsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +51,7 @@ class MainActivity : ComponentActivity() {
             ) {
                 EasyListsTheme() {
                     val navController = rememberNavController<Screen>(
-                        startDestination = Screen.MasterLists
+                        startDestination = Screen.Lists
                     )
 
                     NavBackHandler(navController)
@@ -83,34 +81,31 @@ class MainActivity : ComponentActivity() {
                         Surface(modifier = Modifier.padding(innerPadding)) {
                             NavHost(controller = navController) { route ->
                                 when (route) {
-                                    is Screen.MasterLists -> {
+                                    is Screen.Lists -> {
                                         ListsScreen(
                                             navController = navController,
-                                            sharedViewModel = sharedViewModel,
                                             viewModel = startDestinationViewModel
                                         )
                                     }
 
-                                    is Screen.ListDetails -> {
+                                    is Screen.ListItems -> {
                                         ListItemsScreen(
                                             navController = navController,
-                                            sharedViewModel = sharedViewModel
+                                            listId = route.listId,
+                                            listName = route.listName
                                         )
                                     }
 
-                                    is Screen.EditCategories -> {
+                                    is Screen.Categories -> {
                                         CategoriesScreen(navController = navController)
                                     }
 
-                                    is Screen.EditTags -> {
+                                    is Screen.Tags -> {
                                         TagsScreen(navController = navController)
                                     }
 
                                     is Screen.Settings -> {
-                                        SettingsScreen(
-                                            navController = navController,
-                                            sharedViewModel = sharedViewModel
-                                        )
+                                        SettingsScreen(navController = navController)
                                     }
 
                                     is Screen.About -> {
