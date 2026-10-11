@@ -13,12 +13,19 @@ import com.easylists.data.db.room.models.ListItemUpdateEntity
 import com.easylists.data.db.room.models.ListUpdateEntity
 import com.easylists.data.db.room.models.TagEntity
 import kotlinx.coroutines.flow.Flow
+import kotlin.collections.chunked
+import kotlin.time.Clock
 
 @Dao
 abstract class TagDao() {
 
     @Transaction
-    @Query("SELECT * FROM tags ORDER BY name ASC")
+    @Query("""
+        SELECT *
+        FROM tags
+        WHERE is_deleted = 0
+        ORDER BY name ASC
+        """)
     abstract fun get(): Flow<List<TagEntity>>
 
     @Transaction
@@ -26,7 +33,7 @@ abstract class TagDao() {
         SELECT t.tag_id, t.owner_id, t.name, t.color, t.is_dirty, t.is_deleted, t.created_timestamp, t.modified_timestamp
         FROM tags t
         JOIN tag_list_items ON t.tag_id = tag_list_items.tag_id
-        WHERE tag_list_items.list_item_id = :listItemId
+        WHERE tag_list_items.list_item_id = :listItemId AND t.is_deleted = 0
         ORDER BY name COLLATE NOCASE ASC
         """)
     abstract fun get(listItemId: String): Flow<List<TagEntity>>
@@ -41,10 +48,17 @@ abstract class TagDao() {
     @Update
     abstract suspend fun update(tagEntity: TagEntity)
 
-    @Query("DELETE FROM tags WHERE tag_id = :tagId")
-    abstract suspend fun delete(tagId: String)
+    @Query("""
+        UPDATE tags
+        SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
+        WHERE tag_id IN (:tagIds) AND is_deleted = 0
+    """)
+    protected abstract suspend fun deleteChunk(tagIds: List<String>, now: Long): Int
 
-    @Query("DELETE FROM tags WHERE tag_id IN (:tagIdList)")
-    abstract suspend fun delete(tagIdList: List<String>)
+    @Transaction
+    open suspend fun delete(
+        tagIds: List<String>,
+        now: Long = Clock.System.now().toEpochMilliseconds()
+    ): Int = tagIds.chunked(500).sumOf { deleteChunk(it, now) }
 
 }
