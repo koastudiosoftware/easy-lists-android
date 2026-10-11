@@ -90,7 +90,7 @@ fun EditCategoriesScreen(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 TopAppBar(
-                    title = { Text(text = stringResource(R.string.edit_tags)) },
+                    title = { Text(text = stringResource(R.string.edit_categories)) },
                     navigationIcon = {
                         IconButton(onClick = { navController.pop() }) {
                             Icon(

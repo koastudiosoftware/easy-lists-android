@@ -13,7 +13,12 @@ import kotlinx.coroutines.flow.Flow
 abstract class CategoryDao() {
 
     @Transaction
-    @Query("SELECT * FROM categories ORDER BY name COLLATE NOCASE ASC")
+    @Query("""
+        SELECT *
+        FROM categories
+        WHERE is_deleted = 0
+        ORDER BY name COLLATE NOCASE ASC
+        """)
     abstract fun get(): Flow<List<CategoryEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
