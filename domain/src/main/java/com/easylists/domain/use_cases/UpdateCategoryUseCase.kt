@@ -11,8 +11,8 @@ class UpdateCategoryUseCase @Inject constructor(
 ) {
 
     //region invoke()
-    suspend operator fun invoke(category: EasyListsCategory) {
-        categoryRepository.updateCategory(category = category)
+    suspend operator fun invoke(category: EasyListsCategory): Result<Unit> {
+        return categoryRepository.updateCategory(category = category)
     }
     //endregion
 

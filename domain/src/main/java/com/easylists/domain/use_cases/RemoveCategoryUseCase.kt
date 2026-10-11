@@ -8,8 +8,8 @@ class RemoveCategoryUseCase @Inject constructor(
 ) {
 
     //region invoke()
-    suspend operator fun invoke(categoryIds: List<String>) {
-        categoryRepository.deleteCategories(categoryIds = categoryIds)
+    suspend operator fun invoke(categoryIds: List<String>): Result<Int> {
+        return categoryRepository.deleteCategories(categoryIds = categoryIds)
     }
     //endregion
 

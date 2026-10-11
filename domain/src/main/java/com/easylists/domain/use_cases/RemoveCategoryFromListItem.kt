@@ -8,8 +8,8 @@ class RemoveCategoryFromListItemUseCase @Inject constructor(
 ) {
 
     //region invoke()
-    suspend operator fun invoke(categoryIdList: List<String>) {
-        listItemRepository.removeCategoryFromListItem(categoryIdList = categoryIdList)
+    suspend operator fun invoke(categoryIdList: List<String>): Result<Unit> {
+        return listItemRepository.removeCategoryFromListItem(categoryIdList = categoryIdList)
     }
     //endregion
 
