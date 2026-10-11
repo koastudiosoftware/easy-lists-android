@@ -187,9 +187,9 @@ fun Color.getContrastColor(): Color {
             (blue / 255.0).pow(trc) * blueCoefficient
 
     return if (relativeLuminance < flipRelativeLuminance) {
-        MaterialTheme.colorScheme.onPrimaryContainer
+        MaterialTheme.colorScheme.onSecondary
     } else {
-        MaterialTheme.colorScheme.onSurface
+        MaterialTheme.colorScheme.onPrimaryContainer
     }
 }
 //endregion
