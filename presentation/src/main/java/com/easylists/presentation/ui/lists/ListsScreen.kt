@@ -325,7 +325,7 @@ fun ListsScreenOverflowMenu(navController: NavController<Screen>) {
             text = {
                 Text(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    text = stringResource(R.string.edit_categories),
+                    text = stringResource(R.string.categories),
                 )
             },
             onClick = {
@@ -344,7 +344,7 @@ fun ListsScreenOverflowMenu(navController: NavController<Screen>) {
             text = {
                 Text(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    text = stringResource(R.string.edit_tags),
+                    text = stringResource(R.string.tags),
                 )
             },
             onClick = {
