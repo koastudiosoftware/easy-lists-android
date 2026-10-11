@@ -125,8 +125,20 @@
     <string name="error_loading_tags">Couldn\'t load tags</string>
     <string name="error_saving_tag">Couldn\'t save the tag</string>
     <string name="error_deleting_tags">Couldn\'t delete the tags</string>
+    <string name="category_name_in_use">Category name in use</string>
+    <string name="delete_category">Delete category</string>
+    <string name="save_category">Save category</string>
+    <string name="category_not_used">Category not used</string>
+    <string name="no_categories_yet">No categories yet</string>
+    <string name="error_loading_categories">Couldn\'t load the categories</string>
+    <string name="error_saving_category">Couldn\'t save the category</string>
+    <string name="error_deleting_categories">Couldn\'t delete the categories</string>
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>
         <item quantity="other">Used by %d list items</item>
+    </plurals>
+    <plurals name="category_used_by_list_items">
+        <item quantity="one">Used by %d item</item>
+        <item quantity="other">Used by %d items</item>
     </plurals>
 </resources>
