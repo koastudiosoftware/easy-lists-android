@@ -25,7 +25,7 @@ import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.models.ColorEditorState
 import com.easylists.presentation.models.EditTagsState
-import com.easylists.presentation.models.PendingDelete
+import com.easylists.presentation.models.TagPendingDelete
 import com.easylists.presentation.models.TagSheetState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -39,7 +39,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 private const val DEFAULT_COLOR_HEX = "#FFFFFFFF"
@@ -49,7 +48,7 @@ private val HEX_COLOR = Regex("^#[0-9A-F]{8}$")
 class EditTagsViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
     getTagFlowUseCase: GetTagFlowUseCase,
-    getListListFlowUseCase: GetListFlowUseCase,
+    getListFlowUseCase: GetListFlowUseCase,
     getListItemFlowUseCase: GetListItemFlowUseCase,
     getTagListItemFlowUseCase: GetTagListItemFlowUseCase,
     private val addTagUseCase: AddTagUseCase,
@@ -84,7 +83,7 @@ class EditTagsViewModel @Inject constructor(
         // updated with, say, new tag/list-item links but stale list items.
         combine(
             getTagFlowUseCase(),
-            getListListFlowUseCase(),
+            getListFlowUseCase(),
             getListItemFlowUseCase(),
             getTagListItemFlowUseCase(),
         ) { tags, lists, listItems, tagListItems ->
@@ -235,13 +234,13 @@ class EditTagsViewModel @Inject constructor(
     //region delete
     fun requestDeleteSelected() {
         if (state.selectedTagIds.isNotEmpty()) {
-            state = state.copy(pendingDelete = PendingDelete.Selected)
+            state = state.copy(pendingDelete = TagPendingDelete.Selected)
         }
     }
 
     fun requestDeleteTag(tagId: String?) {
         if (tagId == null) return
-        state = state.copy(pendingDelete = PendingDelete.Single(tagId))
+        state = state.copy(pendingDelete = TagPendingDelete.Single(tagId))
     }
 
     fun onDeleteDismissed() {
@@ -251,8 +250,8 @@ class EditTagsViewModel @Inject constructor(
     fun onDeleteConfirmed() {
         val pending = state.pendingDelete ?: return
         val ids = when (pending) {
-            is PendingDelete.Single -> listOf(pending.tagId)
-            PendingDelete.Selected -> state.selectedTagIds.toList()
+            is TagPendingDelete.Single -> listOf(pending.tagId)
+            TagPendingDelete.Selected -> state.selectedTagIds.toList()
         }
         // hide the dialog right away so a double tap can't start a second delete
         state = state.copy(pendingDelete = null)
@@ -264,8 +263,8 @@ class EditTagsViewModel @Inject constructor(
             removeTagUseCase(tagIdList = ids).getOrThrow()
 
             state = when (pending) {
-                is PendingDelete.Single -> state.copy(tagSheet = null)
-                PendingDelete.Selected -> state.copy(
+                is TagPendingDelete.Single -> state.copy(tagSheet = null)
+                TagPendingDelete.Selected -> state.copy(
                     selectionMode = false,
                     selectedTagIds = emptySet(),
                 )

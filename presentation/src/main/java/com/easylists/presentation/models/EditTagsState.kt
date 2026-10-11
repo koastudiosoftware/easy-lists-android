@@ -23,7 +23,7 @@ data class EditTagsState(
     // ---- overlays (null = hidden) ----
     val tagSheet: TagSheetState? = null,
     val colorEditor: ColorEditorState? = null,
-    val pendingDelete: PendingDelete? = null,
+    val pendingDelete: TagPendingDelete? = null,
 
     // one-shot message shown in the snackbar, cleared by onMessageShown()
     @StringRes val messageRes: Int? = null,
@@ -76,9 +76,9 @@ data class ColorEditorState(
     val hexSyncCount: Int = 0,
 )
 
-sealed interface PendingDelete {
-    data class Single(val tagId: String) : PendingDelete
-    data object Selected : PendingDelete
+sealed interface TagPendingDelete {
+    data class Single(val tagId: String) : TagPendingDelete
+    data object Selected : TagPendingDelete
 }
 
 /** One list that uses a tag, with the items of that list carrying the tag. */

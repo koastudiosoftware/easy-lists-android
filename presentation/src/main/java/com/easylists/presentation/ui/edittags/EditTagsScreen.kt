@@ -67,7 +67,7 @@ import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.models.ColorEditorState
 import com.easylists.presentation.models.EditTagsState
-import com.easylists.presentation.models.PendingDelete
+import com.easylists.presentation.models.TagPendingDelete
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.models.TagSheetState
 import com.easylists.presentation.models.usageFor
@@ -268,13 +268,13 @@ private fun TagRow(
 
 //region ConfirmDeleteDialog
 @Composable
-private fun ConfirmDeleteDialog(pending: PendingDelete, viewModel: EditTagsViewModel) {
+private fun ConfirmDeleteDialog(pending: TagPendingDelete, viewModel: EditTagsViewModel) {
     ConfirmationDialog(
         onDismissRequest = viewModel::onDeleteDismissed,
         onConfirmation = viewModel::onDeleteConfirmed,
         dialogTitle = stringResource(R.string.confirm_deletion),
         dialogText = stringResource(
-            if (pending is PendingDelete.Single) R.string.delete_tag_warning
+            if (pending is TagPendingDelete.Single) R.string.delete_tag_warning
             else R.string.delete_tags_warning
         ),
     )
