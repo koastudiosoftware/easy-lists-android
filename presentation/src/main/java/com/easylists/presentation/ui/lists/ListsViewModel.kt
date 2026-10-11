@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddListFlowUseCase
+import com.easylists.domain.use_cases.DeleteListsUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
@@ -37,6 +38,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class ListsViewModel @Inject constructor(
     getListListFlowUseCase: GetListFlowUseCase,
     private val addListUseCase: AddListFlowUseCase,
+    private val deleteListsUseCase: DeleteListsUseCase,
     private val updateListUseCase: UpdateListUseCase,
     private val mapper: UiMapper,
     private val session: SessionRepository,
@@ -135,11 +137,10 @@ class ListsViewModel @Inject constructor(
     }
 
     fun deleteList() {
-        val id = interaction.selectedListId ?: return
-        val list = currentLists.find { it.listId == id } ?: return
+        val listId = interaction.selectedListId ?: return
 
         viewModelScope.launch {
-            updateListUseCase(list = list.copy(isDeleted = true))
+            deleteListsUseCase(listIds = listOf(listId))
             interaction = interaction.copy(selectedListId = null)
         }
     }

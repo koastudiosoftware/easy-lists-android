@@ -9,5 +9,7 @@ interface ListRepository {
 
     suspend fun addList(list: EasyListsList): Result<Unit>
     suspend fun updateList(list: EasyListsList): Result<Unit>
+    suspend fun deleteLists(listIds: List<String>): Result<Int>
+
 
 }

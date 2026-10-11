@@ -345,7 +345,7 @@ class ListDetailsViewModel @Inject constructor(
     fun deleteListItem() {
         val id = interaction.selectedItemId ?: return
         viewModelScope.launch {
-            deleteListItemUseCase(id)
+            deleteListItemUseCase(listOf(id))
             interaction = interaction.copy(selectedItemId = null)
         }
     }

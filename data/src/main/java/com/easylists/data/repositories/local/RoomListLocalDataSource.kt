@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import kotlin.text.insert
 
 class RoomListLocalDataSource @Inject constructor(
     private val dao: ListDao,
@@ -32,6 +31,13 @@ class RoomListLocalDataSource @Inject constructor(
     override suspend fun insert(list: EasyListsList): Long {
         val mappedList = mapper.mapEasyListsListToListEntity(list)
         return dao.insert(listEntity = mappedList)
+    }
+    //endregion
+
+
+    //region delete()
+    override suspend fun delete(listIds: List<String>): Int {
+        return dao.delete(listIds = listIds)
     }
     //endregion
 
