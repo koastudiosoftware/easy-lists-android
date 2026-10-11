@@ -121,7 +121,7 @@ fun ListItemsScreen(
         topBar = {
             TopAppBar(
                 title = { Text(text = viewModel.listName) },
-                navigationIcon = { ListDetailsScreenTopAppBarNavigationIcon(navController) },
+                navigationIcon = { ListItemsTopAppBarNavigationIcon(navController) },
                 actions = {
                     IconButton(onClick = viewModel::onAddItemClick) {
                         Icon(
@@ -148,7 +148,7 @@ fun ListItemsScreen(
                     onRetry = viewModel::onRefresh,
                 )
 
-                is ListItemsUiState.Success -> ListDetailsScreenContent(
+                is ListItemsUiState.Success -> ListItemsScreenContent(
                     state = state,
                     selectedItemId = interaction.selectedItemId,
                     expandTagPills = interaction.expandTagPills,
@@ -205,7 +205,7 @@ fun ListItemsScreen(
             )
         }
 
-        ListDetailsScreenListItemBottomSheet(
+        ListItemsBottomSheet(
             editor = editor,
             validation = validation,
             categories = success.categories,
@@ -217,9 +217,9 @@ fun ListItemsScreen(
 }
 
 
-//region ListDetailsScreenTopAppBarNavigationIcon
+//region ListItemsTopAppBarNavigationIcon
 @Composable
-fun ListDetailsScreenTopAppBarNavigationIcon(navController: NavController<Screen>) {
+fun ListItemsTopAppBarNavigationIcon(navController: NavController<Screen>) {
     IconButton(onClick = { navController.pop() }) {
         Icon(
             painter = rememberVectorPainter(MaterialIconsArrowBack),
@@ -230,9 +230,9 @@ fun ListDetailsScreenTopAppBarNavigationIcon(navController: NavController<Screen
 //endregion
 
 
-//region ListDetailsScreenContent
+//region ListItemsScreenContent
 @Composable
-fun ListDetailsScreenContent(
+fun ListItemsScreenContent(
     state: ListItemsUiState.Success,
     selectedItemId: String?,
     expandTagPills: Boolean,
@@ -251,17 +251,17 @@ fun ListDetailsScreenContent(
 
         items(items = state.rows, key = { it.key }) { row ->
             when (row) {
-                is ListRow.CategoryHeader -> ListDetailsScreenCategoryTitle(
+                is ListRow.CategoryHeader -> ListItemsCategoryTitle(
                     title = row.categoryName ?: stringResource(R.string.uncategorized),
                     crossedOff = row.crossedOff,
                 )
 
-                ListRow.CrossedOffHeader -> ListDetailsScreenCategoryTitle(
+                ListRow.CrossedOffHeader -> ListItemsCategoryTitle(
                     title = stringResource(R.string.crossed_off),
                     crossedOff = true,
                 )
 
-                is ListRow.Item -> ListDetailsScreenListItem(
+                is ListRow.Item -> ListItem(
                     row = row,
                     settings = state.settings,
                     isSelected = row.item.listItemId == selectedItemId,
@@ -273,7 +273,7 @@ fun ListDetailsScreenContent(
                     onTagPillsClick = onTagPillsClick,
                 )
 
-                ListRow.DeleteCrossedOff -> ListDetailsScreenDeleteCrossedOffItems(
+                ListRow.DeleteCrossedOff -> DeleteCrossedOffItems(
                     onClick = onDeleteCrossedOff
                 )
             }
@@ -283,9 +283,9 @@ fun ListDetailsScreenContent(
 //endregion
 
 
-//region ListDetailsScreenDeleteCrossedOffItems
+//region DeleteCrossedOffItems
 @Composable
-fun ListDetailsScreenDeleteCrossedOffItems(onClick: () -> Unit) {
+fun DeleteCrossedOffItems(onClick: () -> Unit) {
     Column {
         Row(
             modifier = Modifier
@@ -306,9 +306,9 @@ fun ListDetailsScreenDeleteCrossedOffItems(onClick: () -> Unit) {
 //endregion
 
 
-//region ListDetailsScreenCategoryTitle
+//region ListItemsCategoryTitle
 @Composable
-fun ListDetailsScreenCategoryTitle(title: String, crossedOff: Boolean = false) {
+fun ListItemsCategoryTitle(title: String, crossedOff: Boolean = false) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -331,9 +331,9 @@ fun ListDetailsScreenCategoryTitle(title: String, crossedOff: Boolean = false) {
 //endregion
 
 
-//region ListDetailsScreenListItem
+//region ListItem
 @Composable
-fun ListDetailsScreenListItem(
+fun ListItem(
     row: ListRow.Item,
     settings: AppSettings,
     isSelected: Boolean,
@@ -356,7 +356,7 @@ fun ListDetailsScreenListItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (settings.enablePhotos) {
-                ListDetailsScreenListItemPhoto(item)
+                ListItemPhoto(item)
             }
 
             Column(
@@ -387,7 +387,7 @@ fun ListDetailsScreenListItem(
             }
 
             if (settings.enableTags) {
-                ListDetailsScreenListItemTags(
+                ListItemTags(
                     tags = row.tags,
                     expanded = expandTagPills,
                     onClick = onTagPillsClick,
@@ -412,9 +412,9 @@ fun ListDetailsScreenListItem(
 //endregion
 
 
-//region ListDetailsScreenListItemPhoto
+//region ListItemPhoto
 @Composable
-fun ListDetailsScreenListItemPhoto(item: EasyListsListItem) {
+fun ListItemPhoto(item: EasyListsListItem) {
     val photoUri = item.photoUri
 
     if (photoUri.isNullOrEmpty()) {
@@ -443,7 +443,7 @@ fun ListDetailsScreenListItemPhoto(item: EasyListsListItem) {
 
 //region Tags in the item row
 @Composable
-fun ListDetailsScreenListItemTags(
+fun ListItemTags(
     tags: List<EasyListsTag>,
     expanded: Boolean,
     onClick: () -> Unit,
@@ -453,14 +453,14 @@ fun ListDetailsScreenListItemTags(
         horizontalAlignment = Alignment.End
     ) {
         tags.take(2).forEach { tag ->
-            if (expanded) ListItemDetailsScreenTagPillSmall(tag, onClick)
-            else ListItemDetailsScreenTagDot(tag, onClick)
+            if (expanded) TagPillSmall(tag, onClick)
+            else TagDot(tag, onClick)
         }
     }
 }
 
 @Composable
-fun ListItemDetailsScreenTagDot(tag: EasyListsTag, onClick: () -> Unit) {
+fun TagDot(tag: EasyListsTag, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(20.dp)
@@ -472,7 +472,7 @@ fun ListItemDetailsScreenTagDot(tag: EasyListsTag, onClick: () -> Unit) {
 }
 
 @Composable
-fun ListItemDetailsScreenTagPillSmall(
+fun TagPillSmall(
     tag: EasyListsTag,
     onClick: () -> Unit,
 ) {
@@ -489,7 +489,7 @@ fun ListItemDetailsScreenTagPillSmall(
         Text(
             modifier = Modifier.padding(
                 start = MaterialTheme.spaces.medium,
-                end = MaterialTheme.spaces.small
+                end = MaterialTheme.spaces.medium
             ),
             color = backgroundColor.getContrastColor(),
             style = MaterialTheme.typography.labelSmall,
@@ -522,7 +522,7 @@ class ItemEditorActions(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListDetailsScreenListItemBottomSheet(
+fun ListItemsBottomSheet(
     editor: ItemEditorState,
     validation: ItemEditorValidation,
     categories: List<EasyListsCategory>,
@@ -594,7 +594,6 @@ fun ListDetailsScreenListItemBottomSheet(
 
                 item {
                     AppTextField(
-                        modifier = Modifier.padding(bottom = MaterialTheme.spaces.large),
                         value = editor.quantity,
                         onValueChange = actions.onQuantityChange,
                         label = stringResource(R.string.quantity),
@@ -603,7 +602,7 @@ fun ListDetailsScreenListItemBottomSheet(
                 }
 
                 item {
-                    ListDetailsScreenListItemBottomSheetCategory(
+                    ListItemBottomSheetCategory(
                         categoryName = editor.categoryName,
                         categories = categories,
                         onCategoryChange = actions.onCategoryChange,
@@ -621,7 +620,7 @@ fun ListDetailsScreenListItemBottomSheet(
 
                 if (settings.enablePhotos) {
                     item {
-                        ListDetailsScreenListItemBottomSheetPhotoTitle(
+                        ListItemBottomSheetPhotoTitle(
                             enableCamera = settings.enableCamera,
                             hasPhoto = editor.photo != null,
                             onTakePhoto = photoActions.takePhoto,
@@ -667,7 +666,7 @@ fun ListDetailsScreenListItemBottomSheet(
                     }
 
                     item {
-                        ListDetailsScreenListItemBottomSheetTags(
+                        ListItemBottomSheetTags(
                             tags = tags,
                             selectedTagIds = editor.selectedTagIds,
                             onTagClick = actions.onTagClick,
@@ -681,10 +680,10 @@ fun ListDetailsScreenListItemBottomSheet(
 //endregion
 
 
-//region ListDetailsScreenListItemBottomSheetCategory
+//region ListItemBottomSheetCategory
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListDetailsScreenListItemBottomSheetCategory(
+fun ListItemBottomSheetCategory(
     categoryName: String,
     categories: List<EasyListsCategory>,
     onCategoryChange: (String) -> Unit,
@@ -735,9 +734,9 @@ fun ListDetailsScreenListItemBottomSheetCategory(
 //endregion
 
 
-//region ListDetailsScreenListItemBottomSheetPhotoTitle
+//region ListItemBottomSheetPhotoTitle
 @Composable
-fun ListDetailsScreenListItemBottomSheetPhotoTitle(
+fun ListItemBottomSheetPhotoTitle(
     enableCamera: Boolean,
     hasPhoto: Boolean,
     onTakePhoto: () -> Unit,
@@ -786,9 +785,9 @@ fun ListDetailsScreenListItemBottomSheetPhotoTitle(
 //endregion
 
 
-//region ListDetailsScreenListItemBottomSheetTags
+//region ListItemBottomSheetTags
 @Composable
-fun ListDetailsScreenListItemBottomSheetTags(
+fun ListItemBottomSheetTags(
     tags: List<EasyListsTag>,
     selectedTagIds: Set<String>,
     onTagClick: (EasyListsTag) -> Unit,
@@ -799,7 +798,7 @@ fun ListDetailsScreenListItemBottomSheetTags(
             .padding(MaterialTheme.spaces.medium)
     ) {
         tags.forEach { tag ->
-            ListDetailsScreenTagPill(
+            TagPill(
                 tag = tag,
                 isSelected = tag.tagId?.let { it in selectedTagIds } == true,
                 onClick = { onTagClick(tag) },
@@ -810,7 +809,7 @@ fun ListDetailsScreenListItemBottomSheetTags(
 
 
 @Composable
-fun ListDetailsScreenTagPill(
+fun TagPill(
     tag: EasyListsTag,
     isSelected: Boolean,
     onClick: () -> Unit,
