@@ -1,16 +1,17 @@
 package com.easylists.presentation.ui.editcategories
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,342 +25,155 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.EditCategoriesAction
-import com.easylists.presentation.common.composables.ConfirmationDialog
+import com.easylists.presentation.common.LocalCapitalization
 import com.easylists.presentation.common.composables.AppTextField
+import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsCancel
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsDelete
+import com.easylists.presentation.models.CategoryPendingDelete
+import com.easylists.presentation.models.CategorySheetState
+import com.easylists.presentation.models.EditCategoriesState
 import com.easylists.presentation.models.Screen
+import com.easylists.presentation.models.usageFor
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.pop
 
+//region EditCategoriesScreen :: stateful wrapper, the only place that knows about the ViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditCategoriesScreen(
     navController: NavController<Screen>,
-    viewModel: EditCategoriesViewModel = hiltViewModel()
+    viewModel: EditCategoriesViewModel = hiltViewModel(),
 ) {
+    val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val s = settings ?: return
 
+    val state = viewModel.state
     val snackbarHostState = remember { SnackbarHostState() }
 
-    when {
-        viewModel.state.nextStep == "remove_categories" -> {
-            viewModel.removeCategories()
+    // one-shot messages from the ViewModel
+    val message = state.messageRes?.let { stringResource(it) }
+    LaunchedEffect(message) {
+        if (message != null) {
+            snackbarHostState.showSnackbar(message)
+            viewModel.onMessageShown()
         }
     }
 
-    Scaffold(
-        modifier = Modifier,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            TopAppBar(
-                title = { EditCategoriesScreenTitle() },
-                navigationIcon = { EditCategoriesScreenTopAppBarNavigationIcon(navController) },
-                actions = { EditCategoriesScreenActionIcons(viewModel) },
-            )
-        }
-    ) { innerPadding ->
+    // back leaves selection mode first, then the screen
+    BackHandler(enabled = state.selectionMode, onBack = viewModel::exitSelectionMode)
 
-        val pullToRefreshState = rememberPullToRefreshState()
-        PullToRefreshBox(
-            isRefreshing = viewModel.state.isPullToRefreshing,
-            onRefresh = viewModel.onPullToRefresh(),
-            state = pullToRefreshState,
-            modifier = Modifier.padding(innerPadding),
-            indicator = {
-                Indicator(
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    isRefreshing = viewModel.state.isPullToRefreshing,
-                    state = pullToRefreshState
-                )
-            },
-        ) {
-
-            ConfirmDelete(viewModel)
-
-            EditCategoriesScreenCategoryBottomSheet(viewModel)
-
-            EditCategoriesScreenContent(viewModel)
-
-        }
-    }
-
-}
-
-
-//region EditCategoriesScreenTitle
-@Composable
-fun EditCategoriesScreenTitle() {
-    Row(
-        modifier = Modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Text(text = stringResource(R.string.edit_categories))
-    }
-}
-//endregion
-
-
-//region EditCategoriesScreenTopAppBarNavigationIcon
-@Composable
-fun EditCategoriesScreenTopAppBarNavigationIcon(navController: NavController<Screen>) {
-    IconButton(
-        onClick = { navController.pop() }
-    ) {
-        Icon(
-            imageVector = MaterialIconsArrowBack,
-            contentDescription = stringResource(R.string.return_to_previous_screen),
-        )
-    }
-}
-//endregion
-
-
-//region EditCategoriesScreenActionIcons
-@Composable
-fun EditCategoriesScreenActionIcons(viewModel: EditCategoriesViewModel) {
-    when (viewModel.state.actionButtonState) {
-        EditCategoriesAction.Delete -> {
-            val title = stringResource(R.string.confirm_deletion)
-            val message = stringResource(R.string.delete_categories_warning)
-            IconButton(
-                enabled = viewModel.state.categoryList.any { it.selectedForRemoval },
-                onClick = {
-                    viewModel.configureDeleteCategory(
-                        title = title,
-                        message = message,
-                        onConfirmation = {
-                            viewModel.deselectCheckboxes()
-                            viewModel.removeCategoryFromListItems()
-                            viewModel.setShowConfirmationDialogState(false)
-                        },
-                        onDismissRequest = {
-                            viewModel.dismissConfirmationDialog()
+    CompositionLocalProvider(LocalCapitalization provides s.capitalization) {
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = stringResource(R.string.edit_tags)) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.pop() }) {
+                            Icon(
+                                imageVector = MaterialIconsArrowBack,
+                                contentDescription = stringResource(R.string.return_to_previous_screen),
+                            )
                         }
-                    )
-                }
-            ) {
-                Icon(
-                    modifier = Modifier,
-                    imageVector = MaterialIconsDelete,
-                    contentDescription = stringResource(R.string.delete_selected_categories)
+                    },
+                    actions = { EditCategoriesActions(state, viewModel) },
                 )
             }
-            IconButton(onClick = {
-                viewModel.showContextIcons()
-            }) {
-                Icon(
-                    modifier = Modifier,
-                    imageVector = MaterialIconsCancel,
-                    contentDescription = stringResource(R.string.cancel_deletion_of_selected_categories)
-                )
-            }
+        ) { innerPadding ->
+            EditCategoriesList(
+                state = state,
+                viewModel = viewModel,
+                modifier = Modifier.padding(innerPadding),
+            )
         }
 
-        else -> {
-            IconButton(onClick = {
-                viewModel.showCategoryBottomSheet()
-            }) {
-                Icon(
-                    modifier = Modifier,
-                    imageVector = MaterialIconsAdd,
-                    contentDescription = stringResource(R.string.create_new_list)
-                )
-            }
-        }
+        state.categorySheet?.let { CategoryEditorSheet(sheet = it, state = state, viewModel = viewModel) }
+        state.pendingDelete?.let { ConfirmDeleteDialog(pending = it, viewModel = viewModel) }
     }
 }
 //endregion
 
 
-//region EditCategoriesScreenCategoryBottomSheet
-@OptIn(ExperimentalMaterial3Api::class)
+
+
+
+//region EditCategoriesActions
 @Composable
-fun EditCategoriesScreenCategoryBottomSheet(viewModel: EditCategoriesViewModel) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val showBottomSheet = remember { mutableStateOf(false) }
-
-    when (viewModel.state.showCategoryBottomSheet) {
-        true -> showBottomSheet.value = true
-        false -> showBottomSheet.value = false
-    }
-
-    if (showBottomSheet.value) {
-        ModalBottomSheet(
-            sheetState = sheetState,
-            onDismissRequest = {
-                showBottomSheet.value = false
-                viewModel.onCategoryBottomSheetDismiss()
-            },
-            dragHandle = {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    BottomSheetDefaults.DragHandle()
-                }
-            }
+private fun EditCategoriesActions(state: EditCategoriesState, viewModel: EditCategoriesViewModel) {
+    if (state.selectionMode) {
+        IconButton(
+            enabled = state.selectedCategoryIds.isNotEmpty(),
+            onClick = viewModel::requestDeleteSelected,
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.9f)
-            ) {
-                LazyColumn(modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)) {
-                    item {
-                        SectionTitle(
-                            title = stringResource(
-                                if (viewModel.state.addEditMode == AddEditMode.Add) R.string.add_category
-                                else R.string.edit_category
-                            ),
-                            icon = {
-                                IconButton(
-                                    enabled = viewModel.categoryIconButtonEnabled(),
-                                    onClick = {
-                                        if (viewModel.state.addEditMode == AddEditMode.Add) viewModel.addCategory()
-                                        else viewModel.updateCategory()
-                                    },
-                                ) {
-                                    Icon(
-                                        imageVector = MaterialIconsCheck,
-                                        contentDescription = stringResource(R.string.add_category),
-                                    )
-                                }
-                                if (viewModel.state.addEditMode == AddEditMode.Edit) {
-                                    val title = stringResource(R.string.confirm_deletion)
-                                    val message = stringResource(R.string.delete_category_warning)
-                                    IconButton(
-                                        enabled = true,
-                                        onClick = {
-                                            viewModel.configureDeleteCategory(
-                                                title = title,
-                                                message = message,
-                                                onConfirmation = {
-                                                    viewModel.onCategorySelectedForRemovalChanged(viewModel.state.selectedItem?.categoryId)
-                                                    viewModel.removeCategories()
-                                                    viewModel.dismissConfirmationDialog()
-                                                    viewModel.showCategoryBottomSheet()
-                                                },
-                                                onDismissRequest = {
-                                                    viewModel.dismissConfirmationDialog()
-                                                }
-                                            )
-                                        },
-                                    ) {
-                                        Icon(
-                                            imageVector = MaterialIconsDelete,
-                                            contentDescription = stringResource(R.string.add_category),
-                                        )
-                                    }
-                                }
-                            },
-                            modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
-                        )
-                    }
-
-                    item {
-                        EditCategoriesScreenBottomSheetName(viewModel)
-                    }
-
-                    item {
-                        EditCategoriesScreenBottomSheetListsAndItems(viewModel)
-                    }
-
-                }
-            }
+            Icon(
+                imageVector = MaterialIconsDelete,
+                contentDescription = stringResource(R.string.delete_selected_tags),
+            )
         }
-    }
-}
-//endregion
-
-
-//region EditCategoriesScreenBottomSheetName
-@Composable
-fun EditCategoriesScreenBottomSheetName(viewModel: EditCategoriesViewModel) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        AppTextField(
-            value = viewModel.categoryName(),
-            onValueChange = viewModel::onCategoryNameChange,
-            label = stringResource(R.string.name),
-            isError = viewModel.state.categoryNameInvalid,
-            errorMessage = viewModel.state.categoryNameInvalidMessage,
-        )
-    }
-}
-//endregion
-
-
-//region EditCategoriesScreenBottomSheetListsAndItems
-@Composable
-fun EditCategoriesScreenBottomSheetListsAndItems(viewModel: EditCategoriesViewModel) {
-    val lists = viewModel.lists()
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = MaterialTheme.spaces.large)
-        .padding(top = MaterialTheme.spaces.medium)
-    ) {
-        if (lists.isEmpty()) {
-            if (viewModel.state.addEditMode == AddEditMode.Edit) {
-                Text(
-                    modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
-                    style = MaterialTheme.typography.bodyLarge,
-                    text = stringResource(R.string.category_not_used_message),
-                )
-            }
-        } else {
-            Text(
-                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
-                style = MaterialTheme.typography.bodyLarge,
-                text = stringResource(R.string.category_used_by_message),
+        IconButton(onClick = viewModel::exitSelectionMode) {
+            Icon(
+                imageVector = MaterialIconsCancel,
+                contentDescription = stringResource(R.string.cancel_deletion_of_selected_tags),
+            )
+        }
+    } else {
+        IconButton(onClick = viewModel::onAddCategoryClick) {
+            Icon(
+                imageVector = MaterialIconsAdd,
+                contentDescription = stringResource(R.string.create_new_tag),
             )
         }
     }
-    lists.forEach { list ->
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.spaces.large)
-            .padding(top = MaterialTheme.spaces.medium)
-        ) {
-            Text(
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
-                style = MaterialTheme.typography.bodyLarge,
-                text = list.name,
-            )
+}
+//endregion
 
-            val listItems = viewModel.listItems()
-            listItems.forEach { item ->
-                if (item.listId == list.listId) {
-                    Text(
-                        text = item.name,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(horizontal = MaterialTheme.spaces.extraLarge)
-                    )
-                }
+
+//region EditTagsList
+@Composable
+private fun EditCategoriesList(
+    state: EditCategoriesState,
+    viewModel: EditCategoriesViewModel,
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(modifier = modifier.fillMaxSize()) {
+        item { HorizontalDivider() }
+
+        items(items = state.categoryList, key = { it.categoryId ?: it.name }) { category ->
+            val categoryId = category.categoryId
+            Column {
+                CategoryRow(
+                    category = category,
+                    usageCount = categoryId?.let { state.categoryUsageCounts[it] } ?: 0,
+                    selectionMode = state.selectionMode,
+                    selected = categoryId != null && categoryId in state.selectedCategoryIds,
+                    onClick = { viewModel.onCategoryClick(category) },
+                    onLongClick = { viewModel.onCategoryLongClick(category) },
+                    onToggleSelected = { categoryId?.let(viewModel::toggleSelection) },
+                )
+                HorizontalDivider()
             }
         }
     }
@@ -367,131 +181,195 @@ fun EditCategoriesScreenBottomSheetListsAndItems(viewModel: EditCategoriesViewMo
 //endregion
 
 
-//region EditCategoriesScreenContent
+//region TagRow
 @Composable
-fun EditCategoriesScreenContent(viewModel: EditCategoriesViewModel) {
-    val lazyColumnState = rememberLazyListState()
-    LazyColumn(
-        state = lazyColumnState,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spaces.none),
-    ) {
-        item {
-            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-        }
-
-        viewModel.state.categoryList.forEach { item ->
-            item {
-                EditCategoriesScreenCategory(item, viewModel)
-            }
-
-            item {
-                HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.none))
-            }
-        }
-    }
-}
-//endregion
-
-
-//region EditCategoriesScreenCategory
-@Composable
-fun EditCategoriesScreenCategory(
-    item: EasyListsCategory,
-    viewModel: EditCategoriesViewModel
+private fun CategoryRow(
+    category: EasyListsCategory,
+    usageCount: Int,
+    selectionMode: Boolean,
+    selected: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onToggleSelected: () -> Unit,
 ) {
     Row(
         modifier = Modifier
-            .padding(horizontal = MaterialTheme.spaces.none)
-            .combinedClickable(
-                onClick = { viewModel.onCategoryClick(item) },
-                onLongClick = { viewModel.showContextIcons(item) }
-            ),
+            .fillMaxWidth()
+            .height(MaterialTheme.spaces.rowHeightMedium)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .padding(start = MaterialTheme.spaces.medium)
+            .padding(vertical = MaterialTheme.spaces.medium),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(MaterialTheme.spaces.rowHeightMedium)
-                .padding(start = MaterialTheme.spaces.medium)
-                .padding(vertical = MaterialTheme.spaces.medium),
-            verticalAlignment = Alignment.CenterVertically
+                .weight(1f)
+                .padding(horizontal = MaterialTheme.spaces.medium),
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = MaterialTheme.spaces.medium),
-            ) {
-                Text(
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                        textDecoration = TextDecoration.None,
-                    ),
-                    text = item.name,
-                )
-                val listItemCount = viewModel.categoryListItemCount(item)
-                Text(
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium,
-                    text = when (listItemCount) {
-                        0 -> "Not used"
-                        1 -> "Used by $listItemCount list item"
-                        else -> "Used by $listItemCount list items"
-                    }
-                )
-            }
-            CategoryCheckbox(item, viewModel)
-        }
-    }
-}
-//endregion
-
-
-//region CategoryCheckbox
-@Composable
-fun CategoryCheckbox(
-    item: EasyListsCategory,
-    viewModel: EditCategoriesViewModel
-) {
-    val (checkedState, onStateChange) = remember { mutableStateOf(false) }
-
-    // uncheck item when context items are not shown
-    when {
-        !viewModel.state.showContextItems || viewModel.state.deselectCheckboxes -> {
-            onStateChange(false)
-        }
-    }
-
-    when {
-        viewModel.state.showContextItems -> {
-            Checkbox(
-                modifier = Modifier.padding(MaterialTheme.spaces.none),
-                checked = checkedState,
-                onCheckedChange = {
-                    onStateChange(!checkedState)
-                    viewModel.onCategorySelectedForRemovalChanged(item.categoryId)
+            Text(
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyLarge,
+                text = category.name,
+            )
+            Text(
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium,
+                text = if (usageCount == 0) {
+                    stringResource(R.string.category_not_used)
+                } else {
+                    pluralStringResource(R.plurals.category_used_by_list_items, usageCount, usageCount)
                 },
             )
         }
+
+        if (selectionMode) {
+            Checkbox(
+                checked = selected,
+                onCheckedChange = { onToggleSelected() },
+            )
+        }
     }
 }
 //endregion
 
 
-//region ConfirmRemove
+//region ConfirmDeleteDialog
 @Composable
-fun ConfirmDelete(viewModel: EditCategoriesViewModel) {
-    when {
-        viewModel.state.showConfirmationDialog -> {
-            ConfirmationDialog(
-                onDismissRequest = viewModel.state.confirmationOnDismissRequest,
-                onConfirmation = viewModel.state.confirmationOnConfirmation,
-                dialogTitle = viewModel.state.confirmationTitle,
-                dialogText = viewModel.state.confirmationMessage,
-            )
+private fun ConfirmDeleteDialog(pending: CategoryPendingDelete, viewModel: EditCategoriesViewModel) {
+    ConfirmationDialog(
+        onDismissRequest = viewModel::onDeleteDismissed,
+        onConfirmation = viewModel::onDeleteConfirmed,
+        dialogTitle = stringResource(R.string.confirm_deletion),
+        dialogText = stringResource(
+            if (pending is CategoryPendingDelete.Single) R.string.delete_category_warning
+            else R.string.delete_categories_warning
+        ),
+    )
+}
+//endregion
+
+
+//region SheetDragHandle
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SheetDragHandle() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        BottomSheetDefaults.DragHandle()
+    }
+}
+//endregion
+
+
+//region TagEditorSheet
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CategoryEditorSheet(
+    sheet: CategorySheetState,
+    state: EditCategoriesState,
+    viewModel: EditCategoriesViewModel,
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val usage = remember(sheet.categoryId, state.listItemList, state.listList) {
+        state.usageFor(sheet.categoryId)
+    }
+
+    ModalBottomSheet(
+        sheetState = sheetState,
+        onDismissRequest = viewModel::onCategorySheetDismiss,
+        dragHandle = { SheetDragHandle() },
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.9f)
+        ) {
+            LazyColumn(modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)) {
+                item {
+                    SectionTitle(
+                        title = stringResource(
+                            if (sheet.mode == AddEditMode.Add) R.string.add_category else R.string.edit_category
+                        ),
+                        icon = {
+                            IconButton(
+                                enabled = state.canSaveCategory,
+                                onClick = viewModel::saveCategory,
+                            ) {
+                                Icon(
+                                    imageVector = MaterialIconsCheck,
+                                    contentDescription = stringResource(R.string.save_category),
+                                )
+                            }
+                            if (sheet.mode == AddEditMode.Edit) {
+                                IconButton(onClick = { viewModel.requestDeleteCategory(sheet.categoryId) }) {
+                                    Icon(
+                                        imageVector = MaterialIconsDelete,
+                                        contentDescription = stringResource(R.string.delete_category),
+                                    )
+                                }
+                            }
+                        },
+                        modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
+                    )
+                }
+
+                item {
+                    val duplicate = state.isTagNameDuplicate
+                    AppTextField(
+                        value = sheet.name,
+                        onValueChange = viewModel::onCategoryNameChange,
+                        label = stringResource(R.string.name),
+                        isError = duplicate,
+                        errorMessage = if (duplicate) stringResource(R.string.category_name_in_use) else "",
+                    )
+                }
+
+                if (usage.isEmpty()) {
+                    if (sheet.mode == AddEditMode.Edit) {
+                        item {
+                            Text(
+                                modifier = Modifier
+                                    .padding(top = MaterialTheme.spaces.medium)
+                                    .padding(horizontal = MaterialTheme.spaces.medium),
+                                style = MaterialTheme.typography.bodyLarge,
+                                text = stringResource(R.string.category_not_used_message),
+                            )
+                        }
+                    }
+                } else {
+                    item {
+                        Text(
+                            modifier = Modifier
+                                .padding(top = MaterialTheme.spaces.medium)
+                                .padding(horizontal = MaterialTheme.spaces.medium),
+                            style = MaterialTheme.typography.bodyLarge,
+                            text = stringResource(R.string.category_used_by_message),
+                        )
+                    }
+                    items(usage) { entry ->
+                        Column(modifier = Modifier.padding(top = MaterialTheme.spaces.medium)) {
+                            Text(
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium),
+                                style = MaterialTheme.typography.bodyLarge,
+                                text = entry.list.name,
+                            )
+                            entry.items.forEach { listItem ->
+                                Text(
+                                    text = listItem.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(horizontal = MaterialTheme.spaces.extraLarge)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
