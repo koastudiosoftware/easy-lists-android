@@ -1,4 +1,4 @@
-package com.easylists.presentation.ui.listdetails
+package com.easylists.presentation.ui.listitems
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -86,7 +86,7 @@ import com.easylists.presentation.icons.MaterialIconsPhotoCamera
 import com.easylists.presentation.models.ItemEditorState
 import com.easylists.presentation.models.ItemEditorValidation
 import com.easylists.presentation.models.ItemNameError
-import com.easylists.presentation.models.ListDetailsUiState
+import com.easylists.presentation.models.ListItemsUiState
 import com.easylists.presentation.models.ListRow
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.models.validate
@@ -101,10 +101,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListDetailsScreen(
+fun ListItemsScreen(
     navController: NavController<Screen>,
     sharedViewModel: SharedViewModel,
-    viewModel: ListDetailsViewModel = hiltViewModel()
+    viewModel: ListItemsViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit) {
         viewModel.init(sharedViewModel.listUid, sharedViewModel.listName)
@@ -140,14 +140,14 @@ fun ListDetailsScreen(
             modifier = Modifier.padding(innerPadding),
         ) {
             when (val state = uiState) {
-                ListDetailsUiState.Loading -> ScreenLoading()
+                ListItemsUiState.Loading -> ScreenLoading()
 
-                is ListDetailsUiState.Error -> ScreenError(
+                is ListItemsUiState.Error -> ScreenError(
                     message = state.message,
                     onRetry = viewModel::onRefresh,
                 )
 
-                is ListDetailsUiState.Success -> ListDetailsScreenContent(
+                is ListItemsUiState.Success -> ListDetailsScreenContent(
                     state = state,
                     selectedItemId = interaction.selectedItemId,
                     expandTagPills = interaction.expandTagPills,
@@ -186,7 +186,7 @@ fun ListDetailsScreen(
         )
     }
 
-    val success = uiState as? ListDetailsUiState.Success
+    val success = uiState as? ListItemsUiState.Success
     if (editor != null && success != null) {
         val validation = remember(editor, success.items) { editor.validate(success.items) }
         val actions = remember(viewModel) {
@@ -232,7 +232,7 @@ fun ListDetailsScreenTopAppBarNavigationIcon(navController: NavController<Screen
 //region ListDetailsScreenContent
 @Composable
 fun ListDetailsScreenContent(
-    state: ListDetailsUiState.Success,
+    state: ListItemsUiState.Success,
     selectedItemId: String?,
     expandTagPills: Boolean,
     onItemClick: (EasyListsListItem) -> Unit,

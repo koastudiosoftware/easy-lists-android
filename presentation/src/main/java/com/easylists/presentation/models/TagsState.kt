@@ -7,7 +7,7 @@ import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
 import com.easylists.presentation.common.AddEditMode
 
-data class EditTagsState(
+data class TagsState(
     // ---- data from the database ----
     val tagList: List<EasyListsTag> = emptyList(),
     val listList: List<EasyListsList> = emptyList(),
@@ -88,7 +88,7 @@ data class ListUsage(
 )
 
 /** Lists (and their items) that use the given tag. Computed once per call, not per list. */
-fun EditTagsState.usageFor(tagId: String?): List<ListUsage> {
+fun TagsState.usageFor(tagId: String?): List<ListUsage> {
     if (tagId == null) return emptyList()
 
     val itemIds = tagListItemList

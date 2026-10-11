@@ -1,4 +1,4 @@
-package com.easylists.presentation.ui.listdetails
+package com.easylists.presentation.ui.listitems
 
 import android.Manifest
 import android.content.Context

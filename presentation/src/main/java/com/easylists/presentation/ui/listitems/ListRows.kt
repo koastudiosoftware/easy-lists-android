@@ -1,4 +1,4 @@
-package com.easylists.presentation.ui.listdetails
+package com.easylists.presentation.ui.listitems
 
 import com.easylists.domain.common.AppSettings
 import com.easylists.domain.common.GroupCrossedOffItems
@@ -7,7 +7,7 @@ import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
-import com.easylists.presentation.models.ListDetailsUiState
+import com.easylists.presentation.models.ListItemsUiState
 import com.easylists.presentation.models.ListRow
 
 
@@ -18,12 +18,12 @@ fun buildListDetailsState(
     tags: List<EasyListsTag>,
     tagLinks: List<TagListItem>,
     settings: AppSettings,
-): ListDetailsUiState {
+): ListItemsUiState {
     val liveItems = items.filterNot { it.isDeleted }
     val liveCategories = categories.filterNot { it.isDeleted }
     val liveTags = tags.filterNot { it.isDeleted }
 
-    return ListDetailsUiState.Success(
+    return ListItemsUiState.Success(
         rows = buildListRows(
             items = liveItems,
             categories = liveCategories,

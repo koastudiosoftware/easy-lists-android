@@ -54,7 +54,7 @@ class TagRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeTags(tagIds: List<String>): Result<Int> {
+    override suspend fun deleteTags(tagIds: List<String>): Result<Int> {
         return Result.runCatching {
             localSource.delete(tagIds = tagIds)
         }

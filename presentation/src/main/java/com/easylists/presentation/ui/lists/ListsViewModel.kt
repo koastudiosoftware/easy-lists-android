@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.repositories.SessionRepository
-import com.easylists.domain.use_cases.AddListFlowUseCase
+import com.easylists.domain.use_cases.AddListUseCase
 import com.easylists.domain.use_cases.DeleteListsUseCase
 import com.easylists.domain.use_cases.GetListFlowUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
@@ -37,7 +37,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 class ListsViewModel @Inject constructor(
     getListListFlowUseCase: GetListFlowUseCase,
-    private val addListUseCase: AddListFlowUseCase,
+    private val addListUseCase: AddListUseCase,
     private val deleteListsUseCase: DeleteListsUseCase,
     private val updateListUseCase: UpdateListUseCase,
     private val mapper: UiMapper,

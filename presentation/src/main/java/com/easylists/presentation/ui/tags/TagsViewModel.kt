@@ -1,4 +1,4 @@
-package com.easylists.presentation.ui.edittags
+package com.easylists.presentation.ui.tags
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
@@ -19,12 +19,12 @@ import com.easylists.domain.use_cases.GetTagFlowUseCase
 import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveTagFromListItemUseCase
-import com.easylists.domain.use_cases.RemoveTagUseCase
+import com.easylists.domain.use_cases.DeleteTagsUseCase
 import com.easylists.domain.use_cases.UpdateTagUseCase
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.models.ColorEditorState
-import com.easylists.presentation.models.EditTagsState
+import com.easylists.presentation.models.TagsState
 import com.easylists.presentation.models.TagPendingDelete
 import com.easylists.presentation.models.TagSheetState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,7 +45,7 @@ private const val DEFAULT_COLOR_HEX = "#FFFFFFFF"
 private val HEX_COLOR = Regex("^#[0-9A-F]{8}$")
 
 @HiltViewModel
-class EditTagsViewModel @Inject constructor(
+class TagsViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
     getTagFlowUseCase: GetTagFlowUseCase,
     getListFlowUseCase: GetListFlowUseCase,
@@ -53,7 +53,7 @@ class EditTagsViewModel @Inject constructor(
     getTagListItemFlowUseCase: GetTagListItemFlowUseCase,
     private val addTagUseCase: AddTagUseCase,
     private val updateTagUseCase: UpdateTagUseCase,
-    private val removeTagUseCase: RemoveTagUseCase,
+    private val deleteTagsUseCase: DeleteTagsUseCase,
     private val removeTagFromListItemUseCase: RemoveTagFromListItemUseCase,
     private val session: SessionRepository,
 ) : ViewModel() {
@@ -68,10 +68,10 @@ class EditTagsViewModel @Inject constructor(
         )
 
     // Transient screen state. Only the ViewModel writes it.
-    var state by mutableStateOf(EditTagsState())
+    var state by mutableStateOf(TagsState())
         private set
 
-    private data class Snapshot(
+    private data class TagSnapshot(
         val tags: List<EasyListsTag>,
         val lists: List<EasyListsList>,
         val listItems: List<EasyListsListItem>,
@@ -87,7 +87,7 @@ class EditTagsViewModel @Inject constructor(
             getListItemFlowUseCase(),
             getTagListItemFlowUseCase(),
         ) { tags, lists, listItems, tagListItems ->
-            Snapshot(
+            TagSnapshot(
                 tags = tags.orEmpty(),
                 lists = lists.orEmpty(),
                 listItems = listItems.orEmpty(),
@@ -101,20 +101,20 @@ class EditTagsViewModel @Inject constructor(
 
 
     //region applySnapshot()
-    private fun applySnapshot(snapshot: Snapshot) {
-        val tagIds = snapshot.tags.mapNotNull { it.tagId }.toSet()
+    private fun applySnapshot(tagSnapshot: TagSnapshot) {
+        val tagIds = tagSnapshot.tags.mapNotNull { it.tagId }.toSet()
 
         val counts = HashMap<String, Int>()
-        snapshot.tagListItems.forEach { item ->
+        tagSnapshot.tagListItems.forEach { item ->
             val id = item.tagId ?: return@forEach
             counts[id] = (counts[id] ?: 0) + 1
         }
 
         state = state.copy(
-            tagList = snapshot.tags,
-            listList = snapshot.lists,
-            listItemList = snapshot.listItems,
-            tagListItemList = snapshot.tagListItems,
+            tagList = tagSnapshot.tags,
+            listList = tagSnapshot.lists,
+            listItemList = tagSnapshot.listItems,
+            tagListItemList = tagSnapshot.tagListItems,
             tagUsageCounts = counts,
             // drop anything that no longer exists (deleted here, or removed by a sync)
             selectedTagIds = state.selectedTagIds.intersect(tagIds),
@@ -260,7 +260,7 @@ class EditTagsViewModel @Inject constructor(
         launchCatching(errorRes = R.string.error_deleting_tags) {
             // both delete paths clear the tag/list-item links first, then the tags themselves
             removeTagFromListItemUseCase(tagIdList = ids)
-            removeTagUseCase(tagIds = ids).getOrThrow()
+            deleteTagsUseCase(tagIds = ids).getOrThrow()
 
             state = when (pending) {
                 is TagPendingDelete.Single -> state.copy(tagSheet = null)

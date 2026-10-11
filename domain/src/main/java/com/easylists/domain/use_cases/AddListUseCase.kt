@@ -4,7 +4,7 @@ import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.repositories.ListRepository
 import javax.inject.Inject
 
-class AddListFlowUseCase @Inject constructor(
+class AddListUseCase @Inject constructor(
     private val listRepository: ListRepository
 ) {
 

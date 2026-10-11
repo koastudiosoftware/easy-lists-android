@@ -22,9 +22,9 @@ import com.easylists.presentation.common.LocalCapitalization
 import com.easylists.presentation.common.SharedViewModel
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.about.AboutScreen
-import com.easylists.presentation.ui.editcategories.EditCategoriesScreen
-import com.easylists.presentation.ui.edittags.EditTagsScreen
-import com.easylists.presentation.ui.listdetails.ListDetailsScreen
+import com.easylists.presentation.ui.categories.CategoriesScreen
+import com.easylists.presentation.ui.tags.TagsScreen
+import com.easylists.presentation.ui.listitems.ListItemsScreen
 import com.easylists.presentation.ui.lists.ListsViewModel
 import com.easylists.presentation.ui.lists.ListsScreen
 import com.easylists.presentation.ui.settings.SettingsScreen
@@ -92,18 +92,18 @@ class MainActivity : ComponentActivity() {
                                     }
 
                                     is Screen.ListDetails -> {
-                                        ListDetailsScreen(
+                                        ListItemsScreen(
                                             navController = navController,
                                             sharedViewModel = sharedViewModel
                                         )
                                     }
 
                                     is Screen.EditCategories -> {
-                                        EditCategoriesScreen(navController = navController)
+                                        CategoriesScreen(navController = navController)
                                     }
 
                                     is Screen.EditTags -> {
-                                        EditTagsScreen(navController = navController)
+                                        TagsScreen(navController = navController)
                                     }
 
                                     is Screen.Settings -> {

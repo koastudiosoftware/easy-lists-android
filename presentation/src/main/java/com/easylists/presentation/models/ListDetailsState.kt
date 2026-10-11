@@ -7,8 +7,8 @@ import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
 import com.easylists.presentation.common.AddEditMode
 
-sealed interface ListDetailsUiState {
-    object Loading : ListDetailsUiState
+sealed interface ListItemsUiState {
+    object Loading : ListItemsUiState
 
     data class Success(
         val rows: List<ListRow>,
@@ -17,9 +17,9 @@ sealed interface ListDetailsUiState {
         val tags: List<EasyListsTag>,
         val tagLinks: List<TagListItem>,
         val settings: AppSettings,
-    ) : ListDetailsUiState
+    ) : ListItemsUiState
 
-    data class Error(val message: String) : ListDetailsUiState
+    data class Error(val message: String) : ListItemsUiState
 }
 
 
@@ -95,7 +95,7 @@ fun ItemEditorState.validate(existing: List<EasyListsListItem>): ItemEditorValid
 //endregion
 
 
-data class ListDetailsInteractionState(
+data class ListItemsInteractionState(
     val selectedItemId: String? = null,
     val showDeleteItemDialog: Boolean = false,
     val showDeleteCrossedOffDialog: Boolean = false,

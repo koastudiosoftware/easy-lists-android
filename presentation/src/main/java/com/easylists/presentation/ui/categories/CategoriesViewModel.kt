@@ -1,4 +1,4 @@
-package com.easylists.presentation.ui.editcategories
+package com.easylists.presentation.ui.categories
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
@@ -10,7 +10,6 @@ import com.easylists.domain.common.AppSettings
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
-import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
@@ -18,14 +17,13 @@ import com.easylists.domain.use_cases.GetListFlowUseCase
 import com.easylists.domain.use_cases.GetListItemFlowUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveCategoryFromListItemUseCase
-import com.easylists.domain.use_cases.RemoveCategoryUseCase
+import com.easylists.domain.use_cases.DeleteCategoriesUseCase
 import com.easylists.domain.use_cases.UpdateCategoryUseCase
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.models.CategoryPendingDelete
 import com.easylists.presentation.models.CategorySheetState
-import com.easylists.presentation.models.EditCategoriesState
-import com.easylists.presentation.models.TagPendingDelete
+import com.easylists.presentation.models.CategoriesState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -41,7 +39,7 @@ import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 @HiltViewModel
-class EditCategoriesViewModel @Inject constructor(
+class CategoriesViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
     getCategoryFlowUseCase: GetCategoryFlowUseCase,
     getListItemFlowUseCase: GetListItemFlowUseCase,
@@ -49,7 +47,7 @@ class EditCategoriesViewModel @Inject constructor(
     private val addCategoryUseCase: AddCategoryUseCase,
     private val updateCategoryUseCase: UpdateCategoryUseCase,
     private val removeCategoryFromListItemsUseCase: RemoveCategoryFromListItemUseCase,
-    private val removeCategoryUseCase: RemoveCategoryUseCase,
+    private val deleteCategoriesUseCase: DeleteCategoriesUseCase,
     private val session: SessionRepository,
 ) : ViewModel() {
 
@@ -63,7 +61,7 @@ class EditCategoriesViewModel @Inject constructor(
         )
 
     // Transient screen state. Only the ViewModel writes it.
-    var state by mutableStateOf(EditCategoriesState())
+    var state by mutableStateOf(CategoriesState())
         private set
 
     private data class CategoriesSnapshot(
@@ -250,7 +248,7 @@ class EditCategoriesViewModel @Inject constructor(
 
         launchCatching(errorRes = R.string.error_deleting_categories) {
             // both delete paths clear the tag/list-item links first, then the tags themselves
-            removeCategoryUseCase(categoryIds = ids).getOrThrow()
+            deleteCategoriesUseCase(categoryIds = ids).getOrThrow()
 
             state = when (pending) {
                 is CategoryPendingDelete.Single -> state.copy(categorySheet = null)

@@ -1,4 +1,4 @@
-package com.easylists.presentation.ui.listdetails
+package com.easylists.presentation.ui.listitems
 
 import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
@@ -12,7 +12,7 @@ import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddCategoryUseCase
-import com.easylists.domain.use_cases.AddListItemFlowUseCase
+import com.easylists.domain.use_cases.AddListItemUseCase
 import com.easylists.domain.use_cases.AddTagListItemUseCase
 import com.easylists.domain.use_cases.DeleteListItemsUseCase
 import com.easylists.domain.use_cases.GetCategoryFlowUseCase
@@ -22,13 +22,13 @@ import com.easylists.domain.use_cases.GetTagListItemFlowUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveTagListItemUseCase
 import com.easylists.domain.use_cases.SaveListItemPhotoUseCase
-import com.easylists.domain.use_cases.UpdateListItemFlowUseCase
+import com.easylists.domain.use_cases.UpdateListItemUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ImageBitmapLoader
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ItemEditorState
-import com.easylists.presentation.models.ListDetailsInteractionState
-import com.easylists.presentation.models.ListDetailsUiState
+import com.easylists.presentation.models.ListItemsInteractionState
+import com.easylists.presentation.models.ListItemsUiState
 import com.easylists.presentation.models.PhotoDraft
 import com.easylists.presentation.models.PhotoTransform
 import com.easylists.presentation.models.validate
@@ -56,7 +56,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.Uuid
 
 @HiltViewModel
-class ListDetailsViewModel @Inject constructor(
+class ListItemsViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
     getListItemFlowUseCase: GetListItemFlowUseCase,
     getCategoryFlowUseCase: GetCategoryFlowUseCase,
@@ -65,8 +65,8 @@ class ListDetailsViewModel @Inject constructor(
     private val addCategoryUseCase: AddCategoryUseCase,
     private val addTagListItemUseCase: AddTagListItemUseCase,
     private val removeTagListItemUseCase: RemoveTagListItemUseCase,
-    private val addListItemUseCase: AddListItemFlowUseCase,
-    private val updateListItemUseCase: UpdateListItemFlowUseCase,
+    private val addListItemUseCase: AddListItemUseCase,
+    private val updateListItemUseCase: UpdateListItemUseCase,
     private val deleteListItemUseCase: DeleteListItemsUseCase,
     private val saveListItemPhotoUseCase: SaveListItemPhotoUseCase,
     private val bitmapLoader: ImageBitmapLoader,
@@ -84,7 +84,7 @@ class ListDetailsViewModel @Inject constructor(
     // categories, tags, tag links, or settings rebuilds the rows, so nothing is copied
     // into state and no fetch ordering or delay is needed.
     @OptIn(ExperimentalCoroutinesApi::class)
-    val uiState: StateFlow<ListDetailsUiState> =
+    val uiState: StateFlow<ListItemsUiState> =
         combine(listId.filterNotNull(), refreshTrigger) { id, _ -> id }
             .flatMapLatest { id ->
                 combine(
@@ -101,19 +101,19 @@ class ListDetailsViewModel @Inject constructor(
                         tagLinks = tagLinks.orEmpty(),
                         settings = settings,
                     )
-                }.catch { emit(ListDetailsUiState.Error(message = mapper.mapErrorToUiMessage(it))) }
+                }.catch { emit(ListItemsUiState.Error(message = mapper.mapErrorToUiMessage(it))) }
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ListDetailsUiState.Loading)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ListItemsUiState.Loading)
 
     // null = bottom sheet closed. Compose state so the TextFields read and write synchronously.
     var editor by mutableStateOf<ItemEditorState?>(null)
         private set
 
-    var interaction by mutableStateOf(ListDetailsInteractionState())
+    var interaction by mutableStateOf(ListItemsInteractionState())
         private set
 
-    private val successState: ListDetailsUiState.Success?
-        get() = uiState.value as? ListDetailsUiState.Success
+    private val successState: ListItemsUiState.Success?
+        get() = uiState.value as? ListItemsUiState.Success
 
 
     //region init

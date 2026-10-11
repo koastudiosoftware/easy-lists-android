@@ -6,7 +6,7 @@ import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.presentation.common.AddEditMode
 
-data class EditCategoriesState(
+data class CategoriesState(
     // ---- data from the database ----
     val categoryList: List<EasyListsCategory> = emptyList(),
     val listList: List<EasyListsList> = emptyList(),
@@ -71,7 +71,7 @@ data class CategoryListUsage(
 )
 
 /** Lists (and their items) that use the given tag. Computed once per call, not per list. */
-fun EditCategoriesState.usageFor(categoryId: String?): List<CategoryListUsage> {
+fun CategoriesState.usageFor(categoryId: String?): List<CategoryListUsage> {
     if (categoryId == null) return emptyList()
 
     val itemsByList = listItemList
