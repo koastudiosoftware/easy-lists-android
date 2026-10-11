@@ -10,8 +10,8 @@ private val categoryRepository: CategoryRepository
 ) {
 
     //region invoke()
-    suspend operator fun invoke(category: EasyListsCategory) {
-        categoryRepository.addCategory(category = category)
+    suspend operator fun invoke(category: EasyListsCategory): Result<Unit> {
+        return categoryRepository.addCategory(category = category)
     }
     //endregion
 
