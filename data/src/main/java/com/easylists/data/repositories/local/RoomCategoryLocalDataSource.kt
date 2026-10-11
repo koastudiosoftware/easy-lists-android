@@ -43,12 +43,6 @@ class RoomCategoryLocalDataSource @Inject constructor(
     //endregion
 
 
-    //region delete()
-    override suspend fun delete(categoryId: String) {
-        return dao.delete(categoryId = categoryId)
-    }
-
-
     //endregion
     //region delete()
     override suspend fun delete(categoryIds: List<String>): Int {

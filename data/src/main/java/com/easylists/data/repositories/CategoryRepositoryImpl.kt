@@ -56,7 +56,6 @@ interface CategoryLocalDataSource {
     fun getCategoryFlow(): Flow<List<EasyListsCategory>>
     suspend fun insert(category: EasyListsCategory): Long
     suspend fun update(category: EasyListsCategory)
-    suspend fun delete(categoryId: String)
     suspend fun delete(categoryIds: List<String>): Int
 
 }

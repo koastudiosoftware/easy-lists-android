@@ -31,9 +31,6 @@ abstract class CategoryDao() {
     @Update
     abstract suspend fun update(categoryEntity: CategoryEntity)
 
-    @Query("DELETE FROM categories WHERE category_id = :categoryId")
-    abstract suspend fun delete(categoryId: String)
-
     @Query("""
         UPDATE categories
         SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
