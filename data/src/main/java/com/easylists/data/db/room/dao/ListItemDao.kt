@@ -14,11 +14,21 @@ import kotlinx.coroutines.flow.Flow
 abstract class ListItemDao() {
 
     @Transaction
-    @Query("SELECT * FROM list_items ORDER BY name COLLATE NOCASE ASC")
+    @Query("""
+        SELECT *
+        FROM list_items
+        WHERE is_deleted = 0
+        ORDER BY name COLLATE NOCASE ASC
+        """)
     abstract fun get(): Flow<List<ListItemEntity>>
 
     @Transaction
-    @Query("SELECT * FROM list_items WHERE list_id = :listId ORDER BY name COLLATE NOCASE ASC")
+    @Query("""
+        SELECT *
+        FROM list_items
+        WHERE list_id = :listId AND is_deleted = 0
+        ORDER BY name COLLATE NOCASE ASC
+        """)
     abstract fun get(listId: String): Flow<List<ListItemEntity>>
 
     @Update(entity = ListItemEntity::class)
