@@ -27,6 +27,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -85,7 +86,7 @@ fun FramedPhoto(
     onTransformChanged: ((scale: Float, normalizedOffsetX: Float, normalizedOffsetY: Float) -> Unit)? = null,
     zoomEnabled: Boolean = false,
     doubleTapScale: Float = 2.5f,
-    targetSize: Size = Size.ORIGINAL,
+    targetSize: Dp = 48.dp,
     shape: Shape = RectangleShape,
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
@@ -113,7 +114,7 @@ fun FramedPhoto(
     Box(
         modifier = modifier
             .onGloballyPositioned { containerSize = it.size }
-            .size(44.dp)
+            .size(targetSize)
             .clip(shape)
             .then(
                 if (zoomEnabled) {

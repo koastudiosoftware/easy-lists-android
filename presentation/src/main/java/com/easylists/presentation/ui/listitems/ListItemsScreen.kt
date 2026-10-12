@@ -64,6 +64,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -439,8 +440,8 @@ fun ListItemCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-                .height(MaterialTheme.spaces.rowHeightMedium)
-                .padding(end = MaterialTheme.spaces.small, start = 5.dp),
+                .padding(horizontal = MaterialTheme.spaces.medium)
+                .padding(vertical = MaterialTheme.spaces.medium),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             ListItemRowContent(
@@ -477,10 +478,15 @@ fun RowScope.ListItemRowContent(
 
     if (settings.enablePhotos) {
         val photoShape = MaterialTheme.shapes.small
-        if (isCard && item.photoUri.isNullOrEmpty()) {
+        if (item.photoUri.isNullOrEmpty()) {
             ListItemPhotoPlaceholder(photoShape)
         } else {
-            ListItemPhoto(item = item, showDivider = false, shape = photoShape)
+            ListItemPhoto(
+                item = item,
+                showDivider = false,
+                shape = photoShape,
+                targetSize = if (isCard) 48.dp else 44.dp
+            )
         }
     }
 
@@ -539,6 +545,7 @@ fun RowScope.ListItemRowContent(
 fun ListItemPhoto(
     item: EasyListsListItem,
     showDivider: Boolean = true,
+    targetSize: Dp = 48.dp,
     shape: Shape = RectangleShape,
 ) {
     val photoUri = item.photoUri
@@ -558,7 +565,7 @@ fun ListItemPhoto(
             normalizedOffsetX = item.photoOffsetX.toFloat(),
             normalizedOffsetY = item.photoOffsetY.toFloat(),
             zoomEnabled = false,
-            targetSize = Size(150, 150),
+            targetSize = targetSize,
             shape = shape,
         )
     }
@@ -579,7 +586,7 @@ fun ListItemPhotoPlaceholder(shape: Shape) {
         Icon(
             modifier = Modifier.size(20.dp),
             imageVector = MaterialIconsInsertPhoto,
-            contentDescription = null, // decorative
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.outline,
         )
     }
