@@ -274,18 +274,12 @@ private fun CategoryCard(
                 )
             }
 
-            if (selectionMode) {
-                Checkbox(checked = selected, onCheckedChange = { onToggleSelected() })
-            } else {
-                Icon(
-                    tint = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier
-                        .padding(14.dp) // same footprint as the 48.dp IconButton, so the card height doesn't change
-                        .size(20.dp),
-                    imageVector = MaterialIconsEdit,
-                    contentDescription = null, // the whole card is the click target and already announces itself
-                )
-            }
+            CategoryTrailing(
+                selectionMode = selectionMode,
+                selected = selected,
+                onToggleSelected = onToggleSelected,
+                modifier = Modifier.padding(14.dp),
+            )
         }
     }
 }
@@ -336,12 +330,34 @@ private fun CategoryRow(
             )
         }
 
-        if (selectionMode) {
-            Checkbox(
-                checked = selected,
-                onCheckedChange = { onToggleSelected() },
-            )
-        }
+        CategoryTrailing(
+            selectionMode = selectionMode,
+            selected = selected,
+            onToggleSelected = onToggleSelected,
+            modifier = Modifier.padding(horizontal = 14.dp),
+        )
+    }
+}
+//endregion
+
+
+//region CategoryTrailing
+@Composable
+private fun CategoryTrailing(
+    selectionMode: Boolean,
+    selected: Boolean,
+    onToggleSelected: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (selectionMode) {
+        Checkbox(checked = selected, onCheckedChange = { onToggleSelected() })
+    } else {
+        Icon(
+            tint = MaterialTheme.colorScheme.outline,
+            modifier = modifier.size(20.dp),
+            imageVector = MaterialIconsEdit,
+            contentDescription = null,
+        )
     }
 }
 //endregion
