@@ -1,18 +1,24 @@
 package com.easylists.presentation.ui.categories
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -37,7 +43,9 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.easylists.domain.common.ViewMode
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
@@ -50,6 +58,7 @@ import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsCancel
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsDelete
+import com.easylists.presentation.icons.MaterialIconsEdit
 import com.easylists.presentation.models.CategoryPendingDelete
 import com.easylists.presentation.models.CategorySheetState
 import com.easylists.presentation.models.CategoriesState
@@ -105,6 +114,7 @@ fun CategoriesScreen(
         ) { innerPadding ->
             CategoriesList(
                 state = state,
+                viewMode = s.viewMode,
                 viewModel = viewModel,
                 modifier = Modifier.padding(innerPadding),
             )
@@ -155,25 +165,126 @@ private fun CategoriesActions(state: CategoriesState, viewModel: CategoriesViewM
 @Composable
 private fun CategoriesList(
     state: CategoriesState,
+    viewMode: ViewMode,
     viewModel: CategoriesViewModel,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(modifier = modifier.fillMaxSize()) {
-        item { HorizontalDivider() }
+    val isCard = viewMode == ViewMode.Card
+
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = if (isCard) {
+            PaddingValues(
+                horizontal = MaterialTheme.spaces.large,
+                vertical = MaterialTheme.spaces.medium,
+            )
+        } else PaddingValues(),
+        verticalArrangement = Arrangement.spacedBy(
+            if (isCard) MaterialTheme.spaces.medium else MaterialTheme.spaces.none
+        ),
+    ) {
+        if (!isCard) item { HorizontalDivider() }
 
         items(items = state.categoryList, key = { it.categoryId ?: it.name }) { category ->
             val categoryId = category.categoryId
-            Column {
-                CategoryRow(
+            val usageCount = categoryId?.let { state.categoryUsageCounts[it] } ?: 0
+            val selected = categoryId != null && categoryId in state.selectedCategoryIds
+            val onClick = { viewModel.onCategoryClick(category) }
+            val onLongClick = { viewModel.onCategoryLongClick(category) }
+            val onToggle = { categoryId?.let(viewModel::toggleSelection); Unit }
+
+            when (viewMode) {
+                ViewMode.Card -> CategoryCard(
                     category = category,
-                    usageCount = categoryId?.let { state.categoryUsageCounts[it] } ?: 0,
+                    usageCount = usageCount,
                     selectionMode = state.selectionMode,
-                    selected = categoryId != null && categoryId in state.selectedCategoryIds,
-                    onClick = { viewModel.onCategoryClick(category) },
-                    onLongClick = { viewModel.onCategoryLongClick(category) },
-                    onToggleSelected = { categoryId?.let(viewModel::toggleSelection) },
+                    selected = selected,
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                    onToggleSelected = onToggle,
                 )
-                HorizontalDivider()
+                ViewMode.List -> Column {
+                    CategoryRow(
+                        category = category,
+                        usageCount = usageCount,
+                        selectionMode = state.selectionMode,
+                        selected = selected,
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                        onToggleSelected = onToggle,
+                    )
+                    HorizontalDivider()
+                }
+            }
+        }
+    }
+}
+//endregion
+
+
+//region CategoryCard
+@Composable
+private fun CategoryCard(
+    category: EasyListsCategory,
+    usageCount: Int,
+    selectionMode: Boolean,
+    selected: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onToggleSelected: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        // click handling inside the Card so the ripple is clipped to its shape
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                .padding(start = MaterialTheme.spaces.large)
+                .padding(vertical = MaterialTheme.spaces.medium),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = MaterialTheme.spaces.medium),
+            ) {
+                Text(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleMedium,
+                    text = category.name,
+                )
+                Text(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyMedium,
+                    text = if (usageCount == 0) {
+                        stringResource(R.string.category_not_used)
+                    } else {
+                        pluralStringResource(R.plurals.category_used_by_list_items, usageCount, usageCount)
+                    },
+                )
+            }
+
+            if (selectionMode) {
+                Checkbox(checked = selected, onCheckedChange = { onToggleSelected() })
+            } else {
+                Icon(
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier
+                        .padding(14.dp) // same footprint as the 48.dp IconButton, so the card height doesn't change
+                        .size(20.dp),
+                    imageVector = MaterialIconsEdit,
+                    contentDescription = null, // the whole card is the click target and already announces itself
+                )
             }
         }
     }
@@ -213,7 +324,7 @@ private fun CategoryRow(
                 text = category.name,
             )
             Text(
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMedium,
