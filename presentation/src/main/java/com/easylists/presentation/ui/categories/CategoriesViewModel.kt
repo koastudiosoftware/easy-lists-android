@@ -13,7 +13,7 @@ import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.GetCategoryUseCase
-import com.easylists.domain.use_cases.GetListUseCase
+import com.easylists.domain.use_cases.GetListsUseCase
 import com.easylists.domain.use_cases.GetListItemUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveCategoryFromListItemUseCase
@@ -43,7 +43,7 @@ class CategoriesViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
     getCategoryUseCase: GetCategoryUseCase,
     getListItemUseCase: GetListItemUseCase,
-    getListUseCase: GetListUseCase,
+    getListsUseCase: GetListsUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
     private val updateCategoryUseCase: UpdateCategoryUseCase,
     private val removeCategoryFromListItemsUseCase: RemoveCategoryFromListItemUseCase,
@@ -75,7 +75,7 @@ class CategoriesViewModel @Inject constructor(
         // updated with, say, new tag/list-item links but stale list items.
         combine(
             getCategoryUseCase(),
-            getListUseCase(),
+            getListsUseCase(),
             getListItemUseCase(),
         ) { categories, lists, listItems ->
             CategoriesSnapshot(

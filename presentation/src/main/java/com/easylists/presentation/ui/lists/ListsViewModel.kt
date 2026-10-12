@@ -9,7 +9,7 @@ import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddListUseCase
 import com.easylists.domain.use_cases.DeleteListsUseCase
-import com.easylists.domain.use_cases.GetListUseCase
+import com.easylists.domain.use_cases.GetListsUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ListsAction
@@ -36,7 +36,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ListsViewModel @Inject constructor(
-    getListListFlowUseCase: GetListUseCase,
+    getListsFlowUseCase: GetListsUseCase,
     private val addListUseCase: AddListUseCase,
     private val deleteListsUseCase: DeleteListsUseCase,
     private val updateListUseCase: UpdateListUseCase,
@@ -51,7 +51,7 @@ class ListsViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val lists: StateFlow<ListListUiState> = refreshTrigger
         .flatMapLatest {
-            getListListFlowUseCase()
+            getListsFlowUseCase()
                 .map<List<EasyListsList>?, ListListUiState> { all ->
                     ListListUiState.Success(all.orEmpty().filterNot { it.isDeleted })
                 }

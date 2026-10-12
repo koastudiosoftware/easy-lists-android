@@ -13,7 +13,7 @@ import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddTagUseCase
-import com.easylists.domain.use_cases.GetListUseCase
+import com.easylists.domain.use_cases.GetListsUseCase
 import com.easylists.domain.use_cases.GetListItemUseCase
 import com.easylists.domain.use_cases.GetTagUseCase
 import com.easylists.domain.use_cases.GetTagListItemUseCase
@@ -48,7 +48,7 @@ private val HEX_COLOR = Regex("^#[0-9A-F]{8}$")
 class TagsViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
     getTagUseCase: GetTagUseCase,
-    getListUseCase: GetListUseCase,
+    getListsUseCase: GetListsUseCase,
     getListItemUseCase: GetListItemUseCase,
     getTagListItemUseCase: GetTagListItemUseCase,
     private val addTagUseCase: AddTagUseCase,
@@ -83,7 +83,7 @@ class TagsViewModel @Inject constructor(
         // updated with, say, new tag/list-item links but stale list items.
         combine(
             getTagUseCase(),
-            getListUseCase(),
+            getListsUseCase(),
             getListItemUseCase(),
             getTagListItemUseCase(),
         ) { tags, lists, listItems, tagListItems ->
