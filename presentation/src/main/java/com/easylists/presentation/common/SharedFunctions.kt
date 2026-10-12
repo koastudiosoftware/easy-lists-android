@@ -15,9 +15,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -82,6 +85,7 @@ fun FramedPhoto(
     zoomEnabled: Boolean = false,
     doubleTapScale: Float = 2.5f,
     targetSize: Size = Size.ORIGINAL,
+    shape: Shape = RectangleShape,
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
@@ -109,7 +113,7 @@ fun FramedPhoto(
         modifier = modifier
             .onGloballyPositioned { containerSize = it.size }
             .size(44.dp)
-            .clipToBounds()
+            .clip(shape)
             .then(
                 if (zoomEnabled) {
                     Modifier
@@ -167,23 +171,6 @@ fun FramedPhoto(
                 },
         )
     }
-}
-//endregion
-
-
-//region Color.toHexCodeWithAlpha()
-fun Color.toHexCodeWithAlpha(): String {
-    val alpha = this.alpha * 255
-    val red = this.red * 255
-    val green = this.green * 255
-    val blue = this.blue * 255
-    return String.format(
-        "#%02x%02x%02x%02x",
-        alpha.toInt(),
-        red.toInt(),
-        green.toInt(),
-        blue.toInt()
-    )
 }
 //endregion
 

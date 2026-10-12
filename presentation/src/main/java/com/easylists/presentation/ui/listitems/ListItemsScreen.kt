@@ -1,5 +1,6 @@
 package com.easylists.presentation.ui.listitems
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +22,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -51,6 +55,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -63,6 +69,7 @@ import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.size.Size
 import com.easylists.domain.common.AppSettings
+import com.easylists.domain.common.ViewMode
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
@@ -243,38 +250,60 @@ fun ListItemsScreenContent(
     onTagPillsClick: () -> Unit,
     onDeleteCrossedOff: () -> Unit,
 ) {
+    val isCard = state.settings.viewMode == ViewMode.Card
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spaces.none),
     ) {
-        item { HorizontalDivider() }
+        if (!isCard) item { HorizontalDivider() }
 
         items(items = state.rows, key = { it.key }) { row ->
             when (row) {
                 is ListRow.CategoryHeader -> ListItemsCategoryTitle(
                     title = row.categoryName ?: stringResource(R.string.uncategorized),
                     crossedOff = row.crossedOff,
+                    isCard = isCard,
                 )
 
                 ListRow.CrossedOffHeader -> ListItemsCategoryTitle(
                     title = stringResource(R.string.crossed_off),
                     crossedOff = true,
+                    isCard = isCard,
                 )
 
-                is ListRow.Item -> ListItem(
-                    row = row,
-                    settings = state.settings,
-                    isSelected = row.item.listItemId == selectedItemId,
-                    expandTagPills = expandTagPills,
-                    onClick = { onItemClick(row.item) },
-                    onLongClick = { onItemLongClick(row.item) },
-                    onEdit = { onItemEdit(row.item) },
-                    onDelete = onItemDelete,
-                    onTagPillsClick = onTagPillsClick,
-                )
+                is ListRow.Item -> {
+                    val isSelected = row.item.listItemId == selectedItemId
+                    if (isCard) {
+                        ListItemCard(
+                            row = row,
+                            settings = state.settings,
+                            isSelected = isSelected,
+                            expandTagPills = expandTagPills,
+                            onClick = { onItemClick(row.item) },
+                            onLongClick = { onItemLongClick(row.item) },
+                            onEdit = { onItemEdit(row.item) },
+                            onDelete = onItemDelete,
+                            onTagPillsClick = onTagPillsClick,
+                        )
+                    } else {
+                        ListItem(
+                            row = row,
+                            settings = state.settings,
+                            isSelected = isSelected,
+                            expandTagPills = expandTagPills,
+                            onClick = { onItemClick(row.item) },
+                            onLongClick = { onItemLongClick(row.item) },
+                            onEdit = { onItemEdit(row.item) },
+                            onDelete = onItemDelete,
+                            onTagPillsClick = onTagPillsClick,
+                        )
+                    }
+                }
 
                 ListRow.DeleteCrossedOff -> DeleteCrossedOffItems(
-                    onClick = onDeleteCrossedOff
+                    onClick = onDeleteCrossedOff,
+                    showDivider = !isCard,
                 )
             }
         }
@@ -285,7 +314,7 @@ fun ListItemsScreenContent(
 
 //region DeleteCrossedOffItems
 @Composable
-fun DeleteCrossedOffItems(onClick: () -> Unit) {
+fun DeleteCrossedOffItems(onClick: () -> Unit, showDivider: Boolean = true) {
     Column {
         Row(
             modifier = Modifier
@@ -300,7 +329,7 @@ fun DeleteCrossedOffItems(onClick: () -> Unit) {
                 text = stringResource(R.string.delete_all_crossed_off_items),
             )
         }
-        HorizontalDivider()
+        if (showDivider) HorizontalDivider()
     }
 }
 //endregion
@@ -308,23 +337,33 @@ fun DeleteCrossedOffItems(onClick: () -> Unit) {
 
 //region ListItemsCategoryTitle
 @Composable
-fun ListItemsCategoryTitle(title: String, crossedOff: Boolean = false) {
+fun ListItemsCategoryTitle(
+    title: String,
+    crossedOff: Boolean = false,
+    isCard: Boolean = false,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                if (crossedOff) MaterialTheme.colorScheme.tertiaryContainer
-                else MaterialTheme.colorScheme.primaryContainer
+            .then(
+                if (isCard) Modifier
+                else Modifier.background(MaterialTheme.colorScheme.primaryContainer)
             )
     ) {
         Text(
-            modifier = Modifier.padding(
-                horizontal = MaterialTheme.spaces.large,
-                vertical = MaterialTheme.spaces.medium
-            ),
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier
+                .padding(horizontal = MaterialTheme.spaces.large)
+                .padding(
+                    top = if (isCard) MaterialTheme.spaces.medium else MaterialTheme.spaces.small,
+                    bottom = MaterialTheme.spaces.small
+                ),
+            color = when {
+                !isCard -> MaterialTheme.colorScheme.onPrimaryContainer
+                crossedOff -> MaterialTheme.colorScheme.onSurfaceVariant
+                else -> MaterialTheme.colorScheme.onSurface
+            },
             fontWeight = FontWeight.Bold,
-            text = title.uppercase(),
+            text = title,
         )
     }
 }
@@ -344,8 +383,6 @@ fun ListItem(
     onDelete: () -> Unit,
     onTagPillsClick: () -> Unit,
 ) {
-    val item = row.item
-
     Column {
         Row(
             modifier = Modifier
@@ -355,56 +392,16 @@ fun ListItem(
                 .padding(horizontal = MaterialTheme.spaces.small),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (settings.enablePhotos) {
-                ListItemPhoto(item)
-            }
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = MaterialTheme.spaces.medium)
-            ) {
-                Text(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                        textDecoration = if (item.crossedOff == true) TextDecoration.LineThrough
-                        else TextDecoration.None
-                    ),
-                    text = item.quantity?.let { "${item.name} ($it)" } ?: item.name,
-                )
-                item.notes?.takeIf { it.isNotEmpty() }?.let { notes ->
-                    Text(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.bodyMedium,
-                        text = notes,
-                    )
-                }
-            }
-
-            if (settings.enableTags) {
-                ListItemTags(
-                    tags = row.tags,
-                    expanded = expandTagPills,
-                    onClick = onTagPillsClick,
-                )
-            }
-
-            VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            IconButton(onClick = if (isSelected) onDelete else onEdit) {
-                Icon(
-                    tint = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.size(20.dp),
-                    imageVector = if (isSelected) MaterialIconsDelete else MaterialIconsEdit,
-                    contentDescription = stringResource(
-                        if (isSelected) R.string.delete_item else R.string.view_item_details
-                    ),
-                )
-            }
+            ListItemRowContent(
+                row = row,
+                settings = settings,
+                isSelected = isSelected,
+                expandTagPills = expandTagPills,
+                isCard = false,
+                onEdit = onEdit,
+                onDelete = onDelete,
+                onTagPillsClick = onTagPillsClick,
+            )
         }
         HorizontalDivider()
     }
@@ -412,9 +409,138 @@ fun ListItem(
 //endregion
 
 
+//region ListItemCard
+@Composable
+fun ListItemCard(
+    row: ListRow.Item,
+    settings: AppSettings,
+    isSelected: Boolean,
+    expandTagPills: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onTagPillsClick: () -> Unit,
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = MaterialTheme.spaces.large,
+                vertical = MaterialTheme.spaces.small,
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        // click handling is inside the Card so the ripple is clipped to its shape
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                .height(MaterialTheme.spaces.rowHeightMedium)
+                .padding(end = MaterialTheme.spaces.small, start = 5.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ListItemRowContent(
+                row = row,
+                settings = settings,
+                isSelected = isSelected,
+                expandTagPills = expandTagPills,
+                isCard = true,
+                onEdit = onEdit,
+                onDelete = onDelete,
+                onTagPillsClick = onTagPillsClick,
+            )
+        }
+    }
+}
+//endregion
+
+
+//region ListItemRowContent
+// shared by the list row and the card; the only differences are the dividers
+// and the empty photo placeholder, which only list mode needs
+@Composable
+fun RowScope.ListItemRowContent(
+    row: ListRow.Item,
+    settings: AppSettings,
+    isSelected: Boolean,
+    expandTagPills: Boolean,
+    isCard: Boolean,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onTagPillsClick: () -> Unit,
+) {
+    val item = row.item
+
+    if (settings.enablePhotos) {
+        val photoShape = MaterialTheme.shapes.small
+        if (isCard && item.photoUri.isNullOrEmpty()) {
+            ListItemPhotoPlaceholder(photoShape)
+        } else {
+            ListItemPhoto(item = item, showDivider = false, shape = photoShape)
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .padding(horizontal = MaterialTheme.spaces.medium)
+    ) {
+        Text(
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = TextStyle(
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                textDecoration = if (item.crossedOff == true) TextDecoration.LineThrough
+                else TextDecoration.None
+            ),
+            text = item.quantity?.let { "${item.name} ($it)" } ?: item.name,
+        )
+        item.notes?.takeIf { it.isNotEmpty() }?.let { notes ->
+            Text(
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium,
+                text = notes,
+            )
+        }
+    }
+
+    if (settings.enableTags) {
+        ListItemTags(
+            tags = row.tags,
+            expanded = expandTagPills,
+            onClick = onTagPillsClick,
+        )
+    }
+
+//    if (!isCard) VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+    IconButton(onClick = if (isSelected) onDelete else onEdit) {
+        Icon(
+            tint = MaterialTheme.colorScheme.outline,
+            modifier = Modifier.size(20.dp),
+            imageVector = if (isSelected) MaterialIconsDelete else MaterialIconsEdit,
+            contentDescription = stringResource(
+                if (isSelected) R.string.delete_item else R.string.view_item_details
+            ),
+        )
+    }
+}
+//endregion
+
+
 //region ListItemPhoto
 @Composable
-fun ListItemPhoto(item: EasyListsListItem) {
+fun ListItemPhoto(
+    item: EasyListsListItem,
+    showDivider: Boolean = true,
+    shape: Shape = RectangleShape,
+) {
     val photoUri = item.photoUri
 
     if (photoUri.isNullOrEmpty()) {
@@ -425,7 +551,6 @@ fun ListItemPhoto(item: EasyListsListItem) {
                 tint = MaterialTheme.colorScheme.surface
             )
         }
-        VerticalDivider()
     } else {
         FramedPhoto(
             photoUri = photoUri,
@@ -434,8 +559,29 @@ fun ListItemPhoto(item: EasyListsListItem) {
             normalizedOffsetY = item.photoOffsetY.toFloat(),
             zoomEnabled = false,
             targetSize = Size(150, 150),
+            shape = shape,
         )
-        VerticalDivider(modifier = Modifier.padding(start = MaterialTheme.spaces.small))
+    }
+}
+//endregion
+
+
+//region ListItemPhotoPlaceholder
+@Composable
+fun ListItemPhotoPlaceholder(shape: Shape) {
+    Box(
+        modifier = Modifier
+            .size(44.dp)
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            modifier = Modifier.size(20.dp),
+            imageVector = MaterialIconsInsertPhoto,
+            contentDescription = null, // decorative
+            tint = MaterialTheme.colorScheme.outline,
+        )
     }
 }
 //endregion

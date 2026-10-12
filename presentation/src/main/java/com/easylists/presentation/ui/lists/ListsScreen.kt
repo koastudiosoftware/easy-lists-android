@@ -318,7 +318,6 @@ fun ListItem(
             }
         }
 
-        VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         IconButton(
             modifier = Modifier.weight(0.12f),
             onClick = if (isSelected) onDelete else onEdit,
