@@ -2,6 +2,7 @@ package com.easylists.presentation.ui.categories
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -301,6 +303,10 @@ private fun CategoryRow(
         modifier = Modifier
             .fillMaxWidth()
             .height(MaterialTheme.spaces.rowHeightMedium)
+            .background(
+                if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                else Color.Transparent
+            )
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(start = MaterialTheme.spaces.medium)
             .padding(vertical = MaterialTheme.spaces.medium),

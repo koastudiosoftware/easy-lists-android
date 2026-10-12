@@ -1,6 +1,7 @@
 package com.easylists.presentation.ui.lists
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -286,6 +288,10 @@ fun ListItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(
+                if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                else Color.Transparent
+            )
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .height(MaterialTheme.spaces.rowHeightMedium)
             .padding(start = MaterialTheme.spaces.large)

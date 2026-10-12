@@ -1,12 +1,14 @@
 package com.easylists.presentation.ui.tags
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +22,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -53,6 +57,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.easylists.domain.common.ViewMode
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
@@ -60,6 +65,7 @@ import com.easylists.presentation.common.LocalCapitalization
 import com.easylists.presentation.common.composables.AppTextField
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
+import com.easylists.presentation.common.selectableCardBorder
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsCancel
@@ -125,6 +131,7 @@ fun TagsScreen(
         ) { innerPadding ->
             TagsList(
                 state = state,
+                viewMode = s.viewMode,
                 viewModel = viewModel,
                 modifier = Modifier.padding(innerPadding),
             )
@@ -168,31 +175,164 @@ private fun TagsActions(state: TagsState, viewModel: TagsViewModel) {
 //endregion
 
 
-//region EditTagsList
+//region TagsList
 @Composable
 private fun TagsList(
     state: TagsState,
+    viewMode: ViewMode,
     viewModel: TagsViewModel,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(modifier = modifier.fillMaxSize()) {
-        item { HorizontalDivider() }
+    val isCard = viewMode == ViewMode.Card
+
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = if (isCard) {
+            PaddingValues(
+                horizontal = MaterialTheme.spaces.large,
+                vertical = MaterialTheme.spaces.medium,
+            )
+        } else PaddingValues(),
+        verticalArrangement = Arrangement.spacedBy(
+            if (isCard) MaterialTheme.spaces.medium else MaterialTheme.spaces.none
+        ),
+    ) {
+        if (!isCard) item { HorizontalDivider() }
 
         items(items = state.tagList, key = { it.tagId ?: it.name }) { tag ->
             val tagId = tag.tagId
-            Column {
-                TagRow(
+            val usageCount = tagId?.let { state.tagUsageCounts[it] } ?: 0
+            val selected = tagId != null && tagId in state.selectedTagIds
+
+            when (viewMode) {
+                ViewMode.Card -> TagCard(
                     tag = tag,
-                    usageCount = tagId?.let { state.tagUsageCounts[it] } ?: 0,
+                    usageCount = usageCount,
                     selectionMode = state.selectionMode,
-                    selected = tagId != null && tagId in state.selectedTagIds,
+                    selected = selected,
                     onClick = { viewModel.onTagClick(tag) },
                     onLongClick = { viewModel.onTagLongClick(tag) },
                     onColorClick = { viewModel.onTagColorClick(tag) },
                     onToggleSelected = { tagId?.let(viewModel::toggleSelection) },
                 )
-                HorizontalDivider()
+                ViewMode.List -> Column {
+                    TagRow(
+                        tag = tag,
+                        usageCount = usageCount,
+                        selectionMode = state.selectionMode,
+                        selected = selected,
+                        onClick = { viewModel.onTagClick(tag) },
+                        onLongClick = { viewModel.onTagLongClick(tag) },
+                        onColorClick = { viewModel.onTagColorClick(tag) },
+                        onToggleSelected = { tagId?.let(viewModel::toggleSelection) },
+                    )
+                    HorizontalDivider()
+                }
             }
+        }
+    }
+}
+//endregion
+
+
+//region TagCard
+@Composable
+private fun TagCard(
+    tag: EasyListsTag,
+    usageCount: Int,
+    selectionMode: Boolean,
+    selected: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onColorClick: () -> Unit,
+    onToggleSelected: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+        ),
+        border = selectableCardBorder(selected),
+    ) {
+        // click handling inside the Card so the ripple is clipped to its shape
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                .padding(start = MaterialTheme.spaces.large)
+                .padding(vertical = MaterialTheme.spaces.medium),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = MaterialTheme.spaces.medium),
+            ) {
+                Text(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleMedium,
+                    text = tag.name,
+                )
+                Text(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyMedium,
+                    text = tagUsageText(usageCount),
+                )
+            }
+
+            TagTrailing(
+                tag = tag,
+                selectionMode = selectionMode,
+                selected = selected,
+                onColorClick = onColorClick,
+                onToggleSelected = onToggleSelected,
+            )
+        }
+    }
+}
+//endregion
+
+
+//region TagTrailing / tagUsageText
+@Composable
+private fun tagUsageText(usageCount: Int): String =
+    if (usageCount == 0) {
+        stringResource(R.string.tag_not_used)
+    } else {
+        pluralStringResource(R.plurals.tag_used_by_list_items, usageCount, usageCount)
+    }
+
+/** Checkbox in selection mode, otherwise the color swatch that opens the color picker. */
+@Composable
+private fun TagTrailing(
+    tag: EasyListsTag,
+    selectionMode: Boolean,
+    selected: Boolean,
+    onColorClick: () -> Unit,
+    onToggleSelected: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .padding(horizontal = MaterialTheme.spaces.small)
+            .size(48.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (selectionMode) {
+            Checkbox(checked = selected, onCheckedChange = { onToggleSelected() })
+        } else {
+            val swatchColor = remember(tag.color) { parseColorOrNull(tag.color) }
+                ?: MaterialTheme.colorScheme.secondaryContainer
+            Box(
+                modifier = Modifier
+                    .size(35.dp)
+                    .clip(CircleShape)
+                    .background(color = swatchColor)
+                    .clickable(onClick = onColorClick)
+            )
         }
     }
 }
@@ -215,6 +355,10 @@ private fun TagRow(
         modifier = Modifier
             .fillMaxWidth()
             .height(MaterialTheme.spaces.rowHeightMedium)
+            .background(
+                if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                else Color.Transparent
+            )
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(start = MaterialTheme.spaces.medium)
             .padding(vertical = MaterialTheme.spaces.medium),
@@ -244,23 +388,13 @@ private fun TagRow(
             )
         }
 
-        if (selectionMode) {
-            Checkbox(
-                checked = selected,
-                onCheckedChange = { onToggleSelected() },
-            )
-        } else {
-            val swatchColor = remember(tag.color) { parseColorOrNull(tag.color) }
-                ?: MaterialTheme.colorScheme.secondaryContainer
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = MaterialTheme.spaces.large)
-                    .size(35.dp)
-                    .clip(CircleShape)
-                    .background(color = swatchColor)
-                    .clickable(onClick = onColorClick)
-            )
-        }
+        TagTrailing(
+            tag = tag,
+            selectionMode = selectionMode,
+            selected = selected,
+            onColorClick = onColorClick,
+            onToggleSelected = onToggleSelected,
+        )
     }
 }
 //endregion

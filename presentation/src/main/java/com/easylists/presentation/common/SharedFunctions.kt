@@ -2,6 +2,7 @@ package com.easylists.presentation.common
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
@@ -200,4 +201,16 @@ fun Color.getContrastColor(): Color {
         MaterialTheme.colorScheme.onPrimaryContainer
     }
 }
+//endregion
+
+
+//region selectableCardBorder
+// common function for distinguishing selected and non-selected Cards
+@Composable
+fun selectableCardBorder(selected: Boolean): BorderStroke =
+    if (selected) {
+        BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+    } else {
+        BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    }
 //endregion
