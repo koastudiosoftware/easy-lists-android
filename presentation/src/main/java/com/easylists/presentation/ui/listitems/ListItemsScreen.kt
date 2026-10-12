@@ -789,6 +789,7 @@ fun ListItemsBottomSheet(
                                         .aspectRatio(1f),
                                     zoomEnabled = true,
                                     onTransformChanged = actions.onPhotoTransformChanged,
+                                    shape = MaterialTheme.shapes.small,
                                 )
                             }
                         }
