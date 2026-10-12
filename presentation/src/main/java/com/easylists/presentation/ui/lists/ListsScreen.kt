@@ -1,9 +1,11 @@
 package com.easylists.presentation.ui.lists
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -46,6 +50,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.easylists.domain.common.ViewMode
 import com.easylists.domain.models.EasyListsList
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
@@ -83,6 +88,7 @@ fun ListsScreen(
     viewModel: ListsViewModel = hiltViewModel()
 ) {
     val lists by viewModel.lists.collectAsStateWithLifecycle()
+    val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
     val interaction = viewModel.interaction
     val editor = viewModel.editor
 
@@ -119,21 +125,22 @@ fun ListsScreen(
                     onRetry = viewModel::onRefresh,
                 )
 
-                is ListListUiState.Success -> ListsScreenContent(
-                    lists = state.lists,
-                    selectedListId = interaction.selectedListId,
-                    onListClick = { list ->
-                        navController.navigate(
-                            Screen.ListItems(
-                                list.listId.toString(),
-                                list.name
+                is ListListUiState.Success -> when (val mode = viewMode) {
+                    null -> ScreenLoading()
+                    else -> ListsScreenContent(
+                        viewMode = mode,
+                        lists = state.lists,
+                        selectedListId = interaction.selectedListId,
+                        onListClick = { list ->
+                            navController.navigate(
+                                Screen.ListItems(list.listId.toString(), list.name)
                             )
-                        )
-                    },
-                    onListLongClick = viewModel::showContextIcons,
-                    onListEdit = viewModel::onListEditButtonClick,
-                    onListDelete = { viewModel.setShowConfirmationDialogState(true) },
-                )
+                        },
+                        onListLongClick = viewModel::showContextIcons,
+                        onListEdit = viewModel::onListEditButtonClick,
+                        onListDelete = { viewModel.setShowConfirmationDialogState(true) },
+                    )
+                }
             }
         }
     }
@@ -197,6 +204,71 @@ fun ListsScreenActionIcons(
         )
     }
     ListsScreenOverflowMenu(navController)
+}
+//endregion
+
+
+//region ListCard
+@Composable
+fun ListCard(
+    list: EasyListsList,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        // The click handling is inside the Card so the ripple is clipped to its shape
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                .padding(start = MaterialTheme.spaces.large)
+                .padding(vertical = MaterialTheme.spaces.medium),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = MaterialTheme.spaces.medium),
+            ) {
+                Text(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleMedium,
+                    text = list.name,
+                )
+                list.notes?.takeIf { it.isNotEmpty() }?.let { notes ->
+                    Text(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyMedium,
+                        text = notes,
+                    )
+                }
+            }
+
+            IconButton(onClick = if (isSelected) onDelete else onEdit) {
+                Icon(
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(20.dp),
+                    imageVector = if (isSelected) MaterialIconsDelete else MaterialIconsEdit,
+                    contentDescription = stringResource(
+                        if (isSelected) R.string.delete_list else R.string.edit_list
+                    ),
+                )
+            }
+        }
+    }
 }
 //endregion
 
@@ -269,6 +341,7 @@ fun ListItem(
 //region ListsScreenContent
 @Composable
 fun ListsScreenContent(
+    viewMode: ViewMode,
     lists: List<EasyListsList>,
     selectedListId: String?,
     onListClick: (EasyListsList) -> Unit,
@@ -276,8 +349,20 @@ fun ListsScreenContent(
     onListEdit: (EasyListsList) -> Unit,
     onListDelete: () -> Unit,
 ) {
-    LazyColumn(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spaces.none)) {
-        item { HorizontalDivider() }
+    val isCard = viewMode == ViewMode.Card
+
+    LazyColumn(
+        contentPadding = if (isCard) {
+            PaddingValues(
+                horizontal = MaterialTheme.spaces.large,
+                vertical = MaterialTheme.spaces.medium,
+            )
+        } else PaddingValues(),
+        verticalArrangement = Arrangement.spacedBy(
+            if (isCard) MaterialTheme.spaces.medium else MaterialTheme.spaces.none
+        ),
+    ) {
+        if (!isCard) item { HorizontalDivider() }
 
         if (lists.isEmpty()) {
             item {
@@ -288,14 +373,25 @@ fun ListsScreenContent(
             }
         } else {
             items(items = lists, key = { it.listId.toString() }) { list ->
-                ListItem(
-                    list = list,
-                    isSelected = selectedListId == list.listId,
-                    onClick = { onListClick(list) },
-                    onLongClick = { onListLongClick(list) },
-                    onEdit = { onListEdit(list) },
-                    onDelete = onListDelete,
-                )
+                val isSelected = selectedListId == list.listId
+                when (viewMode) {
+                    ViewMode.Card -> ListCard(
+                        list = list,
+                        isSelected = isSelected,
+                        onClick = { onListClick(list) },
+                        onLongClick = { onListLongClick(list) },
+                        onEdit = { onListEdit(list) },
+                        onDelete = onListDelete,
+                    )
+                    ViewMode.List -> ListItem(
+                        list = list,
+                        isSelected = isSelected,
+                        onClick = { onListClick(list) },
+                        onLongClick = { onListLongClick(list) },
+                        onEdit = { onListEdit(list) },
+                        onDelete = onListDelete,
+                    )
+                }
             }
         }
     }

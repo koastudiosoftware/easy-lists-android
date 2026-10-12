@@ -5,11 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.easylists.domain.common.ViewMode
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddListUseCase
 import com.easylists.domain.use_cases.DeleteListsUseCase
 import com.easylists.domain.use_cases.GetListsUseCase
+import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ListsAction
@@ -37,12 +39,18 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 class ListsViewModel @Inject constructor(
     getListsFlowUseCase: GetListsUseCase,
+    observeAppSettings: ObserveAppSettingsUseCase,
     private val addListUseCase: AddListUseCase,
     private val deleteListsUseCase: DeleteListsUseCase,
     private val updateListUseCase: UpdateListUseCase,
     private val mapper: UiMapper,
     private val session: SessionRepository,
 ) : ViewModel() {
+
+    // null = DataStore hasn't emitted yet
+    val viewMode: StateFlow<ViewMode?> = observeAppSettings()
+        .map { it.viewMode }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private val refreshTrigger = MutableStateFlow(0)
 
