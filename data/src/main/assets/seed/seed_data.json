@@ -40,42 +40,43 @@
     "lists": [
         {
             "name": "Groceries",
-            "notes": "Weekly grocery list",
+            "notes": "Grocery shopping list",
             "items": [
                 {
-                    "name": "apples",
-                    "notes": "fuji, gala",
+                    "name": "Apples",
+                    "notes": "Fuji or Gala",
                     "category": "Produce",
                     "tags": [
                         "Organic"
                     ]
                 },
                 {
-                    "name": "bread",
-                    "notes": "wheat",
+                    "name": "Bread",
+                    "notes": "Whole wheat",
                     "category": "Bakery"
                 },
                 {
-                    "name": "butter",
+                    "name": "Butter",
                     "category": "Dairy",
                     "crossedOff": true
                 },
                 {
-                    "name": "eggs",
+                    "name": "Eggs",
                     "category": "Dairy",
+                    "quantity": 12,
                     "tags": [
                         "Cage Free"
                     ]
                 },
                 {
-                    "name": "kale",
+                    "name": "Kale",
                     "category": "Produce",
                     "tags": [
                         "Organic"
                     ]
                 },
                 {
-                    "name": "milk",
+                    "name": "Milk",
                     "category": "Dairy"
                 }
             ]

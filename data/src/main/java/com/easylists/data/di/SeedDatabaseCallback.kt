@@ -38,6 +38,7 @@ data class SeedList(
 data class SeedItem(
     val name: String,
     val notes: String? = null,
+    val quantity: Int? = null,
     val category: String? = null,   // must match a name in "categories"
     val tags: List<String>? = null, // each must match a name in "tags"
     val crossedOff: Boolean? = null,
@@ -150,6 +151,7 @@ class SeedDatabaseCallback(
                         crossedOffTimestamp = if (item.crossedOff == true) now else null,
                         name = item.name,
                         notes = item.notes,
+                        quantity = item.quantity,
                         isDirty = true,
                         createdTimestamp = now,
                         modifiedTimestamp = now,

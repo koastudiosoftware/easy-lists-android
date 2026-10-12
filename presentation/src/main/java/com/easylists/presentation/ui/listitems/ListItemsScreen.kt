@@ -40,7 +40,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -68,7 +67,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.size.Size
 import com.easylists.domain.common.AppSettings
 import com.easylists.domain.common.ViewMode
 import com.easylists.domain.models.EasyListsCategory
@@ -390,7 +388,10 @@ fun ListItem(
                 .fillMaxWidth()
                 .combinedClickable(onClick = onClick, onLongClick = onLongClick)
                 .height(MaterialTheme.spaces.rowHeightMedium)
-                .padding(horizontal = MaterialTheme.spaces.small),
+                .padding(
+                    start = MaterialTheme.spaces.medium,
+                    end = MaterialTheme.spaces.small
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             ListItemRowContent(
@@ -525,7 +526,6 @@ fun RowScope.ListItemRowContent(
         )
     }
 
-//    if (!isCard) VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     IconButton(onClick = if (isSelected) onDelete else onEdit) {
         Icon(
             tint = MaterialTheme.colorScheme.outline,
@@ -544,7 +544,7 @@ fun RowScope.ListItemRowContent(
 @Composable
 fun ListItemPhoto(
     item: EasyListsListItem,
-    showDivider: Boolean = true,
+    showDivider: Boolean = false,
     targetSize: Dp = 48.dp,
     shape: Shape = RectangleShape,
 ) {
