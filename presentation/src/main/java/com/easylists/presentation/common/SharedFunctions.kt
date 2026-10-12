@@ -64,6 +64,13 @@ fun resolvePhotoModel(photoUri: String): Any {
 //endregion
 
 
+private fun Offset.clampToBounds(scale: Float, size: IntSize): Offset {
+    val maxX = (size.width * (scale - 1f) / 2f).coerceAtLeast(0f)
+    val maxY = (size.height * (scale - 1f) / 2f).coerceAtLeast(0f)
+    return Offset(x.coerceIn(-maxX, maxX), y.coerceIn(-maxY, maxY))
+}
+
+
 @Composable
 fun FramedPhoto(
     photoUri: String,
@@ -84,7 +91,7 @@ fun FramedPhoto(
             Offset(
                 normalizedOffsetX * containerSize.width,
                 normalizedOffsetY * containerSize.height,
-            )
+            ).clampToBounds(scale, containerSize)
         )
     }
 
@@ -106,28 +113,42 @@ fun FramedPhoto(
             .then(
                 if (zoomEnabled) {
                     Modifier
+                        // zoom with double tap
                         .pointerInput(Unit) {
                             detectTapGestures(
-                                onDoubleTap = {
+                                onDoubleTap = { tap ->
                                     if (liveScale > 1f) {
                                         liveScale = 1f
                                         livePxOffset = Offset.Zero
                                     } else {
+                                        val center = Offset(size.width / 2f, size.height / 2f)
+                                        val z = doubleTapScale / liveScale
+                                        val raw = (tap - center) * (1f - z) + livePxOffset * z
                                         liveScale = doubleTapScale
-                                        // offset left at current value; recenter here if desired
+                                        livePxOffset = raw.clampToBounds(doubleTapScale, containerSize)
                                     }
                                     reportTransform()
                                 }
                             )
                         }
+
+                        // zoom with pinch-to-zoom
                         .pointerInput(Unit) {
-                            detectTransformGestures { _, pan, zoom, _ ->
-                                liveScale = (liveScale * zoom).coerceIn(1f, 5f)
-                                livePxOffset += pan
+                            detectTransformGestures { centroid, pan, zoom, _ ->
+                                val oldScale = liveScale
+                                val newScale = (oldScale * zoom).coerceIn(1f, 5f)
+                                val z = newScale / oldScale
+                                val center = Offset(size.width / 2f, size.height / 2f)
+
+                                // keep the content point under the fingers stationary
+                                val raw = (centroid - center) * (1f - z) + livePxOffset * z + pan
+
+                                liveScale = newScale
+                                livePxOffset = raw.clampToBounds(newScale, containerSize)
                                 reportTransform()
                             }
                         }
-                } else modifier
+                } else Modifier
             )
     ) {
         AsyncImage(
@@ -136,7 +157,7 @@ fun FramedPhoto(
                 .build(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
                     scaleX = liveScale
