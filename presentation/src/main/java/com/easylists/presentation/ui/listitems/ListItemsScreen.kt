@@ -476,17 +476,18 @@ fun RowScope.ListItemRowContent(
     onTagPillsClick: () -> Unit,
 ) {
     val item = row.item
+    val targetSize = if (isCard) 48.dp else 44.dp
 
     if (settings.enablePhotos) {
         val photoShape = MaterialTheme.shapes.small
         if (item.photoUri.isNullOrEmpty()) {
-            ListItemPhotoPlaceholder(photoShape)
+            ListItemPhotoPlaceholder(photoShape, targetSize)
         } else {
             ListItemPhoto(
                 item = item,
                 showDivider = false,
                 shape = photoShape,
-                targetSize = if (isCard) 48.dp else 44.dp
+                targetSize = targetSize
             )
         }
     }
@@ -575,10 +576,13 @@ fun ListItemPhoto(
 
 //region ListItemPhotoPlaceholder
 @Composable
-fun ListItemPhotoPlaceholder(shape: Shape) {
+fun ListItemPhotoPlaceholder(
+    shape: Shape,
+    targetSize: Dp = 48.dp,
+) {
     Box(
         modifier = Modifier
-            .size(44.dp)
+            .size(targetSize)
             .clip(shape)
             .background(MaterialTheme.colorScheme.surfaceContainerLow),
         contentAlignment = Alignment.Center,
