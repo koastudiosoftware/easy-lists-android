@@ -433,7 +433,6 @@ fun ListItemPhoto(item: EasyListsListItem) {
             normalizedOffsetX = item.photoOffsetX.toFloat(),
             normalizedOffsetY = item.photoOffsetY.toFloat(),
             zoomEnabled = false,
-            targetSize = Size(150, 150),
         )
         VerticalDivider(modifier = Modifier.padding(start = MaterialTheme.spaces.small))
     }
