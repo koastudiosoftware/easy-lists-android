@@ -19,9 +19,9 @@ val LightTertiaryContainer = Color(0xFFDAE1FF)
 val LightOnTertiaryContainer = Color(0xFF111A37)
 
 
-val LightBackground = Color(0xFFfafdff)
+val LightBackground = Color(0xFFFAFDFF)
 val LightOnBackground = Color(0xFF191C1D)
-val LightSurface = Color(0xFFfafdff)
+val LightSurface = Color(0xFFB9D0D6)
 val LightOnSurface = Color(0xFF191C1D)
 val LightSurfaceVariant = Color(0xFFDBE4E6)
 val LightOnSurfaceVariant = Color(0xFF3F484A)
