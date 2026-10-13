@@ -12,6 +12,7 @@ import com.easylists.data.db.room.EasyListsDatabase
 import com.easylists.data.db.room.dao.CategoryDao
 import com.easylists.data.db.room.dao.ListDao
 import com.easylists.data.db.room.dao.ListItemDao
+import com.easylists.data.db.room.dao.ListOrderDao
 import com.easylists.data.db.room.dao.TagDao
 import com.easylists.data.db.room.dao.TagListItemDao
 import com.easylists.data.db.room.dao.UserDao
@@ -81,6 +82,13 @@ object LocalModule {
     fun provideTagDao(
         easyListsDatabase: EasyListsDatabase
     ): TagDao = easyListsDatabase.tagDao()
+
+
+    @Provides
+    @Singleton
+    fun provideListOrderDao(
+        easyListsDatabase: EasyListsDatabase
+    ): ListOrderDao = easyListsDatabase.listOrderDao()
 
 
     @Provides

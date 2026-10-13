@@ -1,6 +1,6 @@
 package com.easylists.presentation.ui.lists
 
-import androidx.compose.foundation.BorderStroke
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -33,7 +34,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -42,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.easylists.domain.common.ListSortMode
 import com.easylists.domain.common.ViewMode
 import com.easylists.domain.models.EasyListsList
 import com.easylists.presentation.R
@@ -64,9 +66,11 @@ import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsCategory
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsDelete
+import com.easylists.presentation.icons.MaterialIconsDragHandle
 import com.easylists.presentation.icons.MaterialIconsEdit
 import com.easylists.presentation.icons.MaterialIconsMoreVert
 import com.easylists.presentation.icons.MaterialIconsSettings
+import com.easylists.presentation.icons.MaterialIconsSort
 import com.easylists.presentation.icons.MaterialIconsTag
 import com.easylists.presentation.models.ListEditorState
 import com.easylists.presentation.models.ListEditorValidation
@@ -79,6 +83,8 @@ import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.navigate
 import kotlinx.coroutines.launch
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 
 //region ListsScreen
@@ -88,24 +94,44 @@ fun ListsScreen(
     navController: NavController<Screen>,
     viewModel: ListsViewModel = hiltViewModel()
 ) {
+    val sortMode by viewModel.sortMode.collectAsStateWithLifecycle()
     val lists by viewModel.lists.collectAsStateWithLifecycle()
     val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
-    val interaction = viewModel.interaction
     val editor = viewModel.editor
 
+    val interaction = viewModel.interaction
+    val isRearranging = interaction.isRearranging
+
     val snackbarHostState = remember { SnackbarHostState() }
+
+    BackHandler(enabled = isRearranging) { viewModel.onRearrangeDone() }  // androidx.activity.compose
 
     Scaffold(
         modifier = Modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { ListsScreenTitle() },
+                title = {
+                    if (isRearranging) Text(stringResource(R.string.rearrange_lists))
+                    else ListsScreenTitle()
+                },
                 actions = {
-                    ListsScreenActionIcons(
-                        navController = navController,
-                        onAddClick = { viewModel.onActionButtonClick(ListsAction.Add) },
-                    )
+                    if (isRearranging) {
+                        IconButton(onClick = viewModel::onRearrangeDone) {
+                            Icon(
+                                imageVector = MaterialIconsCheck,
+                                contentDescription = stringResource(R.string.done),
+                                tint = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    } else {
+                        ListsScreenActionIcons(
+                            navController = navController,
+                            sortMode = sortMode,
+                            onAddClick = { viewModel.onActionButtonClick(ListsAction.Add) },
+                            onSortModeChange = viewModel::onSortModeChange,
+                        )
+                    }
                 },
             )
         }
@@ -137,6 +163,8 @@ fun ListsScreen(
                             )
                         },
                         onListEdit = viewModel::onListEditButtonClick,
+                        isRearranging = isRearranging,
+                        onListsReordered = viewModel::onListsReordered,
                     )
                 }
             }
@@ -200,11 +228,27 @@ fun ListsScreenTitle() {
 //endregion
 
 
+//region RearrangeHandle
+@Composable
+private fun RearrangeHandle(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.size(48.dp), contentAlignment = Alignment.Center) {
+        Icon(
+            imageVector = MaterialIconsDragHandle,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.outline,
+        )
+    }
+}
+//endregion
+
+
 //region ListsScreenActionIcons
 @Composable
 fun ListsScreenActionIcons(
     navController: NavController<Screen>,
+    sortMode: ListSortMode,
     onAddClick: () -> Unit,
+    onSortModeChange: (ListSortMode) -> Unit,
 ) {
     IconButton(onClick = onAddClick) {
         Icon(
@@ -214,7 +258,63 @@ fun ListsScreenActionIcons(
             tint = MaterialTheme.colorScheme.onSurface,
         )
     }
+    ListsScreenSortMenu(sortMode, onSortModeChange)
     ListsScreenOverflowMenu(navController)
+}
+//endregion
+
+
+//region ListsScreenSortMenu
+@Composable
+fun ListsScreenSortMenu(
+    sortMode: ListSortMode,
+    onSortModeChange: (ListSortMode) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        IconButton(onClick = { expanded = true }) {
+            Icon(
+                imageVector = MaterialIconsSort,
+                contentDescription = stringResource(R.string.sort_lists),
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            ListSortMode.entries.forEach { option ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = stringResource(option.labelRes()),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                    onClick = {
+                        expanded = false
+                        onSortModeChange(option)
+                    },
+                    trailingIcon = {
+                        if (option == sortMode) {
+                            Icon(
+                                imageVector = MaterialIconsCheck,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    },
+                )
+            }
+        }
+    }
+}
+//endregion
+
+
+//region ListSortMode.labelRes
+private fun ListSortMode.labelRes(): Int = when (this) {
+    ListSortMode.NameAsc -> R.string.sort_name_asc
+    ListSortMode.NameDesc -> R.string.sort_name_desc
+    ListSortMode.Manual -> R.string.sort_manual
 }
 //endregion
 
@@ -223,21 +323,22 @@ fun ListsScreenActionIcons(
 @Composable
 fun ListCard(
     list: EasyListsList,
+    isRearranging: Boolean,
     onClick: () -> Unit,
     onEdit: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         ),
         border = selectableCardBorder(false),
     ) {
-        // The click handling is inside the Card so the ripple is clipped to its shape
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
+                .clickable(enabled = !isRearranging, onClick = onClick)
                 .padding(start = MaterialTheme.spaces.large)
                 .padding(vertical = MaterialTheme.spaces.medium),
             verticalAlignment = Alignment.CenterVertically,
@@ -265,13 +366,17 @@ fun ListCard(
                 }
             }
 
-            IconButton(onClick = onEdit) {
-                Icon(
-                    tint = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.size(20.dp),
-                    imageVector = MaterialIconsEdit,
-                    contentDescription = stringResource(R.string.edit_list),
-                )
+            if (isRearranging) {
+                RearrangeHandle()
+            } else {
+                IconButton(onClick = onEdit) {
+                    Icon(
+                        tint = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.size(20.dp),
+                        imageVector = MaterialIconsEdit,
+                        contentDescription = stringResource(R.string.edit_list),
+                    )
+                }
             }
         }
     }
@@ -283,57 +388,64 @@ fun ListCard(
 @Composable
 fun ListItem(
     list: EasyListsList,
+    isRearranging: Boolean,
     onClick: () -> Unit,
     onEdit: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .height(MaterialTheme.spaces.rowHeightMedium)
-            .padding(start = MaterialTheme.spaces.large)
-            .padding(vertical = MaterialTheme.spaces.medium),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(
+    // Column because ReorderableItem hosts its content in a Box, which would
+    // otherwise stack the row and the divider on top of each other
+    Column(modifier = modifier) {
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .padding(end = MaterialTheme.spaces.medium),
+                .fillMaxWidth()
+                .clickable(enabled = !isRearranging, onClick = onClick)
+                .height(MaterialTheme.spaces.rowHeightMedium)
+                .padding(start = MaterialTheme.spaces.large)
+                .padding(vertical = MaterialTheme.spaces.medium),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = TextStyle(
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    textDecoration = TextDecoration.None,
-                ),
-                text = list.name,
-            )
-            list.notes?.takeIf { it.isNotEmpty() }?.let { notes ->
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = MaterialTheme.spaces.medium),
+            ) {
                 Text(
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium,
-                    text = notes,
+                    style = TextStyle(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        textDecoration = TextDecoration.None,
+                    ),
+                    text = list.name,
                 )
+                list.notes?.takeIf { it.isNotEmpty() }?.let { notes ->
+                    Text(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyMedium,
+                        text = notes,
+                    )
+                }
+            }
+
+            if (isRearranging) {
+                RearrangeHandle(modifier = Modifier.weight(0.12f))
+            } else {
+                IconButton(modifier = Modifier.weight(0.12f), onClick = onEdit) {
+                    Icon(
+                        tint = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.size(20.dp),
+                        imageVector = MaterialIconsEdit,
+                        contentDescription = stringResource(R.string.edit_list),
+                    )
+                }
             }
         }
-
-        IconButton(
-            modifier = Modifier.weight(0.12f),
-            onClick = onEdit,
-        ) {
-            Icon(
-                tint = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.size(20.dp),
-                imageVector = MaterialIconsEdit,
-                contentDescription = stringResource(R.string.edit_list),
-            )
-        }
+        HorizontalDivider()
     }
-    HorizontalDivider()
 }
 //endregion
 
@@ -342,13 +454,30 @@ fun ListItem(
 @Composable
 fun ListsScreenContent(
     viewMode: ViewMode,
+    isRearranging: Boolean,
     lists: List<EasyListsList>,
     onListClick: (EasyListsList) -> Unit,
     onListEdit: (EasyListsList) -> Unit,
+    onListsReordered: (List<String>) -> Unit,
 ) {
     val isCard = viewMode == ViewMode.Card
+    val lazyListState = rememberLazyListState()
+
+    // Local copy so rows follow the finger during a drag; the DB is written once, on drop.
+    // Resets whenever the data layer emits a different list.
+    var displayed by remember(lists) { mutableStateOf(lists) }
+
+    val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        // by key, not index, because the header items shift the indexes
+        val fromIndex = displayed.indexOfFirst { it.listId.toString() == from.key }
+        val toIndex = displayed.indexOfFirst { it.listId.toString() == to.key }
+        if (fromIndex >= 0 && toIndex >= 0) {
+            displayed = displayed.toMutableList().apply { add(toIndex, removeAt(fromIndex)) }
+        }
+    }
 
     LazyColumn(
+        state = lazyListState,
         contentPadding = if (isCard) {
             PaddingValues(
                 horizontal = MaterialTheme.spaces.large,
@@ -361,7 +490,7 @@ fun ListsScreenContent(
     ) {
         if (!isCard) item { HorizontalDivider() }
 
-        if (lists.isEmpty()) {
+        if (displayed.isEmpty()) {
             item {
                 Text(
                     style = MaterialTheme.typography.titleLarge,
@@ -369,18 +498,36 @@ fun ListsScreenContent(
                 )
             }
         } else {
-            items(items = lists, key = { it.listId.toString() }) { list ->
-                when (viewMode) {
-                    ViewMode.Card -> ListCard(
-                        list = list,
-                        onClick = { onListClick(list) },
-                        onEdit = { onListEdit(list) },
-                    )
-                    ViewMode.List -> ListItem(
-                        list = list,
-                        onClick = { onListClick(list) },
-                        onEdit = { onListEdit(list) },
-                    )
+            items(items = displayed, key = { it.listId.toString() }) { list ->
+                ReorderableItem(
+                    state = reorderableState,
+                    key = list.listId.toString(),
+                    enabled = isRearranging,
+                ) {
+                    val dragModifier = if (isRearranging) {
+                        Modifier.longPressDraggableHandle(
+                            onDragStopped = {
+                                onListsReordered(displayed.map { it.listId.toString() })
+                            },
+                        )
+                    } else Modifier
+
+                    when (viewMode) {
+                        ViewMode.Card -> ListCard(
+                            modifier = dragModifier,
+                            list = list,
+                            isRearranging = isRearranging,
+                            onClick = { onListClick(list) },
+                            onEdit = { onListEdit(list) },
+                        )
+                        ViewMode.List -> ListItem(
+                            modifier = dragModifier,
+                            list = list,
+                            isRearranging = isRearranging,
+                            onClick = { onListClick(list) },
+                            onEdit = { onListEdit(list) },
+                        )
+                    }
                 }
             }
         }

@@ -1,6 +1,7 @@
 package com.easylists.data.repositories.local
 
 import com.easylists.data.db.room.dao.ListDao
+import com.easylists.data.db.room.dao.ListOrderDao
 import com.easylists.data.mappers.RoomDataMapper
 import com.easylists.data.repositories.ListLocalDataSource
 import com.easylists.domain.models.EasyListsList
@@ -12,17 +13,22 @@ import javax.inject.Inject
 
 class RoomListLocalDataSource @Inject constructor(
     private val dao: ListDao,
+    private val orderDao: ListOrderDao,
     private val mapper: RoomDataMapper,
     private val dispatchers: DispatcherProvider
 ) : ListLocalDataSource {
 
     //region getListsFlow()
-    override fun getListsFlow(): Flow<List<EasyListsList>> {
-        return dao.get()
+    override fun getListsFlow(userId: String): Flow<List<EasyListsList>> {
+        return dao.get(userId = userId)
             .flowOn(dispatchers.io)
             .map {
                 mapper.mapListEntityListToEasyListsListList(it)
             }
+    }
+
+    override suspend fun reorder(userId: String, listIds: List<String>) {
+        orderDao.reorder(userId = userId, listIds = listIds)
     }
     //endregion
 

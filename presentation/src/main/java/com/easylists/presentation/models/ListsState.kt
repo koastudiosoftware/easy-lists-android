@@ -22,6 +22,7 @@ data class ListsInteractionState(
     val actionButtonState: ListsAction = ListsAction.None,
     val showConfirmationDialog: Boolean = false,
     val isRefreshing: Boolean = false,
+    val isRearranging: Boolean = false,
 )
 
 enum class ListNameError { Duplicate }

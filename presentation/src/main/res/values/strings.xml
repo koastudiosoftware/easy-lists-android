@@ -132,6 +132,12 @@
     <string name="error_loading_categories">Couldn\'t load the categories</string>
     <string name="error_saving_category">Couldn\'t save the category</string>
     <string name="error_deleting_categories">Couldn\'t delete the categories</string>
+    <string name="sort_lists">Sort Lists</string>
+    <string name="sort_name_asc">Sort by name A-Z</string>
+    <string name="sort_name_desc">Sort by name Z-A</string>
+    <string name="sort_manual">Sort Manually</string>
+    <string name="done">Done</string>
+    <string name="rearrange_lists">Rearrange lists</string>
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>
         <item quantity="other">Used by %d list items</item>

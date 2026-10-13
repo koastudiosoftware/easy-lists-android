@@ -10,7 +10,6 @@ import com.easylists.domain.common.AppSettings
 import com.easylists.domain.common.Capitalization
 import com.easylists.domain.common.GroupCrossedOffItems
 import com.easylists.domain.common.SortCrossedOffItems
-import com.easylists.domain.common.Themes
 import com.easylists.domain.common.ViewMode
 import com.easylists.domain.repositories.SettingsRepository
 import kotlinx.coroutines.flow.Flow

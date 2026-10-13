@@ -11,5 +11,6 @@ interface ListRepository {
     suspend fun updateList(list: EasyListsList): Result<Unit>
     suspend fun deleteLists(listIds: List<String>): Result<Int>
 
+    suspend fun reorderLists(listIds: List<String>): Result<Unit>
 
 }

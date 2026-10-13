@@ -6,6 +6,7 @@ import androidx.room.TypeConverters
 import com.easylists.data.db.room.dao.CategoryDao
 import com.easylists.data.db.room.dao.ListDao
 import com.easylists.data.db.room.dao.ListItemDao
+import com.easylists.data.db.room.dao.ListOrderDao
 import com.easylists.data.db.room.dao.ProviderLinkDao
 import com.easylists.data.db.room.dao.TagDao
 import com.easylists.data.db.room.dao.TagListItemDao
@@ -14,6 +15,7 @@ import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
 import com.easylists.data.db.room.models.ListItemUpdateEntity
+import com.easylists.data.db.room.models.ListOrderEntity
 import com.easylists.data.db.room.models.ProviderLinkEntity
 import com.easylists.data.db.room.models.TagEntity
 import com.easylists.data.db.room.models.TagListItemEntity
@@ -26,6 +28,7 @@ import com.easylists.data.db.room.models.UserEntity
         ListEntity::class,
         ListItemEntity::class,
         ListItemUpdateEntity::class,
+        ListOrderEntity::class,
         ProviderLinkEntity::class,
         TagEntity::class,
         TagListItemEntity::class,
@@ -42,6 +45,7 @@ abstract class EasyListsDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun listDao(): ListDao
     abstract fun listItemDao(): ListItemDao
+    abstract fun listOrderDao(): ListOrderDao
     abstract fun providerLinkDao(): ProviderLinkDao
     abstract fun tagDao(): TagDao
     abstract fun tagListItemDao(): TagListItemDao

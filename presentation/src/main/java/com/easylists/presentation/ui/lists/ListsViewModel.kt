@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.easylists.domain.common.ListSortMode
 import com.easylists.domain.common.ViewMode
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.repositories.SessionRepository
@@ -12,6 +13,7 @@ import com.easylists.domain.use_cases.AddListUseCase
 import com.easylists.domain.use_cases.DeleteListsUseCase
 import com.easylists.domain.use_cases.GetListsUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
+import com.easylists.domain.use_cases.ReorderListsUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ListsAction
@@ -26,7 +28,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -42,6 +46,7 @@ class ListsViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
     private val addListUseCase: AddListUseCase,
     private val deleteListsUseCase: DeleteListsUseCase,
+    private val reorderListsUseCase: ReorderListsUseCase,
     private val updateListUseCase: UpdateListUseCase,
     private val mapper: UiMapper,
     private val session: SessionRepository,
@@ -54,18 +59,44 @@ class ListsViewModel @Inject constructor(
 
     private val refreshTrigger = MutableStateFlow(0)
 
+    private val _sortMode = MutableStateFlow(ListSortMode.NameAsc)
+    val sortMode: StateFlow<ListSortMode> = _sortMode.asStateFlow()
+
+    fun onSortModeChange(mode: ListSortMode) {
+        _sortMode.value = mode
+        interaction = interaction.copy(isRearranging = mode == ListSortMode.Manual)
+    }
+
+    fun onRearrangeDone() {
+        interaction = interaction.copy(isRearranging = false)
+    }
+
     // Observed from the data layer, never copied. An error ends the inner flow;
     // bumping refreshTrigger restarts it.
     @OptIn(ExperimentalCoroutinesApi::class)
     val lists: StateFlow<ListListUiState> = refreshTrigger
         .flatMapLatest {
-            getListsFlowUseCase()
-                .map<List<EasyListsList>?, ListListUiState> { all ->
-                    ListListUiState.Success(all.orEmpty().filterNot { it.isDeleted })
+            combine<List<EasyListsList>?, ListSortMode, ListListUiState>(
+                getListsFlowUseCase(),
+                _sortMode,
+            ) { all, order ->
+                ListListUiState.Success(
+                    all.orEmpty()
+                        .filterNot { it.isDeleted }
+                        .sortedWith(order.comparator())
+                )
+            }
+                .catch {
+                    emit(
+                        ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))
+                    )
                 }
-                .catch { emit(ListListUiState.Error(message = mapper.mapErrorToUiMessage(it))) }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ListListUiState.Loading)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            ListListUiState.Loading
+        )
 
     // Add/edit form. null = bottom sheet closed.
     // Compose state (not a flow) so TextFields read and write it synchronously.
@@ -162,6 +193,22 @@ class ListsViewModel @Inject constructor(
             delay(500.milliseconds) // keeps the indicator from flickering
             interaction = interaction.copy(isRefreshing = false)
         }
+    }
+    //endregion
+
+
+    //region ListSortMode.comparator()
+    private fun ListSortMode.comparator(): Comparator<EasyListsList> = when (this) {
+        ListSortMode.NameAsc -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+        ListSortMode.NameDesc -> compareByDescending(String.CASE_INSENSITIVE_ORDER) { it.name }
+        ListSortMode.Manual -> Comparator { _, _ -> 0 }
+    }
+    //endregion
+
+
+    //region onListsReordered
+    fun onListsReordered(listIds: List<String>) {
+        viewModelScope.launch { reorderListsUseCase(listIds) }
     }
     //endregion
 }

@@ -28,6 +28,7 @@ ksp = "2.3.6"
 lifecycleRuntimeKtx = "2.11.0"
 material = "1.14.0"
 reimaginedHilt = "1.5.0"
+reorderable = "2.4.3"
 resultat = "1.0.0"
 roomCompiler = "2.8.5"
 roomKtx = "2.8.5"
@@ -74,6 +75,7 @@ kotlin-extensions = { module = "com.github.davidepanidev:kotlin-extensions", ver
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 reimagined-hilt = { module = "dev.olshevski.navigation:reimagined-hilt", version.ref = "reimaginedHilt" }
+reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 resultat = { module = "fr.haan.resultat:resultat", version.ref = "resultat" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 

@@ -102,4 +102,7 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     //noinspection LoginCredentials
     implementation(libs.googleid)
+
+    // reorderable
+    implementation(libs.reorderable)
 }

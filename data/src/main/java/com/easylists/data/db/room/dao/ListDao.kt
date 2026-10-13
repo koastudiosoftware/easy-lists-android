@@ -16,12 +16,13 @@ abstract class ListDao() {
 
     @Transaction
     @Query("""
-        SELECT *
-        FROM lists
-        WHERE is_deleted = 0
-        ORDER BY name COLLATE NOCASE ASC
-        """)
-    abstract fun get(): Flow<List<ListEntity>>
+        SELECT l.*
+        FROM lists l
+        LEFT JOIN list_order o ON o.list_id = l.list_id AND o.user_id = :userId
+        WHERE l.is_deleted = 0
+        ORDER BY (o.sort_index IS NULL), o.sort_index ASC, l.name COLLATE NOCASE ASC
+    """)
+    abstract fun get(userId: String): Flow<List<ListEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(listEntity: ListEntity): Long
