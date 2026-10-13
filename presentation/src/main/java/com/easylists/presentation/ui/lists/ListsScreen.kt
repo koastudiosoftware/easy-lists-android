@@ -51,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -72,6 +73,8 @@ import com.easylists.presentation.common.composables.ScreenLoading
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.selectableCardBorder
 import com.easylists.presentation.icons.MaterialIconsAdd
+import com.easylists.presentation.icons.MaterialIconsArrowDownward
+import com.easylists.presentation.icons.MaterialIconsArrowUpward
 import com.easylists.presentation.icons.MaterialIconsCategory
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsDelete
@@ -302,6 +305,13 @@ fun ListsScreenSortMenu(
                         expanded = false
                         onSortModeChange(option)
                     },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = option.icon(),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
                     trailingIcon = {
                         if (option == sortMode) {
                             Icon(
@@ -315,6 +325,15 @@ fun ListsScreenSortMenu(
             }
         }
     }
+}
+//endregion
+
+
+//region ListSortMode.icon
+private fun ListSortMode.icon(): ImageVector = when (this) {
+    ListSortMode.NameAsc -> MaterialIconsArrowUpward
+    ListSortMode.NameDesc -> MaterialIconsArrowDownward
+    ListSortMode.Manual -> MaterialIconsDragHandle
 }
 //endregion
 
