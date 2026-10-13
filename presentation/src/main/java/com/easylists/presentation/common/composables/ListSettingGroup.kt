@@ -5,17 +5,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import com.easylists.presentation.ui.settings.SettingsViewModel
+import androidx.compose.ui.unit.dp
+import com.easylists.presentation.icons.MaterialIconsEdit
+import com.easylists.presentation.icons.MaterialIconsExpandLess
+import com.easylists.presentation.icons.MaterialIconsExpandMore
 import com.easylists.presentation.ui.theme.spaces
-import com.toxicbakery.logging.Arbor
 
 @Composable
 fun <T> ListSettingGroup(
@@ -25,42 +30,40 @@ fun <T> ListSettingGroup(
     optionLabel: @Composable (T) -> String,
     onSelected: (T) -> Unit,
 ) {
-    val showList = remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = MaterialTheme.spaces.none)
-            .padding(top = MaterialTheme.spaces.none)
-            .clickable {
-                showList.value = !showList.value
-            }
+            .clickable { expanded = !expanded }
+            .padding(vertical = MaterialTheme.spaces.medium)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(horizontal = MaterialTheme.spaces.large)
-                .padding(top = MaterialTheme.spaces.medium)
+        Row(
+            modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium,
                     text = title,
-                    fontWeight = FontWeight.Bold
                 )
-            }
-            if (!showList.value) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.spaces.large)
-                ) {
-                    Text(text = optionLabel(selected))
+                if (!expanded) {
+                    Text(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium,
+                        text = optionLabel(selected),
+                    )
                 }
             }
+            Icon(
+                tint = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.size(20.dp),
+                imageVector = if (expanded) MaterialIconsExpandLess else MaterialIconsExpandMore,
+                contentDescription = null, // the whole row is the click target
+            )
         }
-        if (showList.value) {
+        if (expanded) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -72,7 +75,7 @@ fun <T> ListSettingGroup(
                         selected = optionLabel(selected),
                         onClick = {
                             onSelected(option)
-                            showList.value = false
+                            expanded = false
                         }
                     )
                 }

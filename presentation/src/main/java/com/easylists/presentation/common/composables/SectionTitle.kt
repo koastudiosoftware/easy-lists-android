@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.easylists.presentation.ui.theme.spaces
@@ -23,6 +24,7 @@ fun SectionTitle(
     modifier: Modifier = Modifier,
     icon: @Composable (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
+    style: TextStyle = MaterialTheme.typography.titleLarge,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -48,7 +50,7 @@ fun SectionTitle(
                 modifier = modifier.semantics { heading() },
                 textAlign = TextAlign.Start,
                 fontWeight = FontWeight.Medium,
-                style = MaterialTheme.typography.titleLarge
+                style = style
             )
         }
         if (icon != null) {

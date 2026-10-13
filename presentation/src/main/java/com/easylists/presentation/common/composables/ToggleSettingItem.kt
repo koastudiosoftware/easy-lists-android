@@ -28,31 +28,35 @@ fun ToggleSettingItem(
 ) {
 
     Row(
-        modifier = Modifier.selectableGroup()
+        modifier = Modifier
+            .selectableGroup()
             .clickable { onCheckedChange(!enabled) },
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(vertical = MaterialTheme.spaces.extraSmall),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(
-                modifier = Modifier.weight(3f)
+                modifier = Modifier
+                    .weight(3f)
                     .padding(horizontal = MaterialTheme.spaces.large)
-                    .padding(top = MaterialTheme.spaces.medium)
             ) {
                 Text(
-                    fontWeight = FontWeight.Bold,
-                    text = textLine1,
+                    fontWeight = FontWeight.Medium,
+                    text = textLine1
                 )
                 Text(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
                     text = textLine2,
                     modifier = Modifier.fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.spaces.large)
                 )
             }
             Column(
-                modifier = Modifier.weight(0.65f)
+                modifier = Modifier
+                    .weight(0.65f)
                     .padding(horizontal = MaterialTheme.spaces.large),
                 horizontalAlignment = Alignment.End,
             ) {

@@ -1,6 +1,7 @@
 package com.easylists.presentation.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.easylists.domain.common.AppSettings
 import com.easylists.domain.common.Capitalization
@@ -33,6 +35,7 @@ import com.easylists.domain.common.ViewMode
 import com.easylists.presentation.R
 import com.easylists.presentation.common.composables.ListSettingGroup
 import com.easylists.presentation.common.composables.SectionTitle
+import com.easylists.presentation.common.composables.SettingsCardGroup
 import com.easylists.presentation.common.composables.ToggleSettingItem
 import com.easylists.presentation.common.labelRes
 import com.easylists.presentation.icons.MaterialIconsArrowBack
@@ -140,97 +143,93 @@ fun SettingsScreenContent(
     viewModel: SettingsViewModel
 ) {
 
-    LazyColumn(Modifier.fillMaxSize()) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            horizontal = MaterialTheme.spaces.large,
+            vertical = MaterialTheme.spaces.medium,
+        ),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spaces.medium),
+    ) {
+        item { SettingsSectionTitle(stringResource(id = R.string.list_items)) }
         item {
-            SectionTitle(
-                title = stringResource(id = R.string.list_items),
-                modifier = Modifier
-                    .padding(horizontal = MaterialTheme.spaces.large)
-                    .padding(top = MaterialTheme.spaces.medium)
-            )
-        }
-        item {
-            ListSettingGroup(
-                title = stringResource(R.string.group_crossed_off_items),
-                options = GroupCrossedOffItems.entries,
-                selected = settings.groupCrossedOffItems,
-                optionLabel = { stringResource(it.labelRes()) },
-                onSelected = viewModel::onGroupCrossedOffItemsChanged,
-            )
-        }
-        item {
-            ListSettingGroup(
-                title = stringResource(R.string.sort_crossed_off_items),
-                options = SortCrossedOffItems.entries,
-                selected = settings.sortCrossedOffItems,
-                optionLabel = { stringResource(it.labelRes()) },
-                onSelected = viewModel::onSortCrossedOffItemsChanged,
-            )
-        }
-        item {
-            ToggleSettingItem(
-                textLine1 = stringResource(id = R.string.enable_camera),
-                textLine2 = stringResource(id = R.string.enable_camera_description),
-                enabled = settings.enableCamera,
-                onCheckedChange = { viewModel.onEnableCameraChanged() }
-            )
-        }
-        item {
-            ToggleSettingItem(
-                textLine1 = stringResource(id = R.string.enable_photos),
-                textLine2 = stringResource(id = R.string.enable_photos_description),
-                enabled = settings.enablePhotos,
-                onCheckedChange = { viewModel.onEnablePhotosChanged() }
-            )
-        }
-        item {
-            ToggleSettingItem(
-                textLine1 = stringResource(id = R.string.enable_tags),
-                textLine2 = stringResource(id = R.string.enable_tags_description),
-                enabled = settings.enableTags,
-                onCheckedChange = { viewModel.onEnableTagsChanged() }
-            )
+            SettingsCardGroup {
+                ListSettingGroup(
+                    title = stringResource(R.string.group_crossed_off_items),
+                    options = GroupCrossedOffItems.entries,
+                    selected = settings.groupCrossedOffItems,
+                    optionLabel = { stringResource(it.labelRes()) },
+                    onSelected = viewModel::onGroupCrossedOffItemsChanged,
+                )
+                HorizontalDivider()
+                ListSettingGroup(
+                    title = stringResource(R.string.sort_crossed_off_items),
+                    options = SortCrossedOffItems.entries,
+                    selected = settings.sortCrossedOffItems,
+                    optionLabel = { stringResource(it.labelRes()) },
+                    onSelected = viewModel::onSortCrossedOffItemsChanged,
+                )
+                HorizontalDivider()
+                ToggleSettingItem(
+                    textLine1 = stringResource(id = R.string.enable_camera),
+                    textLine2 = stringResource(id = R.string.enable_camera_description),
+                    enabled = settings.enableCamera,
+                    onCheckedChange = { viewModel.onEnableCameraChanged() }
+                )
+                HorizontalDivider()
+                ToggleSettingItem(
+                    textLine1 = stringResource(id = R.string.enable_photos),
+                    textLine2 = stringResource(id = R.string.enable_photos_description),
+                    enabled = settings.enablePhotos,
+                    onCheckedChange = { viewModel.onEnablePhotosChanged() }
+                )
+                HorizontalDivider()
+                ToggleSettingItem(
+                    textLine1 = stringResource(id = R.string.enable_tags),
+                    textLine2 = stringResource(id = R.string.enable_tags_description),
+                    enabled = settings.enableTags,
+                    onCheckedChange = { viewModel.onEnableTagsChanged() }
+                )
+            }
         }
 
+        item { SettingsSectionTitle(stringResource(id = R.string.adding_and_editing)) }
         item {
-            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.medium))
-        }
-        item {
-            SectionTitle(
-                title = stringResource(id = R.string.adding_and_editing),
-                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)
-            )
-        }
-        item {
-            ListSettingGroup(
-                title = stringResource(R.string.capitalization),
-                options = Capitalization.entries,
-                selected = settings.capitalization,
-                optionLabel = { stringResource(it.labelRes()) },
-                onSelected = viewModel::onCapitalizationChanged,
-            )
+            SettingsCardGroup {
+                ListSettingGroup(
+                    title = stringResource(R.string.capitalization),
+                    options = Capitalization.entries,
+                    selected = settings.capitalization,
+                    optionLabel = { stringResource(it.labelRes()) },
+                    onSelected = viewModel::onCapitalizationChanged,
+                )
+            }
         }
 
+        item { SettingsSectionTitle(stringResource(id = R.string.view_mode)) }
         item {
-            HorizontalDivider(modifier = Modifier.padding(vertical = MaterialTheme.spaces.medium))
-        }
-        item {
-            SectionTitle(
-                title = stringResource(id = R.string.view_mode),
-                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.large)
-            )
-        }
-        item {
-            ToggleSettingItem(
-                textLine1 = stringResource(id = R.string.view_mode_description),
-                textLine2 = when (settings.viewMode) {
-                    ViewMode.List -> stringResource(id = R.string.list_view_mode)
-                    ViewMode.Card -> stringResource(id = R.string.card_view_mode)
-                },
-                enabled = settings.viewMode == ViewMode.Card,
-                onCheckedChange = { viewModel.onViewModeToggled() }
-            )
+            SettingsCardGroup {
+                ToggleSettingItem(
+                    textLine1 = stringResource(id = R.string.view_mode_description),
+                    textLine2 = when (settings.viewMode) {
+                        ViewMode.List -> stringResource(id = R.string.list_view_mode)
+                        ViewMode.Card -> stringResource(id = R.string.card_view_mode)
+                    },
+                    enabled = settings.viewMode == ViewMode.Card,
+                    onCheckedChange = { viewModel.onViewModeToggled() }
+                )
+            }
         }
     }
+}
+
+// Medium title, a step above the body text (bodyLarge is 16sp), with extra space above.
+@Composable
+private fun SettingsSectionTitle(title: String) {
+    SectionTitle(
+        title = title,
+        modifier = Modifier.padding(top = MaterialTheme.spaces.large),
+        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+    )
 }
 //endregion
