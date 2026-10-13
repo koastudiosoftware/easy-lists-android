@@ -79,6 +79,7 @@ import com.easylists.presentation.common.composables.AppTextField
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.getContrastColor
+import com.easylists.presentation.common.selectableCardBorder
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsBrokenImage
@@ -286,7 +287,7 @@ fun ListItemsScreenContent(
                             onTagPillsClick = onTagPillsClick,
                         )
                     } else {
-                        ListItem(
+                        ListItemRow(
                             row = row,
                             settings = state.settings,
                             isSelected = isSelected,
@@ -346,7 +347,8 @@ fun ListItemsCategoryTitle(
             .fillMaxWidth()
             .then(
                 if (isCard) Modifier
-                else Modifier.background(MaterialTheme.colorScheme.primaryContainer)
+                else if (crossedOff) Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
+                else Modifier.background(MaterialTheme.colorScheme.secondaryContainer)
             )
     ) {
         Text(
@@ -371,7 +373,7 @@ fun ListItemsCategoryTitle(
 
 //region ListItem
 @Composable
-fun ListItem(
+fun ListItemRow(
     row: ListRow.Item,
     settings: AppSettings,
     isSelected: Boolean,
@@ -386,6 +388,11 @@ fun ListItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .then(
+                    if (row.item.crossedOff == true)
+                        Modifier.background(MaterialTheme.colorScheme.surfaceContainerLow)
+                    else Modifier
+                )
                 .combinedClickable(onClick = onClick, onLongClick = onLongClick)
                 .height(MaterialTheme.spaces.rowHeightMedium)
                 .padding(
@@ -424,6 +431,8 @@ fun ListItemCard(
     onDelete: () -> Unit,
     onTagPillsClick: () -> Unit,
 ) {
+    val crossedOff = row.item.crossedOff == true
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -432,9 +441,10 @@ fun ListItemCard(
                 vertical = MaterialTheme.spaces.small,
             ),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            containerColor = if (crossedOff) MaterialTheme.colorScheme.surfaceContainer
+            else MaterialTheme.colorScheme.surfaceContainerLowest,
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = selectableCardBorder(isSelected),
     ) {
         // click handling is inside the Card so the ripple is clipped to its shape
         Row(

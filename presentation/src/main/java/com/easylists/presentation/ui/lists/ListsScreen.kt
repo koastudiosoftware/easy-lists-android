@@ -61,6 +61,7 @@ import com.easylists.presentation.common.composables.AppTextField
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.ScreenLoading
 import com.easylists.presentation.common.composables.SectionTitle
+import com.easylists.presentation.common.selectableCardBorder
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsCategory
 import com.easylists.presentation.icons.MaterialIconsCheck
@@ -225,7 +226,7 @@ fun ListCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = selectableCardBorder(isSelected),
     ) {
         // The click handling is inside the Card so the ripple is clipped to its shape
         Row(

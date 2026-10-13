@@ -1,7 +1,6 @@
 package com.easylists.presentation.ui.categories
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +54,7 @@ import com.easylists.presentation.common.LocalCapitalization
 import com.easylists.presentation.common.composables.AppTextField
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
+import com.easylists.presentation.common.selectableCardBorder
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsCancel
@@ -200,7 +200,7 @@ private fun CategoriesList(
                     category = category,
                     usageCount = usageCount,
                     selectionMode = state.selectionMode,
-                    selected = selected,
+                    isSelected = selected,
                     onClick = onClick,
                     onLongClick = onLongClick,
                     onToggleSelected = onToggle,
@@ -230,7 +230,7 @@ private fun CategoryCard(
     category: EasyListsCategory,
     usageCount: Int,
     selectionMode: Boolean,
-    selected: Boolean,
+    isSelected: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     onToggleSelected: () -> Unit,
@@ -240,7 +240,7 @@ private fun CategoryCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = selectableCardBorder(isSelected),
     ) {
         // click handling inside the Card so the ripple is clipped to its shape
         Row(
@@ -278,7 +278,7 @@ private fun CategoryCard(
 
             CategoryTrailing(
                 selectionMode = selectionMode,
-                selected = selected,
+                selected = isSelected,
                 onToggleSelected = onToggleSelected,
                 modifier = Modifier.padding(14.dp),
             )
