@@ -7,7 +7,6 @@ data class EasyListsList(
     var ownerId: String,
     var name: String,
     var notes: String? = null,
-    var sortOrder: Int? = null,
     var isDirty: Boolean = false,
     var isDeleted: Boolean = false,
     var createdTimestamp: Long = Clock.System.now().toEpochMilliseconds(),

@@ -16,7 +16,6 @@ data class EasyListsListItem(
     var photoOffsetX: Double = 0.0,
     var photoOffsetY: Double = 0.0,
     var photoScale: Double = 0.0,
-    var sortOrder: Int? = null,
     var isDirty: Boolean = false,
     var isDeleted: Boolean = false,
     var createdTimestamp: Long = Clock.System.now().toEpochMilliseconds(),

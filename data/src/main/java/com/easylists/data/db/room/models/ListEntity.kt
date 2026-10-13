@@ -26,10 +26,6 @@ data class ListEntity(
 
     val notes: String? = "",
 
-    @ColumnInfo(name = "sort_order")
-    @SerializedName(value = "sort_order")
-    val sortOrder: Int? = null,
-
     @ColumnInfo(name = "is_dirty")
     @SerializedName(value = "is_dirty")
     var isDirty: Boolean = false,

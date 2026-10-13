@@ -16,7 +16,7 @@ import kotlin.uuid.Uuid
         ForeignKey(entity = ListEntity::class, parentColumns = ["list_id"], childColumns = ["list_id"], onDelete = ForeignKey.CASCADE),
     ],
     indices = [
-        Index(value = ["list_id", "is_deleted", "sort_order"]),
+        Index(value = ["list_id", "is_deleted"]),
         Index(value = ["category_id"]),
     ],
 )
@@ -61,10 +61,6 @@ data class ListItemEntity(
     @ColumnInfo(name = "photo_scale")
     @SerializedName(value = "photo_scale")
     val photoScale: Double? = null,
-
-    @ColumnInfo(name = "sort_order")
-    @SerializedName(value = "sort_order")
-    val sortOrder: Int? = null,
 
     @ColumnInfo(name = "is_dirty")
     @SerializedName(value = "is_dirty")

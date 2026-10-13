@@ -32,7 +32,6 @@ class RoomDataMapper @Inject constructor(
                 categoryId = entity.categoryId,
                 ownerId = entity.ownerId,
                 name = entity.name,
-                sortOrder = entity.sortOrder,
                 isDirty = entity.isDirty,
                 isDeleted = entity.isDeleted,
                 createdTimestamp = entity.createdTimestamp,
@@ -50,7 +49,6 @@ class RoomDataMapper @Inject constructor(
             CategoryEntity(
                 name = category.name,
                 ownerId = category.ownerId,
-                sortOrder = category.sortOrder,
                 isDirty = category.isDirty,
 
             )
@@ -59,7 +57,6 @@ class RoomDataMapper @Inject constructor(
                 categoryId = category.categoryId!!,
                 ownerId = category.ownerId,
                 name = category.name,
-                sortOrder = category.sortOrder,
                 isDirty = category.isDirty,
                 isDeleted = category.isDeleted,
                 createdTimestamp = category.createdTimestamp,
@@ -82,7 +79,6 @@ class RoomDataMapper @Inject constructor(
                 ownerId = entity.ownerId,
                 name = entity.name,
                 notes = entity.notes,
-                sortOrder = entity.sortOrder,
                 isDirty = entity.isDirty,
                 isDeleted = entity.isDeleted,
                 createdTimestamp = entity.createdTimestamp,
@@ -100,7 +96,6 @@ class RoomDataMapper @Inject constructor(
             name = list.name,
             ownerId = list.ownerId,
             notes = list.notes,
-            sortOrder = list.sortOrder,
             isDirty = list.isDirty,
             isDeleted = list.isDeleted,
         )
@@ -115,7 +110,6 @@ class RoomDataMapper @Inject constructor(
             listId = list.listId.toString(),
             name = list.name,
             notes = list.notes,
-            sortOrder = list.sortOrder,
             isDirty = list.isDirty,
             isDeleted = list.isDeleted,
             modifiedTimestamp = Clock.System.now().toEpochMilliseconds(),
@@ -145,7 +139,6 @@ class RoomDataMapper @Inject constructor(
                 photoScale = entity.photoScale?: 1.0,
                 photoOffsetX = entity.photoOffsetX?: 0.0,
                 photoOffsetY = entity.photoOffsetY?: 0.0,
-                sortOrder = entity.sortOrder,
                 isDirty = entity.isDirty,
                 isDeleted = entity.isDeleted,
                 createdTimestamp = entity.createdTimestamp,
@@ -162,7 +155,6 @@ class RoomDataMapper @Inject constructor(
         return ListItemEntity(
             name = listItem.name,
             notes = listItem.notes,
-            sortOrder = listItem.sortOrder,
             listId = listItem.listId,
             categoryId = listItem.categoryId,
             quantity = listItem.quantity,
@@ -186,7 +178,6 @@ class RoomDataMapper @Inject constructor(
             listItemId = listItem.listItemId.toString(),
             name = listItem.name,
             notes = listItem.notes,
-            sortOrder = listItem.sortOrder,
             categoryUid = listItem.categoryId,
             quantity = listItem.quantity,
             crossedOff = listItem.crossedOff == true,
