@@ -1,6 +1,9 @@
 package com.easylists.presentation.ui.lists
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,10 +48,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.easylists.domain.common.ListSortMode
@@ -327,6 +336,7 @@ fun ListCard(
     onClick: () -> Unit,
     onEdit: () -> Unit,
     modifier: Modifier = Modifier,
+    elevation: Dp = 0.dp,
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -334,6 +344,7 @@ fun ListCard(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         ),
         border = selectableCardBorder(false),
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation),
     ) {
         Row(
             modifier = Modifier
@@ -392,10 +403,19 @@ fun ListItem(
     onClick: () -> Unit,
     onEdit: () -> Unit,
     modifier: Modifier = Modifier,
+    elevation: Dp = 0.dp,
 ) {
     // Column because ReorderableItem hosts its content in a Box, which would
     // otherwise stack the row and the divider on top of each other
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(elevation)
+            .background(
+                if (elevation > 0.dp) MaterialTheme.colorScheme.background
+                else Color.Transparent
+            ),
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -503,13 +523,35 @@ fun ListsScreenContent(
                     state = reorderableState,
                     key = list.listId.toString(),
                     enabled = isRearranging,
-                ) {
+                ) { isDragging ->
+                    val elevation by animateDpAsState(
+                        targetValue = when {
+                            isDragging -> 16.dp
+                            isRearranging -> 2.dp
+                            else -> 0.dp
+                        },
+                        label = "dragElevation",
+                    )
+                    val scale by animateFloatAsState(
+                        targetValue = if (isDragging && isCard) 1.03f else 1f,
+                        label = "dragScale",
+                    )
+                    val haptic = LocalHapticFeedback.current
+
                     val dragModifier = if (isRearranging) {
-                        Modifier.longPressDraggableHandle(
-                            onDragStopped = {
-                                onListsReordered(displayed.map { it.listId.toString() })
-                            },
-                        )
+                        Modifier
+                            .graphicsLayer {
+                                scaleX = scale
+                                scaleY = scale
+                            }
+                            .longPressDraggableHandle(
+                                onDragStarted = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                },
+                                onDragStopped = {
+                                    onListsReordered(displayed.map { it.listId.toString() })
+                                },
+                            )
                     } else Modifier
 
                     when (viewMode) {
@@ -517,6 +559,7 @@ fun ListsScreenContent(
                             modifier = dragModifier,
                             list = list,
                             isRearranging = isRearranging,
+                            elevation = elevation,
                             onClick = { onListClick(list) },
                             onEdit = { onListEdit(list) },
                         )
@@ -524,6 +567,7 @@ fun ListsScreenContent(
                             modifier = dragModifier,
                             list = list,
                             isRearranging = isRearranging,
+                            elevation = elevation,
                             onClick = { onListClick(list) },
                             onEdit = { onListEdit(list) },
                         )
