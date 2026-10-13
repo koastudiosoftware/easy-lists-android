@@ -14,6 +14,7 @@ import com.easylists.domain.use_cases.DeleteListsUseCase
 import com.easylists.domain.use_cases.GetListsUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.ReorderListsUseCase
+import com.easylists.domain.use_cases.UpdateAppSettingsUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ListsAction
@@ -25,12 +26,14 @@ import com.easylists.presentation.models.validate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -50,6 +53,7 @@ class ListsViewModel @Inject constructor(
     private val updateListUseCase: UpdateListUseCase,
     private val mapper: UiMapper,
     private val session: SessionRepository,
+    private val updateAppSettings: UpdateAppSettingsUseCase,
 ) : ViewModel() {
 
     // null = DataStore hasn't emitted yet
@@ -59,12 +63,18 @@ class ListsViewModel @Inject constructor(
 
     private val refreshTrigger = MutableStateFlow(0)
 
-    private val _sortMode = MutableStateFlow(ListSortMode.NameAsc)
-    val sortMode: StateFlow<ListSortMode> = _sortMode.asStateFlow()
+    // Cold, with no initial value, so `lists` waits for the stored mode instead of
+    // flashing the default order first.
+    private val storedSortMode: Flow<ListSortMode> = observeAppSettings()
+        .map { it.listSortMode }
+        .distinctUntilChanged()
+
+    val sortMode: StateFlow<ListSortMode> = storedSortMode
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ListSortMode.NameAsc)
 
     fun onSortModeChange(mode: ListSortMode) {
-        _sortMode.value = mode
         interaction = interaction.copy(isRearranging = mode == ListSortMode.Manual)
+        viewModelScope.launch { updateAppSettings { it.copy(listSortMode = mode) } }
     }
 
     fun onRearrangeDone() {
@@ -78,7 +88,7 @@ class ListsViewModel @Inject constructor(
         .flatMapLatest {
             combine<List<EasyListsList>?, ListSortMode, ListListUiState>(
                 getListsFlowUseCase(),
-                _sortMode,
+                storedSortMode,
             ) { all, order ->
                 ListListUiState.Success(
                     all.orEmpty()

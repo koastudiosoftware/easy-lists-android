@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.easylists.domain.common.AppSettings
 import com.easylists.domain.common.Capitalization
 import com.easylists.domain.common.GroupCrossedOffItems
+import com.easylists.domain.common.ListSortMode
 import com.easylists.domain.common.SortCrossedOffItems
 import com.easylists.domain.common.ViewMode
 import com.easylists.domain.repositories.SettingsRepository
@@ -32,6 +33,7 @@ class SettingsRepositoryImpl @Inject constructor(
         val sortCrossedOffItems = stringPreferencesKey("sort_crossed_off_items")
         val theme = stringPreferencesKey("theme")
         val viewMode = stringPreferencesKey("view_mode")
+        val listSortMode = stringPreferencesKey("list_sort_mode")
     }
 
     override val settings: Flow<AppSettings> = appSettingsDataStore.data
@@ -51,6 +53,7 @@ class SettingsRepositoryImpl @Inject constructor(
             prefs[Keys.groupCrossedOffItems] = updated.groupCrossedOffItems.id
             prefs[Keys.sortCrossedOffItems] = updated.sortCrossedOffItems.id
             prefs[Keys.viewMode] = updated.viewMode.id
+            prefs[Keys.listSortMode] = updated.listSortMode.id
         }
     }
 
@@ -67,6 +70,8 @@ class SettingsRepositoryImpl @Inject constructor(
             sortCrossedOffItems = SortCrossedOffItems.from(this[Keys.sortCrossedOffItems])
                 ?: defaults.sortCrossedOffItems,
             viewMode = ViewMode.from(this[Keys.viewMode]) ?: defaults.viewMode,
+            listSortMode = ListSortMode.from(this[Keys.listSortMode])
+                ?: defaults.listSortMode,
         )
     }
 }

@@ -8,4 +8,5 @@ data class AppSettings(
     val groupCrossedOffItems: GroupCrossedOffItems = GroupCrossedOffItems.AllTogether,
     val sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
     val viewMode: ViewMode = ViewMode.Card,
+    val listSortMode: ListSortMode = ListSortMode.NameAsc,
 )

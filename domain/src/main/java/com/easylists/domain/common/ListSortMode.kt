@@ -6,6 +6,7 @@ enum class ListSortMode(val id: String) {
     Manual("manual");
 
     companion object {
-        fun from(id: String?): ListSortMode? = entries.firstOrNull { it.id == id }
+        fun from(id: String?): ListSortMode? =
+            ListSortMode.entries.firstOrNull { it.id == id }
     }
 }
