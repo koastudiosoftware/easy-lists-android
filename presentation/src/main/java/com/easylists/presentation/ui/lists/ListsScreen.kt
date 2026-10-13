@@ -1,8 +1,7 @@
 package com.easylists.presentation.ui.lists
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +44,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -133,15 +131,12 @@ fun ListsScreen(
                     else -> ListsScreenContent(
                         viewMode = mode,
                         lists = state.lists,
-                        selectedListId = interaction.selectedListId,
                         onListClick = { list ->
                             navController.navigate(
                                 Screen.ListItems(list.listId.toString(), list.name)
                             )
                         },
-                        onListLongClick = viewModel::showContextIcons,
                         onListEdit = viewModel::onListEditButtonClick,
-                        onListDelete = { viewModel.setShowConfirmationDialogState(true) },
                     )
                 }
             }
@@ -164,13 +159,26 @@ fun ListsScreen(
     if (editor != null) {
         val existing = (lists as? ListListUiState.Success)?.lists.orEmpty()
         val validation = remember(editor, existing) { editor.validate(existing) }
+        val hasChanges = remember(editor, existing) {
+            if (editor.mode == AddEditMode.Add) {
+                true
+            } else {
+                val original = existing.find { it.listId.toString() == editor.listId }
+                original != null && (
+                        editor.name.trim() != original.name ||
+                                editor.notes != original.notes.orEmpty()
+                        )
+            }
+        }
 
         ListsScreenListBottomSheet(
             editor = editor,
             validation = validation,
+            hasChanges = hasChanges,
             onNameChange = viewModel::onListNameChange,
             onNotesChange = viewModel::onListNotesChange,
             onSave = viewModel::addList,
+            onDelete = { viewModel.setShowConfirmationDialogState(true) },
             onDismiss = viewModel::onListBottomSheetDismiss,
         )
     }
@@ -215,24 +223,21 @@ fun ListsScreenActionIcons(
 @Composable
 fun ListCard(
     list: EasyListsList,
-    isSelected: Boolean,
     onClick: () -> Unit,
-    onLongClick: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         ),
-        border = selectableCardBorder(isSelected),
+        border = selectableCardBorder(false),
     ) {
         // The click handling is inside the Card so the ripple is clipped to its shape
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                .clickable(onClick = onClick)
                 .padding(start = MaterialTheme.spaces.large)
                 .padding(vertical = MaterialTheme.spaces.medium),
             verticalAlignment = Alignment.CenterVertically,
@@ -260,14 +265,12 @@ fun ListCard(
                 }
             }
 
-            IconButton(onClick = if (isSelected) onDelete else onEdit) {
+            IconButton(onClick = onEdit) {
                 Icon(
                     tint = MaterialTheme.colorScheme.outline,
                     modifier = Modifier.size(20.dp),
-                    imageVector = if (isSelected) MaterialIconsDelete else MaterialIconsEdit,
-                    contentDescription = stringResource(
-                        if (isSelected) R.string.delete_list else R.string.edit_list
-                    ),
+                    imageVector = MaterialIconsEdit,
+                    contentDescription = stringResource(R.string.edit_list),
                 )
             }
         }
@@ -280,20 +283,13 @@ fun ListCard(
 @Composable
 fun ListItem(
     list: EasyListsList,
-    isSelected: Boolean,
     onClick: () -> Unit,
-    onLongClick: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-                else Color.Transparent
-            )
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .clickable(onClick = onClick)
             .height(MaterialTheme.spaces.rowHeightMedium)
             .padding(start = MaterialTheme.spaces.large)
             .padding(vertical = MaterialTheme.spaces.medium),
@@ -327,15 +323,13 @@ fun ListItem(
 
         IconButton(
             modifier = Modifier.weight(0.12f),
-            onClick = if (isSelected) onDelete else onEdit,
+            onClick = onEdit,
         ) {
             Icon(
                 tint = MaterialTheme.colorScheme.outline,
                 modifier = Modifier.size(20.dp),
-                imageVector = if (isSelected) MaterialIconsDelete else MaterialIconsEdit,
-                contentDescription = stringResource(
-                    if (isSelected) R.string.delete_list else R.string.edit_list
-                ),
+                imageVector = MaterialIconsEdit,
+                contentDescription = stringResource(R.string.edit_list),
             )
         }
     }
@@ -349,11 +343,8 @@ fun ListItem(
 fun ListsScreenContent(
     viewMode: ViewMode,
     lists: List<EasyListsList>,
-    selectedListId: String?,
     onListClick: (EasyListsList) -> Unit,
-    onListLongClick: (EasyListsList) -> Unit,
     onListEdit: (EasyListsList) -> Unit,
-    onListDelete: () -> Unit,
 ) {
     val isCard = viewMode == ViewMode.Card
 
@@ -379,23 +370,16 @@ fun ListsScreenContent(
             }
         } else {
             items(items = lists, key = { it.listId.toString() }) { list ->
-                val isSelected = selectedListId == list.listId
                 when (viewMode) {
                     ViewMode.Card -> ListCard(
                         list = list,
-                        isSelected = isSelected,
                         onClick = { onListClick(list) },
-                        onLongClick = { onListLongClick(list) },
                         onEdit = { onListEdit(list) },
-                        onDelete = onListDelete,
                     )
                     ViewMode.List -> ListItem(
                         list = list,
-                        isSelected = isSelected,
                         onClick = { onListClick(list) },
-                        onLongClick = { onListLongClick(list) },
                         onEdit = { onListEdit(list) },
-                        onDelete = onListDelete,
                     )
                 }
             }
@@ -492,9 +476,11 @@ fun ListsScreenOverflowMenu(navController: NavController<Screen>) {
 fun ListsScreenListBottomSheet(
     editor: ListEditorState,
     validation: ListEditorValidation,
+    hasChanges: Boolean,
     onNameChange: (String) -> Unit,
     onNotesChange: (String) -> Unit,
     onSave: (onSaved: () -> Unit) -> Unit,
+    onDelete: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -531,15 +517,28 @@ fun ListsScreenListBottomSheet(
                             else R.string.edit_list
                         ),
                         icon = {
-                            IconButton(
-                                enabled = validation.canSave,
-                                onClick = { onSave(hideAndDismiss) }
-                            ) {
-                                Icon(
-                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    imageVector = MaterialIconsCheck,
-                                    contentDescription = stringResource(R.string.add_list),
-                                )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(
+                                    enabled = validation.canSave && hasChanges,
+                                    onClick = { onSave(hideAndDismiss) }
+                                ) {
+                                    Icon(
+                                        tint = if (hasChanges)
+                                            MaterialTheme.colorScheme.onPrimaryContainer
+                                        else MaterialTheme.colorScheme.outline,
+                                        imageVector = MaterialIconsCheck,
+                                        contentDescription = stringResource(R.string.add_list),
+                                    )
+                                }
+                                if (editor.mode != AddEditMode.Add) {
+                                    IconButton(onClick = onDelete) {
+                                        Icon(
+                                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            imageVector = MaterialIconsDelete,
+                                            contentDescription = stringResource(R.string.delete_list),
+                                        )
+                                    }
+                                }
                             }
                         },
                         modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)

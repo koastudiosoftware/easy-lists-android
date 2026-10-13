@@ -336,17 +336,15 @@ class ListItemsViewModel @Inject constructor(
         }
     }
 
-    fun showContextIcons(item: EasyListsListItem) {
-        interaction = interaction.copy(
-            selectedItemId = if (interaction.selectedItemId == null) item.listItemId else null,
-        )
-    }
-
+    // Deletes the item currently open in the edit bottom sheet, then closes the sheet.
     fun deleteListItem() {
-        val id = interaction.selectedItemId ?: return
+        val form = editor ?: return
+        if (form.mode == AddEditMode.Add) return
+        val id = form.itemId
+        editor = null
+
         viewModelScope.launch {
             deleteListItemUseCase(listOf(id))
-            interaction = interaction.copy(selectedItemId = null)
         }
     }
 

@@ -3,7 +3,6 @@ package com.easylists.presentation.ui.listitems
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -157,12 +156,9 @@ fun ListItemsScreen(
 
                 is ListItemsUiState.Success -> ListItemsScreenContent(
                     state = state,
-                    selectedItemId = interaction.selectedItemId,
                     expandTagPills = interaction.expandTagPills,
                     onItemClick = viewModel::onListItemClick,
-                    onItemLongClick = viewModel::showContextIcons,
                     onItemEdit = viewModel::onEditItemClick,
-                    onItemDelete = { viewModel.setShowDeleteItemDialog(true) },
                     onTagPillsClick = viewModel::onToggleTagPills,
                     onDeleteCrossedOff = { viewModel.setShowDeleteCrossedOffDialog(true) },
                 )
@@ -197,6 +193,7 @@ fun ListItemsScreen(
     val success = uiState as? ListItemsUiState.Success
     if (editor != null && success != null) {
         val validation = remember(editor, success.items) { editor.validate(success.items) }
+        val hasChanges = remember(editor, success) { editor.hasChanges(success) }
         val actions = remember(viewModel) {
             ItemEditorActions(
                 onNameChange = viewModel::onItemNameChange,
@@ -208,6 +205,7 @@ fun ListItemsScreen(
                 onPhotoTransformChanged = viewModel::onPhotoTransformChanged,
                 onPhotoRemove = viewModel::onPhotoRemove,
                 onSave = viewModel::saveListItem,
+                onDelete = { viewModel.setShowDeleteItemDialog(true) },
                 onDismiss = viewModel::onEditorDismiss,
             )
         }
@@ -215,6 +213,7 @@ fun ListItemsScreen(
         ListItemsBottomSheet(
             editor = editor,
             validation = validation,
+            hasChanges = hasChanges,
             categories = success.categories,
             tags = success.tags,
             settings = success.settings,
@@ -222,6 +221,31 @@ fun ListItemsScreen(
         )
     }
 }
+
+
+//region hasChanges
+// true when the editor differs from what is saved; always true when adding
+private fun ItemEditorState.hasChanges(state: ListItemsUiState.Success): Boolean {
+    val orig = this.original ?: return true
+
+    val originalCategory = orig.categoryId
+        ?.let { id -> state.categories.find { it.categoryId == id }?.name }
+        .orEmpty()
+    val originalTagIds = state.tagLinks
+        .filter { it.listItemId == itemId }
+        .map { it.tagId }
+        .toSet()
+    val originalPhotoUri = orig.photoUri?.takeIf { it.isNotEmpty() }
+
+    return name.trim() != orig.name ||
+            quantity != orig.quantity?.toString().orEmpty() ||
+            notes != orig.notes.orEmpty() ||
+            !categoryName.trim().equals(originalCategory, ignoreCase = true) ||
+            selectedTagIds != originalTagIds ||
+            photo?.uri != originalPhotoUri ||
+            photo?.let { it.current != it.initial } == true
+}
+//endregion
 
 
 //region ListItemsTopAppBarNavigationIcon
@@ -241,12 +265,9 @@ fun ListItemsTopAppBarNavigationIcon(navController: NavController<Screen>) {
 @Composable
 fun ListItemsScreenContent(
     state: ListItemsUiState.Success,
-    selectedItemId: String?,
     expandTagPills: Boolean,
     onItemClick: (EasyListsListItem) -> Unit,
-    onItemLongClick: (EasyListsListItem) -> Unit,
     onItemEdit: (EasyListsListItem) -> Unit,
-    onItemDelete: () -> Unit,
     onTagPillsClick: () -> Unit,
     onDeleteCrossedOff: () -> Unit,
 ) {
@@ -273,29 +294,22 @@ fun ListItemsScreenContent(
                 )
 
                 is ListRow.Item -> {
-                    val isSelected = row.item.listItemId == selectedItemId
                     if (isCard) {
                         ListItemCard(
                             row = row,
                             settings = state.settings,
-                            isSelected = isSelected,
                             expandTagPills = expandTagPills,
                             onClick = { onItemClick(row.item) },
-                            onLongClick = { onItemLongClick(row.item) },
                             onEdit = { onItemEdit(row.item) },
-                            onDelete = onItemDelete,
                             onTagPillsClick = onTagPillsClick,
                         )
                     } else {
                         ListItemRow(
                             row = row,
                             settings = state.settings,
-                            isSelected = isSelected,
                             expandTagPills = expandTagPills,
                             onClick = { onItemClick(row.item) },
-                            onLongClick = { onItemLongClick(row.item) },
                             onEdit = { onItemEdit(row.item) },
-                            onDelete = onItemDelete,
                             onTagPillsClick = onTagPillsClick,
                         )
                     }
@@ -376,12 +390,9 @@ fun ListItemsCategoryTitle(
 fun ListItemRow(
     row: ListRow.Item,
     settings: AppSettings,
-    isSelected: Boolean,
     expandTagPills: Boolean,
     onClick: () -> Unit,
-    onLongClick: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit,
     onTagPillsClick: () -> Unit,
 ) {
     Column {
@@ -393,7 +404,7 @@ fun ListItemRow(
                         Modifier.background(MaterialTheme.colorScheme.surfaceContainerLow)
                     else Modifier
                 )
-                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                .clickable(onClick = onClick)
                 .height(MaterialTheme.spaces.rowHeightMedium)
                 .padding(
                     start = MaterialTheme.spaces.medium,
@@ -404,11 +415,9 @@ fun ListItemRow(
             ListItemRowContent(
                 row = row,
                 settings = settings,
-                isSelected = isSelected,
                 expandTagPills = expandTagPills,
                 isCard = false,
                 onEdit = onEdit,
-                onDelete = onDelete,
                 onTagPillsClick = onTagPillsClick,
             )
         }
@@ -423,12 +432,9 @@ fun ListItemRow(
 fun ListItemCard(
     row: ListRow.Item,
     settings: AppSettings,
-    isSelected: Boolean,
     expandTagPills: Boolean,
     onClick: () -> Unit,
-    onLongClick: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit,
     onTagPillsClick: () -> Unit,
 ) {
     val crossedOff = row.item.crossedOff == true
@@ -444,13 +450,13 @@ fun ListItemCard(
             containerColor = if (crossedOff) MaterialTheme.colorScheme.surfaceContainer
             else MaterialTheme.colorScheme.surfaceContainerLowest,
         ),
-        border = selectableCardBorder(isSelected),
+        border = selectableCardBorder(false),
     ) {
         // click handling is inside the Card so the ripple is clipped to its shape
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                .clickable(onClick = onClick)
                 .padding(horizontal = MaterialTheme.spaces.medium)
                 .padding(vertical = MaterialTheme.spaces.medium),
             verticalAlignment = Alignment.CenterVertically,
@@ -458,11 +464,9 @@ fun ListItemCard(
             ListItemRowContent(
                 row = row,
                 settings = settings,
-                isSelected = isSelected,
                 expandTagPills = expandTagPills,
                 isCard = true,
                 onEdit = onEdit,
-                onDelete = onDelete,
                 onTagPillsClick = onTagPillsClick,
             )
         }
@@ -478,11 +482,9 @@ fun ListItemCard(
 fun RowScope.ListItemRowContent(
     row: ListRow.Item,
     settings: AppSettings,
-    isSelected: Boolean,
     expandTagPills: Boolean,
     isCard: Boolean,
     onEdit: () -> Unit,
-    onDelete: () -> Unit,
     onTagPillsClick: () -> Unit,
 ) {
     val item = row.item
@@ -537,14 +539,12 @@ fun RowScope.ListItemRowContent(
         )
     }
 
-    IconButton(onClick = if (isSelected) onDelete else onEdit) {
+    IconButton(onClick = onEdit) {
         Icon(
             tint = MaterialTheme.colorScheme.outline,
             modifier = Modifier.size(20.dp),
-            imageVector = if (isSelected) MaterialIconsDelete else MaterialIconsEdit,
-            contentDescription = stringResource(
-                if (isSelected) R.string.delete_item else R.string.view_item_details
-            ),
+            imageVector = MaterialIconsEdit,
+            contentDescription = stringResource(R.string.view_item_details),
         )
     }
 }
@@ -684,6 +684,7 @@ class ItemEditorActions(
     val onPhotoTransformChanged: (Float, Float, Float) -> Unit,
     val onPhotoRemove: () -> Unit,
     val onSave: (onSaved: () -> Unit) -> Unit,
+    val onDelete: () -> Unit,
     val onDismiss: () -> Unit,
 )
 
@@ -692,6 +693,7 @@ class ItemEditorActions(
 fun ListItemsBottomSheet(
     editor: ItemEditorState,
     validation: ItemEditorValidation,
+    hasChanges: Boolean,
     categories: List<EasyListsCategory>,
     tags: List<EasyListsTag>,
     settings: AppSettings,
@@ -733,15 +735,29 @@ fun ListItemsBottomSheet(
                             else R.string.edit_item
                         ),
                         icon = {
-                            IconButton(
-                                enabled = validation.canSave,
-                                onClick = { actions.onSave(hideAndDismiss) },
-                            ) {
-                                Icon(
-                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    imageVector = MaterialIconsCheck,
-                                    contentDescription = stringResource(R.string.add_list_item),
-                                )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(
+                                    enabled = validation.canSave && hasChanges,
+                                    onClick = { actions.onSave(hideAndDismiss) },
+                                ) {
+                                    Icon(
+                                        tint = if (hasChanges)
+                                            MaterialTheme.colorScheme.onPrimaryContainer
+                                        else
+                                            MaterialTheme.colorScheme.outline,
+                                        imageVector = MaterialIconsCheck,
+                                        contentDescription = stringResource(R.string.add_list_item),
+                                    )
+                                }
+                                if (editor.mode != AddEditMode.Add) {
+                                    IconButton(onClick = actions.onDelete) {
+                                        Icon(
+                                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            imageVector = MaterialIconsDelete,
+                                            contentDescription = stringResource(R.string.delete_item),
+                                        )
+                                    }
+                                }
                             }
                         },
                         modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)

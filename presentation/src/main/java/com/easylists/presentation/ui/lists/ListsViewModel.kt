@@ -129,27 +129,22 @@ class ListsViewModel @Inject constructor(
             if (form.mode == AddEditMode.Add) addListUseCase(list = list) else updateListUseCase(list = list)
 
             editor = null
-            interaction = interaction.copy(selectedListId = null)
             onSaved() // replaces `editor = null`
         }
     }
     //endregion
 
 
-    //region Selection / delete
-    fun showContextIcons(list: EasyListsList?) {
-        if (list == null) return
-        interaction = interaction.copy(
-            selectedListId = if (interaction.selectedListId == null) list.listId.toString() else null,
-        )
-    }
-
+    //region Delete
+    // Deletes the list currently open in the edit bottom sheet, then closes the sheet.
     fun deleteList() {
-        val listId = interaction.selectedListId ?: return
+        val form = editor ?: return
+        if (form.mode == AddEditMode.Add) return
+        val listId = form.listId ?: return
+        editor = null
 
         viewModelScope.launch {
             deleteListsUseCase(listIds = listOf(listId))
-            interaction = interaction.copy(selectedListId = null)
         }
     }
 
