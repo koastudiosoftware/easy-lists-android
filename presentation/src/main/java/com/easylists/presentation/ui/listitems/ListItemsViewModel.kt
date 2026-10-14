@@ -58,6 +58,7 @@ import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @HiltViewModel
@@ -139,8 +140,9 @@ class ListItemsViewModel @Inject constructor(
         editor = editor?.let(transform)
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     fun onAddItemClick() {
-        editor = ItemEditorState(itemId = Uuid.random().toString())
+        editor = ItemEditorState(itemId = Uuid.generateV7().toString())
     }
 
     fun onEditItemClick(item: EasyListsListItem) {
@@ -285,14 +287,16 @@ class ListItemsViewModel @Inject constructor(
     //endregion
 
 
+    @OptIn(ExperimentalUuidApi::class)
     private suspend fun createCategory(name: String): String? {
         // TODO surface an error if the userId can't be fetched
         val userId = session.getUserId().ifEmpty { return null }
-        val id = Uuid.random().toString()
+        val id = Uuid.generateV7().toString()
         addCategoryUseCase(EasyListsCategory(categoryId = id, ownerId = userId, name = name))
         return id
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     private suspend fun syncTagLinks(
         itemId: String,
         selected: Set<String>,
@@ -309,7 +313,7 @@ class ListItemsViewModel @Inject constructor(
             addTagListItemUseCase(
                 tagListItem = toAdd.map {
                     TagListItem(
-                        tagListItemId = Uuid.random().toString(),
+                        tagListItemId = Uuid.generateV7().toString(),
                         listItemId = itemId,
                         tagId = it,
                     )

@@ -39,6 +39,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 private const val DEFAULT_COLOR_HEX = "#FFFFFFFF"
@@ -204,13 +205,14 @@ class TagsViewModel @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     private suspend fun addTag(name: String) {
         val ownerId = session.getUserId()
         check(ownerId.isNotEmpty()) { "No signed-in user" }
 
         addTagUseCase(
             easyListsTag = EasyListsTag(
-                tagId = Uuid.random().toString(),
+                tagId = Uuid.generateV7().toString(),
                 ownerId = ownerId,
                 name = name,
                 isDirty = true,

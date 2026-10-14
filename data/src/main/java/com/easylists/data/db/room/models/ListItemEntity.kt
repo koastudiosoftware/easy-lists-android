@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @Entity(
@@ -20,11 +21,11 @@ import kotlin.uuid.Uuid
         Index(value = ["category_id"]),
     ],
 )
-data class ListItemEntity(
+data class ListItemEntity @OptIn(ExperimentalUuidApi::class) constructor(
 
     @PrimaryKey
     @ColumnInfo(name = "list_item_id")
-    val listItemId: String = Uuid.random().toString(),
+    val listItemId: String = Uuid.generateV7().toString(),
 
     @ColumnInfo(name = "list_id")
     val listId: String,

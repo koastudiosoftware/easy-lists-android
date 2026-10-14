@@ -6,17 +6,18 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @Entity(
     tableName = "users",
     indices = [Index(value = ["email"], unique = true)],
 )
-data class UserEntity(
+data class UserEntity @OptIn(ExperimentalUuidApi::class) constructor(
 
     @PrimaryKey
     @ColumnInfo(name = "user_id")
-    val userId: String = Uuid.random().toString(),
+    val userId: String = Uuid.generateV7().toString(),
 
     val email: String? = null,
 

@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @HiltViewModel
@@ -193,13 +194,14 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     private suspend fun addCategory(name: String) {
         val ownerId = session.getUserId()
         check(ownerId.isNotEmpty()) { "No signed-in user" }
 
         addCategoryUseCase(
             category = EasyListsCategory(
-                categoryId = Uuid.random().toString(),
+                categoryId = Uuid.generateV7().toString(),
                 ownerId = ownerId,
                 name = name,
                 isDirty = true,
