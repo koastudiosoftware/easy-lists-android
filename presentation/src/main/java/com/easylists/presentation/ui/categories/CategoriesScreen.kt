@@ -122,8 +122,20 @@ fun CategoriesScreen(
             )
         }
 
-        state.categorySheet?.let { CategoryEditorSheet(sheet = it, state = state, viewModel = viewModel) }
-        state.pendingDelete?.let { ConfirmDeleteDialog(pending = it, viewModel = viewModel) }
+        state.categorySheet?.let {
+            CategoryEditorSheet(
+                sheet = it,
+                state = state,
+                viewModel = viewModel
+            )
+        }
+        state.pendingDelete?.let {
+            ConfirmDeleteDialog(
+                pending = it,
+                count = if (it is CategoryPendingDelete.Single) 1 else state.selectedCategoryIds.size,
+                viewModel = viewModel,
+            )
+        }
     }
 }
 //endregion
@@ -371,15 +383,16 @@ private fun CategoryTrailing(
 
 //region ConfirmDeleteDialog
 @Composable
-private fun ConfirmDeleteDialog(pending: CategoryPendingDelete, viewModel: CategoriesViewModel) {
+private fun ConfirmDeleteDialog(
+    pending: CategoryPendingDelete,
+    count: Int,
+    viewModel: CategoriesViewModel,
+) {
     ConfirmationDialog(
         onDismissRequest = viewModel::onDeleteDismissed,
         onConfirmation = viewModel::onDeleteConfirmed,
         dialogTitle = stringResource(R.string.confirm_deletion),
-        dialogText = stringResource(
-            if (pending is CategoryPendingDelete.Single) R.string.delete_category_warning
-            else R.string.delete_categories_warning
-        ),
+        dialogText = pluralStringResource(R.plurals.delete_categories_warning, count, count),
     )
 }
 //endregion

@@ -39,6 +39,7 @@
     <string name="edit_category">Edit Category</string>
     <string name="quantity">Quantity</string>
     <string name="category">Category</string>
+    <string name="uncategorized">Uncategorized</string>
 
     <string name="support">Support</string>
     <string name="email">Email</string>
@@ -72,10 +73,6 @@
     <string name="delete_crossed_off_items_warning">Are you sure you want to delete all crossed off items from this list?</string>
     <string name="delete_list_warning">Are you sure you want to delete \"%1$s\"? All the items in this list will be deleted too.</string>
     <string name="delete_list_item_warning">Are you sure you want to delete \"%1$s\" from this list?</string>
-    <string name="delete_category_warning">Are you sure you want to delete the selected category? Items in this category will not be deleted.</string>
-    <string name="delete_categories_warning">Are you sure you want to delete the selected categories? Items in these categories will not be deleted.</string>
-    <string name="delete_tags_warning">Are you sure you want to delete the selected tags? Items with these tags will not be deleted.</string>
-    <string name="delete_tag_warning">Are you sure you want to delete the selected tag? Items with this tag will not be deleted.</string>
 
     <string name="category_not_used_message">This category is not used by any items on any list.</string>
     <string name="category_used_by_message">This category is used by the following items.</string>
@@ -97,21 +94,19 @@
 
     <string name="theme">Theme</string>
 
-    <string name="capitalization">Capitalization</string>
-
     <string name="choose_a_color">Choose A Color</string>
     <string name="save_tag_color">Save tag color</string>
     <string name="remove_tag_color">Remove tag color</string>
     <string name="hex_placeholder">FFFFFF</string>
     <string name="rgb">RGB</string>
 
+    <string name="capitalization">Capitalization</string>
     <string name="capitalization_none">None</string>
     <string name="capitalization_first_letter">Capitalize first letter</string>
     <string name="capitalization_all_words">Capitalize all words</string>
 
     <string name="list_name_in_use">List name in use</string>
     <string name="retry">Retry</string>
-    <string name="uncategorized">Uncategorized</string>
     <string name="item_name_in_use">Item name in use</string>
     <string name="choose_photo">Choose photo</string>
     <string name="remove_photo">Remove photo</string>
@@ -141,6 +136,7 @@
     <string name="restore_all_crossed_off_items">Restore All Crossed Off Items</string>
     <string name="undo">Undo</string>
     <string name="list_deleted">Deleted \"%1$s\"</string>
+
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>
         <item quantity="other">Used by %d list items</item>
@@ -153,4 +149,15 @@
         <item quantity="one">%1$d crossed-off item deleted</item>
         <item quantity="other">%1$d crossed-off items deleted</item>
     </plurals>
+
+    <plurals name="delete_categories_warning">
+        <item quantity="one">Are you sure you want to delete the selected category? Items with this category will become uncategorized.</item>
+        <item quantity="other">Are you sure you want to delete the selected categories? Items with this category will become uncategorized.</item>
+    </plurals>
+
+    <plurals name="delete_tags_warning">
+        <item quantity="one">Are you sure you want to delete the selected tag? Items with this tag will not be deleted.</item>
+        <item quantity="other">Are you sure you want to delete the selected tags? Items with these tags will not be deleted.</item>
+    </plurals>
+
 </resources>

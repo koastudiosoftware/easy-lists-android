@@ -71,6 +71,7 @@ import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsCancel
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsDelete
+import com.easylists.presentation.models.CategoryPendingDelete
 import com.easylists.presentation.models.ColorEditorState
 import com.easylists.presentation.models.TagsState
 import com.easylists.presentation.models.TagPendingDelete
@@ -139,7 +140,11 @@ fun TagsScreen(
 
         state.tagSheet?.let { TagEditorSheet(sheet = it, state = state, viewModel = viewModel) }
         state.colorEditor?.let { ColorPickerSheet(editor = it, viewModel = viewModel) }
-        state.pendingDelete?.let { ConfirmDeleteDialog(pending = it, viewModel = viewModel) }
+        state.pendingDelete?.let { ConfirmDeleteDialog(
+            pending = it,
+            count = if (it is TagPendingDelete.Single) 1 else state.selectedTagIds.size,
+            viewModel = viewModel
+        ) }
     }
 }
 
@@ -402,15 +407,16 @@ private fun TagRow(
 
 //region ConfirmDeleteDialog
 @Composable
-private fun ConfirmDeleteDialog(pending: TagPendingDelete, viewModel: TagsViewModel) {
+private fun ConfirmDeleteDialog(
+    pending: TagPendingDelete,
+    count: Int,
+    viewModel: TagsViewModel
+) {
     ConfirmationDialog(
         onDismissRequest = viewModel::onDeleteDismissed,
         onConfirmation = viewModel::onDeleteConfirmed,
         dialogTitle = stringResource(R.string.confirm_deletion),
-        dialogText = stringResource(
-            if (pending is TagPendingDelete.Single) R.string.delete_tag_warning
-            else R.string.delete_tags_warning
-        ),
+        dialogText = pluralStringResource(R.plurals.delete_tags_warning, count, count),
     )
 }
 //endregion
