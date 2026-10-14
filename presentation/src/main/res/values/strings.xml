@@ -149,4 +149,8 @@
         <item quantity="one">Used by %d item</item>
         <item quantity="other">Used by %d items</item>
     </plurals>
+    <plurals name="crossed_off_items_deleted">
+        <item quantity="one">%1$d crossed-off item deleted</item>
+        <item quantity="other">%1$d crossed-off items deleted</item>
+    </plurals>
 </resources>

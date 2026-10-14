@@ -70,4 +70,11 @@ class RoomListItemLocalDataSource @Inject constructor(
         dao.restoreCrossedOff(listId = listId, now = System.currentTimeMillis())
     //endregion
 
+
+    //region undelete()
+    override suspend fun undelete(listItemIds: List<String>): Int {
+        return dao.undelete(listItemIds = listItemIds)
+    }
+    //endregion
+
 }

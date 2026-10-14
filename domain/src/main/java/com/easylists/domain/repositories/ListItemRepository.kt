@@ -14,4 +14,6 @@ interface ListItemRepository {
     suspend fun updateListItem(listItem: EasyListsListItem): Result<Unit>
 
     suspend fun restoreCrossedOffListItems(listId: String): Result<Int>
+
+    suspend fun undeleteListItems(listItemIds: List<String>): Result<Int>
 }

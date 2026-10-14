@@ -37,8 +37,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
@@ -59,6 +61,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -94,6 +97,7 @@ import com.easylists.presentation.icons.MaterialIconsPhotoCamera
 import com.easylists.presentation.models.ItemEditorState
 import com.easylists.presentation.models.ItemEditorValidation
 import com.easylists.presentation.models.ItemNameError
+import com.easylists.presentation.models.ListItemsEvent
 import com.easylists.presentation.models.ListItemsUiState
 import com.easylists.presentation.models.ListRow
 import com.easylists.presentation.models.Screen
@@ -123,7 +127,31 @@ fun ListItemsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val interaction = viewModel.interaction
     val editor = viewModel.editor
+
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val resources = LocalResources.current
+    val undoLabel = stringResource(R.string.undo)
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is ListItemsEvent.CrossedOffItemsDeleted -> {
+                    val result = snackbarHostState.showSnackbar(
+                        message = resources.getQuantityString(
+                            R.plurals.crossed_off_items_deleted,
+                            event.itemIds.size,
+                            event.itemIds.size,
+                        ),
+                        actionLabel = undoLabel,
+                        duration = SnackbarDuration.Short,
+                    )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        viewModel.onUndoDeleteCrossedOffItems(event.itemIds)
+                    }
+                }
+            }
+        }
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },

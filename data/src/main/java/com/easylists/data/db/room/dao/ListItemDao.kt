@@ -64,4 +64,16 @@ abstract class ListItemDao() {
     @Query("UPDATE list_items SET category_id = NULL WHERE category_id IN (:categoryIdList)")
     abstract suspend fun removeCategory(categoryIdList: List<String>)
 
+    @Query("""
+        UPDATE list_items
+        SET is_deleted = 0, is_dirty = 1, modified_timestamp = :now
+        WHERE list_item_id IN (:listItemIds) AND is_deleted = 1
+        """)
+    protected abstract suspend fun undeleteChunk(listItemIds: List<String>, now: Long): Int
+
+    @Transaction
+    open suspend fun undelete(
+        listItemIds: List<String>,
+        now: Long = System.currentTimeMillis()
+    ): Int = listItemIds.chunked(500).sumOf { undeleteChunk(it, now) }
 }

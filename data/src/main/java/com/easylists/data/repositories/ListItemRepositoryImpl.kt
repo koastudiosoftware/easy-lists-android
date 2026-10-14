@@ -85,7 +85,15 @@ class ListItemRepositoryImpl @Inject constructor(
             localSource.restoreCrossedOff(listId = listId)
         }
     }
-//endregion
+    //endregion
+
+    //region undeleteListItems()
+    override suspend fun undeleteListItems(listItemIds: List<String>): Result<Int> {
+        return Result.runCatching {
+            localSource.undelete(listItemIds = listItemIds)
+        }
+    }
+    //endregion
 
 }
 
@@ -100,5 +108,7 @@ interface ListItemLocalDataSource {
     suspend fun update(listItem: EasyListsListItem)
 
     suspend fun restoreCrossedOff(listId: String): Int
+
+    suspend fun undelete(listItemIds: List<String>): Int
 
 }

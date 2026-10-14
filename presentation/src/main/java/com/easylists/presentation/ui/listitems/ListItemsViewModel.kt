@@ -23,11 +23,13 @@ import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveTagListItemUseCase
 import com.easylists.domain.use_cases.RestoreCrossedOffListItemsUseCase
 import com.easylists.domain.use_cases.SaveListItemPhotoUseCase
+import com.easylists.domain.use_cases.UndeleteListItemsUseCase
 import com.easylists.domain.use_cases.UpdateListItemUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ImageBitmapLoader
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ItemEditorState
+import com.easylists.presentation.models.ListItemsEvent
 import com.easylists.presentation.models.ListItemsInteractionState
 import com.easylists.presentation.models.ListItemsUiState
 import com.easylists.presentation.models.PhotoDraft
@@ -38,6 +40,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -46,6 +49,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -71,6 +75,7 @@ class ListItemsViewModel @Inject constructor(
     private val restoreCrossedOffListItemsUseCase: RestoreCrossedOffListItemsUseCase,
     private val deleteListItemUseCase: DeleteListItemsUseCase,
     private val saveListItemPhotoUseCase: SaveListItemPhotoUseCase,
+    private val undeleteListItemsUseCase: UndeleteListItemsUseCase,
     private val bitmapLoader: ImageBitmapLoader,
     private val session: SessionRepository,
     private val mapper: UiMapper,
@@ -78,6 +83,9 @@ class ListItemsViewModel @Inject constructor(
 
     private val listId = MutableStateFlow<String?>(null)
     private val refreshTrigger = MutableStateFlow(0)
+
+    private val _events = Channel<ListItemsEvent>(Channel.BUFFERED)
+    val events = _events.receiveAsFlow()
 
     var listName by mutableStateOf("")
         private set
@@ -357,13 +365,27 @@ class ListItemsViewModel @Inject constructor(
             deleteListItemUseCase(listOf(id))
         }
     }
+    //endregion
 
+
+    //region Delete all crossed-off items
     fun deleteAllCrossedOffItems() {
         val ids = successState?.items.orEmpty()
             .filter { it.crossedOff }
             .mapNotNull { it.listItemId }
         if (ids.isEmpty()) return
-        viewModelScope.launch { deleteListItemUseCase(ids) }
+        viewModelScope.launch {
+            deleteListItemUseCase(ids).onSuccess {
+                _events.send(ListItemsEvent.CrossedOffItemsDeleted(ids))
+            }
+        }
+    }
+    //endregion
+
+
+    //region undo crossed-off delete
+    fun onUndoDeleteCrossedOffItems(itemIds: List<String>) {
+        viewModelScope.launch { undeleteListItemsUseCase(itemIds) }
     }
     //endregion
 
