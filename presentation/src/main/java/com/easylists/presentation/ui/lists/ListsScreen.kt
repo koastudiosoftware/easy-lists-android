@@ -211,6 +211,11 @@ fun ListsScreen(
 
     // dialogs and bottom sheets: they don't need to live inside the PullToRefreshBox
     if (interaction.showConfirmationDialog) {
+        val listName = (lists as? ListListUiState.Success)?.lists
+            ?.find { it.listId.toString() == editor?.listId }
+            ?.name
+            .orEmpty()
+
         ConfirmationDialog(
             onDismissRequest = { viewModel.setShowConfirmationDialogState(false) },
             onConfirmation = {
@@ -218,7 +223,7 @@ fun ListsScreen(
                 viewModel.setShowConfirmationDialogState(false)
             },
             dialogTitle = stringResource(R.string.confirm_deletion),
-            dialogText = stringResource(R.string.delete_list_warning),
+            dialogText = stringResource(R.string.delete_list_warning, listName),
         )
     }
 

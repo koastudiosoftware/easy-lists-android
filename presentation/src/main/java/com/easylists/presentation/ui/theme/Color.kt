@@ -18,7 +18,6 @@ val LightOnTertiary = Color(0xFFFFFFFF)
 val LightTertiaryContainer = Color(0xFFDAE1FF)
 val LightOnTertiaryContainer = Color(0xFF111A37)
 
-
 val LightBackground = Color(0xFFFAFDFF)
 val LightOnBackground = Color(0xFF191C1D)
 val LightSurface = Color(0xFFB9D0D6)
@@ -33,6 +32,12 @@ val LightSurfaceContainerLow = Color(0xFFF3F5F6)
 val LightSurfaceContainer = Color(0xFFEEF0F1)
 val LightSurfaceContainerHigh = Color(0xFFE9ECED)
 val LightSurfaceContainerHighest = Color(0xFFE3E5E6)
+
+val LightError = Color(0xFFBA1A1A)
+val LightOnError = Color(0xFFFFFFFF)
+val LightErrorContainer = Color(0xFFD9534F)
+val LightOnErrorContainer = Color(0xFF410002)
+
 
 // ---------- Dark ----------
 val DarkPrimary = Color(0xFF52D7F0)
@@ -64,3 +69,8 @@ val DarkSurfaceContainerLow = Color(0xFF1E2122)
 val DarkSurfaceContainer = Color(0xFF222526)
 val DarkSurfaceContainerHigh = Color(0xFF272A2B)
 val DarkSurfaceContainerHighest = Color(0xFF333637)
+
+val DarkError = Color(0xFFFF5449)
+val DarkOnError = Color(0xFF410002)
+val DarkErrorContainer = Color(0xFF93000A)
+val DarkOnErrorContainer = Color(0xFFFFDAD6)
