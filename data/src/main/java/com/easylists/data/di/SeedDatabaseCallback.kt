@@ -147,7 +147,7 @@ class SeedDatabaseCallback(
                         categoryId = item.category?.let {
                             requireNotNull(categoryIds[it]) { "Seed item '${item.name}' has unknown category '$it'" }
                         },
-                        crossedOff = item.crossedOff,
+                        crossedOff = item.crossedOff == true,
                         crossedOffTimestamp = if (item.crossedOff == true) now else null,
                         name = item.name,
                         notes = item.notes,

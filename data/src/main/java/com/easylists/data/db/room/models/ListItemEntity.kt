@@ -38,9 +38,9 @@ data class ListItemEntity(
 
     val quantity: Int? = null,
 
-    @ColumnInfo(name = "crossed_off")
+    @ColumnInfo(name = "crossed_off", defaultValue = "0")
     @SerializedName(value = "crossed_off")
-    val crossedOff: Boolean? = null,
+    val crossedOff: Boolean = false,
 
     @ColumnInfo(name = "crossed_off_timestamp")
     @SerializedName(value = "crossed_off_timestamp")

@@ -194,6 +194,7 @@ fun ListItemsScreen(
     if (editor != null && success != null) {
         val validation = remember(editor, success.items) { editor.validate(success.items) }
         val hasChanges = remember(editor, success) { editor.hasChanges(success) }
+        val uncategorizedLabel = stringResource(R.string.uncategorized)
         val actions = remember(viewModel) {
             ItemEditorActions(
                 onNameChange = viewModel::onItemNameChange,
@@ -204,7 +205,7 @@ fun ListItemsScreen(
                 onPhotoChosen = viewModel::onPhotoChosen,
                 onPhotoTransformChanged = viewModel::onPhotoTransformChanged,
                 onPhotoRemove = viewModel::onPhotoRemove,
-                onSave = viewModel::saveListItem,
+                onSave = { viewModel.saveListItem(uncategorizedLabel, it) },
                 onDelete = { viewModel.setShowDeleteItemDialog(true) },
                 onDismiss = viewModel::onEditorDismiss,
             )
@@ -572,9 +573,9 @@ fun ListItemPhoto(
     } else {
         FramedPhoto(
             photoUri = photoUri,
-            scale = item.photoScale.toFloat().takeIf { it > 0f } ?: 1f,
-            normalizedOffsetX = item.photoOffsetX.toFloat(),
-            normalizedOffsetY = item.photoOffsetY.toFloat(),
+            scale = (item.photoScale?.toFloat() ?: 1f).takeIf { it > 0f } ?: 1f,
+            normalizedOffsetX = item.photoOffsetX?.toFloat() ?: 0f,
+            normalizedOffsetY = item.photoOffsetY?.toFloat() ?: 0f,
             zoomEnabled = false,
             targetSize = targetSize,
             shape = shape,
@@ -873,6 +874,7 @@ fun ListItemBottomSheetCategory(
     onCategoryChange: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val isUncategorized = categoryName.isBlank()
 
     ExposedDropdownMenuBox(
         modifier = Modifier
@@ -882,11 +884,11 @@ fun ListItemBottomSheetCategory(
         onExpandedChange = { expanded = it },
     ) {
         TextField(
-            // editable: the user can type a new category or pick an existing one
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
                 .fillMaxWidth(),
             label = { Text(text = stringResource(R.string.category)) },
+            placeholder = { Text(text = stringResource(R.string.uncategorized)) },
             value = categoryName,
             onValueChange = onCategoryChange,
             singleLine = true,
@@ -897,6 +899,26 @@ fun ListItemBottomSheetCategory(
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
+            // faux category: an empty name is saved as a null categoryId
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = stringResource(R.string.uncategorized),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                },
+                onClick = {
+                    onCategoryChange("")
+                    expanded = false
+                },
+                trailingIcon = if (isUncategorized) {
+                    { Icon(imageVector = MaterialIconsCheck, contentDescription = null) }
+                } else null,
+                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+            )
+
+            if (categories.isNotEmpty()) HorizontalDivider()
+
             categories.forEach { category ->
                 DropdownMenuItem(
                     text = {

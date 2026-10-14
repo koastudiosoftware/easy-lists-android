@@ -181,7 +181,7 @@ class ListsViewModel @Inject constructor(
     fun deleteList() {
         val form = editor ?: return
         if (form.mode == AddEditMode.Add) return
-        val listId = form.listId ?: return
+        val listId = form.listId
         editor = null
 
         viewModelScope.launch {

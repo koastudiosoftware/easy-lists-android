@@ -150,9 +150,9 @@ class ListItemsViewModel @Inject constructor(
             PhotoDraft(
                 uri = uri,
                 initial = PhotoTransform(
-                    scale = item.photoScale.toFloat().takeIf { it > 0f } ?: 1f,
-                    offsetX = item.photoOffsetX.toFloat(),
-                    offsetY = item.photoOffsetY.toFloat(),
+                    scale = (item.photoScale?.toFloat() ?: 1f).takeIf { it > 0f } ?: 1f,
+                    offsetX = item.photoOffsetX?.toFloat() ?: 0f,
+                    offsetY = item.photoOffsetY?.toFloat() ?: 0f,
                 ),
             )
         }
@@ -209,7 +209,10 @@ class ListItemsViewModel @Inject constructor(
 
 
     //region saveListItem()
-    fun saveListItem(onSaved: () -> Unit) {
+    fun saveListItem(
+        uncategorizedLabel: String,
+        onSaved: () -> Unit
+    ) {
         val form = editor ?: return
         val current = successState ?: return
         val currentListId = listId.value ?: return
@@ -226,6 +229,8 @@ class ListItemsViewModel @Inject constructor(
 
             // category: reuse a matching one, otherwise create it
             val categoryName = form.categoryName.trim()
+                .takeUnless { it.equals(uncategorizedLabel, ignoreCase = true) }
+                .orEmpty()
             val categoryId: String? = if (categoryName.isEmpty()) {
                 null
             } else {
@@ -250,9 +255,9 @@ class ListItemsViewModel @Inject constructor(
                 notes = form.notes.ifEmpty { null },
                 quantity = form.quantity.toIntOrNull(),
                 photoUri = photoUri,
-                photoScale = (photo?.current?.scale ?: 1f).toDouble(),
-                photoOffsetX = (photo?.current?.offsetX ?: 0f).toDouble(),
-                photoOffsetY = (photo?.current?.offsetY ?: 0f).toDouble(),
+                photoScale = photo?.current?.scale?.toDouble(),
+                photoOffsetX = photo?.current?.offsetX?.toDouble(),
+                photoOffsetY = photo?.current?.offsetY?.toDouble(),
                 isDirty = true,
                 isDeleted = false,
                 modifiedTimestamp = Clock.System.now().toEpochMilliseconds(),
