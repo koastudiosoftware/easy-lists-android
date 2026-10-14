@@ -160,6 +160,7 @@ fun ListItemsScreen(
                     onItemClick = viewModel::onListItemClick,
                     onItemEdit = viewModel::onEditItemClick,
                     onTagPillsClick = viewModel::onToggleTagPills,
+                    onRestoreCrossedOff = viewModel::restoreAllCrossedOffItems,
                     onDeleteCrossedOff = { viewModel.setShowDeleteCrossedOffDialog(true) },
                 )
             }
@@ -270,6 +271,7 @@ fun ListItemsScreenContent(
     onItemClick: (EasyListsListItem) -> Unit,
     onItemEdit: (EasyListsListItem) -> Unit,
     onTagPillsClick: () -> Unit,
+    onRestoreCrossedOff: () -> Unit,
     onDeleteCrossedOff: () -> Unit,
 ) {
     val isCard = state.settings.viewMode == ViewMode.Card
@@ -316,7 +318,14 @@ fun ListItemsScreenContent(
                     }
                 }
 
-                ListRow.DeleteCrossedOff -> DeleteCrossedOffItems(
+                ListRow.RestoreCrossedOff -> CrossedOffActionRow(
+                    text = stringResource(R.string.restore_all_crossed_off_items),
+                    onClick = onRestoreCrossedOff,
+                    showDivider = !isCard,
+                )
+
+                ListRow.DeleteCrossedOff -> CrossedOffActionRow(
+                    text = stringResource(R.string.delete_all_crossed_off_items),
                     onClick = onDeleteCrossedOff,
                     showDivider = !isCard,
                 )
@@ -327,9 +336,9 @@ fun ListItemsScreenContent(
 //endregion
 
 
-//region DeleteCrossedOffItems
+//region CrossedOffActionRow
 @Composable
-fun DeleteCrossedOffItems(onClick: () -> Unit, showDivider: Boolean = true) {
+fun CrossedOffActionRow(text: String, onClick: () -> Unit, showDivider: Boolean = true) {
     Column {
         Row(
             modifier = Modifier
@@ -341,7 +350,7 @@ fun DeleteCrossedOffItems(onClick: () -> Unit, showDivider: Boolean = true) {
         ) {
             Text(
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
-                text = stringResource(R.string.delete_all_crossed_off_items),
+                text = text,
             )
         }
         if (showDivider) HorizontalDivider()

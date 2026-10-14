@@ -354,9 +354,19 @@ class ListItemsViewModel @Inject constructor(
     }
 
     fun deleteAllCrossedOffItems() {
-        val crossedOff = successState?.items.orEmpty().filter { it.crossedOff == true }
+        val crossedOff = successState?.items.orEmpty().filter { it.crossedOff }
         viewModelScope.launch {
             crossedOff.forEach { updateListItemUseCase(listItem = it.copy(isDeleted = true)) }
+        }
+    }
+    //endregion
+
+
+    //region restoreCrossedOffItems()
+    fun restoreAllCrossedOffItems() {
+        val crossedOff = successState?.items.orEmpty().filter { it.crossedOff }
+        viewModelScope.launch {
+            crossedOff.forEach { updateListItemUseCase(listItem = it.copy(crossedOff = false)) }
         }
     }
     //endregion

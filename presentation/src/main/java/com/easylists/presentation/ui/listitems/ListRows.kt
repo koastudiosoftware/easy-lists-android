@@ -109,6 +109,7 @@ fun buildListRows(
                     addGroup(name, groupItems.sortedForCrossedOff(), crossedOff = true)
                 }
         }
+        rows += ListRow.RestoreCrossedOff
         rows += ListRow.DeleteCrossedOff
     }
 

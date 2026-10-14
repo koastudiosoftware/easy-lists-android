@@ -43,6 +43,10 @@ sealed interface ListRow {
     object DeleteCrossedOff : ListRow {
         override val key = "delete_crossed_off"
     }
+
+    object RestoreCrossedOff : ListRow {
+        override val key = "restore_crossed_off"
+    }
 }
 //endregion
 
