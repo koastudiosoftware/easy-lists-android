@@ -358,15 +358,19 @@ class ListItemsViewModel @Inject constructor(
     }
     //endregion
 
-    // Deletes the item currently open in the edit bottom sheet, then closes the sheet.
+
+    //region Deletes the item currently open in the edit bottom sheet, then closes the sheet.
     fun deleteListItem() {
         val form = editor ?: return
         if (form.mode == AddEditMode.Add) return
         val id = form.itemId
+        val name = form.original?.name.orEmpty()
         editor = null
 
         viewModelScope.launch {
-            deleteListItemUseCase(listOf(id))
+            deleteListItemUseCase(listOf(id)).onSuccess {
+                _events.send(ListItemsEvent.ListItemDeleted(itemId = id, itemName = name))
+            }
         }
     }
     //endregion
@@ -390,6 +394,13 @@ class ListItemsViewModel @Inject constructor(
     //region undo crossed-off delete
     fun onUndoDeleteCrossedOffItems(itemIds: List<String>) {
         viewModelScope.launch { undeleteListItemsUseCase(itemIds) }
+    }
+    //endregion
+
+
+    //region undo item delete
+    fun onUndoDeleteListItem(itemId: String) {
+        viewModelScope.launch { undeleteListItemsUseCase(listOf(itemId)) }
     }
     //endregion
 

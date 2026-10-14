@@ -149,6 +149,16 @@ fun ListItemsScreen(
                         viewModel.onUndoDeleteCrossedOffItems(event.itemIds)
                     }
                 }
+                is ListItemsEvent.ListItemDeleted -> {
+                    val result = snackbarHostState.showSnackbar(
+                        message = resources.getString(R.string.list_item_deleted, event.itemName),
+                        actionLabel = undoLabel,
+                        duration = SnackbarDuration.Short,
+                    )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        viewModel.onUndoDeleteListItem(event.itemId)
+                    }
+                }
             }
         }
     }
