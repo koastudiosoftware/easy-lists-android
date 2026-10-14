@@ -16,11 +16,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -28,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -321,13 +324,14 @@ fun ListItemsScreenContent(
                 ListRow.RestoreCrossedOff -> CrossedOffActionRow(
                     text = stringResource(R.string.restore_all_crossed_off_items),
                     onClick = onRestoreCrossedOff,
-                    showDivider = !isCard,
+                    showDivider = false,
                 )
 
                 ListRow.DeleteCrossedOff -> CrossedOffActionRow(
                     text = stringResource(R.string.delete_all_crossed_off_items),
                     onClick = onDeleteCrossedOff,
-                    showDivider = !isCard,
+                    destructive = true,
+                    showDivider = false,
                 )
             }
         }
@@ -338,20 +342,36 @@ fun ListItemsScreenContent(
 
 //region CrossedOffActionRow
 @Composable
-fun CrossedOffActionRow(text: String, onClick: () -> Unit, showDivider: Boolean = true) {
+fun CrossedOffActionRow(
+    text: String,
+    onClick: () -> Unit,
+    destructive: Boolean = false,
+    showDivider: Boolean = true,
+) {
     Column {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
-                .clickable(onClick = onClick)
-                .padding(horizontal = MaterialTheme.spaces.large),
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(
+                    horizontal = MaterialTheme.spaces.large,
+                    vertical = MaterialTheme.spaces.small,
+                ),
+            contentAlignment = Alignment.Center,
         ) {
-            Text(
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                text = text,
-            )
+            FilledTonalButton(
+                modifier = Modifier.widthIn(min = 240.dp),
+                onClick = onClick,
+                colors = if (destructive) {
+                    ButtonDefaults.filledTonalButtonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                } else {
+                    ButtonDefaults.filledTonalButtonColors()
+                },
+            ) {
+                Text(text = text)
+            }
         }
         if (showDivider) HorizontalDivider()
     }
