@@ -64,4 +64,10 @@ class RoomListItemLocalDataSource @Inject constructor(
     }
     //endregion
 
+
+    //region restoreCrossedOff()
+    override suspend fun restoreCrossedOff(listId: String): Int =
+        dao.restoreCrossedOff(listId = listId, now = System.currentTimeMillis())
+    //endregion
+
 }

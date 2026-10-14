@@ -36,6 +36,13 @@ abstract class ListItemDao() {
 
     @Query("""
         UPDATE list_items
+        SET crossed_off = 0, is_dirty = 1, modified_timestamp = :now
+        WHERE list_id = :listId AND crossed_off = 1 AND is_deleted = 0
+        """)
+    abstract suspend fun restoreCrossedOff(listId: String, now: Long): Int
+
+    @Query("""
+        UPDATE list_items
         SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
         WHERE list_item_id IN (:listItemIds) AND is_deleted = 0
         """)

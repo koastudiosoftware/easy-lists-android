@@ -21,6 +21,7 @@ import com.easylists.domain.use_cases.GetTagUseCase
 import com.easylists.domain.use_cases.GetTagListItemUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveTagListItemUseCase
+import com.easylists.domain.use_cases.RestoreCrossedOffListItemsUseCase
 import com.easylists.domain.use_cases.SaveListItemPhotoUseCase
 import com.easylists.domain.use_cases.UpdateListItemUseCase
 import com.easylists.presentation.common.AddEditMode
@@ -67,6 +68,7 @@ class ListItemsViewModel @Inject constructor(
     private val removeTagListItemUseCase: RemoveTagListItemUseCase,
     private val addListItemUseCase: AddListItemUseCase,
     private val updateListItemUseCase: UpdateListItemUseCase,
+    private val restoreCrossedOffListItemsUseCase: RestoreCrossedOffListItemsUseCase,
     private val deleteListItemUseCase: DeleteListItemsUseCase,
     private val saveListItemPhotoUseCase: SaveListItemPhotoUseCase,
     private val bitmapLoader: ImageBitmapLoader,
@@ -272,6 +274,8 @@ class ListItemsViewModel @Inject constructor(
             onSaved()
         }
     }
+    //endregion
+
 
     private suspend fun createCategory(name: String): String? {
         // TODO surface an error if the userId can't be fetched
@@ -334,12 +338,13 @@ class ListItemsViewModel @Inject constructor(
         viewModelScope.launch {
             updateListItemUseCase(
                 listItem = item.copy(
-                    crossedOff = item.crossedOff != true,
+                    crossedOff = !item.crossedOff,
                     crossedOffTimestamp = Clock.System.now().toEpochMilliseconds(),
                 )
             )
         }
     }
+    //endregion
 
     // Deletes the item currently open in the edit bottom sheet, then closes the sheet.
     fun deleteListItem() {
@@ -354,20 +359,19 @@ class ListItemsViewModel @Inject constructor(
     }
 
     fun deleteAllCrossedOffItems() {
-        val crossedOff = successState?.items.orEmpty().filter { it.crossedOff }
-        viewModelScope.launch {
-            crossedOff.forEach { updateListItemUseCase(listItem = it.copy(isDeleted = true)) }
-        }
+        val ids = successState?.items.orEmpty()
+            .filter { it.crossedOff }
+            .mapNotNull { it.listItemId }
+        if (ids.isEmpty()) return
+        viewModelScope.launch { deleteListItemUseCase(ids) }
     }
     //endregion
 
 
     //region restoreCrossedOffItems()
     fun restoreAllCrossedOffItems() {
-        val crossedOff = successState?.items.orEmpty().filter { it.crossedOff }
-        viewModelScope.launch {
-            crossedOff.forEach { updateListItemUseCase(listItem = it.copy(crossedOff = false)) }
-        }
+        val currentListId = listId.value ?: return
+        viewModelScope.launch { restoreCrossedOffListItemsUseCase(currentListId) }
     }
     //endregion
 

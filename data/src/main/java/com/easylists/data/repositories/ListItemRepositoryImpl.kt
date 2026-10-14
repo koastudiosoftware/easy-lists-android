@@ -78,6 +78,15 @@ class ListItemRepositoryImpl @Inject constructor(
     }
     //endregion
 
+
+    //region restoreCrossedOffListItems()
+    override suspend fun restoreCrossedOffListItems(listId: String): Result<Int> {
+        return Result.runCatching {
+            localSource.restoreCrossedOff(listId = listId)
+        }
+    }
+//endregion
+
 }
 
 
@@ -89,5 +98,7 @@ interface ListItemLocalDataSource {
     suspend fun insert(listItem: EasyListsListItem): Long
     suspend fun removeCategory(categoryIdList: List<String>)
     suspend fun update(listItem: EasyListsListItem)
+
+    suspend fun restoreCrossedOff(listId: String): Int
 
 }

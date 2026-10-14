@@ -13,4 +13,5 @@ interface ListItemRepository {
     suspend fun removeCategoryFromListItem(categoryIdList: List<String>): Result<Unit>
     suspend fun updateListItem(listItem: EasyListsListItem): Result<Unit>
 
+    suspend fun restoreCrossedOffListItems(listId: String): Result<Int>
 }
