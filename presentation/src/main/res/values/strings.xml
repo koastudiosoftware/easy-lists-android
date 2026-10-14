@@ -52,8 +52,8 @@
     <string name="display">Display</string>
     <string name="adding_and_editing">Adding and Editing</string>
 
-    <string name="view_mode">View Mode</string>
-    <string name="view_mode_description">View mode for lists and list items</string>
+    <string name="appearance">Appearance</string>
+    <string name="view_mode_description">View mode for lists and items</string>
     <string name="list_view_mode">List View Mode</string>
     <string name="card_view_mode">Card View Mode</string>
 
@@ -101,7 +101,7 @@
     <string name="rgb">RGB</string>
 
     <string name="capitalization">Capitalization</string>
-    <string name="capitalization_none">None</string>
+    <string name="capitalization_none">Don\'t capitalize</string>
     <string name="capitalization_first_letter">Capitalize first letter</string>
     <string name="capitalization_all_words">Capitalize all words</string>
 
@@ -137,6 +137,9 @@
     <string name="undo">Undo</string>
     <string name="list_deleted">Deleted \"%1$s\"</string>
     <string name="list_item_deleted">Deleted \"%1$s\"</string>
+    <string name="backups">Backups</string>
+    <string name="local_backup">Create local backup</string>
+    <string name="local_backup_description">Backup all data and settings</string>
 
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>

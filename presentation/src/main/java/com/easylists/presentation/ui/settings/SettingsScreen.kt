@@ -1,5 +1,6 @@
 package com.easylists.presentation.ui.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -24,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,7 +40,8 @@ import com.easylists.presentation.R
 import com.easylists.presentation.common.composables.ListSettingGroup
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.composables.SettingsCardGroup
-import com.easylists.presentation.common.composables.ToggleSettingItem
+import com.easylists.presentation.common.composables.SettingsItem
+import com.easylists.presentation.common.composables.ToggleSettingsItem
 import com.easylists.presentation.common.labelRes
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsInfo
@@ -170,21 +175,21 @@ fun SettingsScreenContent(
                     onSelected = viewModel::onSortCrossedOffItemsChanged,
                 )
                 HorizontalDivider()
-                ToggleSettingItem(
+                ToggleSettingsItem(
                     textLine1 = stringResource(id = R.string.enable_camera),
                     textLine2 = stringResource(id = R.string.enable_camera_description),
                     enabled = settings.enableCamera,
                     onCheckedChange = { viewModel.onEnableCameraChanged() }
                 )
                 HorizontalDivider()
-                ToggleSettingItem(
+                ToggleSettingsItem(
                     textLine1 = stringResource(id = R.string.enable_photos),
                     textLine2 = stringResource(id = R.string.enable_photos_description),
                     enabled = settings.enablePhotos,
                     onCheckedChange = { viewModel.onEnablePhotosChanged() }
                 )
                 HorizontalDivider()
-                ToggleSettingItem(
+                ToggleSettingsItem(
                     textLine1 = stringResource(id = R.string.enable_tags),
                     textLine2 = stringResource(id = R.string.enable_tags_description),
                     enabled = settings.enableTags,
@@ -206,10 +211,10 @@ fun SettingsScreenContent(
             }
         }
 
-        item { SettingsSectionTitle(stringResource(id = R.string.view_mode)) }
+        item { SettingsSectionTitle(stringResource(id = R.string.appearance)) }
         item {
             SettingsCardGroup {
-                ToggleSettingItem(
+                ToggleSettingsItem(
                     textLine1 = stringResource(id = R.string.view_mode_description),
                     textLine2 = when (settings.viewMode) {
                         ViewMode.List -> stringResource(id = R.string.list_view_mode)
@@ -217,6 +222,17 @@ fun SettingsScreenContent(
                     },
                     enabled = settings.viewMode == ViewMode.Card,
                     onCheckedChange = { viewModel.onViewModeToggled() }
+                )
+            }
+        }
+
+        item { SettingsSectionTitle(stringResource(id = R.string.backups)) }
+        item {
+            SettingsCardGroup {
+                SettingsItem(
+                    textLine1 = stringResource(R.string.local_backup),
+                    textLine2 = stringResource(R.string.local_backup_description),
+                    onClick = { /* TODO: not wired up yet */ },
                 )
             }
         }
@@ -233,3 +249,18 @@ private fun SettingsSectionTitle(title: String) {
     )
 }
 //endregion
+
+
+@Composable
+private fun BackupSettingItem(
+    title: String,
+    description: String,
+    onClick: () -> Unit,
+) {
+    ListItem(
+        modifier = Modifier.clickable(onClick = onClick),
+        headlineContent = { Text(title) },
+        supportingContent = { Text(description) },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+    )
+}
