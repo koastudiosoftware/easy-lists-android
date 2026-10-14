@@ -27,7 +27,6 @@ import com.easylists.data.db.room.models.UserEntity
         CategoryEntity::class,
         ListEntity::class,
         ListItemEntity::class,
-        ListItemUpdateEntity::class,
         ListOrderEntity::class,
         ProviderLinkEntity::class,
         TagEntity::class,

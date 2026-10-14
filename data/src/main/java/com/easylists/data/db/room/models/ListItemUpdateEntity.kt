@@ -6,7 +6,6 @@ import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import kotlin.time.Clock
 
-@Entity
 data class ListItemUpdateEntity(
 
     @PrimaryKey
@@ -14,7 +13,7 @@ data class ListItemUpdateEntity(
     val listItemId: String,
 
     @ColumnInfo(name = "category_id")
-    val categoryUid: String? = null,
+    val categoryId: String? = null,
 
     val name: String,
 
