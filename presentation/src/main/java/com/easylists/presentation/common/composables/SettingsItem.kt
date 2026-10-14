@@ -65,11 +65,13 @@ fun SettingsItem(
     textLine1: String,
     textLine2: String,
     onClick: () -> Unit,
+    trailingContent: (@Composable () -> Unit)? = null,
 ) {
     SettingItemLayout(
         textLine1 = textLine1,
         textLine2 = textLine2,
         onClick = onClick,
+        trailingContent,
     )
 }
 

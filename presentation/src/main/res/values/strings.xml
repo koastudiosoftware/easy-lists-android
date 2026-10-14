@@ -140,9 +140,14 @@
 
     <string name="backups">Backups</string>
     <string name="create_local_backup">Create local backup</string>
-    <string name="create_local_backup_description">Backup all data and settings</string>
+    <string name="create_local_backup_description">Backup data and settings</string>
     <string name="restore_local_backup">Restore local backup</string>
     <string name="restore_local_backup_description">Restore data and settings from a local backup</string>
+    <string name="app_settings">App settings</string>
+    <string name="lists_and_items">Lists and list items</string>
+    <string name="photos">Photos</string>
+    <string name="backup_options_title">Backup Options</string>
+    <string name="backup_options">Backup options</string>
 
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>

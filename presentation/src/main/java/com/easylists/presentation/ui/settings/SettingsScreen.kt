@@ -24,7 +24,9 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,6 +47,7 @@ import com.easylists.presentation.common.composables.ToggleSettingsItem
 import com.easylists.presentation.common.labelRes
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsInfo
+import com.easylists.presentation.icons.MaterialIconsSettings
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
@@ -148,6 +151,9 @@ fun SettingsScreenContent(
     viewModel: SettingsViewModel
 ) {
 
+    var showBackupOptions by remember { mutableStateOf(false) }
+    var backupContent by remember { mutableStateOf(BackupContent.entries.toSet()) }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
@@ -233,6 +239,15 @@ fun SettingsScreenContent(
                     textLine1 = stringResource(R.string.create_local_backup),
                     textLine2 = stringResource(R.string.create_local_backup_description),
                     onClick = { /* TODO: not wired up yet */ },
+                    trailingContent = {
+                        IconButton(onClick = { showBackupOptions = true }) {
+                            Icon(
+                                imageVector = MaterialIconsSettings,
+                                contentDescription = stringResource(R.string.backup_options),
+                            )
+                        }
+                    },
+
                 )
 
                 HorizontalDivider()
@@ -243,6 +258,14 @@ fun SettingsScreenContent(
                 )
             }
         }
+    }
+
+    if (showBackupOptions) {
+        BackupOptionsDialog(
+            selected = backupContent,
+            onSelectedChange = { backupContent = it },
+            onDismiss = { showBackupOptions = false },
+        )
     }
 }
 
