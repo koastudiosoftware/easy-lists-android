@@ -230,8 +230,15 @@ fun SettingsScreenContent(
         item {
             SettingsCardGroup {
                 SettingsItem(
-                    textLine1 = stringResource(R.string.local_backup),
-                    textLine2 = stringResource(R.string.local_backup_description),
+                    textLine1 = stringResource(R.string.create_local_backup),
+                    textLine2 = stringResource(R.string.create_local_backup_description),
+                    onClick = { /* TODO: not wired up yet */ },
+                )
+
+                HorizontalDivider()
+                SettingsItem(
+                    textLine1 = stringResource(R.string.restore_local_backup),
+                    textLine2 = stringResource(R.string.restore_local_backup_description),
                     onClick = { /* TODO: not wired up yet */ },
                 )
             }

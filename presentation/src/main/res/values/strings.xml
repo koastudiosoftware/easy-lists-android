@@ -137,9 +137,12 @@
     <string name="undo">Undo</string>
     <string name="list_deleted">Deleted \"%1$s\"</string>
     <string name="list_item_deleted">Deleted \"%1$s\"</string>
+
     <string name="backups">Backups</string>
-    <string name="local_backup">Create local backup</string>
-    <string name="local_backup_description">Backup all data and settings</string>
+    <string name="create_local_backup">Create local backup</string>
+    <string name="create_local_backup_description">Backup all data and settings</string>
+    <string name="restore_local_backup">Restore local backup</string>
+    <string name="restore_local_backup_description">Restore data and settings from a local backup</string>
 
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>
