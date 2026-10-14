@@ -2,6 +2,7 @@ package com.easylists.presentation.ui.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -83,24 +84,12 @@ fun SettingsScreen(
         }
     ) { innerPadding ->
 
-        val pullToRefreshState = rememberPullToRefreshState()
-        PullToRefreshBox(
-            isRefreshing = uiState.isPullToRefreshing,
-            onRefresh = { viewModel.onPullToRefresh(true) },
-            state = pullToRefreshState,
-            modifier = Modifier.padding(innerPadding),
-            indicator = {
-                Indicator(
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    isRefreshing = uiState.isPullToRefreshing,
-                    state = pullToRefreshState
-                )
-            },
-        ) {
+        Box(modifier = Modifier.padding(innerPadding)) {
             settings?.let { s ->
                 SettingsScreenContent(navController, s, viewModel)
             }
         }
+
     }
 }
 
