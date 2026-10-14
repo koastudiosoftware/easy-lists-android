@@ -211,6 +211,8 @@ fun ListItemsScreen(
     }
 
     if (interaction.showDeleteItemDialog) {
+        val itemName = editor?.original?.name.orEmpty()
+
         ConfirmationDialog(
             onDismissRequest = { viewModel.setShowDeleteItemDialog(false) },
             onConfirmation = {
@@ -218,7 +220,7 @@ fun ListItemsScreen(
                 viewModel.setShowDeleteItemDialog(false)
             },
             dialogTitle = stringResource(R.string.confirm_deletion),
-            dialogText = stringResource(R.string.delete_list_items_warning),
+            dialogText = stringResource(R.string.delete_list_item_warning, itemName),
         )
     }
 

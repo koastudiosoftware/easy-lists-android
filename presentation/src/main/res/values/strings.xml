@@ -71,7 +71,7 @@
     <string name="confirm_deletion">Confirm Deletion</string>
     <string name="delete_crossed_off_items_warning">Are you sure you want to delete all crossed off items from this list?</string>
     <string name="delete_list_warning">Are you sure you want to delete \"%1$s\"? All the items in this list will be deleted too.</string>
-    <string name="delete_list_items_warning">Are you sure you want to delete the selected item from this list?</string>
+    <string name="delete_list_item_warning">Are you sure you want to delete \"%1$s\" from this list?</string>
     <string name="delete_category_warning">Are you sure you want to delete the selected category? Items in this category will not be deleted.</string>
     <string name="delete_categories_warning">Are you sure you want to delete the selected categories? Items in these categories will not be deleted.</string>
     <string name="delete_tags_warning">Are you sure you want to delete the selected tags? Items with these tags will not be deleted.</string>
