@@ -14,6 +14,7 @@ import com.easylists.domain.use_cases.DeleteListsUseCase
 import com.easylists.domain.use_cases.GetListsUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.ReorderListsUseCase
+import com.easylists.domain.use_cases.RestoreListsUseCase
 import com.easylists.domain.use_cases.UpdateAppSettingsUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
@@ -21,10 +22,12 @@ import com.easylists.presentation.common.ListsAction
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ListEditorState
 import com.easylists.presentation.models.ListListUiState
+import com.easylists.presentation.models.ListsEvent
 import com.easylists.presentation.models.ListsInteractionState
 import com.easylists.presentation.models.validate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,6 +39,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -50,11 +54,15 @@ class ListsViewModel @Inject constructor(
     private val addListUseCase: AddListUseCase,
     private val deleteListsUseCase: DeleteListsUseCase,
     private val reorderListsUseCase: ReorderListsUseCase,
+    private val restoreListsUseCase: RestoreListsUseCase,
     private val updateListUseCase: UpdateListUseCase,
     private val mapper: UiMapper,
     private val session: SessionRepository,
     private val updateAppSettings: UpdateAppSettingsUseCase,
 ) : ViewModel() {
+
+    private val _events = Channel<ListsEvent>(Channel.BUFFERED)
+    val events = _events.receiveAsFlow()
 
     // null = DataStore hasn't emitted yet
     val viewMode: StateFlow<ViewMode?> = observeAppSettings()
@@ -182,13 +190,29 @@ class ListsViewModel @Inject constructor(
         val form = editor ?: return
         if (form.mode == AddEditMode.Add) return
         val listId = form.listId
+
+        val deletedName = currentLists.find { it.listId.toString() == listId }?.name
         editor = null
 
         viewModelScope.launch {
-            deleteListsUseCase(listIds = listOf(listId))
+            deleteListsUseCase(listIds = listOf(listId)).onSuccess {
+                if (deletedName != null) {
+                    _events.send(ListsEvent.ListDeleted(listId, deletedName))
+                }
+            }
         }
     }
+    //endregion
 
+
+    //region undo list delete
+    fun onUndoDelete(listId: String) {
+        viewModelScope.launch { restoreListsUseCase(listIds = listOf(listId)) }
+    }
+    //endregion
+
+
+    //region Confirmation dialog
     fun setShowConfirmationDialogState(show: Boolean) {
         interaction = interaction.copy(showConfirmationDialog = show)
     }

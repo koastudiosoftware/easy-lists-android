@@ -25,6 +25,10 @@ data class ListsInteractionState(
     val isRearranging: Boolean = false,
 )
 
+sealed interface ListsEvent {
+    data class ListDeleted(val listId: String, val name: String) : ListsEvent
+}
+
 enum class ListNameError { Duplicate }
 
 data class ListEditorValidation(

@@ -33,14 +33,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,7 +56,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -88,6 +93,7 @@ import com.easylists.presentation.models.ListEditorState
 import com.easylists.presentation.models.ListEditorValidation
 import com.easylists.presentation.models.ListListUiState
 import com.easylists.presentation.models.ListNameError
+import com.easylists.presentation.models.ListsEvent
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.models.validate
 import com.easylists.presentation.ui.theme.spaces
@@ -115,6 +121,26 @@ fun ListsScreen(
     val isRearranging = interaction.isRearranging
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val context = LocalContext.current
+    val resources = LocalResources.current
+    val undoLabel = stringResource(R.string.undo)
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is ListsEvent.ListDeleted -> {
+                    val result = snackbarHostState.showSnackbar(
+                        message = resources.getString(R.string.list_deleted, event.name),
+                        actionLabel = undoLabel,
+                        duration = SnackbarDuration.Short,
+                    )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        viewModel.onUndoDelete(event.listId)
+                    }
+                }
+            }
+        }
+    }
 
     BackHandler(enabled = isRearranging) { viewModel.onRearrangeDone() }  // androidx.activity.compose
 

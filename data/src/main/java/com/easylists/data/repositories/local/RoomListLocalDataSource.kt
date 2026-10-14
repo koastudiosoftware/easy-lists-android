@@ -55,4 +55,11 @@ class RoomListLocalDataSource @Inject constructor(
     }
     //endregion
 
+
+    //region restore()
+    override suspend fun restore(listIds: List<String>): Int {
+        return dao.restore(listIds = listIds)
+    }
+    //endregion
+
 }

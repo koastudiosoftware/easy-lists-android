@@ -139,6 +139,8 @@
     <string name="done">Done</string>
     <string name="rearrange_lists">Rearrange lists</string>
     <string name="restore_all_crossed_off_items">Restore All Crossed Off Items</string>
+    <string name="undo">Undo</string>
+    <string name="list_deleted">Deleted \"%1$s\"</string>
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>
         <item quantity="other">Used by %d list items</item>

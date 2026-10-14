@@ -54,4 +54,33 @@ abstract class ListDao() {
         return rows
     }
 
+    // Must run before restoreListsChunk: it matches on the list's deletion timestamp,
+// which restoreListsChunk overwrites.
+    @Query("""
+    UPDATE list_items
+    SET is_deleted = 0, is_dirty = 1, modified_timestamp = :now
+    WHERE list_id IN (:listIds)
+      AND is_deleted = 1
+      AND modified_timestamp = (
+          SELECT l.modified_timestamp FROM lists l WHERE l.list_id = list_items.list_id
+      )
+""")
+    protected abstract suspend fun restoreListItemsChunk(listIds: List<String>, now: Long): Int
+
+    @Query("""
+    UPDATE lists
+    SET is_deleted = 0, is_dirty = 1, modified_timestamp = :now
+    WHERE list_id IN (:listIds) AND is_deleted = 1
+""")
+    protected abstract suspend fun restoreListsChunk(listIds: List<String>, now: Long): Int
+
+    @Transaction
+    open suspend fun restore(
+        listIds: List<String>,
+        now: Long = Clock.System.now().toEpochMilliseconds()
+    ): Int {
+        var rows = listIds.chunked(500).sumOf { restoreListItemsChunk(it, now) }
+        rows += listIds.chunked(500).sumOf { restoreListsChunk(it, now) }
+        return rows
+    }
 }

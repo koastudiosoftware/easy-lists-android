@@ -13,4 +13,6 @@ interface ListRepository {
 
     suspend fun reorderLists(listIds: List<String>): Result<Unit>
 
+    suspend fun restoreLists(listIds: List<String>): Result<Int>
+
 }

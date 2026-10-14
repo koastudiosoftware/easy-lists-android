@@ -55,6 +55,11 @@ class ListRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun restoreLists(listIds: List<String>): Result<Int> {
+        return Result.runCatching {
+            localSource.restore(listIds = listIds)
+        }
+    }
 }
 
 interface ListLocalDataSource {
@@ -66,4 +71,5 @@ interface ListLocalDataSource {
     fun getListsFlow(userId: String): Flow<List<EasyListsList>>   // listDao.get(userId) + your mapper
     suspend fun reorder(userId: String, listIds: List<String>)    // listOrderDao.reorder(...)
 
+    suspend fun restore(listIds: List<String>): Int
 }
