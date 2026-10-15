@@ -148,6 +148,12 @@
     <string name="photos">Photos</string>
     <string name="backup_options_title">Backup Options</string>
     <string name="backup_options">Backup options</string>
+    <string name="backup_error_unknown">Backup error occurred, no additional details available</string>
+    <string name="backup_error_restore_failed">Restore failed</string>
+    <string name="backup_error_folder_lost">Backup folder lost</string>
+    <string name="backup_restored">Backup restored</string>
+    <string name="backup_done">Backup done</string>
+    <string name="backup_error_generic">Backup error occurred</string>
 
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>
