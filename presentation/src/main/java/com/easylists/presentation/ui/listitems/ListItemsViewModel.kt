@@ -1,6 +1,8 @@
 package com.easylists.presentation.ui.listitems
 
 import android.graphics.Bitmap
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,6 +29,7 @@ import com.easylists.domain.use_cases.UndeleteListItemsUseCase
 import com.easylists.domain.use_cases.UpdateListItemUseCase
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ImageBitmapLoader
+import com.easylists.presentation.common.scaleAndCompressBitmap
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ItemEditorState
 import com.easylists.presentation.models.ListItemsEvent
@@ -323,16 +326,14 @@ class ListItemsViewModel @Inject constructor(
     }
 
     // copies the chosen image to app-private storage and returns its path
+    @RequiresApi(Build.VERSION_CODES.R)
     private suspend fun saveNewPhoto(sourceUri: String): String? {
         // TODO surface an error to the user when the image can't be loaded or saved
         val bitmap = bitmapLoader.load(sourceUri) ?: return null
         val bytes = withContext(Dispatchers.Default) {
-            ByteArrayOutputStream().use { stream ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                stream.toByteArray()
-            }
+            scaleAndCompressBitmap(sourceBitmap = bitmap, quality = 85)
         }
-        val filename = "img_${System.currentTimeMillis()}.png"
+        val filename = "img_${System.currentTimeMillis()}.webp"
         return try {
             saveListItemPhotoUseCase(bytes, filename).getOrThrow()
         } catch (e: CancellationException) {

@@ -105,4 +105,7 @@ dependencies {
 
     // reorderable
     implementation(libs.reorderable)
+
+    // EXIF
+    implementation(libs.androidx.exifinterface)
 }
