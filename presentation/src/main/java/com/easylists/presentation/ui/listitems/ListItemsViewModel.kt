@@ -1,5 +1,6 @@
 package com.easylists.presentation.ui.listitems
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -40,6 +41,7 @@ import com.easylists.presentation.models.PhotoTransform
 import com.easylists.presentation.models.validate
 import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -58,6 +60,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.nio.file.Files.exists
 import javax.inject.Inject
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
@@ -66,6 +70,7 @@ import kotlin.uuid.Uuid
 
 @HiltViewModel
 class ListItemsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     observeAppSettings: ObserveAppSettingsUseCase,
     getListItemUseCase: GetListItemUseCase,
     getCategoryUseCase: GetCategoryUseCase,
@@ -224,6 +229,7 @@ class ListItemsViewModel @Inject constructor(
 
 
     //region saveListItem()
+    @RequiresApi(Build.VERSION_CODES.R)
     fun saveListItem(
         uncategorizedLabel: String,
         onSaved: () -> Unit
@@ -333,8 +339,14 @@ class ListItemsViewModel @Inject constructor(
         val bytes = withContext(Dispatchers.Default) {
             scaleAndCompressBitmap(sourceBitmap = bitmap, quality = 85)
         }
-        val filename = "img_${System.currentTimeMillis()}.webp"
-        return try {
+
+        // Create a dedicated "photos" directory inside app-private filesDir
+        val photosDir = File(context.filesDir, "photos").apply {
+            if (!exists()) { mkdirs() }
+        }
+
+        val filename = "photos/img_${System.currentTimeMillis()}.webp"
+        return try {cam 
             saveListItemPhotoUseCase(bytes, filename).getOrThrow()
         } catch (e: CancellationException) {
             throw e
