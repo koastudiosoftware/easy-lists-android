@@ -332,7 +332,7 @@ class ListItemsViewModel @Inject constructor(
     }
 
     // copies the chosen image to app-private storage and returns its path
-    @RequiresApi(Build.VERSION_CODES.R)
+    @OptIn(ExperimentalUuidApi::class)
     private suspend fun saveNewPhoto(sourceUri: String): String? {
         // TODO surface an error to the user when the image can't be loaded or saved
         val bitmap = bitmapLoader.load(sourceUri) ?: return null
@@ -345,8 +345,8 @@ class ListItemsViewModel @Inject constructor(
             if (!exists()) { mkdirs() }
         }
 
-        val filename = "photos/img_${System.currentTimeMillis()}.webp"
-        return try {cam 
+        val filename = "photos/${Uuid.generateV7()}.webp"
+        return try {
             saveListItemPhotoUseCase(bytes, filename).getOrThrow()
         } catch (e: CancellationException) {
             throw e
