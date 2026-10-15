@@ -1,0 +1,181 @@
+<resources>
+
+
+    <string name="app_version">Version: %1$s</string>
+
+    <string name="lists">Listen</string>
+    <string name="settings">Einstellungen</string>
+    <string name="categories">Kategorien</string>
+    <string name="about">Über</string>
+
+    <string name="overflow_menu">Weitere Optionen</string>
+    <string name="return_to_previous_screen">Zum vorherigen Bildschirm zurückkehren</string>
+
+    <string name="name">Name</string>
+    <string name="notes">Notizen</string>
+    <string name="add_list">Liste hinzufügen</string>
+    <string name="edit_list">Liste bearbeiten</string>
+    <string name="create_new_list">Neue Liste erstellen</string>
+    <string name="create_new_tag">Neues Tag erstellen</string>
+    <string name="delete_list">Liste löschen</string>
+    <string name="no_lists_found">Keine Listen gefunden</string>
+    <string name="take_a_picture">Foto aufnehmen</string>
+    <string name="list_item_image">Listenelement-Foto</string>
+
+    <string name="delete_selected_categories">Ausgewählte Kategorien löschen</string>
+    <string name="delete_selected_tags">Ausgewählte Tags löschen</string>
+    <string name="cancel_deletion_of_selected_categories">Löschen der ausgewählten Kategorien abbrechen</string>
+    <string name="cancel_deletion_of_selected_tags">Löschen der ausgewählten Tags abbrechen</string>
+
+    <string name="delete_item">Eintrag löschen</string>
+    <string name="view_item_details">Details anzeigen</string>
+    <string name="add_list_item">Listeneintrag hinzufügen</string>
+    <string name="add_category">Kategorie hinzufügen</string>
+    <string name="add_tag">Tag hinzufügen</string>
+
+    <string name="add_item">Eintrag hinzufügen</string>
+    <string name="edit_item">Eintrag bearbeiten</string>
+    <string name="edit_tag">Tag bearbeiten</string>
+    <string name="edit_category">Kategorie bearbeiten</string>
+    <string name="quantity">Menge</string>
+    <string name="category">Kategorie</string>
+    <string name="uncategorized">Ohne Kategorie</string>
+
+    <string name="support">Support</string>
+    <string name="email">E-Mail</string>
+    <string name="donate">Spenden</string>
+
+
+    <string name="crossed_off">Erledigt</string>
+
+    <string name="list_items">Listenelemente</string>
+    <string name="display">Ansicht</string>
+    <string name="adding_and_editing">Hinzufügen und Bearbeiten</string>
+
+    <string name="appearance">Darstellung</string>
+    <string name="view_mode_description">Ansichtsmodus für Listen und Einträge</string>
+    <string name="list_view_mode">Listenansicht</string>
+    <string name="card_view_mode">Kartenansicht</string>
+
+    <string name="enable_camera">Kamera aktivieren</string>
+    <string name="enable_camera_description">Kamera für Listenelemente aktivieren oder deaktivieren</string>
+
+    <string name="enable_photos">Fotos aktivieren</string>
+    <string name="enable_photos_description">Fotos aktivieren oder deaktivieren</string>
+
+    <string name="enable_tags">Tags aktivieren</string>
+    <string name="enable_tags_description">Tags für Listenelemente aktivieren oder deaktivieren</string>
+
+    <string name="confirm">Bestätigen</string>
+    <string name="dismiss">Verwerfen</string>
+    <string name="confirmation_dialog_warning_icon">Warnsymbol im Bestätigungsdialog</string>
+    <string name="confirm_deletion">Löschen bestätigen</string>
+    <string name="delete_crossed_off_items_warning">Möchten Sie wirklich alle erledigten Einträge aus dieser Liste löschen?</string>
+    <string name="delete_list_warning">Möchten Sie \"%1$s\" wirklich löschen? Alle Elemente in dieser Liste werden ebenfalls gelöscht.</string>
+    <string name="delete_list_item_warning">Möchten Sie \"%1$s\" wirklich aus dieser Liste löschen?</string>
+
+    <string name="category_not_used_message">Diese Kategorie wird von keinem Element auf einer Liste verwendet.</string>
+    <string name="category_used_by_message">Diese Kategorie wird von den folgenden Elementen verwendet.</string>
+    <string name="tag_not_used_message">Dieses Tag wird von keinem Element auf einer Liste verwendet.</string>
+    <string name="tag_used_by_message">Dieses Tag wird von den folgenden Elementen verwendet.</string>
+
+    <string name="group_crossed_off_items">Erledigte Einträge gruppieren</string>
+    <string name="group_crossed_off_all_together">Alle zusammen</string>
+    <string name="group_crossed_off_by_category">Nach Kategorie</string>
+
+    <string name="sort_crossed_off_items">Erledigte Einträge sortieren</string>
+    <string name="sort_crossed_off_most_recent_on_top">Neueste zuerst</string>
+    <string name="sort_crossed_off_alphabetically">Alphabetisch</string>
+
+    <string name="delete_all_crossed_off_items">Alle erledigten Einträge löschen</string>
+
+    <string name="tags">Tags</string>
+    <string name="photo">Foto</string>
+
+    <string name="theme">Design</string>
+
+    <string name="choose_a_color">Farbe auswählen</string>
+    <string name="save_tag_color">Tag-Farbe speichern</string>
+    <string name="remove_tag_color">Tag-Farbe entfernen</string>
+    <string name="hex_placeholder">FFFFFF</string>
+    <string name="rgb">RGB</string>
+
+    <string name="capitalization">Groß-/Kleinschreibung</string>
+    <string name="capitalization_none">Nicht großschreiben</string>
+    <string name="capitalization_first_letter">Ersten Buchstaben großschreiben</string>
+    <string name="capitalization_all_words">Alle Wörter großschreiben</string>
+
+    <string name="list_name_in_use">Listenname bereits vergeben</string>
+    <string name="retry">Wiederholen</string>
+    <string name="item_name_in_use">Eintragsname bereits vergeben</string>
+    <string name="choose_photo">Foto auswählen</string>
+    <string name="remove_photo">Foto entfernen</string>
+    <string name="remove_tag">Tag entfernen</string>
+
+    <string name="save_tag">Tag speichern</string>
+    <string name="delete_tag">Tag löschen</string>
+    <string name="tag_not_used">Nicht verwendet</string>
+    <string name="tag_name_in_use">Name bereits vergeben</string>
+    <string name="error_loading_tags">Tags konnten nicht geladen werden</string>
+    <string name="error_saving_tag">Tag konnte nicht gespeichert werden</string>
+    <string name="error_deleting_tags">Tags konnten nicht gelöscht werden</string>
+    <string name="category_name_in_use">Kategoriename bereits vergeben</string>
+    <string name="delete_category">Kategorie löschen</string>
+    <string name="save_category">Kategorie speichern</string>
+    <string name="category_not_used">Kategorie nicht verwendet</string>
+    <string name="no_categories_yet">Noch keine Kategorien</string>
+    <string name="error_loading_categories">Kategorien konnten nicht geladen werden</string>
+    <string name="error_saving_category">Kategorie konnte nicht gespeichert werden</string>
+    <string name="error_deleting_categories">Kategorien konnten nicht gelöscht werden</string>
+    <string name="sort_lists">Listen sortieren</string>
+    <string name="sort_name_asc">Nach Name sortieren (A–Z)</string>
+    <string name="sort_name_desc">Nach Name sortieren (Z–A)</string>
+    <string name="sort_manual">Manuell sortieren</string>
+    <string name="done">Fertig</string>
+    <string name="rearrange_lists">Listen neu anordnen</string>
+    <string name="restore_all_crossed_off_items">Alle erledigten Einträge wiederherstellen</string>
+    <string name="undo">Rückgängig</string>
+    <string name="list_deleted">\"%1$s\" gelöscht</string>
+    <string name="list_item_deleted">\"%1$s\" gelöscht</string>
+
+    <string name="backups">Backups</string>
+    <string name="create_local_backup">Lokales Backup erstellen</string>
+    <string name="create_local_backup_description">Daten und Einstellungen sichern</string>
+    <string name="restore_local_backup">Lokales Backup wiederherstellen</string>
+    <string name="restore_local_backup_description">Daten und Einstellungen aus einem lokalen Backup wiederherstellen</string>
+    <string name="app_settings">App-Einstellungen</string>
+    <string name="lists_and_items">Listen und Listenelemente</string>
+    <string name="photos">Fotos</string>
+    <string name="backup_options_title">Backup-Optionen</string>
+    <string name="backup_options">Backup-Optionen</string>
+    <string name="backup_error_unknown">Ein Backup-Fehler ist aufgetreten, keine weiteren Details verfügbar</string>
+    <string name="backup_error_restore_failed">Wiederherstellung fehlgeschlagen</string>
+    <string name="backup_error_folder_lost">Backup-Ordner verloren</string>
+    <string name="backup_restored">Backup wiederhergestellt</string>
+    <string name="backup_done">Backup abgeschlossen</string>
+    <string name="backup_error_generic">Ein Backup-Fehler ist aufgetreten</string>
+
+    <plurals name="tag_used_by_list_items">
+        <item quantity="one">Von %d Listenelement verwendet</item>
+        <item quantity="other">Von %d Listenelementen verwendet</item>
+    </plurals>
+    <plurals name="category_used_by_list_items">
+        <item quantity="one">Von %d Element verwendet</item>
+        <item quantity="other">Von %d Elementen verwendet</item>
+    </plurals>
+    <plurals name="crossed_off_items_deleted">
+        <item quantity="one">%1$d erledigter Eintrag gelöscht</item>
+        <item quantity="other">%1$d erledigte Einträge gelöscht</item>
+    </plurals>
+
+    <plurals name="delete_categories_warning">
+        <item quantity="one">Möchten Sie die ausgewählte Kategorie wirklich löschen? Elemente mit dieser Kategorie werden keiner Kategorie zugeordnet.</item>
+        <item quantity="other">Möchten Sie die ausgewählten Kategorien wirklich löschen? Elemente mit diesen Kategorien werden keiner Kategorie zugeordnet.</item>
+    </plurals>
+
+    <plurals name="delete_tags_warning">
+        <item quantity="one">Möchten Sie das ausgewählte Tag wirklich löschen? Elemente mit diesem Tag werden nicht gelöscht.</item>
+        <item quantity="other">Möchten Sie die ausgewählten Tags wirklich löschen? Elemente mit diesen Tags werden nicht gelöscht.</item>
+    </plurals>
+
+</resources>

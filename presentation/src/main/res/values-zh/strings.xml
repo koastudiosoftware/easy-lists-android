@@ -1,0 +1,181 @@
+<resources>
+
+
+    <string name="app_version">版本：%1$s</string>
+
+    <string name="lists">列表</string>
+    <string name="settings">设置</string>
+    <string name="categories">分类</string>
+    <string name="about">关于</string>
+
+    <string name="overflow_menu">更多选项</string>
+    <string name="return_to_previous_screen">返回上一屏幕</string>
+
+    <string name="name">名称</string>
+    <string name="notes">备注</string>
+    <string name="add_list">添加列表</string>
+    <string name="edit_list">编辑列表</string>
+    <string name="create_new_list">创建新列表</string>
+    <string name="create_new_tag">创建新标签</string>
+    <string name="delete_list">删除列表</string>
+    <string name="no_lists_found">未找到列表</string>
+    <string name="take_a_picture">拍照</string>
+    <string name="list_item_image">列表项图片</string>
+
+    <string name="delete_selected_categories">删除选定的分类</string>
+    <string name="delete_selected_tags">删除选定的标签</string>
+    <string name="cancel_deletion_of_selected_categories">取消删除选定的分类</string>
+    <string name="cancel_deletion_of_selected_tags">取消删除选定的标签</string>
+
+    <string name="delete_item">删除项目</string>
+    <string name="view_item_details">查看项目详情</string>
+    <string name="add_list_item">添加列表项</string>
+    <string name="add_category">添加分类</string>
+    <string name="add_tag">添加标签</string>
+
+    <string name="add_item">添加项目</string>
+    <string name="edit_item">编辑项目</string>
+    <string name="edit_tag">编辑标签</string>
+    <string name="edit_category">编辑分类</string>
+    <string name="quantity">数量</string>
+    <string name="category">分类</string>
+    <string name="uncategorized">未分类</string>
+
+    <string name="support">支持</string>
+    <string name="email">电子邮件</string>
+    <string name="donate">捐赠</string>
+    <string name="copyright" translatable="false">© 2026 David Wiard, All Rights Reserved</string>
+
+    <string name="crossed_off">已完成</string>
+
+    <string name="list_items">列表项目</string>
+    <string name="display">显示</string>
+    <string name="adding_and_editing">添加与编辑</string>
+
+    <string name="appearance">外观</string>
+    <string name="view_mode_description">列表和项目的视图模式</string>
+    <string name="list_view_mode">列表视图模式</string>
+    <string name="card_view_mode">卡片视图模式</string>
+
+    <string name="enable_camera">启用相机</string>
+    <string name="enable_camera_description">启用或禁用列表项相机</string>
+
+    <string name="enable_photos">启用照片</string>
+    <string name="enable_photos_description">启用或禁用照片</string>
+
+    <string name="enable_tags">启用标签</string>
+    <string name="enable_tags_description">启用或禁用列表项标签</string>
+
+    <string name="confirm">确认</string>
+    <string name="dismiss">忽略</string>
+    <string name="confirmation_dialog_warning_icon">确认对话框警告图标</string>
+    <string name="confirm_deletion">确认删除</string>
+    <string name="delete_crossed_off_items_warning">确定要从该列表中删除所有已完成的项目吗？</string>
+    <string name="delete_list_warning">确定要删除 \"%1$s\" 吗？该列表中的所有项目也将被删除。</string>
+    <string name="delete_list_item_warning">确定要从该列表中删除 \"%1$s\" 吗？</string>
+
+    <string name="category_not_used_message">没有任何列表中的项目使用此分类。</string>
+    <string name="category_used_by_message">以下项目使用了此分类。</string>
+    <string name="tag_not_used_message">没有任何列表中的项目使用此标签。</string>
+    <string name="tag_used_by_message">以下项目使用了此标签。</string>
+
+    <string name="group_crossed_off_items">将已完成项目分组</string>
+    <string name="group_crossed_off_all_together">全部集中在一起</string>
+    <string name="group_crossed_off_by_category">按分类</string>
+
+    <string name="sort_crossed_off_items">排序已完成项目</string>
+    <string name="sort_crossed_off_most_recent_on_top">最近的在最上方</string>
+    <string name="sort_crossed_off_alphabetically">按字母顺序</string>
+
+    <string name="delete_all_crossed_off_items">删除所有已完成项目</string>
+
+    <string name="tags">标签</string>
+    <string name="photo">照片</string>
+
+    <string name="theme">主题</string>
+
+    <string name="choose_a_color">选择颜色</string>
+    <string name="save_tag_color">保存标签颜色</string>
+    <string name="remove_tag_color">移除标签颜色</string>
+    <string name="hex_placeholder">FFFFFF</string>
+    <string name="rgb">RGB</string>
+
+    <string name="capitalization">大小写</string>
+    <string name="capitalization_none">不进行大小写转换</string>
+    <string name="capitalization_first_letter">首字母大写</string>
+    <string name="capitalization_all_words">所有单词首字母大写</string>
+
+    <string name="list_name_in_use">列表名称已被使用</string>
+    <string name="retry">重试</string>
+    <string name="item_name_in_use">项目名称已被使用</string>
+    <string name="choose_photo">选择照片</string>
+    <string name="remove_photo">移除照片</string>
+    <string name="remove_tag">移除标签</string>
+
+    <string name="save_tag">保存标签</string>
+    <string name="delete_tag">删除标签</string>
+    <string name="tag_not_used">未使用</string>
+    <string name="tag_name_in_use">名称已被使用</string>
+    <string name="error_loading_tags">无法加载标签</string>
+    <string name="error_saving_tag">无法保存标签</string>
+    <string name="error_deleting_tags">无法删除标签</string>
+    <string name="category_name_in_use">分类名称已被使用</string>
+    <string name="delete_category">删除分类</string>
+    <string name="save_category">保存分类</string>
+    <string name="category_not_used">分类未使用</string>
+    <string name="no_categories_yet">暂无分类</string>
+    <string name="error_loading_categories">无法加载分类</string>
+    <string name="error_saving_category">无法保存分类</string>
+    <string name="error_deleting_categories">无法删除分类</string>
+    <string name="sort_lists">排序列表</string>
+    <string name="sort_name_asc">按名称排序 (A-Z)</string>
+    <string name="sort_name_desc">按名称排序 (Z-A)</string>
+    <string name="sort_manual">手动排序</string>
+    <string name="done">完成</string>
+    <string name="rearrange_lists">重新排列列表</string>
+    <string name="restore_all_crossed_off_items">恢复所有已完成项目</string>
+    <string name="undo">撤销</string>
+    <string name="list_deleted">已删除 \"%1$s\"</string>
+    <string name="list_item_deleted">已删除 \"%1$s\"</string>
+
+    <string name="backups">备份</string>
+    <string name="create_local_backup">创建本地备份</string>
+    <string name="create_local_backup_description">备份数据和设置</string>
+    <string name="restore_local_backup">恢复本地备份</string>
+    <string name="restore_local_backup_description">从本地备份中恢复数据和设置</string>
+    <string name="app_settings">应用设置</string>
+    <string name="lists_and_items">列表和列表项</string>
+    <string name="photos">照片</string>
+    <string name="backup_options_title">备份选项</string>
+    <string name="backup_options">备份选项</string>
+    <string name="backup_error_unknown">发生备份错误，无可用详细信息</string>
+    <string name="backup_error_restore_failed">恢复失败</string>
+    <string name="backup_error_folder_lost">备份文件夹丢失</string>
+    <string name="backup_restored">备份已恢复</string>
+    <string name="backup_done">备份完成</string>
+    <string name="backup_error_generic">发生备份错误</string>
+
+    <plurals name="tag_used_by_list_items">
+        <item quantity="one">被 %d 个列表项使用</item>
+        <item quantity="other">被 %d 个列表项使用</item>
+    </plurals>
+    <plurals name="category_used_by_list_items">
+        <item quantity="one">被 %d 个项目使用</item>
+        <item quantity="other">被 %d 个项目使用</item>
+    </plurals>
+    <plurals name="crossed_off_items_deleted">
+        <item quantity="one">已删除 %1$d 个已完成项目</item>
+        <item quantity="other">已删除 %1$d 个已完成项目</item>
+    </plurals>
+
+    <plurals name="delete_categories_warning">
+        <item quantity="one">确定要删除选定的分类吗？带有此分类的项目将变为未分类。</item>
+        <item quantity="other">确定要删除选定的分类吗？带有这些分类的项目将变为未分类。</item>
+    </plurals>
+
+    <plurals name="delete_tags_warning">
+        <item quantity="one">确定要删除选定的标签吗？带有此标签的项目不会被删除。</item>
+        <item quantity="other">确定要删除选定的标签吗？带有这些标签的项目不会被删除。</item>
+    </plurals>
+
+</resources>

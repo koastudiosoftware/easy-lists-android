@@ -1,0 +1,180 @@
+<resources>
+
+
+    <string name="app_version">Versión: %1$s</string>
+
+    <string name="lists">Listas</string>
+    <string name="settings">Ajustes</string>
+    <string name="categories">Categorías</string>
+    <string name="about">Acerca de</string>
+
+    <string name="overflow_menu">Más opciones</string>
+    <string name="return_to_previous_screen">Volver a la pantalla anterior</string>
+
+    <string name="name">Nombre</string>
+    <string name="notes">Notas</string>
+    <string name="add_list">Añadir lista</string>
+    <string name="edit_list">Editar lista</string>
+    <string name="create_new_list">Crear nueva lista</string>
+    <string name="create_new_tag">Crear nueva etiqueta</string>
+    <string name="delete_list">Eliminar lista</string>
+    <string name="no_lists_found">No se encontraron listas</string>
+    <string name="take_a_picture">Tomar una foto</string>
+    <string name="list_item_image">Imagen del elemento</string>
+
+    <string name="delete_selected_categories">Eliminar categorías seleccionadas</string>
+    <string name="delete_selected_tags">Eliminar etiquetas seleccionadas</string>
+    <string name="cancel_deletion_of_selected_categories">Cancelar eliminación de categorías seleccionadas</string>
+    <string name="cancel_deletion_of_selected_tags">Cancelar eliminación de etiquetas seleccionadas</string>
+
+    <string name="delete_item">Eliminar elemento</string>
+    <string name="view_item_details">Ver detalles</string>
+    <string name="add_list_item">Añadir elemento a la lista</string>
+    <string name="add_category">Añadir categoría</string>
+    <string name="add_tag">Añadir etiqueta</string>
+
+    <string name="add_item">Añadir elemento</string>
+    <string name="edit_item">Editar elemento</string>
+    <string name="edit_tag">Editar etiqueta</string>
+    <string name="edit_category">Editar categoría</string>
+    <string name="quantity">Cantidad</string>
+    <string name="category">Categoría</string>
+    <string name="uncategorized">Sin categoría</string>
+
+    <string name="support">Soporte</string>
+    <string name="email">Correo electrónico</string>
+    <string name="donate">Donar</string>
+
+    <string name="crossed_off">Completados</string>
+
+    <string name="list_items">Elementos de la lista</string>
+    <string name="display">Visualización</string>
+    <string name="adding_and_editing">Adición y edición</string>
+
+    <string name="appearance">Apariencia</string>
+    <string name="view_mode_description">Modo de vista para listas y elementos</string>
+    <string name="list_view_mode">Modo de lista</string>
+    <string name="card_view_mode">Modo de tarjetas</string>
+
+    <string name="enable_camera">Activar cámara</string>
+    <string name="enable_camera_description">Activar o desactivar la cámara para los elementos</string>
+
+    <string name="enable_photos">Activar fotos</string>
+    <string name="enable_photos_description">Activar o desactivar las fotos</string>
+
+    <string name="enable_tags">Activar etiquetas</string>
+    <string name="enable_tags_description">Activar o desactivar las etiquetas para los elementos</string>
+
+    <string name="confirm">Confirmar</string>
+    <string name="dismiss">Descartar</string>
+    <string name="confirmation_dialog_warning_icon">Icono de advertencia del diálogo de confirmación</string>
+    <string name="confirm_deletion">Confirmar eliminación</string>
+    <string name="delete_crossed_off_items_warning">¿Seguro que quieres eliminar todos los elementos completados de esta lista?</string>
+    <string name="delete_list_warning">¿Seguro que quieres eliminar \"%1$s\"? Todos los elementos de esta lista también se eliminarán.</string>
+    <string name="delete_list_item_warning">¿Seguro que quieres eliminar \"%1$s\" de esta lista?</string>
+
+    <string name="category_not_used_message">Esta categoría no está siendo usada por ningún elemento en ninguna lista.</string>
+    <string name="category_used_by_message">Esta categoría es usada por los siguientes elementos.</string>
+    <string name="tag_not_used_message">Esta etiqueta no está siendo usada por ningún elemento en ninguna lista.</string>
+    <string name="tag_used_by_message">Esta etiqueta es usada por los siguientes elementos.</string>
+
+    <string name="group_crossed_off_items">Agrupar elementos completados</string>
+    <string name="group_crossed_off_all_together">Todos juntos</string>
+    <string name="group_crossed_off_by_category">Por categoría</string>
+
+    <string name="sort_crossed_off_items">Ordenar elementos completados</string>
+    <string name="sort_crossed_off_most_recent_on_top">Los más recientes primero</string>
+    <string name="sort_crossed_off_alphabetically">Alfabéticamente</string>
+
+    <string name="delete_all_crossed_off_items">Eliminar todos los elementos completados</string>
+
+    <string name="tags">Etiquetas</string>
+    <string name="photo">Foto</string>
+
+    <string name="theme">Tema</string>
+
+    <string name="choose_a_color">Elegir un color</string>
+    <string name="save_tag_color">Guardar color de etiqueta</string>
+    <string name="remove_tag_color">Eliminar color de etiqueta</string>
+    <string name="hex_placeholder">FFFFFF</string>
+    <string name="rgb">RGB</string>
+
+    <string name="capitalization">Mayúsculas y minúsculas</string>
+    <string name="capitalization_none">No capitalizar</string>
+    <string name="capitalization_first_letter">Capitalizar primera letra</string>
+    <string name="capitalization_all_words">Capitalizar todas las palabras</string>
+
+    <string name="list_name_in_use">Nombre de lista en uso</string>
+    <string name="retry">Reintentar</string>
+    <string name="item_name_in_use">Nombre de elemento en uso</string>
+    <string name="choose_photo">Elegir foto</string>
+    <string name="remove_photo">Eliminar foto</string>
+    <string name="remove_tag">Eliminar etiqueta</string>
+
+    <string name="save_tag">Guardar etiqueta</string>
+    <string name="delete_tag">Eliminar etiqueta</string>
+    <string name="tag_not_used">No usada</string>
+    <string name="tag_name_in_use">El nombre ya está en uso</string>
+    <string name="error_loading_tags">No se pudieron cargar las etiquetas</string>
+    <string name="error_saving_tag">No se pudo guardar la etiqueta</string>
+    <string name="error_deleting_tags">No se pudieron eliminar las etiquetas</string>
+    <string name="category_name_in_use">Nombre de categoría en uso</string>
+    <string name="delete_category">Eliminar categoría</string>
+    <string name="save_category">Guardar categoría</string>
+    <string name="category_not_used">Categoría no usada</string>
+    <string name="no_categories_yet">Aún no hay categorías</string>
+    <string name="error_loading_categories">No se pudieron cargar las categorías</string>
+    <string name="error_saving_category">No se pudo guardar la categoría</string>
+    <string name="error_deleting_categories">No se pudieron eliminar las categorías</string>
+    <string name="sort_lists">Ordenar listas</string>
+    <string name="sort_name_asc">Ordenar por nombre A-Z</string>
+    <string name="sort_name_desc">Ordenar por nombre Z-A</string>
+    <string name="sort_manual">Ordenar manualmente</string>
+    <string name="done">Listo</string>
+    <string name="rearrange_lists">Reorganizar listas</string>
+    <string name="restore_all_crossed_off_items">Restaurar todos los elementos completados</string>
+    <string name="undo">Deshacer</string>
+    <string name="list_deleted">Se eliminó \"%1$s\"</string>
+    <string name="list_item_deleted">Se eliminó \"%1$s\"</string>
+
+    <string name="backups">Copias de seguridad</string>
+    <string name="create_local_backup">Crear copia de seguridad local</string>
+    <string name="create_local_backup_description">Hacer copia de seguridad de datos y ajustes</string>
+    <string name="restore_local_backup">Restaurar copia de seguridad local</string>
+    <string name="restore_local_backup_description">Restaurar datos y ajustes desde una copia local</string>
+    <string name="app_settings">Ajustes de la aplicación</string>
+    <string name="lists_and_items">Listas y elementos</string>
+    <string name="photos">Fotos</string>
+    <string name="backup_options_title">Opciones de copia de seguridad</string>
+    <string name="backup_options">Opciones de copia de seguridad</string>
+    <string name="backup_error_unknown">Ocurrió un error en la copia de seguridad, no hay más detalles disponibles</string>
+    <string name="backup_error_restore_failed">La restauración falló</string>
+    <string name="backup_error_folder_lost">Carpeta de copia de seguridad perdida</string>
+    <string name="backup_restored">Copia de seguridad restaurada</string>
+    <string name="backup_done">Copia de seguridad completada</string>
+    <string name="backup_error_generic">Ocurrió un error en la copia de seguridad</string>
+
+    <plurals name="tag_used_by_list_items">
+        <item quantity="one">Usado por %d elemento de lista</item>
+        <item quantity="other">Usado por %d elementos de lista</item>
+    </plurals>
+    <plurals name="category_used_by_list_items">
+        <item quantity="one">Usado por %d elemento</item>
+        <item quantity="other">Usado por %d elementos</item>
+    </plurals>
+    <plurals name="crossed_off_items_deleted">
+        <item quantity="one">%1$d elemento completado eliminado</item>
+        <item quantity="other">%1$d elementos completados eliminados</item>
+    </plurals>
+
+    <plurals name="delete_categories_warning">
+        <item quantity="one">¿Seguro que quieres eliminar la categoría seleccionada? Los elementos con esta categoría pasarán a estar sin categoría.</item>
+        <item quantity="other">¿Seguro que quieres eliminar las categorías seleccionadas? Los elementos con estas categorías pasarán a estar sin categoría.</item>
+    </plurals>
+
+    <plurals name="delete_tags_warning">
+        <item quantity="one">¿Seguro que quieres eliminar la etiqueta seleccionada? Los elementos con esta etiqueta no se eliminarán.</item>
+        <item quantity="other">¿Seguro que quieres eliminar las etiquetas seleccionadas? Los elementos con estas etiquetas no se eliminarán.</item>
+    </plurals>
+
+</resources>
