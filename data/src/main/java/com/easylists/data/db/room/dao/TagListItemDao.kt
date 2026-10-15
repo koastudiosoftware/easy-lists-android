@@ -17,11 +17,11 @@ import kotlinx.coroutines.flow.Flow
 abstract class TagListItemDao() {
 
     @Transaction
-    @Query("SELECT * FROM tag_list_items")
+    @Query("SELECT * FROM tag_list_items WHERE is_deleted = 0")
     abstract fun get(): Flow<List<TagListItemEntity>>
 
     @Transaction
-    @Query("SELECT * FROM tag_list_items WHERE list_item_id = :listItemId")
+    @Query("SELECT * FROM tag_list_items WHERE list_item_id = :listItemId AND is_deleted = 0")
     abstract fun get(listItemId: String): Flow<List<TagListItemEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -34,13 +34,51 @@ abstract class TagListItemDao() {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertAll(tagLinks: MutableList<TagListItemEntity>)
 
-    @Query("DELETE FROM tag_list_items WHERE tag_id = :tagId")
-    abstract suspend fun delete(tagId: String)
+    // Links are soft-deleted instead of removed so the deletion can sync to the user's other devices.
+    // The delete() functions below keep the signatures the old hard-delete queries had.
+    @Query("""
+        UPDATE tag_list_items
+        SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
+        WHERE tag_id IN (:tagIds) AND is_deleted = 0
+        """)
+    protected abstract suspend fun softDeleteForTagsChunk(tagIds: List<String>, now: Long): Int
 
-    @Query("DELETE FROM tag_list_items WHERE tag_id IN (:tagIdList)")
-    abstract suspend fun delete(tagIdList: List<String>)
+    @Query("""
+        UPDATE tag_list_items
+        SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
+        WHERE list_item_id = :listItemId AND tag_id IN (:tagIds) AND is_deleted = 0
+        """)
+    protected abstract suspend fun softDeleteForListItemChunk(
+        listItemId: String,
+        tagIds: List<String>,
+        now: Long
+    ): Int
 
-    @Query("DELETE FROM tag_list_items WHERE list_item_id = :listItemId AND tag_id IN (:tagIdList)")
-    abstract suspend fun delete(listItemId: String, tagIdList: List<String>)
+    // Removes every link to one tag
+    open suspend fun delete(
+        tagId: String,
+        now: Long = System.currentTimeMillis()
+    ) {
+        softDeleteForTagsChunk(listOf(tagId), now)
+    }
+
+    // Removes every link to any of the given tags
+    @Transaction
+    open suspend fun delete(
+        tagIdList: List<String>,
+        now: Long = System.currentTimeMillis()
+    ) {
+        tagIdList.chunked(500).forEach { softDeleteForTagsChunk(it, now) }
+    }
+
+    // Removes the links between one list item and the given tags
+    @Transaction
+    open suspend fun delete(
+        listItemId: String,
+        tagIdList: List<String>,
+        now: Long = System.currentTimeMillis()
+    ) {
+        tagIdList.chunked(500).forEach { softDeleteForListItemChunk(listItemId, it, now) }
+    }
 
 }

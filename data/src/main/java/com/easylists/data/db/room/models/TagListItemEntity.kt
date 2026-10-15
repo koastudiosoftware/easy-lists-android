@@ -46,6 +46,14 @@ data class TagListItemEntity @OptIn(ExperimentalUuidApi::class) constructor(
     @SerializedName(value = "list_item_id")
     var listItemId: String,
 
+    @ColumnInfo(name = "is_dirty")
+    @SerializedName(value = "is_dirty")
+    var isDirty: Boolean = true,
+
+    @ColumnInfo(name = "is_deleted")
+    @SerializedName(value = "is_deleted")
+    var isDeleted: Boolean = false,
+
     @ColumnInfo(name = "created_timestamp")
     @SerializedName(value = "created_timestamp")
     var createdTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
