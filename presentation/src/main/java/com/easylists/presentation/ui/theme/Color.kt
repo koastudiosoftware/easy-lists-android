@@ -36,7 +36,7 @@ val LightSurfaceContainerHighest = Color(0xFFE3E5E6)
 val LightError = Color(0xFFBA1A1A)
 val LightOnError = Color(0xFFFFFFFF)
 val LightErrorContainer = Color(0xFFD9534F)
-val LightOnErrorContainer = Color(0xFF410002)
+val LightOnErrorContainer = Color(0xFFFFFFFF)
 
 
 // ---------- Dark ----------
