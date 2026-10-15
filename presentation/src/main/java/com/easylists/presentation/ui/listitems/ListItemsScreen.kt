@@ -392,10 +392,8 @@ fun CrossedOffActionRow(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    horizontal = MaterialTheme.spaces.large,
-                    vertical = MaterialTheme.spaces.small,
-                ),
+                .padding(horizontal = MaterialTheme.spaces.large)
+                .padding(top = MaterialTheme.spaces.medium, bottom = MaterialTheme.spaces.none),
             contentAlignment = Alignment.Center,
         ) {
             FilledTonalButton(
@@ -437,9 +435,12 @@ fun ListItemsCategoryTitle(
     ) {
         Text(
             modifier = Modifier
-                .padding(horizontal = MaterialTheme.spaces.large)
                 .padding(
-                    top = if (isCard) MaterialTheme.spaces.medium else MaterialTheme.spaces.small,
+                    start = if (isCard) MaterialTheme.spaces.extraLarge else MaterialTheme.spaces.large,
+                    end = MaterialTheme.spaces.large
+                )
+                .padding(
+                    top = if (isCard) MaterialTheme.spaces.large else MaterialTheme.spaces.medium,
                     bottom = MaterialTheme.spaces.small
                 ),
             color = when {
@@ -470,7 +471,7 @@ fun ListItemRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .then(
-                    if (row.item.crossedOff == true)
+                    if (row.item.crossedOff)
                         Modifier.background(MaterialTheme.colorScheme.surfaceContainerLow)
                     else Modifier
                 )
@@ -507,7 +508,7 @@ fun ListItemCard(
     onEdit: () -> Unit,
     onTagPillsClick: () -> Unit,
 ) {
-    val crossedOff = row.item.crossedOff == true
+    val crossedOff = row.item.crossedOff
 
     Card(
         modifier = Modifier
@@ -567,7 +568,7 @@ fun RowScope.ListItemRowContent(
         } else {
             ListItemPhoto(
                 item = item,
-                showDivider = false,
+//                showDivider = false,  // leave this here in case we want to use it in the future
                 shape = photoShape,
                 targetSize = targetSize
             )
@@ -585,7 +586,7 @@ fun RowScope.ListItemRowContent(
             overflow = TextOverflow.Ellipsis,
             style = TextStyle(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                textDecoration = if (item.crossedOff == true) TextDecoration.LineThrough
+                textDecoration = if (item.crossedOff) TextDecoration.LineThrough
                 else TextDecoration.None
             ),
             text = item.quantity?.let { "${item.name} ($it)" } ?: item.name,
@@ -625,7 +626,7 @@ fun RowScope.ListItemRowContent(
 @Composable
 fun ListItemPhoto(
     item: EasyListsListItem,
-    showDivider: Boolean = false,
+//    showDivider: Boolean = false,     // leave this here in case we want to use it in the future
     targetSize: Dp = 48.dp,
     shape: Shape = RectangleShape,
 ) {
