@@ -64,11 +64,15 @@ class LocalBackupViewModel @Inject constructor(
         if (current.isBusy || !current.hasFolder || current.sections.isEmpty()) return
         runOperation {
             val created = backupFileManager.createBackup(current.sections)
-            BackupMessage(
-                isError = false,
-                textRes = R.string.backup_done,
-                args = listOf(created.name)
-            )
+            if (created.missingPhotos > 0) {
+                BackupMessage(
+                    isError = true,
+                    textRes = R.string.backup_done_missing_photos,
+                    args = listOf(created.name, created.missingPhotos),
+                )
+            } else {
+                BackupMessage(isError = false, textRes = R.string.backup_done, args = listOf(created.name))
+            }
         }
     }
 

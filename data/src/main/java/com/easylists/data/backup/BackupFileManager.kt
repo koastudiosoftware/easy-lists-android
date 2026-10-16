@@ -37,6 +37,7 @@ data class CreatedBackup(
     val uri: Uri,
     val name: String,
     val summary: BackupSummary,
+    val missingPhotos: Int = 0,
 )
 
 data class BackupEntry(
@@ -120,36 +121,50 @@ class BackupFileManager @Inject constructor(
                 val document = created
                     ?: throw BackupDestinationException("Couldn't create a file in the backup folder.")
 
+                var missingPhotos = 0
                 try {
                     val output = resolver.openOutputStream(document, "w")
                         ?: throw IOException("Couldn't open the backup file for writing.")
-                    ZipOutputStream(BufferedOutputStream(output)).use { zip -> writeZip(zip, backup) }
+                    ZipOutputStream(BufferedOutputStream(output)).use { zip ->
+                        missingPhotos = writeZip(zip, backup)
+                    }
                 } catch (e: Exception) {
                     // Don't leave a half-written backup behind
                     runCatching { DocumentsContract.deleteDocument(resolver, document) }
                     throw e
                 }
 
-                CreatedBackup(uri = document, name = name, summary = backup.summary())
+                CreatedBackup(
+                    uri = document,
+                    name = name,
+                    summary = backup.summary(),
+                    missingPhotos = missingPhotos,
+                )
             }
         }
 
-    private fun writeZip(zip: ZipOutputStream, backup: BackupFile) {
+    // Returns how many photos the backup refers to but couldn't be found on disk
+    private fun writeZip(zip: ZipOutputStream, backup: BackupFile): Int {
         zip.putNextEntry(ZipEntry(JSON_ENTRY))
         zip.write(BackupJson.encode(backup).toByteArray(Charsets.UTF_8))
         zip.closeEntry()
 
-        if (BackupSection.Photos !in backup.sectionSet()) return
+        if (BackupSection.Photos !in backup.sectionSet()) return 0
 
         // Photos are already compressed, so storing them without more compression is much faster
         zip.setLevel(Deflater.NO_COMPRESSION)
+        var missing = 0
         for (name in backup.photoFileNames()) {
             val source = photoFile(name)
-            if (!source.isFile) continue
+            if (!source.isFile) {
+                missing++
+                continue
+            }
             zip.putNextEntry(ZipEntry(PHOTO_PREFIX + name))
             source.inputStream().use { it.copyTo(zip) }
             zip.closeEntry()
         }
+        return missing
     }
 
     //endregion
@@ -283,6 +298,8 @@ class BackupFileManager @Inject constructor(
             val source = File(staging, name)
             val target = photoFile(name)
             if (target.exists()) continue
+            // The photos folder doesn't exist on a fresh install until a photo has been saved
+            target.parentFile?.mkdirs()
             if (!source.renameTo(target)) source.copyTo(target)
         }
     }
@@ -323,9 +340,9 @@ class BackupFileManager @Inject constructor(
 
     //endregion
 
-    // The one place that knows where photos live. Today that's the root of filesDir, matching
-    // ImageRepositoryImpl.saveImage; change this when the photo storage moves to its own folder.
-    private fun photoFile(name: String) = File(context.filesDir, name)
+    // The one place that knows where photos live: filesDir/photos, where ListItemsViewModel saves them.
+    // When photo saving moves into the repository, this should call it instead.
+    private fun photoFile(name: String) = File(File(context.filesDir, "photos"), name)
 
     private companion object {
         const val JSON_ENTRY = "backup.json"
