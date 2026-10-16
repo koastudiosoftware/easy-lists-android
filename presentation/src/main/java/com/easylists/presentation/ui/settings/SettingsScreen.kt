@@ -53,9 +53,12 @@ import com.easylists.presentation.common.composables.ToggleSettingsItem
 import com.easylists.presentation.common.labelRes
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsInfo
+import com.easylists.presentation.icons.MaterialIconsKeyboardArrowRight
 import com.easylists.presentation.icons.MaterialIconsSettings
 import com.easylists.presentation.models.Screen
+import com.easylists.presentation.ui.backup.LocalBackupSheet
 import com.easylists.presentation.ui.theme.spaces
+import com.toxicbakery.logging.Arbor
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.navigate
@@ -145,8 +148,7 @@ fun SettingsScreenContent(
     viewModel: SettingsViewModel
 ) {
 
-    var showBackupOptions by remember { mutableStateOf(false) }
-    var backupContent by remember { mutableStateOf(BackupContent.entries.toSet()) }
+    var showLocalBackup by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -230,40 +232,24 @@ fun SettingsScreenContent(
         item {
             SettingsCardGroup {
                 SettingsItem(
-                    textLine1 = stringResource(R.string.create_local_backup),
-                    textLine2 = stringResource(R.string.create_local_backup_description),
-                    onClick = { /* TODO: not wired up yet */ },
+                    textLine1 = stringResource(R.string.local_backups),
+                    textLine2 = stringResource(R.string.local_backups_description),
+                    onClick = { showLocalBackup = true },
                     trailingContent = {
-                        CompositionLocalProvider(
-                            LocalMinimumInteractiveComponentSize provides Dp.Unspecified
-                        ) {
-                            IconButton(onClick = { showBackupOptions = true }) {
-                                Icon(
-                                    modifier = Modifier.size(20.dp),
-                                    imageVector = MaterialIconsSettings,
-                                    contentDescription = stringResource(R.string.backup_options),
-                                )
-                            }
-                        }
-                    },
-                )
-
-                HorizontalDivider()
-                SettingsItem(
-                    textLine1 = stringResource(R.string.restore_local_backup),
-                    textLine2 = stringResource(R.string.restore_local_backup_description),
-                    onClick = { /* TODO: not wired up yet */ },
+                        Icon(
+                            imageVector = MaterialIconsKeyboardArrowRight,
+                            contentDescription = null,
+                            modifier = Modifier.size(Dp.Unspecified)
+                        )
+                    }
                 )
             }
         }
     }
 
-    if (showBackupOptions) {
-        BackupOptionsDialog(
-            selected = backupContent,
-            onSelectedChange = { backupContent = it },
-            onDismiss = { showBackupOptions = false },
-        )
+    if (showLocalBackup) {
+        Arbor.i("Showing local backup")
+        LocalBackupSheet(onDismiss = { showLocalBackup = false })
     }
 }
 

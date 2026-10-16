@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import java.io.File
@@ -36,6 +37,15 @@ class BackupDestinationStore @Inject constructor(
 
     suspend fun clear() {
         dataStore.edit { it.remove(folderKey) }
+    }
+
+    private val sectionsKey = stringSetPreferencesKey("sections")
+
+    // The ticked sections as ids, or null until the user has changed the selection
+    suspend fun getSections(): Set<String>? = dataStore.data.first()[sectionsKey]
+
+    suspend fun setSections(sectionIds: Set<String>) {
+        dataStore.edit { it[sectionsKey] = sectionIds }
     }
 
 }

@@ -1,10 +1,11 @@
-package com.easylists.presentation.backup
+package com.easylists.presentation.ui.backup
 
 import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.easylists.data.backup.BackupDestinationException
+import com.easylists.data.backup.BackupDestinationStore
 import com.easylists.data.backup.BackupEntry
 import com.easylists.data.backup.BackupFileManager
 import com.easylists.data.backup.BackupFormatException
@@ -25,23 +26,28 @@ import javax.inject.Inject
 @HiltViewModel
 class LocalBackupViewModel @Inject constructor(
     private val backupFileManager: BackupFileManager,
+    private val destinationStore: BackupDestinationStore,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LocalBackupState())
     val state: StateFlow<LocalBackupState> = _state.asStateFlow()
 
     init {
-        viewModelScope.launch { load() }
+        viewModelScope.launch {
+            destinationStore.getSections()?.let { saved ->
+                val sections = saved.mapNotNull { BackupSection.fromId(it) }.toSet()
+                _state.update { it.copy(sections = sections) }
+            }
+            load()
+        }
     }
 
     fun toggleSection(section: BackupSection) {
-        _state.update { current ->
-            val sections = if (section in current.sections) {
-                current.sections - section
-            } else {
-                current.sections + section
-            }
-            current.copy(sections = sections)
+        val current = _state.value.sections
+        val sections = if (section in current) current - section else current + section
+        _state.update { it.copy(sections = sections) }
+        viewModelScope.launch {
+            destinationStore.setSections(sections.map { it.id }.toSet())
         }
     }
 
