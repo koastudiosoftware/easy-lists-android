@@ -9,6 +9,7 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
 import coil3.toBitmap
+import com.easylists.domain.common.PhotoStorage
 import com.easylists.domain.repositories.ImageRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
@@ -29,8 +30,8 @@ class ImageRepositoryImpl @Inject constructor(
     private val imageLoader: ImageLoader,
 ) : ImageRepository {
 
-    // Loads the image at sourceUri, scales it down, encodes it as WEBP and stores it in filesDir/photos.
-    // Returns the absolute path of the stored file, which is what gets kept in the item's photo_uri.
+    // Loads the image at sourceUri, scales it down, encodes it as WEBP and stores it in the photos folder.
+    // Returns just the file name, which is what gets kept in the item's photo_uri.
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun savePhoto(sourceUri: String): Result<String> =
         withContext(Dispatchers.IO) {
@@ -39,10 +40,10 @@ class ImageRepositoryImpl @Inject constructor(
                     ?: throw IOException("The image at $sourceUri couldn't be loaded")
                 val bytes = withContext(Dispatchers.Default) { scaleAndCompress(bitmap) }
 
-                val directory = File(context.filesDir, PHOTOS_DIR).apply { mkdirs() }
-                val file = File(directory, "${Uuid.generateV7()}.webp")
-                file.writeBytes(bytes)
-                Result.success(file.absolutePath)
+                val directory = PhotoStorage.directory(context.filesDir).apply { mkdirs() }
+                val fileName = "${Uuid.generateV7()}.webp"
+                File(directory, fileName).writeBytes(bytes)
+                Result.success(fileName)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {

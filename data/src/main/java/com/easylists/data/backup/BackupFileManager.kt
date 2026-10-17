@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
+import com.easylists.domain.common.PhotoStorage
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -242,7 +243,7 @@ class BackupFileManager @Inject constructor(
                     // The name check also keeps a crafted file from pointing photo_uri at other files.
                     val photoPathFor = { name: String ->
                         if (SAFE_NAME.matches(name) && (name in staged || photoFile(name).isFile)) {
-                            photoFile(name).absolutePath
+                            name
                         } else {
                             null
                         }
@@ -340,9 +341,8 @@ class BackupFileManager @Inject constructor(
 
     //endregion
 
-    // The one place that knows where photos live: filesDir/photos, where ListItemsViewModel saves them.
-    // When photo saving moves into the repository, this should call it instead.
-    private fun photoFile(name: String) = File(File(context.filesDir, "photos"), name)
+    // The one place the backup code looks for photos. PhotoStorage defines the folder.
+    private fun photoFile(name: String) = PhotoStorage.file(context.filesDir, name)
 
     private companion object {
         const val JSON_ENTRY = "backup.json"

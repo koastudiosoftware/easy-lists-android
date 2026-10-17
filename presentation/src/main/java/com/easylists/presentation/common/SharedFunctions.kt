@@ -37,6 +37,7 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.size.Size
 import coil3.toBitmap
+import com.easylists.domain.common.PhotoStorage
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import javax.inject.Inject
@@ -44,9 +45,16 @@ import kotlin.math.pow
 
 
 //region resolvePhotoModel
-fun resolvePhotoModel(photoUri: String): Any {
+fun resolvePhotoModel(context: Context, photoUri: String): Any {
     val scheme = photoUri.toUri().scheme
-    return if (scheme != null) photoUri.toUri() else File(photoUri)
+    return when {
+        // an image the user just picked, not saved yet
+        scheme != null -> photoUri.toUri()
+        // a path saved before photo_uri held file names
+        photoUri.startsWith("/") -> File(photoUri)
+        // a saved photo: photo_uri is just the file name
+        else -> PhotoStorage.file(context.filesDir, photoUri)
+    }
 }
 //endregion
 
@@ -139,9 +147,10 @@ fun FramedPhoto(
                 } else Modifier
             )
     ) {
+        val context = LocalContext.current
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(resolvePhotoModel(photoUri))
+            model = ImageRequest.Builder(context)
+                .data(resolvePhotoModel(context, photoUri))
                 .build(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
