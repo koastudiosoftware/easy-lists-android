@@ -5,7 +5,6 @@ import javax.inject.Inject
 
 //region SaveListItemPhotoUseCase
 class SaveListItemPhotoUseCase @Inject constructor(private val repository: ImageRepository) {
-    suspend operator fun invoke(imageData: ByteArray, fileName: String): Result<String> =
-        repository.saveImage(imageData, fileName)
+    suspend operator fun invoke(sourceUri: String): Result<String> = repository.savePhoto(sourceUri)
 }
 //endregion

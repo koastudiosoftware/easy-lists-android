@@ -43,24 +43,6 @@ import javax.inject.Inject
 import kotlin.math.pow
 
 
-//region ImageBitmapLoader
-// Take in a string URI and return a bitmap of that file's content
-class ImageBitmapLoader @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val imageLoader: ImageLoader
-) {
-    suspend fun load(imageUrl: String): Bitmap? {
-        val request = ImageRequest.Builder(context)
-            .data(imageUrl)
-            .build()
-
-        val result = imageLoader.execute(request)
-        return (result as? SuccessResult)?.image?.toBitmap()
-    }
-}
-//endregion
-
-
 //region resolvePhotoModel
 fun resolvePhotoModel(photoUri: String): Any {
     val scheme = photoUri.toUri().scheme

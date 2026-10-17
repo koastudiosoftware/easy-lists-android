@@ -1,7 +1,5 @@
 package com.easylists.presentation.ui.listitems
 
-import android.content.Context
-import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
@@ -20,8 +18,8 @@ import com.easylists.domain.use_cases.AddTagListItemUseCase
 import com.easylists.domain.use_cases.DeleteListItemsUseCase
 import com.easylists.domain.use_cases.GetCategoryUseCase
 import com.easylists.domain.use_cases.GetListItemUseCase
-import com.easylists.domain.use_cases.GetTagUseCase
 import com.easylists.domain.use_cases.GetTagListItemUseCase
+import com.easylists.domain.use_cases.GetTagUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveTagListItemUseCase
 import com.easylists.domain.use_cases.RestoreCrossedOffListItemsUseCase
@@ -29,8 +27,6 @@ import com.easylists.domain.use_cases.SaveListItemPhotoUseCase
 import com.easylists.domain.use_cases.UndeleteListItemsUseCase
 import com.easylists.domain.use_cases.UpdateListItemUseCase
 import com.easylists.presentation.common.AddEditMode
-import com.easylists.presentation.common.ImageBitmapLoader
-import com.easylists.presentation.common.scaleAndCompressBitmap
 import com.easylists.presentation.mappers.UiMapper
 import com.easylists.presentation.models.ItemEditorState
 import com.easylists.presentation.models.ListItemsEvent
@@ -41,9 +37,7 @@ import com.easylists.presentation.models.PhotoTransform
 import com.easylists.presentation.models.validate
 import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -58,10 +52,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.nio.file.Files.exists
 import javax.inject.Inject
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
@@ -70,7 +60,6 @@ import kotlin.uuid.Uuid
 
 @HiltViewModel
 class ListItemsViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
     observeAppSettings: ObserveAppSettingsUseCase,
     getListItemUseCase: GetListItemUseCase,
     getCategoryUseCase: GetCategoryUseCase,
@@ -85,7 +74,6 @@ class ListItemsViewModel @Inject constructor(
     private val deleteListItemUseCase: DeleteListItemsUseCase,
     private val saveListItemPhotoUseCase: SaveListItemPhotoUseCase,
     private val undeleteListItemsUseCase: UndeleteListItemsUseCase,
-    private val bitmapLoader: ImageBitmapLoader,
     private val session: SessionRepository,
     private val mapper: UiMapper,
 ) : ViewModel() {
@@ -332,22 +320,11 @@ class ListItemsViewModel @Inject constructor(
     }
 
     // copies the chosen image to app-private storage and returns its path
-    @OptIn(ExperimentalUuidApi::class)
+    // asks the repository to store the chosen image and returns the value to keep in photo_uri
     private suspend fun saveNewPhoto(sourceUri: String): String? {
         // TODO surface an error to the user when the image can't be loaded or saved
-        val bitmap = bitmapLoader.load(sourceUri) ?: return null
-        val bytes = withContext(Dispatchers.Default) {
-            scaleAndCompressBitmap(sourceBitmap = bitmap, quality = 85)
-        }
-
-        // Create a dedicated "photos" directory inside app-private filesDir
-        val photosDir = File(context.filesDir, "photos").apply {
-            if (!exists()) { mkdirs() }
-        }
-
-        val filename = "photos/${Uuid.generateV7()}.webp"
         return try {
-            saveListItemPhotoUseCase(bytes, filename).getOrThrow()
+            saveListItemPhotoUseCase(sourceUri).getOrThrow()
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
