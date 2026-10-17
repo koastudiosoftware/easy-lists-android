@@ -1,7 +1,5 @@
 package com.easylists.presentation.ui.listitems
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -217,7 +215,6 @@ class ListItemsViewModel @Inject constructor(
 
 
     //region saveListItem()
-    @RequiresApi(Build.VERSION_CODES.R)
     fun saveListItem(
         uncategorizedLabel: String,
         onSaved: () -> Unit
