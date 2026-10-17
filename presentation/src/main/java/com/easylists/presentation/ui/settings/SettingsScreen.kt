@@ -15,18 +15,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.easylists.domain.common.AppSettings
@@ -47,14 +41,12 @@ import com.easylists.domain.common.ViewMode
 import com.easylists.presentation.R
 import com.easylists.presentation.common.composables.ListSettingGroup
 import com.easylists.presentation.common.composables.SectionTitle
-import com.easylists.presentation.common.composables.SettingsCardGroup
+import com.easylists.presentation.common.composables.CardGroup
 import com.easylists.presentation.common.composables.SettingsItem
 import com.easylists.presentation.common.composables.ToggleSettingsItem
 import com.easylists.presentation.common.labelRes
 import com.easylists.presentation.icons.MaterialIconsArrowBack
-import com.easylists.presentation.icons.MaterialIconsInfo
 import com.easylists.presentation.icons.MaterialIconsKeyboardArrowRight
-import com.easylists.presentation.icons.MaterialIconsSettings
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.backup.LocalBackupSheet
 import com.easylists.presentation.ui.theme.spaces
@@ -82,7 +74,6 @@ fun SettingsScreen(
             TopAppBar(
                 title = { SettingsScreenTitle() },
                 navigationIcon = { SettingsScreenTopAppBarNavigationIcon(navController) },
-                actions = { SettingsScreenActionIcons(navController) },
             )
         }
     ) { innerPadding ->
@@ -106,20 +97,6 @@ fun SettingsScreenTitle() {
         horizontalArrangement = Arrangement.Start
     ) {
         Text(text = stringResource(R.string.settings))
-    }
-}
-//endregion
-
-
-//region SettingsScreenActionIcons
-@Composable
-fun SettingsScreenActionIcons(navController: NavController<Screen>) {
-    IconButton(onClick = { navController.navigate(Screen.About) }) {
-        Icon(
-            modifier = Modifier,
-            imageVector = MaterialIconsInfo,
-            contentDescription = stringResource(R.string.about),
-        )
     }
 }
 //endregion
@@ -160,7 +137,7 @@ fun SettingsScreenContent(
     ) {
         item { SettingsSectionTitle(stringResource(id = R.string.list_items)) }
         item {
-            SettingsCardGroup {
+            CardGroup {
                 ListSettingGroup(
                     title = stringResource(R.string.group_crossed_off_items),
                     options = GroupCrossedOffItems.entries,
@@ -202,7 +179,7 @@ fun SettingsScreenContent(
 
         item { SettingsSectionTitle(stringResource(id = R.string.adding_and_editing)) }
         item {
-            SettingsCardGroup {
+            CardGroup {
                 ListSettingGroup(
                     title = stringResource(R.string.capitalization),
                     options = Capitalization.entries,
@@ -215,7 +192,7 @@ fun SettingsScreenContent(
 
         item { SettingsSectionTitle(stringResource(id = R.string.appearance)) }
         item {
-            SettingsCardGroup {
+            CardGroup {
                 ToggleSettingsItem(
                     textLine1 = stringResource(id = R.string.view_mode_description),
                     textLine2 = when (settings.viewMode) {
@@ -230,7 +207,7 @@ fun SettingsScreenContent(
 
         item { SettingsSectionTitle(stringResource(id = R.string.backups)) }
         item {
-            SettingsCardGroup {
+            CardGroup {
                 SettingsItem(
                     textLine1 = stringResource(R.string.local_backups),
                     textLine2 = stringResource(R.string.local_backups_description),
@@ -242,6 +219,17 @@ fun SettingsScreenContent(
                             modifier = Modifier.size(Dp.Unspecified)
                         )
                     }
+                )
+            }
+        }
+
+        item { SettingsSectionTitle(stringResource(id = R.string.about)) }
+        item {
+            CardGroup {
+                SettingsItem(
+                    textLine1 = stringResource(R.string.about),
+                    textLine2 = stringResource(R.string.about_description),
+                    onClick = { navController.navigate(Screen.About) },
                 )
             }
         }

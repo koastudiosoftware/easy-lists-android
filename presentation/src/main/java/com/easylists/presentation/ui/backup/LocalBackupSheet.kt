@@ -41,7 +41,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.easylists.data.backup.BackupSection
 import com.easylists.presentation.R
-import com.easylists.presentation.common.composables.SettingsCardGroup
+import com.easylists.presentation.common.composables.CardGroup
 import com.easylists.presentation.icons.MaterialIconsKeyboardArrowRight
 import com.easylists.presentation.models.BackupMessage
 import com.easylists.presentation.models.PendingRestore
@@ -110,7 +110,7 @@ fun LocalBackupSheet(
                 style = MaterialTheme.typography.titleMedium,
             )
 
-            SettingsCardGroup {
+            CardGroup {
                 Column(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -195,7 +195,7 @@ fun LocalBackupSheet(
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 } else {
-                    SettingsCardGroup {
+                    CardGroup {
                         state.backups.take(MAX_LISTED_BACKUPS).forEachIndexed { index, entry ->
                             if (index > 0) {
                                 HorizontalDivider()

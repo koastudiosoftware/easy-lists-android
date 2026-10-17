@@ -1,5 +1,6 @@
 package com.easylists.presentation.ui.about
 
+import android.text.format.DateUtils
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -24,29 +27,25 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.easylists.presentation.R
-import com.easylists.presentation.common.REPOSITORY_DONATE_URL
+import com.easylists.presentation.common.PRIVACY_POLICY_URL
 import com.easylists.presentation.common.SUPPORT_EMAIL
+import com.easylists.presentation.common.USER_GUIDE_URL
 import com.easylists.presentation.common.composables.SectionTitle
+import com.easylists.presentation.common.composables.CardGroup
 import com.easylists.presentation.icons.MaterialIconsArrowBack
-import com.easylists.presentation.icons.MaterialIconsCheck
-import com.easylists.presentation.icons.MaterialIconsEmail
-import com.easylists.presentation.icons.MaterialIconsMonetizationOn
+import com.easylists.presentation.icons.MaterialIconsKeyboardArrowRight
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
@@ -60,6 +59,7 @@ fun AboutScreen(
     onLinkClick: (String) -> Unit,
     onEmailClick: (String, String) -> Unit,
     onPlayStoreClick: () -> Unit,
+    onSubscribeClick: () -> Unit = {},
     viewModel: AboutViewModel = hiltViewModel()
 ) {
 
@@ -81,6 +81,7 @@ fun AboutScreen(
             onLinkClick,
             onEmailClick,
             onPlayStoreClick,
+            onSubscribeClick,
             navController,
             viewModel
         )
@@ -125,9 +126,14 @@ fun AboutScreenContent(
     onLinkClick: (String) -> Unit,
     onEmailClick: (String, String) -> Unit,
     onPlayStoreClick: () -> Unit,
+    onSubscribeClick: () -> Unit,
     navController: NavController<Screen>,
     viewModel: AboutViewModel,
 ) {
+    // TODO placeholder: replace with the real time of the last server check once there is one.
+    // Pass null to show "not checked yet".
+    val lastServerCheckMillis: Long? = remember { System.currentTimeMillis() - 5 * 60 * 1000L }
+
     LazyColumn(
         Modifier
             .fillMaxSize()
@@ -155,43 +161,74 @@ fun AboutScreenContent(
         }
 
         item {
-            Spacer(modifier = Modifier.size(MaterialTheme.spaces.large))
-        }
-
-        item {
-            SectionTitle(
-                modifier = Modifier.padding(MaterialTheme.spaces.large),
-                title = stringResource(R.string.support),
+            LastServerCheck(
+                lastCheckMillis = lastServerCheckMillis,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
 
         item {
-            Column(
+            Spacer(modifier = Modifier.size(MaterialTheme.spaces.large))
+        }
+
+        //region Help
+        item {
+            SectionTitle(
+                modifier = Modifier.padding(MaterialTheme.spaces.large),
+                title = stringResource(R.string.about_section_help),
+            )
+        }
+
+        item {
+            CardGroup(
                 modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
             ) {
-                SectionInfoItemAbout(
-                    name = stringResource(R.string.email),
-                    info = SUPPORT_EMAIL,
-                    icon = MaterialIconsEmail,
-                    showDivider = true,
-                    onClick = {
-                        onEmailClick(
-                            SUPPORT_EMAIL,
-                            "[Easy Lists App Support]"
-                        )
-                    }
+                AboutLinkRow(
+                    title = stringResource(R.string.about_user_guide),
+                    summary = stringResource(R.string.about_user_guide_summary),
+                    onClick = { onLinkClick(USER_GUIDE_URL) },
                 )
-                SectionInfoItemAbout(
-                    name = stringResource(R.string.donate),
-                    info = REPOSITORY_DONATE_URL,
-                    icon = MaterialIconsMonetizationOn,
-                    showDivider = false,
-                    onClick = {
-                        onLinkClick(REPOSITORY_DONATE_URL)
-                    }
+                HorizontalDivider()
+                AboutLinkRow(
+                    title = stringResource(R.string.about_contact_support),
+                    summary = stringResource(R.string.about_contact_support_summary),
+                    onClick = { onEmailClick(SUPPORT_EMAIL, "[Easy Lists App Support]") },
+                )
+                HorizontalDivider()
+                AboutLinkRow(
+                    title = stringResource(R.string.about_privacy_policy),
+                    onClick = { onLinkClick(PRIVACY_POLICY_URL) },
                 )
             }
         }
+        //endregion
+
+        //region Support Easy Lists
+        item {
+            SectionTitle(
+                modifier = Modifier.padding(MaterialTheme.spaces.large),
+                title = stringResource(R.string.about_section_support_us),
+            )
+        }
+
+        item {
+            CardGroup(
+                modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
+            ) {
+                AboutLinkRow(
+                    title = stringResource(R.string.about_rate_us),
+                    summary = stringResource(R.string.about_rate_us_summary),
+                    onClick = onPlayStoreClick,
+                )
+                HorizontalDivider()
+                AboutLinkRow(
+                    title = stringResource(R.string.about_subscribe),
+                    summary = stringResource(R.string.about_subscribe_summary),
+                    onClick = onSubscribeClick,
+                )
+            }
+        }
+        //endregion
 
         item {
             Spacer(modifier = Modifier.size(MaterialTheme.spaces.extraLarge))
@@ -270,66 +307,68 @@ private fun Version(modifier: Modifier = Modifier, viewModel: AboutViewModel) {
 //endregion
 
 
-//region SectionInfoItemAbout
+//region LastServerCheck
+// "Last server check: 5 minutes ago", or a "not checked yet" line when there has been no check.
+// The relative time comes from the system, so it follows the user's language.
 @Composable
-fun SectionInfoItemAbout(
-    name: String,
-    info: String?,
-    icon: ImageVector,
-    showDivider: Boolean,
-    onClick: () -> Unit
-) {
-    val showInfo = remember {
-        derivedStateOf {
-            info?.isNotBlank() == true
-        }
+private fun LastServerCheck(lastCheckMillis: Long?, modifier: Modifier = Modifier) {
+    val text = if (lastCheckMillis == null) {
+        stringResource(R.string.about_last_server_check_never)
+    } else {
+        val ago = DateUtils.getRelativeTimeSpanString(
+            lastCheckMillis,
+            System.currentTimeMillis(),
+            DateUtils.MINUTE_IN_MILLIS
+        ).toString()
+        stringResource(R.string.about_last_server_check, ago)
     }
-
-    Row(
-        modifier = Modifier
-            .clickable { onClick.invoke() }
-            .padding(
-                horizontal = MaterialTheme.spaces.large,
-                vertical = MaterialTheme.spaces.medium
-            )
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spaces.large),
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
-        IconButton(onClick = onClick,) {
-            Icon(
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                imageVector = icon,
-                contentDescription = stringResource(R.string.add_list_item),
-            )
-        }
-        Column {
-            Text(
-                text = name,
-                fontWeight = FontWeight.Bold,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-            )
-
-            if (showInfo.value) {
-                Spacer(modifier = Modifier.size(MaterialTheme.spaces.small))
-                Text(
-                    text = info.orEmpty(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-    }
-    if (showDivider) {
-        HorizontalDivider(
-            modifier = Modifier
-                .padding(horizontal = MaterialTheme.spaces.medium)
-                .alpha(.2f),
+        Text(
+            modifier = Modifier.padding(top = MaterialTheme.spaces.small),
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
         )
     }
+}
+//endregion
+
+
+//region AboutLinkRow
+// One tappable row inside a SettingsCardGroup: a title, an optional summary and a chevron.
+// leadingIcon is optional so icons can be added later without changing the call sites.
+@Composable
+private fun AboutLinkRow(
+    title: String,
+    onClick: () -> Unit,
+    summary: String? = null,
+    leadingIcon: ImageVector? = null,
+) {
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = if (summary != null) {
+            { Text(summary) }
+        } else {
+            null
+        },
+        leadingContent = if (leadingIcon != null) {
+            { Icon(imageVector = leadingIcon, contentDescription = null) }
+        } else {
+            null
+        },
+        trailingContent = {
+            Icon(
+                imageVector = MaterialIconsKeyboardArrowRight,
+                contentDescription = null,
+            )
+        },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        modifier = Modifier.clickable(onClick = onClick),
+    )
 }
 //endregion

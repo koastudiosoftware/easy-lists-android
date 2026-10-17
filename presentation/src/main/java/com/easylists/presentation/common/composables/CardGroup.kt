@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 
 /** A bordered card that groups related settings, styled to match ListCard. */
 @Composable
-fun SettingsCardGroup(
+fun CardGroup(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
