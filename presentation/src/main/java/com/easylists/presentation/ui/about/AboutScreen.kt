@@ -224,7 +224,7 @@ fun AboutScreenContent(
                 AboutLinkRow(
                     title = stringResource(R.string.about_subscribe),
                     summary = stringResource(R.string.about_subscribe_summary),
-                    onClick = onSubscribeClick,
+                    onClick = { throw RuntimeException("Test crash") },
                 )
             }
         }

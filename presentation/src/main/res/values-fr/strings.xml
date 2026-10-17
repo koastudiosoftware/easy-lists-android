@@ -138,8 +138,8 @@
     <string name="list_item_deleted">\"%1$s\" supprimé</string>
 
     <string name="backups">Sauvegardes</string>
-    <string name="create_local_backup">Créer une sauvegarde locale</string>
-    <string name="create_local_backup_description">Sauvegarder les données et les paramètres</string>
+
+
     <string name="restore_local_backup">Restaurer la sauvegarde locale</string>
     <string name="restore_local_backup_description">Restaurer les données et les paramètres à partir d\'une sauvegarde locale</string>
     <string name="app_settings">Paramètres de l\'application</string>

@@ -138,8 +138,8 @@
     <string name="list_item_deleted">Se eliminó \"%1$s\"</string>
 
     <string name="backups">Copias de seguridad</string>
-    <string name="create_local_backup">Crear copia de seguridad local</string>
-    <string name="create_local_backup_description">Hacer copia de seguridad de datos y ajustes</string>
+
+
     <string name="restore_local_backup">Restaurar copia de seguridad local</string>
     <string name="restore_local_backup_description">Restaurar datos y ajustes desde una copia local</string>
     <string name="app_settings">Ajustes de la aplicación</string>

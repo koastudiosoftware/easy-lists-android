@@ -138,8 +138,8 @@
     <string name="list_item_deleted">\"%1$s\" を削除しました</string>
 
     <string name="backups">バックアップ</string>
-    <string name="create_local_backup">ローカルバックアップを作成</string>
-    <string name="create_local_backup_description">データと設定をバックアップ</string>
+
+
     <string name="restore_local_backup">ローカルバックアップを復元</string>
     <string name="restore_local_backup_description">ローカルバックアップからデータと設定を復元</string>
     <string name="app_settings">アプリの設定</string>

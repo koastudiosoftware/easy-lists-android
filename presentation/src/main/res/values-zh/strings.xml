@@ -44,7 +44,7 @@
     <string name="support">支持</string>
     <string name="email">电子邮件</string>
     <string name="donate">捐赠</string>
-    <string name="copyright" translatable="false">© 2026 David Wiard, All Rights Reserved</string>
+
 
     <string name="crossed_off">已完成</string>
 
@@ -139,8 +139,7 @@
     <string name="list_item_deleted">已删除 \"%1$s\"</string>
 
     <string name="backups">备份</string>
-    <string name="create_local_backup">创建本地备份</string>
-    <string name="create_local_backup_description">备份数据和设置</string>
+
     <string name="restore_local_backup">恢复本地备份</string>
     <string name="restore_local_backup_description">从本地备份中恢复数据和设置</string>
     <string name="app_settings">应用设置</string>

@@ -139,8 +139,8 @@
     <string name="list_item_deleted">\"%1$s\" gelöscht</string>
 
     <string name="backups">Backups</string>
-    <string name="create_local_backup">Lokales Backup erstellen</string>
-    <string name="create_local_backup_description">Daten und Einstellungen sichern</string>
+
+
     <string name="restore_local_backup">Lokales Backup wiederherstellen</string>
     <string name="restore_local_backup_description">Daten und Einstellungen aus einem lokalen Backup wiederherstellen</string>
     <string name="app_settings">App-Einstellungen</string>

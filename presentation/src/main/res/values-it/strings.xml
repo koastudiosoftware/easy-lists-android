@@ -138,8 +138,8 @@
     <string name="list_item_deleted">Eliminato \"%1$s\"</string>
 
     <string name="backups">Backup</string>
-    <string name="create_local_backup">Crea backup locale</string>
-    <string name="create_local_backup_description">Esegui il backup di dati e impostazioni</string>
+
+
     <string name="restore_local_backup">Ripristina backup locale</string>
     <string name="restore_local_backup_description">Ripristina dati e impostazioni da un backup locale</string>
     <string name="app_settings">Impostazioni app</string>

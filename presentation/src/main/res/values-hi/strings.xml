@@ -138,8 +138,8 @@
     <string name="list_item_deleted">\"%1$s\" को हटाया गया</string>
 
     <string name="backups">बैकअप</string>
-    <string name="create_local_backup">स्थानीय बैकअप बनाएं</string>
-    <string name="create_local_backup_description">डेटा और सेटिंग का बैकअप लें</string>
+
+
     <string name="restore_local_backup">स्थानीय बैकअप पुनर्स्थापित करें</string>
     <string name="restore_local_backup_description">स्थानीय बैकअप से डेटा और सेटिंग पुनर्स्थापित करें</string>
     <string name="app_settings">ऐप्लिकेशन सेटिंग्स</string>
