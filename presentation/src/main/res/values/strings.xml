@@ -202,6 +202,12 @@
     <string name="about_last_server_check">Last server check: %1$s</string>
     <string name="about_last_server_check_never">Not checked with the server yet</string>
 
+    <string name="privacy">Privacy</string>
+    <string name="send_crash_reports">Send crash reports</string>
+    <string name="send_crash_reports_description">Help fix bugs by sending technical details when the app crashes</string>
+    <string name="send_analytics">Send usage statistics</string>
+    <string name="send_analytics_description">Help improve the app by sharing how features are used</string>
+
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>
         <item quantity="other">Used by %d list items</item>

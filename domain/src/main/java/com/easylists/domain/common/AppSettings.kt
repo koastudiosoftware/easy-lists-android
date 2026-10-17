@@ -9,4 +9,6 @@ data class AppSettings(
     val sortCrossedOffItems: SortCrossedOffItems = SortCrossedOffItems.MostRecentOnTop,
     val viewMode: ViewMode = ViewMode.Card,
     val listSortMode: ListSortMode = ListSortMode.NameAsc,
+    val sendCrashReports: Boolean = true,
+    val sendAnalytics: Boolean = true,
 )

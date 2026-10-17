@@ -26,9 +26,6 @@ dependencies {
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
 
-    // Resultat - Kotlin Result with loading state support
-//    implementation(libs.resultat)
-
     // davidepanidev
     implementation(libs.kotlin.extensions)
 

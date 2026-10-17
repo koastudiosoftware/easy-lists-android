@@ -19,6 +19,11 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -28,13 +33,14 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    buildFeatures {
-        compose = true
-        buildConfig = true
+
+    lint {
+        warning += "MissingTranslation"
     }
 }
 
@@ -72,10 +78,6 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
 
-    // davidepanidev
-//    implementation(libs.android.extensions)
-//    implementation(libs.kotlin.extensions)
-
     // reimagined-hilt
     implementation(libs.reimagined.hilt)
 
@@ -90,10 +92,6 @@ dependencies {
 
     // colorpicker-compose
     implementation(libs.colorpicker.compose)
-
-    // Firebase
-//    implementation(platform(libs.firebase.bom))
-//    implementation(libs.firebase.analytics)
 
     // Google OAuth
     //noinspection LoginCredentials

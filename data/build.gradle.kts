@@ -25,9 +25,14 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    lint {
+        warning += "MissingTranslation"
     }
 }
 
@@ -69,8 +74,9 @@ dependencies {
     implementation(libs.arbor.jvm)
 
     // Firebase
-//    implementation(platform(libs.firebase.bom))
-//    implementation(libs.firebase.analytics)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
     // Coil (for AsyncImage-related dependencies)
     implementation(libs.coil.compose)

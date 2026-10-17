@@ -15,8 +15,10 @@ daggerCompiler = "2.60.1"
 datastorePreferences = "1.2.1"
 espressoCore = "3.7.0"
 exifinterface = "1.4.2"
-firebaseBom = "35.0.0"
+firebaseBom = "35.0.2"
+firebaseCrashlyticsPlugin = "3.0.8"
 googleid = "1.2.1"
+googleServices = "4.5.0"
 hiltAndroidCompiler = "2.60.1"
 hiltVersion = "2.60.1"
 jetbrainsKotlinJvm = "2.4.21"
@@ -69,6 +71,7 @@ dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "daggerCompiler" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltVersion" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
@@ -84,6 +87,8 @@ androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 hilt-plugin = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

@@ -87,4 +87,11 @@ class SettingsViewModel @Inject constructor(
     }
     //endregion
 
+
+    //region Firebase crashlytics and analytics
+    fun onSendCrashReportsChanged() = update { it.copy(sendCrashReports = !it.sendCrashReports) }
+
+    fun onSendAnalyticsChanged() = update { it.copy(sendAnalytics = !it.sendAnalytics) }
+    //endregion
+
 }

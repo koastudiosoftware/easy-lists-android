@@ -223,6 +223,25 @@ fun SettingsScreenContent(
             }
         }
 
+        item { SettingsSectionTitle(stringResource(id = R.string.privacy)) }
+        item {
+            CardGroup {
+                ToggleSettingsItem(
+                    textLine1 = stringResource(id = R.string.send_crash_reports),
+                    textLine2 = stringResource(id = R.string.send_crash_reports_description),
+                    enabled = settings.sendCrashReports,
+                    onCheckedChange = { viewModel.onSendCrashReportsChanged() }
+                )
+                HorizontalDivider()
+                ToggleSettingsItem(
+                    textLine1 = stringResource(id = R.string.send_analytics),
+                    textLine2 = stringResource(id = R.string.send_analytics_description),
+                    enabled = settings.sendAnalytics,
+                    onCheckedChange = { viewModel.onSendAnalyticsChanged() }
+                )
+            }
+        }
+
         item { SettingsSectionTitle(stringResource(id = R.string.about)) }
         item {
             CardGroup {

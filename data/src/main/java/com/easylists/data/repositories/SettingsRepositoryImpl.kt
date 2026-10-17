@@ -34,6 +34,8 @@ class SettingsRepositoryImpl @Inject constructor(
         val theme = stringPreferencesKey("theme")
         val viewMode = stringPreferencesKey("view_mode")
         val listSortMode = stringPreferencesKey("list_sort_mode")
+        val sendCrashReports = booleanPreferencesKey("send_crash_reports")
+        val sendAnalytics = booleanPreferencesKey("send_analytics")
     }
 
     override val settings: Flow<AppSettings> = appSettingsDataStore.data
@@ -54,6 +56,8 @@ class SettingsRepositoryImpl @Inject constructor(
             prefs[Keys.sortCrossedOffItems] = updated.sortCrossedOffItems.id
             prefs[Keys.viewMode] = updated.viewMode.id
             prefs[Keys.listSortMode] = updated.listSortMode.id
+            prefs[Keys.sendCrashReports] = updated.sendCrashReports
+            prefs[Keys.sendAnalytics] = updated.sendAnalytics
         }
     }
 
@@ -72,6 +76,8 @@ class SettingsRepositoryImpl @Inject constructor(
             viewMode = ViewMode.from(this[Keys.viewMode]) ?: defaults.viewMode,
             listSortMode = ListSortMode.from(this[Keys.listSortMode])
                 ?: defaults.listSortMode,
+            sendCrashReports = this[Keys.sendCrashReports] ?: defaults.sendCrashReports,
+            sendAnalytics = this[Keys.sendAnalytics] ?: defaults.sendAnalytics,
         )
     }
 }
