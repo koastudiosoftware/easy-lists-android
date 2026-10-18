@@ -5,6 +5,7 @@ import com.easylists.data.db.room.EasyListsDatabase
 import com.easylists.data.db.room.dao.CategoryDao
 import com.easylists.data.db.room.dao.ListDao
 import com.easylists.data.db.room.dao.ListItemDao
+import com.easylists.data.db.room.dao.ListMemberDao
 import com.easylists.data.db.room.dao.ListOrderDao
 import com.easylists.data.db.room.dao.ResetDao
 import com.easylists.data.db.room.dao.TagDao
@@ -30,6 +31,7 @@ class SessionRepositoryImpl @Inject constructor(
     private val tagDao: TagDao,
     private val listOrderDao: ListOrderDao,
     private val resetDao: ResetDao,
+    private val listMemberDao: ListMemberDao,
     private val imageRepository: ImageRepository,
 ) : SessionRepository {
 
@@ -53,6 +55,7 @@ class SessionRepositoryImpl @Inject constructor(
                     categoryDao.relinkOwner(localId, account.uid, now)
                     tagDao.relinkOwner(localId, account.uid, now)
                     listOrderDao.relinkUser(localId, account.uid, now)
+                    listMemberDao.relinkUser(localId, account.uid, account.displayName, now)
                 }
                 LinkResult.Linked
             }
