@@ -1,6 +1,6 @@
 <div align="center">
 
-<!-- <p><img src="https://github.com/CoinTrend/CoinTrend/blob/develop/metadata/en-US/images/icon.png" width="200"></p> -->
+<!-- <p><img src="https://github.com/koastudiosoftware/easy-lists-android/blob/main/metadata/images/icon.png" width="200"></p> -->
 
 # Easy Lists
 
@@ -12,13 +12,11 @@
 [![JetpackCompose](https://img.shields.io/badge/Jetpack%20Compose-1.8.0-b58900)](https://developer.android.com/jetpack/compose)
 [![Release](https://badgen.net/github/release/koastudiosoftware/easy-lists-android?color=dc322f)](https://github.com/koastudiosoftware/easy-lists-android/releases)
 
-[![Resultat](https://img.shields.io/badge/Resultat-1.0.0-d33682)](https://github.com/nicolashaan/resultat)
-
 </div>
 
  ----
 
-Lightweight, fast and private list manager for Android
+Lightweight and fast list manager for Android
 
 
 ## Features
@@ -36,12 +34,16 @@ Lightweight, fast and private list manager for Android
 </p>
 
 ### Lightweight
-Easy Lists stores your lists locally and updates them automatically whenever you've changed them.
+Easy Lists stores your lists locally and updates them automatically whenever you've changed them. Local backups can be created at any time. Our app can be used virtually off-line, if desired. 
+
+Cloud sync is offered for those who choose to sign in with their Google account. Sync and sharing is offered for subscribers. Sync automatically stores your lists, list items, categories, tags, and photos in our secure cloud-based database.
+
+Multi-device support already exists. Simply create some lists, sign into your Google account, enable the sync option in the app settings, and then sign into the app with the same Google account on a second device, enable sync on that device, and wait for the sync to happen.
 
 ### Designed for Android
 The User Interface has been designed by following the latest Google's Material Design guidelines and by using only native Android components and animations.
 
-As of Android API 31, dynamic color theming is supported. However, as this project is designed to offer a highly readable theme based on the Solarized color palette created by Ethan Schoonover, we have disabled dynamic color. Dynamic color completely adjusts the theme colors automatically and the result bears no resemblance to the Solarized color palette.
+As of Android API 31, dynamic color theming is supported. Easy Lists supports dynamic color though the interface doesn't really see much of what dynamic color theming has to offer.
 
 ## Technical Details
 
@@ -51,7 +53,7 @@ As of Android API 31, dynamic color theming is supported. However, as this proje
 
 - **Multimodule Clean Architecture** 🏛 as [davidepanidev](https://github.com/davidepanidev)'s [Clean Architecture Compose Concept](https://github.com/davidepanidev/android-multimodule-architecture-concepts/tree/clean-architecture-compose-concept) which consists of four separate modules:
   -  _app_: Android module that contains the Android Application component and all the framework specific configurations. It has visibility over all the other modules and defines the global dependency injection configurations.
-  -  _presentation_: Android **MVVM**-based module. It contains the Android UI framework components (Activities, Composables, ViewModels...) and the related resources (e.g. images, strings...). This module just observes data coming from the undelying modules through Kotlin Flows and displays it. 
+  -  _presentation_: Android **MVVM**-based module. It contains the Android UI framework components (Activities, Composables, ViewModels...) and the related resources (e.g. images, strings...). This module just observes data coming from the undelying modules through Kotlin Flows and displays it.
   -  _domain_: Kotlin module that contains platform-independent business logic, the entities (platform-independent business models), and the repository interfaces.
   -  _data_: Android module that acts as the **Single-Source-Of-Truth** for the app's data gathering. It contains repositories implementations, the Room entities for persistence, the data source API implementations and the corresponding API-specific models.
 
@@ -69,18 +71,18 @@ As of Android API 31, dynamic color theming is supported. However, as this proje
 
 ### Libraries and References
 
-- [nicolashaan](https://github.com/nicolashaan): for the [Resultat](https://github.com/nicolashaan/resultat) library
-
 - [olshevski](https://github.com/olshevski): for the [Compose Navigation Reimagined](https://github.com/olshevski/compose-navigation-reimagined) library
-
-- [Solarized](https://ethanschoonover.com/solarized/): for the light and dark themes
 
 - [max-contrast](https://github.com/Myndex/max-contrast): for calculating the text color to display over custom tag colors
 
 - [colorpicker-compose](https://github.com/skydoves/colorpicker-compose): for tag color wheel/slider selection
 
+- [firebase](insert link here)
+
+- [googleid](insert link here)
+
 ## Support
 
-Easy Lists does not generate any revenue. If you wish to support the developers you can donate some sats at the Bitcoin address below:
+
 
 
