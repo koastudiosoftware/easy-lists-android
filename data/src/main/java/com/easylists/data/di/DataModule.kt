@@ -1,5 +1,6 @@
 package com.easylists.data.di
 
+import com.easylists.data.repositories.AuthRepositoryImpl
 import com.easylists.data.repositories.CategoryLocalDataSource
 import com.easylists.data.repositories.CategoryRepositoryImpl
 import com.easylists.data.repositories.ImageRepositoryImpl
@@ -18,6 +19,7 @@ import com.easylists.data.repositories.local.RoomListItemLocalDataSource
 import com.easylists.data.repositories.local.RoomListLocalDataSource
 import com.easylists.data.repositories.local.RoomTagListItemLocalDataSource
 import com.easylists.data.repositories.local.RoomTagLocalDataSource
+import com.easylists.domain.repositories.AuthRepository
 import com.easylists.domain.repositories.CategoryRepository
 import com.easylists.domain.repositories.ImageRepository
 import com.easylists.domain.repositories.ListItemRepository
@@ -26,10 +28,13 @@ import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.repositories.SettingsRepository
 import com.easylists.domain.repositories.TagListItemRepository
 import com.easylists.domain.repositories.TagRepository
+import com.google.firebase.auth.FirebaseAuth
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)

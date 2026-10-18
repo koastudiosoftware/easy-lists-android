@@ -207,6 +207,13 @@
     <string name="send_crash_reports_description">Help fix bugs by sending technical details when the app crashes</string>
     <string name="send_analytics">Send usage statistics</string>
     <string name="send_analytics_description">Help improve the app by sharing how features are used</string>
+    <string name="account">Account</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="sign_in_description">Sync your lists across devices and share them with others</string>
+    <string name="signed_in">Signed in</string>
+    <string name="signed_in_with_google">Signed in with Google</string>
+    <string name="sign_out">Sign out</string>
+    <string name="sign_out_description">Your lists stay on this device. Lists shared with you are removed.</string>
 
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>

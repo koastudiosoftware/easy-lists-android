@@ -52,6 +52,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // davidepanidev
     implementation(libs.kotlin.extensions)
@@ -80,5 +81,13 @@ dependencies {
 
     // Coil (for AsyncImage-related dependencies)
     implementation(libs.coil.compose)
+
+    // Google Auth
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+
+    // Firebase
+    implementation(libs.firebase.auth)
 
 }

@@ -39,6 +39,7 @@ import com.easylists.domain.common.GroupCrossedOffItems
 import com.easylists.domain.common.SortCrossedOffItems
 import com.easylists.domain.common.ViewMode
 import com.easylists.presentation.R
+import com.easylists.presentation.common.composables.AccountCard
 import com.easylists.presentation.common.composables.ListSettingGroup
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.composables.CardGroup
@@ -204,6 +205,9 @@ fun SettingsScreenContent(
                 )
             }
         }
+
+        item { SettingsSectionTitle(stringResource(id = R.string.account)) }
+        item { AccountCard(account, isSigningIn, onSignInClick, onSignOutClick) }
 
         item { SettingsSectionTitle(stringResource(id = R.string.backups)) }
         item {
