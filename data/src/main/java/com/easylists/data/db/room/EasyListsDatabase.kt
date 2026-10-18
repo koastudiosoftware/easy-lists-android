@@ -8,6 +8,7 @@ import com.easylists.data.db.room.dao.BackupDao
 import com.easylists.data.db.room.dao.CategoryDao
 import com.easylists.data.db.room.dao.ListDao
 import com.easylists.data.db.room.dao.ListItemDao
+import com.easylists.data.db.room.dao.ListMemberDao
 import com.easylists.data.db.room.dao.ListOrderDao
 import com.easylists.data.db.room.dao.ProviderLinkDao
 import com.easylists.data.db.room.dao.ResetDao
@@ -18,6 +19,7 @@ import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
 import com.easylists.data.db.room.models.ListItemUpdateEntity
+import com.easylists.data.db.room.models.ListMemberEntity
 import com.easylists.data.db.room.models.ListOrderEntity
 import com.easylists.data.db.room.models.ProviderLinkEntity
 import com.easylists.data.db.room.models.TagEntity
@@ -30,6 +32,7 @@ import com.easylists.data.db.room.models.UserEntity
         CategoryEntity::class,
         ListEntity::class,
         ListItemEntity::class,
+        ListMemberEntity::class,
         ListOrderEntity::class,
         ProviderLinkEntity::class,
         TagEntity::class,
@@ -48,6 +51,7 @@ abstract class EasyListsDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun listDao(): ListDao
     abstract fun listItemDao(): ListItemDao
+    abstract fun listMemberDao(): ListMemberDao
     abstract fun listOrderDao(): ListOrderDao
     abstract fun providerLinkDao(): ProviderLinkDao
     abstract fun tagDao(): TagDao
