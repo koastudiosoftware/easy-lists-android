@@ -91,4 +91,7 @@ abstract class ListDao() {
         """)
     abstract suspend fun relinkOwner(oldId: String, newId: String, now: Long)
 
+    // used during sign-out
+    @Query("DELETE FROM lists WHERE owner_id != :userId")
+    abstract suspend fun deleteForeignLists(userId: String): Int
 }

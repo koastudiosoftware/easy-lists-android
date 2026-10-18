@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import com.easylists.data.db.room.EasyListsDatabase
 import com.easylists.data.db.room.dao.CategoryDao
 import com.easylists.data.db.room.dao.ListDao
+import com.easylists.data.db.room.dao.ListItemDao
 import com.easylists.data.db.room.dao.ListOrderDao
 import com.easylists.data.db.room.dao.ResetDao
 import com.easylists.data.db.room.dao.TagDao
@@ -11,6 +12,7 @@ import com.easylists.data.db.room.dao.UserDao
 import com.easylists.data.db.room.models.UserEntity
 import com.easylists.domain.models.AuthAccount
 import com.easylists.domain.models.LinkResult
+import com.easylists.domain.repositories.ImageRepository
 import com.easylists.domain.repositories.SessionRepository
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -23,10 +25,12 @@ class SessionRepositoryImpl @Inject constructor(
     private val db: EasyListsDatabase,
     private val userDao: UserDao,
     private val listDao: ListDao,
+    private val listItemDao: ListItemDao,
     private val categoryDao: CategoryDao,
     private val tagDao: TagDao,
     private val listOrderDao: ListOrderDao,
     private val resetDao: ResetDao,
+    private val imageRepository: ImageRepository,
 ) : SessionRepository {
 
     override suspend fun getUserId(): String = withTimeout(5.seconds) {
@@ -77,5 +81,16 @@ class SessionRepositoryImpl @Inject constructor(
                 )
             )
         }
+    }
+
+
+    override suspend fun removeSharedListsFromDevice() {
+        val userId = getUserId()
+        val photoNames = listItemDao.getPhotoNamesOfForeignLists(userId)
+        db.withTransaction {
+            listDao.deleteForeignLists(userId)
+            categoryDao.deleteForeignUnused(userId)
+        }
+        imageRepository.deletePhotos(photoNames)
     }
 }

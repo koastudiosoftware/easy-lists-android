@@ -76,4 +76,15 @@ abstract class ListItemDao() {
         listItemIds: List<String>,
         now: Long = System.currentTimeMillis()
     ): Int = listItemIds.chunked(500).sumOf { undeleteChunk(it, now) }
+
+
+    // used during sign-out
+    @Query("""
+        SELECT li.photo_uri
+        FROM list_items li
+        JOIN lists l ON l.list_id = li.list_id
+        WHERE l.owner_id != :userId AND li.photo_uri IS NOT NULL
+        """)
+    abstract suspend fun getPhotoNamesOfForeignLists(userId: String): List<String>
+
 }

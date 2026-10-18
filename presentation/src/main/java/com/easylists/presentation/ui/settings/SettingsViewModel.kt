@@ -39,8 +39,8 @@ class SettingsViewModel @Inject constructor(
     observeAuthAccount: ObserveAuthAccountUseCase,
     private val linkAccount: LinkAccountUseCase,
     private val signInWithGoogle: SignInWithGoogleUseCase,
-    private val signOut: SignOutUseCase,
     private val switchAccount: SwitchAccountUseCase,
+    private val signOut: SignOutUseCase,
     @Named("web_client_id") val webClientId: String,
 ) : ViewModel() {
 
@@ -97,8 +97,11 @@ class SettingsViewModel @Inject constructor(
 
     fun onSignInFailed() = _uiState.update { it.copy(signInFailed = true) }
     fun onSignInErrorShown() = _uiState.update { it.copy(signInFailed = false) }
-    fun onSignOutClick() = signOut()
-//endregion
+    fun onSignOutClick() {
+        viewModelScope.launch { signOut() }
+    }
+    //endregion
+
 
     //region Toggles
     fun onEnableCameraChanged() = update {
@@ -171,7 +174,8 @@ class SettingsViewModel @Inject constructor(
     fun onSwitchCancelled() {
         pendingAccount = null
         _uiState.update { it.copy(showSwitchDialog = false) }
-        signOut()
+        viewModelScope.launch { signOut() }
     }
     //endregion
+
 }

@@ -63,4 +63,12 @@ abstract class CategoryDao() {
         """)
     abstract suspend fun relinkOwner(oldId: String, newId: String, now: Long)
 
+
+    // used during sign-out
+    @Query("""
+        DELETE FROM categories
+        WHERE owner_id != :userId
+          AND category_id NOT IN (SELECT category_id FROM list_items WHERE category_id IS NOT NULL)
+        """)
+    abstract suspend fun deleteForeignUnused(userId: String): Int
 }

@@ -11,4 +11,6 @@ interface SessionRepository {
 
     suspend fun switchAccount(account: AuthAccount)
 
+    suspend fun removeSharedListsFromDevice()
+
 }

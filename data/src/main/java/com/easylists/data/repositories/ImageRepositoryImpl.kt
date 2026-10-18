@@ -99,5 +99,14 @@ class ImageRepositoryImpl @Inject constructor(
             Bitmap.CompressFormat.WEBP
         }
     }
+
+
+    override suspend fun deletePhotos(fileNames: List<String>) {
+        withContext(Dispatchers.IO) {
+            val directory = PhotoStorage.directory(context.filesDir)
+            fileNames.forEach { File(directory, File(it).name).delete() }
+        }
+    }
+
 }
 //endregion

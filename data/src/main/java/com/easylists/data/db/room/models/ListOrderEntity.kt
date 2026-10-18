@@ -2,6 +2,7 @@ package com.easylists.data.db.room.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import com.google.gson.annotations.SerializedName
 import kotlin.time.Clock
@@ -10,6 +11,15 @@ import kotlin.time.Clock
     tableName = "list_order",
     primaryKeys = ["user_id", "list_id"],
     indices = [Index(value = ["list_id"])],
+    foreignKeys = [
+        ForeignKey(
+            entity = ListEntity::class,
+            parentColumns = ["list_id"],
+            childColumns = ["list_id"],
+            onDelete = ForeignKey.CASCADE,
+            deferred = true,
+        ),
+    ],
 )
 data class ListOrderEntity(
     @ColumnInfo(name = "user_id")

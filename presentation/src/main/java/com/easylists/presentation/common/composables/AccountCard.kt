@@ -57,6 +57,12 @@ fun AccountCard(
                 textLine2 = "uid debug-b",
                 onClick = { onDebugSignIn("debug-b") },
             )
+            HorizontalDivider()
+            SettingsItem(
+                textLine1 = "Debug: sign out",
+                textLine2 = "runs the sign-out cleanup",
+                onClick = onSignOutClick,
+            )
         }
     }
 }
