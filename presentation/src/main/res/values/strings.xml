@@ -13,10 +13,10 @@
 
     <string name="name">Name</string>
     <string name="notes">Notes</string>
-    <string name="add_list">Add List</string>
-    <string name="edit_list">Edit List</string>
-    <string name="create_new_list">Create new list</string>
-    <string name="create_new_tag">Create new easyListsTag</string>
+    <string name="add_list">Add A List</string>
+    <string name="edit_list">Edit A List</string>
+    <string name="create_new_list">Create a new list</string>
+    <string name="create_new_tag">Create a new tag</string>
     <string name="delete_list">Delete list</string>
     <string name="no_lists_found">No lists found</string>
     <string name="take_a_picture">Take a picture</string>
@@ -220,6 +220,7 @@
     <string name="switch_account_message">The lists on this device were created under a different account, so they won’t carry over to this login. Lists shared with you won’t carry over either.</string>
     <string name="switch_account_confirm">Switch</string>
     <string name="cancel">Cancel</string>
+    <string name="click_to_get_started">"Create a list to get started! "</string>
 
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>
