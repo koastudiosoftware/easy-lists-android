@@ -9,6 +9,7 @@ import com.easylists.data.db.room.EasyListsDatabase
 import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
+import com.easylists.data.db.room.models.ListMemberEntity
 import com.easylists.data.db.room.models.TagEntity
 import com.easylists.data.db.room.models.TagListItemEntity
 import com.easylists.data.db.room.models.UserEntity
@@ -134,6 +135,18 @@ class SeedDatabaseCallback(
                         isDirty = true,
                         createdTimestamp = now,
                         modifiedTimestamp = now,
+                    )
+                )
+                db.listMemberDao().upsert(
+                    listOf(
+                        ListMemberEntity(
+                            listId = listId,
+                            userId = ownerId,
+                            role = "owner",
+                            isDirty = true,
+                            createdTimestamp = now,
+                            modifiedTimestamp = now,
+                        )
                     )
                 )
                 val itemEntities = mutableListOf<ListItemEntity>()

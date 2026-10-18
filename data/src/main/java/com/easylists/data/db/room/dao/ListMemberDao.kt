@@ -27,7 +27,11 @@ abstract class ListMemberDao {
     abstract suspend fun softDelete(listId: String, userId: String, now: Long): Int
 
     // Used by the first-sign-in remap
-    @Query("UPDATE list_members SET user_id = :newId, is_dirty = 1, modified_timestamp = :now WHERE user_id = :oldId")
-    abstract suspend fun relinkUser(oldId: String, newId: String, now: Long)
+    @Query("""
+        UPDATE list_members
+        SET user_id = :newId, display_name = :displayName, is_dirty = 1, modified_timestamp = :now
+        WHERE user_id = :oldId
+        """)
+    abstract suspend fun relinkUser(oldId: String, newId: String, displayName: String?, now: Long)
 
 }

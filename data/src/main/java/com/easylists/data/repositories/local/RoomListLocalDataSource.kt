@@ -36,7 +36,7 @@ class RoomListLocalDataSource @Inject constructor(
     //region insert()
     override suspend fun insert(list: EasyListsList): Long {
         val mappedList = mapper.mapEasyListsListToListEntity(list)
-        return dao.insert(listEntity = mappedList)
+        return dao.insertWithOwner(listEntity = mappedList)
     }
     //endregion
 
