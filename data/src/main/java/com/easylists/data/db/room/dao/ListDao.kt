@@ -83,4 +83,12 @@ abstract class ListDao() {
         rows += listIds.chunked(500).sumOf { restoreListsChunk(it, now) }
         return rows
     }
+
+    @Query("""
+        UPDATE lists
+        SET owner_id = :newId, is_dirty = 1, modified_timestamp = :now
+        WHERE owner_id = :oldId
+        """)
+    abstract suspend fun relinkOwner(oldId: String, newId: String, now: Long)
+
 }

@@ -7,6 +7,9 @@ import com.easylists.domain.common.Capitalization
 import com.easylists.domain.common.GroupCrossedOffItems
 import com.easylists.domain.common.SortCrossedOffItems
 import com.easylists.domain.common.ViewMode
+import com.easylists.domain.models.AuthAccount
+import com.easylists.domain.models.LinkResult
+import com.easylists.domain.use_cases.LinkAccountUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.ObserveAuthAccountUseCase
 import com.easylists.domain.use_cases.SignInWithGoogleUseCase
@@ -33,6 +36,7 @@ class SettingsViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
     private val updateAppSettings: UpdateAppSettingsUseCase,
     observeAuthAccount: ObserveAuthAccountUseCase,
+    private val linkAccount: LinkAccountUseCase,
     private val signInWithGoogle: SignInWithGoogleUseCase,
     private val signOut: SignOutUseCase,
     @Named("web_client_id") val webClientId: String,
@@ -56,18 +60,36 @@ class SettingsViewModel @Inject constructor(
         .map { a -> a?.let { AccountUiModel(it.displayName, it.email) } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    fun onDebugSignIn(uid: String) {
+        viewModelScope.launch {
+            val result = linkAccount(
+                AuthAccount(uid, "$uid@debug.test", "Debug $uid", null)
+            )
+            Arbor.i("Debug link result: $result")
+        }
+    }
+
     fun onGoogleIdToken(idToken: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isSigningIn = true) }
             try {
                 val signedIn = signInWithGoogle(idToken)
+                when (linkAccount(signedIn)) {
+                    LinkResult.Linked, LinkResult.AlreadyLinked -> Arbor.i("Account linked, uid = ${signedIn.uid}")
+                    LinkResult.SwitchRequired -> {
+                        signOut()   // placeholder until the switch warning exists
+                        Arbor.i("Switch required; not handled yet")
+                    }
+                }
                 Arbor.i("Signed in, uid = ${signedIn.uid}")
             } catch (e: CancellationException) {
+                Arbor.e("(VM) Sign-in cancelled", e)
                 throw e
             } catch (e: Exception) {
                 Arbor.e("Sign-in failed", e)
                 _uiState.update { it.copy(signInFailed = true) }
             } finally {
+                Arbor.i("(VM) Sign-in finished")
                 _uiState.update { it.copy(isSigningIn = false) }
             }
         }

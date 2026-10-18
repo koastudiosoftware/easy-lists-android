@@ -56,4 +56,11 @@ abstract class CategoryDao() {
         return rows
     }
 
+    @Query("""
+        UPDATE categories
+        SET owner_id = :newId, is_dirty = 1, modified_timestamp = :now
+        WHERE owner_id = :oldId
+        """)
+    abstract suspend fun relinkOwner(oldId: String, newId: String, now: Long)
+
 }

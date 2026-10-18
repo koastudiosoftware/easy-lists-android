@@ -61,4 +61,11 @@ abstract class TagDao() {
         now: Long = Clock.System.now().toEpochMilliseconds()
     ): Int = tagIds.chunked(500).sumOf { deleteChunk(it, now) }
 
+    @Query("""
+        UPDATE tags
+        SET owner_id = :newId, is_dirty = 1, modified_timestamp = :now
+        WHERE owner_id = :oldId
+        """)
+    abstract suspend fun relinkOwner(oldId: String, newId: String, now: Long)
+
 }

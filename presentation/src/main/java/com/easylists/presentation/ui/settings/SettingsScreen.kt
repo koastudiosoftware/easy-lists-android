@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.easylists.domain.common.AppSettings
 import com.easylists.domain.common.Capitalization
@@ -151,13 +152,19 @@ fun SettingsScreenContent(
     val onSignInClick: () -> Unit = {
         scope.launch {
             try {
+                Arbor.i("Web client id: ${viewModel.webClientId}")
                 viewModel.onGoogleIdToken(fetchGoogleIdToken(context, viewModel.webClientId))
-            } catch (e: GetCredentialCancellationException) {
-                // The picker was dismissed, so there's nothing to report.
             } catch (e: CancellationException) {
+                Arbor.e("(SS) Sign-in cancelled", e)
                 throw e
-            } catch (e: Exception) {
+            } catch (e: GetCredentialException) {
+                Arbor.e("Credential request failed: ${e.javaClass.simpleName} / ${e.type} / ${e.message}", e)
                 viewModel.onSignInFailed()
+            } catch (e: Exception) {
+                Arbor.e("Sign-in failed", e)
+                viewModel.onSignInFailed()
+            } finally {
+                Arbor.i("(SS) Sign-in finished")
             }
         }
     }
@@ -247,6 +254,7 @@ fun SettingsScreenContent(
                 isSigningIn = uiState.isSigningIn,
                 onSignInClick = onSignInClick,
                 onSignOutClick = viewModel::onSignOutClick,
+                onDebugSignIn = viewModel::onDebugSignIn,
             )
         }
 

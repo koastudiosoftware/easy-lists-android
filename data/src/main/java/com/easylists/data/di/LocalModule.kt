@@ -9,6 +9,7 @@ import androidx.room.Room
 import coil3.ImageLoader
 import coil3.imageLoader
 import com.easylists.data.db.room.EasyListsDatabase
+import com.easylists.data.db.room.dao.AccountDao
 import com.easylists.data.db.room.dao.CategoryDao
 import com.easylists.data.db.room.dao.ListDao
 import com.easylists.data.db.room.dao.ListItemDao
@@ -37,6 +38,13 @@ object LocalModule {
             }
         )
     }
+
+
+    @Provides
+    @Singleton
+    fun provideAccountDao(
+        easyListsDatabase: EasyListsDatabase
+    ): AccountDao = easyListsDatabase.accountDao()
 
 
     @Provides

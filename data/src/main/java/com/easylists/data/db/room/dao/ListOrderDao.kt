@@ -3,6 +3,7 @@ package com.easylists.data.db.room.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import androidx.room.Transaction
 import com.easylists.data.db.room.models.ListOrderEntity
 import kotlin.time.Clock
@@ -33,4 +34,12 @@ abstract class ListOrderDao {
             }
         )
     }
+
+    @Query("""
+        UPDATE list_order
+        SET user_id = :newId, is_dirty = 1, modified_timestamp = :now
+        WHERE user_id = :oldId
+        """)
+    abstract suspend fun relinkUser(oldId: String, newId: String, now: Long)
+
 }

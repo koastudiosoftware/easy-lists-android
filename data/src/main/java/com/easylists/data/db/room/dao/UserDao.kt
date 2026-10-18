@@ -49,4 +49,15 @@ interface UserDao {
     @Query("SELECT * FROM users")
     fun observeAll(): Flow<List<UserEntity>>
 
+    @Query("""
+    UPDATE users
+    SET user_id = :newId, email = :email, displayName = :displayName,
+        profilePictureUrl = :photoUrl, syncEnabled = 1, modified_timestamp = :now
+    WHERE user_id = :oldId
+""")
+    suspend fun relink(
+        oldId: String, newId: String,
+        email: String?, displayName: String?, photoUrl: String?, now: Long,
+    )
+
 }

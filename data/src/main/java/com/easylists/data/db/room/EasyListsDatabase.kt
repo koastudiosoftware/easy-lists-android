@@ -3,6 +3,7 @@ package com.easylists.data.db.room
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.easylists.data.db.room.dao.AccountDao
 import com.easylists.data.db.room.dao.BackupDao
 import com.easylists.data.db.room.dao.CategoryDao
 import com.easylists.data.db.room.dao.ListDao
@@ -42,6 +43,7 @@ import com.easylists.data.db.room.models.UserEntity
 )
 abstract class EasyListsDatabase : RoomDatabase() {
 
+    abstract fun accountDao(): AccountDao
     abstract fun categoryDao(): CategoryDao
     abstract fun listDao(): ListDao
     abstract fun listItemDao(): ListItemDao
