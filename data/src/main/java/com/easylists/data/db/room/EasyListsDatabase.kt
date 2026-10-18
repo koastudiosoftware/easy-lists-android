@@ -10,6 +10,7 @@ import com.easylists.data.db.room.dao.ListDao
 import com.easylists.data.db.room.dao.ListItemDao
 import com.easylists.data.db.room.dao.ListOrderDao
 import com.easylists.data.db.room.dao.ProviderLinkDao
+import com.easylists.data.db.room.dao.ResetDao
 import com.easylists.data.db.room.dao.TagDao
 import com.easylists.data.db.room.dao.TagListItemDao
 import com.easylists.data.db.room.dao.UserDao
@@ -53,5 +54,7 @@ abstract class EasyListsDatabase : RoomDatabase() {
     abstract fun tagListItemDao(): TagListItemDao
     abstract fun userDao(): UserDao
     abstract fun backupDao(): BackupDao
+    abstract fun resetDao(): ResetDao
+
 
 }

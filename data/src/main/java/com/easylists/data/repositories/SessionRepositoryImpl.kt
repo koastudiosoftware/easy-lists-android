@@ -5,8 +5,10 @@ import com.easylists.data.db.room.EasyListsDatabase
 import com.easylists.data.db.room.dao.CategoryDao
 import com.easylists.data.db.room.dao.ListDao
 import com.easylists.data.db.room.dao.ListOrderDao
+import com.easylists.data.db.room.dao.ResetDao
 import com.easylists.data.db.room.dao.TagDao
 import com.easylists.data.db.room.dao.UserDao
+import com.easylists.data.db.room.models.UserEntity
 import com.easylists.domain.models.AuthAccount
 import com.easylists.domain.models.LinkResult
 import com.easylists.domain.repositories.SessionRepository
@@ -24,6 +26,7 @@ class SessionRepositoryImpl @Inject constructor(
     private val categoryDao: CategoryDao,
     private val tagDao: TagDao,
     private val listOrderDao: ListOrderDao,
+    private val resetDao: ResetDao,
 ) : SessionRepository {
 
     override suspend fun getUserId(): String = withTimeout(5.seconds) {
@@ -50,6 +53,29 @@ class SessionRepositoryImpl @Inject constructor(
                 LinkResult.Linked
             }
             else -> LinkResult.SwitchRequired
+        }
+    }
+
+
+    override suspend fun switchAccount(account: AuthAccount) {
+        db.withTransaction {
+            resetDao.deleteTagLinks()
+            resetDao.deleteListItems()
+            resetDao.deleteListOrder()
+            resetDao.deleteLists()
+            resetDao.deleteCategories()
+            resetDao.deleteTags()
+            resetDao.deleteProviderLinks()
+            resetDao.deleteUsers()
+            userDao.upsert(
+                UserEntity(
+                    userId = account.uid,
+                    email = account.email,
+                    displayName = account.displayName,
+                    profilePictureUrl = account.photoUrl,
+                    syncEnabled = true,
+                )
+            )
         }
     }
 }

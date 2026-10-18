@@ -216,6 +216,10 @@
     <string name="sign_out_description">Your lists stay on this device. Lists shared with you are removed.</string>
     <string name="default_web_client_id">Default web client ID</string>
     <string name="sign_in_failed">Sign-in failed. Please try again.</string>
+    <string name="switch_account_title">Switch accounts?</string>
+    <string name="switch_account_message">The lists on this device were created under a different account, so they won’t carry over to this login. Lists shared with you won’t carry over either.</string>
+    <string name="switch_account_confirm">Switch</string>
+    <string name="cancel">Cancel</string>
 
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>

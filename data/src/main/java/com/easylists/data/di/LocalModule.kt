@@ -14,6 +14,7 @@ import com.easylists.data.db.room.dao.CategoryDao
 import com.easylists.data.db.room.dao.ListDao
 import com.easylists.data.db.room.dao.ListItemDao
 import com.easylists.data.db.room.dao.ListOrderDao
+import com.easylists.data.db.room.dao.ResetDao
 import com.easylists.data.db.room.dao.TagDao
 import com.easylists.data.db.room.dao.TagListItemDao
 import com.easylists.data.db.room.dao.UserDao
@@ -83,6 +84,13 @@ object LocalModule {
     fun provideListItemDao(
         easyListsDatabase: EasyListsDatabase
     ): ListItemDao = easyListsDatabase.listItemDao()
+
+
+    @Provides
+    @Singleton
+    fun provideResetDao(
+        easyListsDatabase: EasyListsDatabase
+    ): ResetDao = easyListsDatabase.resetDao()
 
 
     @Provides

@@ -9,4 +9,6 @@ interface SessionRepository {
 
     suspend fun linkAccount(account: AuthAccount): LinkResult
 
+    suspend fun switchAccount(account: AuthAccount)
+
 }

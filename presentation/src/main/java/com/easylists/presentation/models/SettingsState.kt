@@ -8,4 +8,5 @@ data class SettingsUiState(
     val restartActivity: Boolean? = null,
     val isSigningIn: Boolean = false,
     val signInFailed: Boolean = false,
+    val showSwitchDialog: Boolean = false
 )

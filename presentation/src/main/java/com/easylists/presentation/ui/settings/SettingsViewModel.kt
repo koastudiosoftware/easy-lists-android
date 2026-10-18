@@ -14,6 +14,7 @@ import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.ObserveAuthAccountUseCase
 import com.easylists.domain.use_cases.SignInWithGoogleUseCase
 import com.easylists.domain.use_cases.SignOutUseCase
+import com.easylists.domain.use_cases.SwitchAccountUseCase
 import com.easylists.domain.use_cases.UpdateAppSettingsUseCase
 import com.easylists.presentation.models.AccountUiModel
 import com.easylists.presentation.models.SettingsUiState
@@ -39,6 +40,7 @@ class SettingsViewModel @Inject constructor(
     private val linkAccount: LinkAccountUseCase,
     private val signInWithGoogle: SignInWithGoogleUseCase,
     private val signOut: SignOutUseCase,
+    private val switchAccount: SwitchAccountUseCase,
     @Named("web_client_id") val webClientId: String,
 ) : ViewModel() {
 
@@ -62,10 +64,14 @@ class SettingsViewModel @Inject constructor(
 
     fun onDebugSignIn(uid: String) {
         viewModelScope.launch {
-            val result = linkAccount(
-                AuthAccount(uid, "$uid@debug.test", "Debug $uid", null)
+            link(
+                AuthAccount(
+                    uid = uid,
+                    email = "$uid@debug.test",
+                    displayName = "Debug $uid",
+                    photoUrl = null,
+                )
             )
-            Arbor.i("Debug link result: $result")
         }
     }
 
@@ -74,13 +80,7 @@ class SettingsViewModel @Inject constructor(
             _uiState.update { it.copy(isSigningIn = true) }
             try {
                 val signedIn = signInWithGoogle(idToken)
-                when (linkAccount(signedIn)) {
-                    LinkResult.Linked, LinkResult.AlreadyLinked -> Arbor.i("Account linked, uid = ${signedIn.uid}")
-                    LinkResult.SwitchRequired -> {
-                        signOut()   // placeholder until the switch warning exists
-                        Arbor.i("Switch required; not handled yet")
-                    }
-                }
+                link(signedIn)
                 Arbor.i("Signed in, uid = ${signedIn.uid}")
             } catch (e: CancellationException) {
                 Arbor.e("(VM) Sign-in cancelled", e)
@@ -147,4 +147,31 @@ class SettingsViewModel @Inject constructor(
     fun onSendAnalyticsChanged() = update { it.copy(sendAnalytics = !it.sendAnalytics) }
     //endregion
 
+
+    //region switch account
+    private var pendingAccount: AuthAccount? = null
+
+    private suspend fun link(account: AuthAccount) {
+        when (linkAccount(account)) {
+            LinkResult.Linked, LinkResult.AlreadyLinked -> Arbor.i("Account linked, uid = ${account.uid}")
+            LinkResult.SwitchRequired -> {
+                pendingAccount = account
+                _uiState.update { it.copy(showSwitchDialog = true) }
+            }
+        }
+    }
+
+    fun onSwitchConfirmed() {
+        val account = pendingAccount ?: return
+        pendingAccount = null
+        _uiState.update { it.copy(showSwitchDialog = false) }
+        viewModelScope.launch { switchAccount(account) }
+    }
+
+    fun onSwitchCancelled() {
+        pendingAccount = null
+        _uiState.update { it.copy(showSwitchDialog = false) }
+        signOut()
+    }
+    //endregion
 }
