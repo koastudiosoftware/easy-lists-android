@@ -214,6 +214,8 @@
     <string name="signed_in_with_google">Signed in with Google</string>
     <string name="sign_out">Sign out</string>
     <string name="sign_out_description">Your lists stay on this device. Lists shared with you are removed.</string>
+    <string name="default_web_client_id">Default web client ID</string>
+    <string name="sign_in_failed">Sign-in failed. Please try again.</string>
 
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>

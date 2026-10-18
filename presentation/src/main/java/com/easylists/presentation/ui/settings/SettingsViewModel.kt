@@ -8,22 +8,34 @@ import com.easylists.domain.common.GroupCrossedOffItems
 import com.easylists.domain.common.SortCrossedOffItems
 import com.easylists.domain.common.ViewMode
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
+import com.easylists.domain.use_cases.ObserveAuthAccountUseCase
+import com.easylists.domain.use_cases.SignInWithGoogleUseCase
+import com.easylists.domain.use_cases.SignOutUseCase
 import com.easylists.domain.use_cases.UpdateAppSettingsUseCase
+import com.easylists.presentation.models.AccountUiModel
 import com.easylists.presentation.models.SettingsUiState
+import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
     private val updateAppSettings: UpdateAppSettingsUseCase,
+    observeAuthAccount: ObserveAuthAccountUseCase,
+    private val signInWithGoogle: SignInWithGoogleUseCase,
+    private val signOut: SignOutUseCase,
+    @Named("web_client_id") val webClientId: String,
 ) : ViewModel() {
 
     // Persisted settings. DataStore is the single source of truth.
@@ -39,13 +51,32 @@ class SettingsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
+    //region Account
+    val account: StateFlow<AccountUiModel?> = observeAuthAccount()
+        .map { a -> a?.let { AccountUiModel(it.displayName, it.email) } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    //region UI state
-    fun onPullToRefresh(isRefreshing: Boolean) {
-        _uiState.update { it.copy(isPullToRefreshing = isRefreshing) }
+    fun onGoogleIdToken(idToken: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSigningIn = true) }
+            try {
+                val signedIn = signInWithGoogle(idToken)
+                Arbor.i("Signed in, uid = ${signedIn.uid}")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Arbor.e("Sign-in failed", e)
+                _uiState.update { it.copy(signInFailed = true) }
+            } finally {
+                _uiState.update { it.copy(isSigningIn = false) }
+            }
+        }
     }
-    //endregion
 
+    fun onSignInFailed() = _uiState.update { it.copy(signInFailed = true) }
+    fun onSignInErrorShown() = _uiState.update { it.copy(signInFailed = false) }
+    fun onSignOutClick() = signOut()
+//endregion
 
     //region Toggles
     fun onEnableCameraChanged() = update {

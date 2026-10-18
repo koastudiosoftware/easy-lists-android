@@ -22,16 +22,20 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.easylists.domain.common.AppSettings
 import com.easylists.domain.common.Capitalization
@@ -45,6 +49,7 @@ import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.composables.CardGroup
 import com.easylists.presentation.common.composables.SettingsItem
 import com.easylists.presentation.common.composables.ToggleSettingsItem
+import com.easylists.presentation.common.fetchGoogleIdToken
 import com.easylists.presentation.common.labelRes
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsKeyboardArrowRight
@@ -56,6 +61,8 @@ import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import dev.olshevski.navigation.reimagined.navigate
 import dev.olshevski.navigation.reimagined.pop
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,6 +74,14 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val signInFailedMessage = stringResource(R.string.sign_in_failed)
+    LaunchedEffect(uiState.signInFailed) {
+        if (uiState.signInFailed) {
+            snackbarHostState.showSnackbar(signInFailedMessage)
+            viewModel.onSignInErrorShown()
+        }
+    }
 
     Scaffold(
         modifier = Modifier,
@@ -127,6 +142,25 @@ fun SettingsScreenContent(
 ) {
 
     var showLocalBackup by remember { mutableStateOf(false) }
+
+    val account by viewModel.account.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val onSignInClick: () -> Unit = {
+        scope.launch {
+            try {
+                viewModel.onGoogleIdToken(fetchGoogleIdToken(context, viewModel.webClientId))
+            } catch (e: GetCredentialCancellationException) {
+                // The picker was dismissed, so there's nothing to report.
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                viewModel.onSignInFailed()
+            }
+        }
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -207,7 +241,14 @@ fun SettingsScreenContent(
         }
 
         item { SettingsSectionTitle(stringResource(id = R.string.account)) }
-        item { AccountCard(account, isSigningIn, onSignInClick, onSignOutClick) }
+        item {
+            AccountCard(
+                account = account,
+                isSigningIn = uiState.isSigningIn,
+                onSignInClick = onSignInClick,
+                onSignOutClick = viewModel::onSignOutClick,
+            )
+        }
 
         item { SettingsSectionTitle(stringResource(id = R.string.backups)) }
         item {
