@@ -77,7 +77,9 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.auth)
     implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.firestore)
 
     // Coil (for AsyncImage-related dependencies)
     implementation(libs.coil.compose)
@@ -86,8 +88,5 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
-
-    // Firebase
-    implementation(libs.firebase.auth)
 
 }
