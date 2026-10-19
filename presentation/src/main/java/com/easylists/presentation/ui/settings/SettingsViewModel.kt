@@ -62,17 +62,11 @@ class SettingsViewModel @Inject constructor(
         .map { a -> a?.let { AccountUiModel(it.displayName, it.email) } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    fun onDebugSignIn(uid: String) {
-        viewModelScope.launch {
-            link(
-                AuthAccount(
-                    uid = uid,
-                    email = "$uid@debug.test",
-                    displayName = "Debug $uid",
-                    photoUrl = null,
-                )
-            )
-        }
+    // Signs in through the Auth emulator with a fake Google token (debug builds only)
+    fun onDebugSignIn(name: String) {
+        onGoogleIdToken(
+            """{"sub":"$name","email":"$name@debug.test","email_verified":true}"""
+        )
     }
 
     fun onGoogleIdToken(idToken: String) {
@@ -86,7 +80,7 @@ class SettingsViewModel @Inject constructor(
                 Arbor.e("(VM) Sign-in cancelled", e)
                 throw e
             } catch (e: Exception) {
-                Arbor.e("Sign-in failed", e)
+                Arbor.e("Sign-in failed: ${e.javaClass.simpleName}: ${e.message} / cause: ${e.cause}", e)
                 _uiState.update { it.copy(signInFailed = true) }
             } finally {
                 Arbor.i("(VM) Sign-in finished")
