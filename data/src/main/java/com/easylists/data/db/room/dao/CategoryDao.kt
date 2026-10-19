@@ -17,10 +17,18 @@ abstract class CategoryDao() {
     @Query("""
         SELECT *
         FROM categories
-        WHERE is_deleted = 0
+        WHERE is_deleted = 0 AND list_id IS NULL
         ORDER BY name COLLATE NOCASE ASC
         """)
     abstract fun get(): Flow<List<CategoryEntity>>
+
+    @Query("""
+        SELECT *
+        FROM categories
+        WHERE list_id = :listId AND is_deleted = 0
+        ORDER BY name COLLATE NOCASE ASC
+        """)
+    abstract fun getForList(listId: String): Flow<List<CategoryEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(categoryEntity: CategoryEntity): Long

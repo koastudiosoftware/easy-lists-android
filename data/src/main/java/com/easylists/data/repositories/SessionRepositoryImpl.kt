@@ -90,10 +90,8 @@ class SessionRepositoryImpl @Inject constructor(
     override suspend fun removeSharedListsFromDevice() {
         val userId = getUserId()
         val photoNames = listItemDao.getPhotoNamesOfForeignLists(userId)
-        db.withTransaction {
-            listDao.deleteForeignLists(userId)
-            categoryDao.deleteForeignUnused(userId)
-        }
+        listDao.deleteForeignLists(userId)
         imageRepository.deletePhotos(photoNames)
     }
+
 }
