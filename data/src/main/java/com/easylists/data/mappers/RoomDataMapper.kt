@@ -50,14 +50,13 @@ class RoomDataMapper @Inject constructor(
                 name = category.name,
                 ownerId = category.ownerId,
                 isDirty = category.isDirty,
-
             )
         } else {
             CategoryEntity(
                 categoryId = category.categoryId!!,
                 ownerId = category.ownerId,
                 name = category.name,
-                isDirty = category.isDirty,
+                isDirty = true,
                 isDeleted = category.isDeleted,
                 createdTimestamp = category.createdTimestamp,
             )
@@ -110,7 +109,7 @@ class RoomDataMapper @Inject constructor(
             listId = list.listId.toString(),
             name = list.name,
             notes = list.notes,
-            isDirty = list.isDirty,
+            isDirty = true,
             isDeleted = list.isDeleted,
             modifiedTimestamp = Clock.System.now().toEpochMilliseconds(),
         )
@@ -164,7 +163,7 @@ class RoomDataMapper @Inject constructor(
             photoScale = listItem.photoScale,
             photoOffsetX = listItem.photoOffsetX,
             photoOffsetY = listItem.photoOffsetY,
-            isDirty = listItem.isDirty,
+            isDirty = true,
             isDeleted = listItem.isDeleted,
         )
     }
@@ -186,7 +185,7 @@ class RoomDataMapper @Inject constructor(
             photoScale = listItem.photoScale,
             photoOffsetX = listItem.photoOffsetX,
             photoOffsetY = listItem.photoOffsetY,
-            isDirty = listItem.isDirty,
+            isDirty = true,
             isDeleted = listItem.isDeleted,
             modifiedTimestamp = Clock.System.now().toEpochMilliseconds(),
         )
@@ -235,7 +234,7 @@ class RoomDataMapper @Inject constructor(
             ownerId = easyListsTag.ownerId,
             name = easyListsTag.name,
             color = easyListsTag.color,
-            isDirty = easyListsTag.isDirty,
+            isDirty = true,
             isDeleted = easyListsTag.isDeleted,
             createdTimestamp = easyListsTag.createdTimestamp,
         )

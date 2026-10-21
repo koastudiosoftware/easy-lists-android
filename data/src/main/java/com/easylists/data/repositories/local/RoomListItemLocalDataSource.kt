@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import kotlin.time.Clock
 
 class RoomListItemLocalDataSource @Inject constructor(
     private val dao: ListItemDao,
@@ -53,7 +54,7 @@ class RoomListItemLocalDataSource @Inject constructor(
 
     //region removeCategory()
     override suspend fun removeCategory(categoryIdList: List<String>) {
-        return dao.removeCategory(categoryIdList = categoryIdList)
+        return dao.removeCategory(categoryIdList = categoryIdList, now = Clock.System.now().toEpochMilliseconds())
     }
     //endregion
 
@@ -67,7 +68,7 @@ class RoomListItemLocalDataSource @Inject constructor(
 
     //region restoreCrossedOff()
     override suspend fun restoreCrossedOff(listId: String): Int =
-        dao.restoreCrossedOff(listId = listId, now = System.currentTimeMillis())
+        dao.restoreCrossedOff(listId = listId, now = Clock.System.now().toEpochMilliseconds())
     //endregion
 
 

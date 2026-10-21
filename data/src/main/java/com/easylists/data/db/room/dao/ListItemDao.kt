@@ -61,8 +61,12 @@ abstract class ListItemDao() {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertAll(map: List<ListItemEntity>)
 
-    @Query("UPDATE list_items SET category_id = NULL WHERE category_id IN (:categoryIdList)")
-    abstract suspend fun removeCategory(categoryIdList: List<String>)
+    @Query("""
+        UPDATE list_items
+        SET category_id = NULL, is_dirty = 1, modified_timestamp = :now
+        WHERE category_id IN (:categoryIdList)
+        """)
+    abstract suspend fun removeCategory(categoryIdList: List<String>, now: Long)
 
     @Query("""
         UPDATE list_items

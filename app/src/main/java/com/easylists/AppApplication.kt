@@ -50,8 +50,12 @@ class AppApplication : Application() {
         // And one every time the app comes to the foreground
         ProcessLifecycleOwner.get().lifecycle.addObserver(
             LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_START) {
-                    syncScheduler.requestSync(minIntervalSeconds = 30)
+                when (event) {
+                    // Coming back: sync, unless one finished in the last 30 seconds
+                    Lifecycle.Event.ON_START -> syncScheduler.requestSync(minIntervalSeconds = 30)
+                    // Leaving: send anything that is still waiting
+                    Lifecycle.Event.ON_STOP -> syncTriggers.flushIfWaiting(applicationScope)
+                    else -> Unit
                 }
             }
         )

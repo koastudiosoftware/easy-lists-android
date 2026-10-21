@@ -32,7 +32,7 @@ class SyncRepositoryImpl @Inject constructor(
                 return@withLock SyncSummary(pulled = 0, reconciled = 0, pushed = 0)
             }
         }
-x
+
         val pulled = downloader.pull()
         val reconciled = reconciler.reconcile()
         val pushed = uploader.push()

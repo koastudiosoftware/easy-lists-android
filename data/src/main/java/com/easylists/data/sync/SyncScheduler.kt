@@ -12,11 +12,15 @@ import com.easylists.data.db.room.dao.SyncDao
 import com.easylists.domain.models.SyncScheduler
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 // Schedules a background sync. Asking again replaces a sync that is still waiting, so a burst of
 // requests (a burst of edits, say) ends up as one sync, run after the last request's delay.
@@ -49,7 +53,7 @@ class WorkManagerSyncScheduler @Inject constructor(
 }
 
 
-// Starts a sync a few seconds after every local edit.
+// Starts a sync after local edits, at most once per EDIT_WINDOW_MS, and when the app is left.
 // Started once from the Application class.
 class SyncTriggers @Inject constructor(
     private val syncDao: SyncDao,
@@ -58,16 +62,34 @@ class SyncTriggers @Inject constructor(
 
     fun start(scope: CoroutineScope) {
         scope.launch {
+            // Edits up to this time are already covered by a sync that was requested
+            var coveredUntil = 0L
+
             syncDao.observeNewestDirtyChange()
                 // null means nothing is waiting to upload
                 .filterNotNull()
-                .distinctUntilChanged()
-                .collect { scheduler.requestSync(delaySeconds = EDIT_DELAY_SECONDS) }
+                // While waiting below, newer edits replace each other instead of queueing up
+                .conflate()
+                .collect { editedAt ->
+                    if (editedAt <= coveredUntil) return@collect
+                    // The first edit opens a window. Edits made while it is open ride along in this sync.
+                    delay(EDIT_WINDOW_MS.milliseconds)
+                    coveredUntil = System.currentTimeMillis()
+                    scheduler.requestSync()
+                }
+        }
+    }
+
+    // Leaving the app must not leave edits waiting for the window to close
+    fun flushIfWaiting(scope: CoroutineScope) {
+        scope.launch {
+            if (syncDao.observeNewestDirtyChange().first() != null) scheduler.requestSync()
         }
     }
 
     private companion object {
-        // Long enough to cover a burst of typing, short enough that a change goes up promptly
-        const val EDIT_DELAY_SECONDS = 5L
+        // 30 seconds between automatic syncs while editing
+        const val EDIT_WINDOW_MS = 30_000L
     }
+
 }
