@@ -13,11 +13,15 @@ import com.easylists.data.db.room.models.ListOrderEntity
 import com.easylists.data.db.room.models.SyncStateEntity
 import com.easylists.data.db.room.models.TagEntity
 import com.easylists.data.db.room.models.TagListItemEntity
+import kotlinx.coroutines.flow.Flow
 
 // A tag link plus the owner of its tag. The server copy needs the owner, which the local row lacks.
 data class DirtyTagLink(
-    @Embedded val link: TagListItemEntity,
-    @ColumnInfo(name = "tag_owner_id") val tagOwnerId: String,
+    @Embedded
+    val link: TagListItemEntity,
+
+    @ColumnInfo(name = "tag_owner_id")
+    val tagOwnerId: String,
 )
 
 @Dao
@@ -169,4 +173,18 @@ abstract class SyncDao {
     @Query("DELETE FROM lists WHERE list_id IN (:listIds)")
     abstract suspend fun deleteListsHard(listIds: List<String>)
     //endregion
+
+    @Query("""
+        SELECT MAX(m) FROM (
+            SELECT MAX(modified_timestamp) AS m FROM lists WHERE is_dirty = 1
+            UNION ALL SELECT MAX(modified_timestamp) FROM list_members WHERE is_dirty = 1
+            UNION ALL SELECT MAX(modified_timestamp) FROM categories WHERE is_dirty = 1
+            UNION ALL SELECT MAX(modified_timestamp) FROM list_items WHERE is_dirty = 1
+            UNION ALL SELECT MAX(modified_timestamp) FROM tags WHERE is_dirty = 1
+            UNION ALL SELECT MAX(modified_timestamp) FROM tag_list_items WHERE is_dirty = 1
+            UNION ALL SELECT MAX(modified_timestamp) FROM list_order WHERE is_dirty = 1
+        )
+    """)
+    abstract fun observeNewestDirtyChange(): Flow<Long?>
+
 }

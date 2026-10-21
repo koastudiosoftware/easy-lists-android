@@ -15,6 +15,7 @@ import com.easylists.domain.use_cases.GetListsUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.ReorderListsUseCase
 import com.easylists.domain.use_cases.RestoreListsUseCase
+import com.easylists.domain.use_cases.SyncNowUseCase
 import com.easylists.domain.use_cases.UpdateAppSettingsUseCase
 import com.easylists.domain.use_cases.UpdateListUseCase
 import com.easylists.presentation.common.AddEditMode
@@ -25,7 +26,9 @@ import com.easylists.presentation.models.ListListUiState
 import com.easylists.presentation.models.ListsEvent
 import com.easylists.presentation.models.ListsInteractionState
 import com.easylists.presentation.models.validate
+import com.toxicbakery.logging.Arbor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -59,6 +62,7 @@ class ListsViewModel @Inject constructor(
     private val mapper: UiMapper,
     private val session: SessionRepository,
     private val updateAppSettings: UpdateAppSettingsUseCase,
+    private val syncNow: SyncNowUseCase,
 ) : ViewModel() {
 
     private val _events = Channel<ListsEvent>(Channel.BUFFERED)
@@ -224,7 +228,16 @@ class ListsViewModel @Inject constructor(
         interaction = interaction.copy(isRefreshing = true)
         refreshTrigger.update { it + 1 }
         viewModelScope.launch {
-            delay(500.milliseconds) // keeps the indicator from flickering
+            // The indicator stays for at least half a second so it doesn't flicker
+            val minimumTime = launch { delay(500.milliseconds) }
+            try {
+                syncNow()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Arbor.e("Refresh sync failed: ${e.javaClass.simpleName}: ${e.message}", e)
+            }
+            minimumTime.join()
             interaction = interaction.copy(isRefreshing = false)
         }
     }

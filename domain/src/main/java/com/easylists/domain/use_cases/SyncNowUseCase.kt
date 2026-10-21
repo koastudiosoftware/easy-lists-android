@@ -8,6 +8,8 @@ class SyncNowUseCase @Inject constructor(
     private val repo: SyncRepository
 ) {
 
-    suspend operator fun invoke(): SyncSummary = repo.sync()
+    suspend operator fun invoke(
+        minIntervalSeconds: Long = 0
+    ): SyncSummary = repo.sync(minIntervalSeconds)
 
 }

@@ -9,6 +9,7 @@ import com.easylists.domain.common.SortCrossedOffItems
 import com.easylists.domain.common.ViewMode
 import com.easylists.domain.models.AuthAccount
 import com.easylists.domain.models.LinkResult
+import com.easylists.domain.repositories.RequestSyncUseCase
 import com.easylists.domain.use_cases.LinkAccountUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.ObserveAuthAccountUseCase
@@ -43,6 +44,7 @@ class SettingsViewModel @Inject constructor(
     private val switchAccount: SwitchAccountUseCase,
     private val signOut: SignOutUseCase,
     private val syncNow: SyncNowUseCase,
+    private val requestSync: RequestSyncUseCase,
     @Named("web_client_id") val webClientId: String,
 ) : ViewModel() {
 
@@ -165,7 +167,10 @@ class SettingsViewModel @Inject constructor(
 
     private suspend fun link(account: AuthAccount) {
         when (linkAccount(account)) {
-            LinkResult.Linked, LinkResult.AlreadyLinked -> Arbor.i("Account linked, uid = ${account.uid}")
+            LinkResult.Linked, LinkResult.AlreadyLinked -> {
+                Arbor.i("Account linked, uid = ${account.uid}")
+                requestSync()
+            }
             LinkResult.SwitchRequired -> {
                 pendingAccount = account
                 _uiState.update { it.copy(showSwitchDialog = true) }
@@ -177,7 +182,10 @@ class SettingsViewModel @Inject constructor(
         val account = pendingAccount ?: return
         pendingAccount = null
         _uiState.update { it.copy(showSwitchDialog = false) }
-        viewModelScope.launch { switchAccount(account) }
+        viewModelScope.launch {
+            switchAccount(account)
+            requestSync()
+        }
     }
 
     fun onSwitchCancelled() {

@@ -53,6 +53,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.androidx.work.runtime)
 
     // davidepanidev
     implementation(libs.kotlin.extensions)

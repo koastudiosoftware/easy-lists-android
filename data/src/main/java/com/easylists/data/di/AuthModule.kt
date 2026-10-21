@@ -2,6 +2,8 @@ package com.easylists.data.di
 
 import com.easylists.data.repositories.AuthRepositoryImpl
 import com.easylists.data.repositories.SyncRepositoryImpl
+import com.easylists.data.sync.WorkManagerSyncScheduler
+import com.easylists.domain.models.SyncScheduler
 import com.easylists.domain.repositories.AuthRepository
 import com.easylists.domain.repositories.SyncRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -25,6 +27,9 @@ abstract class AuthModule {
 
     @Binds
     abstract fun bindSyncRepository(impl: SyncRepositoryImpl): SyncRepository
+
+    @Binds
+    abstract fun bindSyncScheduler(impl: WorkManagerSyncScheduler): SyncScheduler
 
     companion object {
 
