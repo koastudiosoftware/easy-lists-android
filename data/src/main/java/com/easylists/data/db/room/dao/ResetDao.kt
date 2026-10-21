@@ -30,4 +30,6 @@ abstract class ResetDao {
     @Query("DELETE FROM users")
     abstract suspend fun deleteUsers()
 
+    @Query("DELETE FROM sync_state")
+    abstract suspend fun deleteSyncState()
 }

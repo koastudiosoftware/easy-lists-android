@@ -15,6 +15,7 @@ import com.easylists.domain.use_cases.ObserveAuthAccountUseCase
 import com.easylists.domain.use_cases.SignInWithGoogleUseCase
 import com.easylists.domain.use_cases.SignOutUseCase
 import com.easylists.domain.use_cases.SwitchAccountUseCase
+import com.easylists.domain.use_cases.SyncNowUseCase
 import com.easylists.domain.use_cases.UpdateAppSettingsUseCase
 import com.easylists.presentation.models.AccountUiModel
 import com.easylists.presentation.models.SettingsUiState
@@ -41,6 +42,7 @@ class SettingsViewModel @Inject constructor(
     private val signInWithGoogle: SignInWithGoogleUseCase,
     private val switchAccount: SwitchAccountUseCase,
     private val signOut: SignOutUseCase,
+    private val syncNow: SyncNowUseCase,
     @Named("web_client_id") val webClientId: String,
 ) : ViewModel() {
 
@@ -67,6 +69,19 @@ class SettingsViewModel @Inject constructor(
         onGoogleIdToken(
             """{"sub":"$name","email":"$name@debug.test","email_verified":true}"""
         )
+    }
+
+    fun onDebugSyncNow() {
+        viewModelScope.launch {
+            try {
+                val summary = syncNow()
+                Arbor.i("Sync pulled ${summary.pulled}, reconciled ${summary.reconciled}, pushed ${summary.pushed}")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Arbor.e("Sync failed: ${e.javaClass.simpleName}: ${e.message}", e)
+            }
+        }
     }
 
     fun onGoogleIdToken(idToken: String) {

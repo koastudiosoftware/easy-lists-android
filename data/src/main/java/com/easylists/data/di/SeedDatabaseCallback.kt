@@ -10,6 +10,7 @@ import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
 import com.easylists.data.db.room.models.ListMemberEntity
+import com.easylists.data.db.room.models.SyncStateEntity
 import com.easylists.data.db.room.models.TagEntity
 import com.easylists.data.db.room.models.TagListItemEntity
 import com.easylists.data.db.room.models.UserEntity
@@ -19,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.time.Instant
+import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -77,7 +79,7 @@ class SeedDatabaseCallback(
             Gson().fromJson(it, SeedData::class.java)
         }
         val db = database()
-        val now = System.currentTimeMillis()
+        val now = Clock.System.now().toEpochMilliseconds()
 
         // One transaction: either everything is seeded or nothing is.
         db.withTransaction {
@@ -90,6 +92,7 @@ class SeedDatabaseCallback(
                 syncEnabled = false,
             )
             db.userDao().upsert(localUser)
+            db.syncDao().setCursor(SyncStateEntity("seed_timestamp", now))
 
             val ownerId = localUser.userId
 

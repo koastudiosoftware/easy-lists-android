@@ -20,6 +20,7 @@ fun AccountCard(
     onSignInClick: () -> Unit,
     onSignOutClick: () -> Unit,
     onDebugSignIn: (String) -> Unit,
+    onDebugSyncNow: () -> Unit,
 ) {
     CardGroup {
         if (account == null) {
@@ -62,6 +63,12 @@ fun AccountCard(
                 textLine1 = "Debug: sign out",
                 textLine2 = "runs the sign-out cleanup",
                 onClick = onSignOutClick,
+            )
+            HorizontalDivider()
+            SettingsItem(
+                textLine1 = "Debug: sync now",
+                textLine2 = "pushes every dirty row",
+                onClick = onDebugSyncNow,
             )
         }
     }

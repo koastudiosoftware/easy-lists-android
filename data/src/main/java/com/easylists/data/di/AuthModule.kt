@@ -1,7 +1,9 @@
 package com.easylists.data.di
 
 import com.easylists.data.repositories.AuthRepositoryImpl
+import com.easylists.data.repositories.SyncRepositoryImpl
 import com.easylists.domain.repositories.AuthRepository
+import com.easylists.domain.repositories.SyncRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -20,6 +22,9 @@ abstract class AuthModule {
 
     @Binds
     abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    abstract fun bindSyncRepository(impl: SyncRepositoryImpl): SyncRepository
 
     companion object {
 
@@ -47,4 +52,5 @@ abstract class AuthModule {
             if (useEmulator) it.useEmulator(EMULATOR_HOST, 8080)
         }
     }
+
 }

@@ -273,6 +273,7 @@ fun SettingsScreenContent(
                 onSignInClick = onSignInClick,
                 onSignOutClick = viewModel::onSignOutClick,
                 onDebugSignIn = viewModel::onDebugSignIn,
+                onDebugSyncNow = viewModel::onDebugSyncNow
             )
         }
 
