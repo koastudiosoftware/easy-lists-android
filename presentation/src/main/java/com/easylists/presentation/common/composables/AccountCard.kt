@@ -21,6 +21,9 @@ fun AccountCard(
     onSignOutClick: () -> Unit,
     onDebugSignIn: (String) -> Unit,
     onDebugSyncNow: () -> Unit,
+    onDebugPrepareShare: () -> Unit,
+    onDebugCreateInvite: (Boolean) -> Unit,
+    onDebugClaimInvite: (Boolean) -> Unit,
 ) {
     CardGroup {
         if (account == null) {
@@ -70,6 +73,20 @@ fun AccountCard(
                 textLine2 = "pushes every dirty row",
                 onClick = onDebugSyncNow,
             )
+            HorizontalDivider()
+            SettingsItem(
+                textLine1 = "Debug: prepare first list for sharing",
+                textLine2 = "converts its categories",
+                onClick = onDebugPrepareShare,
+            )
+            HorizontalDivider()
+            SettingsItem("Debug: create open invite", "editor, anyone with the link", onClick = { onDebugCreateInvite(false) })
+            HorizontalDivider()
+            SettingsItem("Debug: create invite for debug-b", "editor, email-bound", onClick = { onDebugCreateInvite(true) })
+            HorizontalDivider()
+            SettingsItem("Debug: claim open invite", "", onClick = { onDebugClaimInvite(false) })
+            HorizontalDivider()
+            SettingsItem("Debug: claim bound invite", "", onClick = { onDebugClaimInvite(true) })
         }
     }
 }

@@ -13,6 +13,7 @@ import com.easylists.data.db.room.dao.ListOrderDao
 import com.easylists.data.db.room.dao.ProviderLinkDao
 import com.easylists.data.db.room.dao.ReconcileDao
 import com.easylists.data.db.room.dao.ResetDao
+import com.easylists.data.db.room.dao.ShareDao
 import com.easylists.data.db.room.dao.SyncDao
 import com.easylists.data.db.room.dao.TagDao
 import com.easylists.data.db.room.dao.TagListItemDao
@@ -58,12 +59,12 @@ abstract class EasyListsDatabase : RoomDatabase() {
     abstract fun listOrderDao(): ListOrderDao
     abstract fun providerLinkDao(): ProviderLinkDao
     abstract fun reconcileDao(): ReconcileDao
+    abstract fun shareDao(): ShareDao
     abstract fun syncDao(): SyncDao
     abstract fun tagDao(): TagDao
     abstract fun tagListItemDao(): TagListItemDao
     abstract fun userDao(): UserDao
     abstract fun backupDao(): BackupDao
     abstract fun resetDao(): ResetDao
-
 
 }

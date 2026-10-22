@@ -8,8 +8,12 @@ import com.easylists.domain.common.GroupCrossedOffItems
 import com.easylists.domain.common.SortCrossedOffItems
 import com.easylists.domain.common.ViewMode
 import com.easylists.domain.models.AuthAccount
+import com.easylists.domain.models.InviteRole
 import com.easylists.domain.models.LinkResult
 import com.easylists.domain.repositories.RequestSyncUseCase
+import com.easylists.domain.repositories.ShareRepository
+import com.easylists.domain.use_cases.ClaimInviteUseCase
+import com.easylists.domain.use_cases.CreateInviteUseCase
 import com.easylists.domain.use_cases.LinkAccountUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.ObserveAuthAccountUseCase
@@ -45,6 +49,9 @@ class SettingsViewModel @Inject constructor(
     private val signOut: SignOutUseCase,
     private val syncNow: SyncNowUseCase,
     private val requestSync: RequestSyncUseCase,
+    private val shareRepository: ShareRepository,
+    private val createInvite: CreateInviteUseCase,
+    private val claimInvite: ClaimInviteUseCase,
     @Named("web_client_id") val webClientId: String,
 ) : ViewModel() {
 
@@ -194,5 +201,60 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { signOut() }
     }
     //endregion
+
+
+    // Debug only: converts the categories of the first list this user owns
+    fun onDebugPrepareShare() {
+        viewModelScope.launch {
+            try {
+                val listId = shareRepository.firstOwnedListId() ?: return@launch
+                shareRepository.prepareListForSharing(listId)
+                Arbor.i("Prepared list $listId for sharing")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Arbor.e("Prepare for sharing failed: ${e.javaClass.simpleName}: ${e.message}", e)
+            }
+        }
+    }
+
+
+    // Debug only: an invite with a fixed token, so a second emulator can claim it without typing
+    fun onDebugCreateInvite(bound: Boolean) {
+        viewModelScope.launch {
+            try {
+                val listId = shareRepository.firstOwnedListId() ?: return@launch
+                val invite = createInvite(
+                    listId = listId,
+                    role = InviteRole.Editor,
+                    email = if (bound) "debug-b@debug.test" else null,
+                    token = if (bound) DEBUG_BOUND_TOKEN else DEBUG_OPEN_TOKEN,
+                )
+                Arbor.i("Debug invite created: ${invite.token}")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Arbor.e("Create invite failed: ${e.javaClass.simpleName}: ${e.message}", e)
+            }
+        }
+    }
+
+    fun onDebugClaimInvite(bound: Boolean) {
+        viewModelScope.launch {
+            try {
+                val result = claimInvite(if (bound) DEBUG_BOUND_TOKEN else DEBUG_OPEN_TOKEN)
+                Arbor.i("Debug claim result: $result")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Arbor.e("Claim invite failed: ${e.javaClass.simpleName}: ${e.message}", e)
+            }
+        }
+    }
+
+    private companion object {
+        const val DEBUG_OPEN_TOKEN = "debug-open-invite"
+        const val DEBUG_BOUND_TOKEN = "debug-bound-invite"
+    }
 
 }
