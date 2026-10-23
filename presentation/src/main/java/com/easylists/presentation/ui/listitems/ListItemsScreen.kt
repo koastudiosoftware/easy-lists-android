@@ -43,6 +43,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -942,6 +944,11 @@ fun ListItemBottomSheetCategory(
     categoryName: String,
     categories: List<EasyListsCategory>,
     onCategoryChange: (String) -> Unit,
+    colors: TextFieldColors = TextFieldDefaults.colors(
+        focusedContainerColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent,
+        disabledContainerColor = Color.Transparent,
+    ),
 ) {
     var expanded by remember { mutableStateOf(false) }
     val isUncategorized = categoryName.isBlank()
@@ -963,6 +970,7 @@ fun ListItemBottomSheetCategory(
             onValueChange = onCategoryChange,
             singleLine = true,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = colors,
         )
         ExposedDropdownMenu(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
