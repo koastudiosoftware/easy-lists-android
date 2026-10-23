@@ -973,7 +973,7 @@ fun ListItemBottomSheetCategory(
             colors = colors,
         )
         ExposedDropdownMenu(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {

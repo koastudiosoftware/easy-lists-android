@@ -36,6 +36,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -619,10 +620,7 @@ private fun ColorPickerSheet(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
                     ) {
-                        TextField(
-                            modifier = Modifier
-                                .fillMaxWidth(0.5f)
-                                .padding(MaterialTheme.spaces.medium),
+                        AppTextField(
                             value = editor.hexInput,
                             onValueChange = viewModel::onHexInputChanged,
                             keyboardOptions = KeyboardOptions(
@@ -631,11 +629,15 @@ private fun ColorPickerSheet(
                                 keyboardType = KeyboardType.Ascii,
                                 imeAction = ImeAction.Done,
                             ),
-                            label = { Text(text = stringResource(R.string.rgb)) },
-                            prefix = { Text(text = "#") },
-                            placeholder = { Text(text = stringResource(R.string.hex_placeholder)) },
+                            label = stringResource(R.string.rgb),
+                            prefix = "#",
+                            placeholder = stringResource(R.string.hex_placeholder),
                             singleLine = true,
-                            shape = MaterialTheme.shapes.large,
+                            colors = TextFieldDefaults.colors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent,
+                            ),
                         )
                     }
                 }

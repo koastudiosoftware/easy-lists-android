@@ -2,6 +2,7 @@ package com.easylists.presentation.common.composables
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -31,6 +32,9 @@ fun AppTextField(
         unfocusedContainerColor = Color.Transparent,
         disabledContainerColor = Color.Transparent,
     ),
+    prefix: String? = null,
+    placeholder: String? = null,
+    keyboardOptions: KeyboardOptions = appKeyboardOptions(keyboardType, imeAction),
 ) {
     TextField(
         modifier = modifier
@@ -40,11 +44,13 @@ fun AppTextField(
         onValueChange = onValueChange,
         label = { Text(text = label) },
         singleLine = singleLine,
-        keyboardOptions = appKeyboardOptions(keyboardType, imeAction),
+        keyboardOptions = keyboardOptions,
         isError = isError,
         supportingText = {
             if (errorMessage.isNotEmpty()) Text(text = errorMessage)
         },
         colors = colors,
+        prefix = { if (prefix != null) Text(text = prefix) },
+        placeholder = { if (placeholder != null) Text(text = placeholder) },
     )
 }
