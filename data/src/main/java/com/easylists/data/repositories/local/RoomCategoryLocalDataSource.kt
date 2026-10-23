@@ -27,6 +27,28 @@ class RoomCategoryLocalDataSource @Inject constructor(
     //endregion
 
 
+    //region getCategoryFlow(listId)
+    override fun getCategoryFlow(
+        listId: String,
+    ): Flow<List<EasyListsCategory>> {
+        return dao.getAvailableForList(listId)
+            .flowOn(dispatchers.io)
+            .map { mapper.mapCategoryEntityListToEasyListsCategoryList(it) }
+    }
+    //endregion
+
+
+    //region insertForList()
+    override suspend fun insertForList(
+        listId: String,
+        category: EasyListsCategory,
+    ): Long {
+        val entity = mapper.mapEasyListsCategoryToCategoryEntity(category)
+        return dao.insertFor(listId, entity)
+    }
+    //endregion
+
+
     //region insert()
     override suspend fun insert(category: EasyListsCategory): Long {
         val mappedList = mapper.mapEasyListsCategoryToCategoryEntity(category)

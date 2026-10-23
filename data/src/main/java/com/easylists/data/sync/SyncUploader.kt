@@ -112,6 +112,7 @@ class SyncUploader @Inject constructor(
             "name" to l.name,
             "notes" to l.notes,
             "is_deleted" to l.isDeleted,
+            "is_shared" to l.isShared,
             "created_timestamp" to l.createdTimestamp,
             "modified_timestamp" to l.modifiedTimestamp,
         ),

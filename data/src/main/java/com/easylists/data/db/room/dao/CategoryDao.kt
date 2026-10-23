@@ -22,6 +22,37 @@ abstract class CategoryDao() {
         """)
     abstract fun get(): Flow<List<CategoryEntity>>
 
+    // The categories a list's editor offers. A shared list offers its own;
+    // any other list offers the user's personal ones.
+    @Query("""
+        SELECT *
+        FROM categories
+        WHERE is_deleted = 0
+          AND (
+              list_id = :listId
+              OR (
+                  list_id IS NULL
+                  AND NOT EXISTS (
+                      SELECT 1 FROM lists
+                      WHERE list_id = :listId AND is_shared = 1
+                  )
+              )
+          )
+        ORDER BY name COLLATE NOCASE ASC
+        """)
+    abstract fun getAvailableForList(listId: String): Flow<List<CategoryEntity>>
+
+    @Query("SELECT is_shared FROM lists WHERE list_id = :listId")
+    abstract suspend fun isListShared(listId: String): Boolean?
+
+    // A category made from a list's item editor belongs to the list when
+    // the list is shared, and is personal otherwise.
+    @Transaction
+    open suspend fun insertFor(listId: String, entity: CategoryEntity): Long {
+        val shared = isListShared(listId) == true
+        return insert(if (shared) entity.copy(listId = listId) else entity)
+    }
+
     @Query("""
         SELECT *
         FROM categories

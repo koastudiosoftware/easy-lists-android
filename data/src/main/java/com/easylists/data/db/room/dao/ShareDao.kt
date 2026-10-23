@@ -14,6 +14,15 @@ abstract class ShareDao {
     @Query("SELECT owner_id FROM lists WHERE list_id = :listId")
     abstract suspend fun getOwnerId(listId: String): String?
 
+    // Marks the list as shared and queues it for upload. A list that is already shared is left alone.
+    @Query("""
+        UPDATE lists
+        SET is_shared = 1, is_dirty = 1, modified_timestamp = :now
+        WHERE list_id = :listId
+          AND is_shared = 0
+    """)
+    abstract suspend fun markShared(listId: String, now: Long): Int
+
     // The personal categories the list's live items use. Categories that already belong to a list are left alone.
     @Query("""
         SELECT DISTINCT c.*

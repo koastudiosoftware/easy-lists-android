@@ -10,6 +10,7 @@ import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
 import com.easylists.domain.models.TagListItem
 import com.easylists.domain.repositories.SessionRepository
+import com.easylists.domain.use_cases.AddCategoryForListUseCase
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.AddListItemUseCase
 import com.easylists.domain.use_cases.AddTagListItemUseCase
@@ -63,8 +64,7 @@ class ListItemsViewModel @Inject constructor(
     getCategoryUseCase: GetCategoryUseCase,
     getTagUseCase: GetTagUseCase,
     getTagListItemUseCase: GetTagListItemUseCase,
-    private val addCategoryUseCase: AddCategoryUseCase,
-    private val addTagListItemUseCase: AddTagListItemUseCase,
+    private val addCategoryForListUseCase: AddCategoryForListUseCase,    private val addTagListItemUseCase: AddTagListItemUseCase,
     private val removeTagListItemUseCase: RemoveTagListItemUseCase,
     private val addListItemUseCase: AddListItemUseCase,
     private val updateListItemUseCase: UpdateListItemUseCase,
@@ -94,7 +94,7 @@ class ListItemsViewModel @Inject constructor(
             .flatMapLatest { id ->
                 combine(
                     getListItemUseCase(listId = id),
-                    getCategoryUseCase(),
+                    getCategoryUseCase(listId = id),
                     getTagUseCase(),
                     getTagListItemUseCase(),
                     observeAppSettings(),
@@ -281,13 +281,9 @@ class ListItemsViewModel @Inject constructor(
     //endregion
 
 
-    @OptIn(ExperimentalUuidApi::class)
     private suspend fun createCategory(name: String): String? {
-        // TODO surface an error if the userId can't be fetched
-        val userId = session.getUserId().ifEmpty { return null }
-        val id = Uuid.generateV7().toString()
-        addCategoryUseCase(EasyListsCategory(categoryId = id, ownerId = userId, name = name))
-        return id
+        val currentListId = listId.value ?: return null
+        return addCategoryForListUseCase(currentListId, name).getOrNull()
     }
 
     @OptIn(ExperimentalUuidApi::class)

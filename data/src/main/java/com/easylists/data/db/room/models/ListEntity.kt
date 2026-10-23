@@ -35,6 +35,11 @@ data class ListEntity @OptIn(ExperimentalUuidApi::class) constructor(
     @SerializedName(value = "is_deleted")
     var isDeleted: Boolean = false,
 
+    // true once the list has been prepared for sharing: its categories belong to the list
+    @ColumnInfo(name = "is_shared", defaultValue = "0")
+    @SerializedName(value = "is_shared")
+    val isShared: Boolean = false,
+
     @ColumnInfo(name = "created_timestamp")
     @SerializedName(value = "created_timestamp")
     var createdTimestamp: Long = Clock.System.now().toEpochMilliseconds(),

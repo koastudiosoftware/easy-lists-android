@@ -21,4 +21,8 @@ class GetCategoryUseCase @Inject constructor(
         }
     }
 
+    operator fun invoke(listId: String): Flow<List<EasyListsCategory>> {
+        return categoryRepository.getCategoryFlow(listId)
+    }
+
 }

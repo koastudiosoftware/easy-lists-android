@@ -10,5 +10,7 @@ interface CategoryRepository {
     suspend fun addCategory(category: EasyListsCategory): Result<Unit>
     suspend fun updateCategory(category: EasyListsCategory): Result<Unit>
     suspend fun deleteCategories(categoryIds: List<String>): Result<Int>
+    fun getCategoryFlow(listId: String): Flow<List<EasyListsCategory>>
+    suspend fun addCategoryForList(listId: String, name: String): Result<String>
 
 }

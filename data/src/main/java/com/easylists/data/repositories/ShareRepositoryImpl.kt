@@ -32,6 +32,7 @@ class ShareRepositoryImpl @Inject constructor(
             // Only the owner can share a list
             val owner = shareDao.getOwnerId(listId) ?: error("List $listId is not on this device")
             check(owner == me) { "Only the owner can share a list" }
+            shareDao.markShared(listId, now)
 
             shareDao.getPersonalCategoriesUsedBy(listId).forEach { personal ->
                 val copy = CategoryEntity(

@@ -275,6 +275,7 @@ class SyncDownloader @Inject constructor(
         notes = getString("notes"),
         isDirty = false,
         isDeleted = getBoolean("is_deleted") ?: false,
+        isShared = getBoolean("is_shared") ?: false,
         createdTimestamp = getLong("created_timestamp") ?: 0L,
         modifiedTimestamp = getLong("modified_timestamp") ?: 0L,
     )
