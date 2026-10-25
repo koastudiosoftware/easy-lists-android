@@ -1,10 +1,25 @@
 package com.easylists.data.db.room.dao
 
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.easylists.data.db.room.models.CategoryEntity
+import kotlinx.coroutines.flow.Flow
+
+
+// One row per live list: this user's role and whether the list is shared
+data class ListAccessRow(
+    @ColumnInfo(name = "list_id")
+    val listId: String,
+
+    @ColumnInfo(name = "is_shared")
+    val isShared: Boolean,
+
+    val role: String,
+)
+
 
 // Queries for turning a list into a shared one (see ShareRepositoryImpl)
 @Dao
@@ -50,4 +65,24 @@ abstract class ShareDao {
     // For the debug rows: the first live list this user owns
     @Query("SELECT list_id FROM lists WHERE owner_id = :ownerId AND is_deleted = 0 ORDER BY created_timestamp LIMIT 1")
     abstract suspend fun getFirstOwnedListId(ownerId: String): String?
+
+
+    @Query("""
+        SELECT l.list_id AS list_id,
+               l.is_shared AS is_shared,
+               COALESCE(
+                   m.role,
+                   CASE WHEN l.owner_id = u.user_id THEN 'owner'
+                        ELSE 'viewer' END
+               ) AS role
+        FROM users u
+        CROSS JOIN lists l
+        LEFT JOIN list_members m
+               ON m.list_id = l.list_id
+              AND m.user_id = u.user_id
+              AND m.is_deleted = 0
+        WHERE l.is_deleted = 0
+        """)
+    abstract fun observeListAccess(): Flow<List<ListAccessRow>>
+
 }

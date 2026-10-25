@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -69,6 +71,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.easylists.domain.common.ListSortMode
 import com.easylists.domain.common.ViewMode
 import com.easylists.domain.models.EasyListsList
+import com.easylists.domain.models.ListAccess
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ListsAction
@@ -119,6 +122,7 @@ fun ListsScreen(
     val sortMode by viewModel.sortMode.collectAsStateWithLifecycle()
     val lists by viewModel.lists.collectAsStateWithLifecycle()
     val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
+    val access by viewModel.access.collectAsStateWithLifecycle()
     val editor = viewModel.editor
 
     val interaction = viewModel.interaction
@@ -198,6 +202,7 @@ fun ListsScreen(
                     null -> ScreenLoading()
                     else -> ListsScreenContent(
                         viewMode = mode,
+                        access = access,
                         lists = state.lists,
                         onListClick = { list ->
                             navController.navigate(
@@ -387,6 +392,7 @@ private fun ListSortMode.labelRes(): Int = when (this) {
 @Composable
 fun ListCard(
     list: EasyListsList,
+    canManage: Boolean,
     isRearranging: Boolean,
     onClick: () -> Unit,
     onEdit: () -> Unit,
@@ -434,7 +440,7 @@ fun ListCard(
 
             if (isRearranging) {
                 RearrangeHandle()
-            } else {
+            } else if (canManage) {
                 IconButton(onClick = onEdit) {
                     Icon(
                         tint = MaterialTheme.colorScheme.outline,
@@ -443,6 +449,8 @@ fun ListCard(
                         contentDescription = stringResource(R.string.edit_list),
                     )
                 }
+            } else {
+                Spacer(Modifier.width(MaterialTheme.spaces.large))
             }
         }
     }
@@ -454,6 +462,7 @@ fun ListCard(
 @Composable
 fun ListItem(
     list: EasyListsList,
+    canManage: Boolean,
     isRearranging: Boolean,
     onClick: () -> Unit,
     onEdit: () -> Unit,
@@ -508,7 +517,7 @@ fun ListItem(
 
             if (isRearranging) {
                 RearrangeHandle(modifier = Modifier.weight(0.12f))
-            } else {
+            } else if (canManage) {
                 IconButton(modifier = Modifier.weight(0.12f), onClick = onEdit) {
                     Icon(
                         tint = MaterialTheme.colorScheme.outline,
@@ -517,6 +526,8 @@ fun ListItem(
                         contentDescription = stringResource(R.string.edit_list),
                     )
                 }
+            } else {
+                Spacer(Modifier.weight(0.12f))
             }
         }
         HorizontalDivider()
@@ -529,6 +540,7 @@ fun ListItem(
 @Composable
 fun ListsScreenContent(
     viewMode: ViewMode,
+    access: Map<String, ListAccess>,
     isRearranging: Boolean,
     lists: List<EasyListsList>,
     onListClick: (EasyListsList) -> Unit,
@@ -624,6 +636,8 @@ fun ListsScreenContent(
                         ViewMode.Card -> ListCard(
                             modifier = dragModifier,
                             list = list,
+                            canManage =
+                                access[list.listId]?.canManageList == true,
                             isRearranging = isRearranging,
                             elevation = elevation,
                             onClick = { onListClick(list) },
@@ -632,6 +646,8 @@ fun ListsScreenContent(
                         ViewMode.List -> ListItem(
                             modifier = dragModifier,
                             list = list,
+                            canManage =
+                                access[list.listId]?.canManageList == true,
                             isRearranging = isRearranging,
                             elevation = elevation,
                             onClick = { onListClick(list) },

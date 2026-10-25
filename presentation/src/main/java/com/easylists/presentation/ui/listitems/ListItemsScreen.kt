@@ -130,6 +130,9 @@ fun ListItemsScreen(
     val interaction = viewModel.interaction
     val editor = viewModel.editor
 
+    val access by viewModel.access.collectAsStateWithLifecycle()
+    val canEdit = access?.canEditItems == true
+
     val snackbarHostState = remember { SnackbarHostState() }
 
     val resources = LocalResources.current
@@ -172,12 +175,14 @@ fun ListItemsScreen(
                 title = { Text(text = viewModel.listName) },
                 navigationIcon = { ListItemsTopAppBarNavigationIcon(navController) },
                 actions = {
-                    IconButton(onClick = viewModel::onAddItemClick) {
-                        Icon(
-                            imageVector = MaterialIconsAdd,
-                            contentDescription = stringResource(R.string.add_item),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                        )
+                    if (canEdit) {
+                        IconButton(onClick = viewModel::onAddItemClick) {
+                            Icon(
+                                imageVector = MaterialIconsAdd,
+                                contentDescription = stringResource(R.string.add_item),
+                                tint = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
                     }
                 },
             )
@@ -199,6 +204,7 @@ fun ListItemsScreen(
 
                 is ListItemsUiState.Success -> ListItemsScreenContent(
                     state = state,
+                    canEdit = canEdit,
                     expandTagPills = interaction.expandTagPills,
                     onItemClick = viewModel::onListItemClick,
                     onItemEdit = viewModel::onEditItemClick,
@@ -312,6 +318,7 @@ fun ListItemsTopAppBarNavigationIcon(navController: NavController<Screen>) {
 @Composable
 fun ListItemsScreenContent(
     state: ListItemsUiState.Success,
+    canEdit: Boolean,
     expandTagPills: Boolean,
     onItemClick: (EasyListsListItem) -> Unit,
     onItemEdit: (EasyListsListItem) -> Unit,
@@ -345,6 +352,7 @@ fun ListItemsScreenContent(
                     if (isCard) {
                         ListItemCard(
                             row = row,
+                            canEdit = canEdit,
                             settings = state.settings,
                             expandTagPills = expandTagPills,
                             onClick = { onItemClick(row.item) },
@@ -354,6 +362,7 @@ fun ListItemsScreenContent(
                     } else {
                         ListItemRow(
                             row = row,
+                            canEdit = canEdit,
                             settings = state.settings,
                             expandTagPills = expandTagPills,
                             onClick = { onItemClick(row.item) },
@@ -363,18 +372,26 @@ fun ListItemsScreenContent(
                     }
                 }
 
-                ListRow.RestoreCrossedOff -> CrossedOffActionRow(
-                    text = stringResource(R.string.restore_all_crossed_off_items),
-                    onClick = onRestoreCrossedOff,
-                    showDivider = false,
-                )
+                ListRow.RestoreCrossedOff -> {
+                    if (canEdit) CrossedOffActionRow(
+                        text = stringResource(
+                            R.string.restore_all_crossed_off_items,
+                        ),
+                        onClick = onRestoreCrossedOff,
+                        showDivider = false,
+                    )
+                }
 
-                ListRow.DeleteCrossedOff -> CrossedOffActionRow(
-                    text = stringResource(R.string.delete_all_crossed_off_items),
-                    onClick = onDeleteCrossedOff,
-                    destructive = true,
-                    showDivider = false,
-                )
+                ListRow.DeleteCrossedOff -> {
+                    if (canEdit) CrossedOffActionRow(
+                        text = stringResource(
+                            R.string.delete_all_crossed_off_items,
+                        ),
+                        onClick = onDeleteCrossedOff,
+                        destructive = true,
+                        showDivider = false,
+                    )
+                }
             }
         }
     }
@@ -462,6 +479,7 @@ fun ListItemsCategoryTitle(
 @Composable
 fun ListItemRow(
     row: ListRow.Item,
+    canEdit: Boolean,
     settings: AppSettings,
     expandTagPills: Boolean,
     onClick: () -> Unit,
@@ -477,7 +495,7 @@ fun ListItemRow(
                         Modifier.background(MaterialTheme.colorScheme.surfaceContainerLow)
                     else Modifier
                 )
-                .clickable(onClick = onClick)
+                .clickable(enabled = canEdit, onClick = onClick)
                 .height(MaterialTheme.spaces.rowHeightMedium)
                 .padding(
                     start = MaterialTheme.spaces.medium,
@@ -487,6 +505,7 @@ fun ListItemRow(
         ) {
             ListItemRowContent(
                 row = row,
+                canEdit = canEdit,
                 settings = settings,
                 expandTagPills = expandTagPills,
                 isCard = false,
@@ -504,6 +523,7 @@ fun ListItemRow(
 @Composable
 fun ListItemCard(
     row: ListRow.Item,
+    canEdit: Boolean,
     settings: AppSettings,
     expandTagPills: Boolean,
     onClick: () -> Unit,
@@ -529,13 +549,14 @@ fun ListItemCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
+                .clickable(enabled = canEdit, onClick = onClick)
                 .padding(horizontal = MaterialTheme.spaces.medium)
                 .padding(vertical = MaterialTheme.spaces.medium),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             ListItemRowContent(
                 row = row,
+                canEdit = canEdit,
                 settings = settings,
                 expandTagPills = expandTagPills,
                 isCard = true,
@@ -554,6 +575,7 @@ fun ListItemCard(
 @Composable
 fun RowScope.ListItemRowContent(
     row: ListRow.Item,
+    canEdit: Boolean,
     settings: AppSettings,
     expandTagPills: Boolean,
     isCard: Boolean,
@@ -612,13 +634,15 @@ fun RowScope.ListItemRowContent(
         )
     }
 
-    IconButton(onClick = onEdit) {
-        Icon(
-            tint = MaterialTheme.colorScheme.outline,
-            modifier = Modifier.size(20.dp),
-            imageVector = MaterialIconsEdit,
-            contentDescription = stringResource(R.string.view_item_details),
-        )
+    if (canEdit) {
+        IconButton(onClick = onEdit) {
+            Icon(
+                tint = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.size(20.dp),
+                imageVector = MaterialIconsEdit,
+                contentDescription = stringResource(R.string.view_item_details),
+            )
+        }
     }
 }
 //endregion

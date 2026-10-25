@@ -8,11 +8,13 @@ import androidx.lifecycle.viewModelScope
 import com.easylists.domain.common.ListSortMode
 import com.easylists.domain.common.ViewMode
 import com.easylists.domain.models.EasyListsList
+import com.easylists.domain.models.ListAccess
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddListUseCase
 import com.easylists.domain.use_cases.DeleteListsUseCase
 import com.easylists.domain.use_cases.GetListsUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
+import com.easylists.domain.use_cases.ObserveListAccessUseCase
 import com.easylists.domain.use_cases.ReorderListsUseCase
 import com.easylists.domain.use_cases.RestoreListsUseCase
 import com.easylists.domain.use_cases.SyncNowUseCase
@@ -54,6 +56,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class ListsViewModel @Inject constructor(
     getListsFlowUseCase: GetListsUseCase,
     observeAppSettings: ObserveAppSettingsUseCase,
+    observeListAccess: ObserveListAccessUseCase,
     private val addListUseCase: AddListUseCase,
     private val deleteListsUseCase: DeleteListsUseCase,
     private val reorderListsUseCase: ReorderListsUseCase,
@@ -71,7 +74,18 @@ class ListsViewModel @Inject constructor(
     // null = DataStore hasn't emitted yet
     val viewMode: StateFlow<ViewMode?> = observeAppSettings()
         .map { it.viewMode }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            null)
+
+    // What the user may do with each list, keyed by list ID
+    val access: StateFlow<Map<String, ListAccess>> = observeListAccess()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            emptyMap(),
+        )
 
     private val refreshTrigger = MutableStateFlow(0)
 
@@ -139,6 +153,7 @@ class ListsViewModel @Inject constructor(
     }
 
     fun onListEditButtonClick(list: EasyListsList) {
+        if (access.value[list.listId]?.canManageList != true) return
         editor = ListEditorState(
             mode = AddEditMode.Edit,
             listId = list.listId.toString(),

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.models.EasyListsTag
+import com.easylists.domain.models.ListAccess
 import com.easylists.domain.models.TagListItem
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.use_cases.AddCategoryForListUseCase
@@ -20,6 +21,7 @@ import com.easylists.domain.use_cases.GetListItemUseCase
 import com.easylists.domain.use_cases.GetTagListItemUseCase
 import com.easylists.domain.use_cases.GetTagUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
+import com.easylists.domain.use_cases.ObserveListAccessUseCase
 import com.easylists.domain.use_cases.RemoveTagListItemUseCase
 import com.easylists.domain.use_cases.RestoreCrossedOffListItemsUseCase
 import com.easylists.domain.use_cases.SaveListItemPhotoUseCase
@@ -64,7 +66,8 @@ class ListItemsViewModel @Inject constructor(
     getCategoryUseCase: GetCategoryUseCase,
     getTagUseCase: GetTagUseCase,
     getTagListItemUseCase: GetTagListItemUseCase,
-    private val addCategoryForListUseCase: AddCategoryForListUseCase,    private val addTagListItemUseCase: AddTagListItemUseCase,
+    observeListAccess: ObserveListAccessUseCase,
+    private val addCategoryForListUseCase: AddCategoryForListUseCase, private val addTagListItemUseCase: AddTagListItemUseCase,
     private val removeTagListItemUseCase: RemoveTagListItemUseCase,
     private val addListItemUseCase: AddListItemUseCase,
     private val updateListItemUseCase: UpdateListItemUseCase,
@@ -84,6 +87,19 @@ class ListItemsViewModel @Inject constructor(
 
     var listName by mutableStateOf("")
         private set
+
+    // What this user may do in the open list; null until it is known
+    val access: StateFlow<ListAccess?> = combine(
+        listId.filterNotNull(),
+        observeListAccess(),
+    ) { id, all -> all[id] }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            null
+        )
+
+    private val canEdit: Boolean get() = access.value?.canEditItems == true
 
     // Everything the list shows comes from one combined flow. A change to the items,
     // categories, tags, tag links, or settings rebuilds the rows, so nothing is copied
@@ -136,10 +152,14 @@ class ListItemsViewModel @Inject constructor(
 
     @OptIn(ExperimentalUuidApi::class)
     fun onAddItemClick() {
+        if (!canEdit) return
+
         editor = ItemEditorState(itemId = Uuid.generateV7().toString())
     }
 
     fun onEditItemClick(item: EasyListsListItem) {
+        if (!canEdit) return
+
         val itemId = item.listItemId ?: return
         val state = successState
 
@@ -330,6 +350,8 @@ class ListItemsViewModel @Inject constructor(
 
     //region Items
     fun onListItemClick(item: EasyListsListItem) {
+        if (!canEdit) return
+
         viewModelScope.launch {
             updateListItemUseCase(
                 listItem = item.copy(
@@ -361,6 +383,8 @@ class ListItemsViewModel @Inject constructor(
 
     //region Delete all crossed-off items
     fun deleteAllCrossedOffItems() {
+        if (!canEdit) return
+
         val ids = successState?.items.orEmpty()
             .filter { it.crossedOff }
             .mapNotNull { it.listItemId }
@@ -376,22 +400,29 @@ class ListItemsViewModel @Inject constructor(
 
     //region undo crossed-off delete
     fun onUndoDeleteCrossedOffItems(itemIds: List<String>) {
-        viewModelScope.launch { undeleteListItemsUseCase(itemIds) }
+        viewModelScope.launch {
+            undeleteListItemsUseCase(itemIds)
+        }
     }
     //endregion
 
 
     //region undo item delete
     fun onUndoDeleteListItem(itemId: String) {
-        viewModelScope.launch { undeleteListItemsUseCase(listOf(itemId)) }
+        viewModelScope.launch {
+            undeleteListItemsUseCase(listOf(itemId))
+        }
     }
     //endregion
 
 
     //region restoreCrossedOffItems()
     fun restoreAllCrossedOffItems() {
+        if (!canEdit) return
         val currentListId = listId.value ?: return
-        viewModelScope.launch { restoreCrossedOffListItemsUseCase(currentListId) }
+        viewModelScope.launch {
+            restoreCrossedOffListItemsUseCase(currentListId)
+        }
     }
     //endregion
 
