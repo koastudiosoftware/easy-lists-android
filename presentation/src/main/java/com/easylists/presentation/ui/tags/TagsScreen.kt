@@ -47,6 +47,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -449,6 +451,7 @@ private fun TagEditorSheet(
     val usage = remember(sheet.tagId, state.tagListItemList, state.listItemList, state.listList) {
         state.usageFor(sheet.tagId)
     }
+    val nameFocus = remember { FocusRequester() }
 
     ModalBottomSheet(
         sheetState = sheetState,
@@ -491,8 +494,17 @@ private fun TagEditorSheet(
 
                 item {
                     val duplicate = state.isTagNameDuplicate
+
+                    // Cursor goes to Name only when a new list is being added
+                    LaunchedEffect(Unit) {
+                        if (sheet.mode == AddEditMode.Add) {
+                            nameFocus.requestFocus()
+                        }
+                    }
+
                     AppTextField(
                         value = sheet.name,
+                        modifier = Modifier.focusRequester(nameFocus),
                         onValueChange = viewModel::onTagNameChange,
                         label = stringResource(R.string.name),
                         isError = duplicate,

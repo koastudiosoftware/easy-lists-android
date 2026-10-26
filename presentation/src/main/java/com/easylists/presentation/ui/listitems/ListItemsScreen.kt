@@ -58,6 +58,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -818,6 +820,7 @@ fun ListItemsBottomSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     val photoActions = rememberPhotoActions(onPhotoChosen = actions.onPhotoChosen)
+    val nameFocus = remember { FocusRequester() }
 
     // slide the sheet away, then clear the editor
     val hideAndDismiss: () -> Unit = {
@@ -881,8 +884,16 @@ fun ListItemsBottomSheet(
                 }
 
                 item {
+                    // Cursor goes to Name only when a new list is being added
+                    LaunchedEffect(Unit) {
+                        if (editor.mode == AddEditMode.Add) {
+                            nameFocus.requestFocus()
+                        }
+                    }
+
                     AppTextField(
                         value = editor.name,
+                        modifier = Modifier.focusRequester(nameFocus),
                         onValueChange = actions.onNameChange,
                         label = stringResource(R.string.name),
                         isError = validation.nameError != null,
