@@ -222,6 +222,22 @@
     <string name="cancel">Cancel</string>
     <string name="click_to_get_started">"Create a list to get started! "</string>
 
+    <string name="share_list">Share list</string>
+    <string name="share_list_title">Share “%1$s”</string>
+    <string name="share_role_editor">Editor</string>
+    <string name="share_role_viewer">Viewer</string>
+    <string name="share_role_editor_hint">Editors can add, change and cross off items and add categories.</string>
+    <string name="share_role_viewer_hint">Viewers can look at the list but not change it.</string>
+    <string name="share_email_label">Email (optional)</string>
+    <string name="share_email_hint">If you enter an email, only someone signed in with that address can use the link.</string>
+    <string name="share_email_invalid">Enter a valid email address.</string>
+    <string name="share_create_link">Create link</string>
+    <string name="share_link_ready">The link works once and expires in 7 days.</string>
+    <string name="share_send_link">Send link</string>
+    <string name="share_message">Join my list “%1$s” on Easy Lists: %2$s</string>
+    <string name="share_sign_in_required">Sign in from Settings to share lists.</string>
+    <string name="share_failed">Couldn’t create the link. Check your connection and try again.</string>
+
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>
         <item quantity="other">Used by %d list items</item>

@@ -1,6 +1,5 @@
 package com.easylists.presentation.ui.listitems
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -96,6 +95,7 @@ import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.icons.MaterialIconsEdit
 import com.easylists.presentation.icons.MaterialIconsInsertPhoto
 import com.easylists.presentation.icons.MaterialIconsPhotoCamera
+import com.easylists.presentation.icons.MaterialIconsShare
 import com.easylists.presentation.models.ItemEditorState
 import com.easylists.presentation.models.ItemEditorValidation
 import com.easylists.presentation.models.ItemNameError
@@ -106,6 +106,7 @@ import com.easylists.presentation.models.Screen
 import com.easylists.presentation.models.validate
 import com.easylists.presentation.ui.lists.ScreenError
 import com.easylists.presentation.ui.lists.ScreenLoading
+import com.easylists.presentation.ui.share.ShareListSheet
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
@@ -132,6 +133,7 @@ fun ListItemsScreen(
 
     val access by viewModel.access.collectAsStateWithLifecycle()
     val canEdit = access?.canEditItems == true
+    var showShare by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -182,6 +184,15 @@ fun ListItemsScreen(
                                 contentDescription = stringResource(R.string.add_item),
                                 tint = MaterialTheme.colorScheme.onSurface,
                             )
+                        }
+                        if (access?.canManageList == true) {
+                            IconButton(onClick = { showShare = true }) {
+                                Icon(
+                                    imageVector = MaterialIconsShare,
+                                    contentDescription = stringResource(R.string.share_list),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
                         }
                     }
                 },
@@ -272,6 +283,14 @@ fun ListItemsScreen(
             settings = success.settings,
             actions = actions,
         )
+
+        if (showShare) {
+            ShareListSheet(
+                listId = listId,
+                listName = listName,
+                onDismiss = { showShare = false },
+            )
+        }
     }
 }
 

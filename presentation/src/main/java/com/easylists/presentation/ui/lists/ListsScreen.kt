@@ -93,6 +93,7 @@ import com.easylists.presentation.icons.MaterialIconsEdit
 import com.easylists.presentation.icons.MaterialIconsKeyboardArrowRight
 import com.easylists.presentation.icons.MaterialIconsMoreVert
 import com.easylists.presentation.icons.MaterialIconsSettings
+import com.easylists.presentation.icons.MaterialIconsShare
 import com.easylists.presentation.icons.MaterialIconsSort
 import com.easylists.presentation.icons.MaterialIconsTag
 import com.easylists.presentation.models.ListEditorState
@@ -103,6 +104,7 @@ import com.easylists.presentation.models.ListsEvent
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.models.validate
 import com.easylists.presentation.ui.listitems.CrossedOffActionRow
+import com.easylists.presentation.ui.share.ShareListSheet
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
@@ -123,6 +125,7 @@ fun ListsScreen(
     val lists by viewModel.lists.collectAsStateWithLifecycle()
     val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
     val access by viewModel.access.collectAsStateWithLifecycle()
+    var showShare by remember { mutableStateOf(false) }
     val editor = viewModel.editor
 
     val interaction = viewModel.interaction
@@ -260,8 +263,20 @@ fun ListsScreen(
             onNotesChange = viewModel::onListNotesChange,
             onSave = viewModel::addList,
             onDelete = { viewModel.setShowConfirmationDialogState(true) },
+            onShare = { showShare = true },
             onDismiss = viewModel::onListBottomSheetDismiss,
         )
+
+        if (showShare) {
+            val shareName = existing
+                .find { it.listId.toString() == editor.listId }
+                ?.name ?: editor.name
+            ShareListSheet(
+                listId = editor.listId,
+                listName = shareName,
+                onDismiss = { showShare = false },
+            )
+        }
     }
 }
 //endregion
@@ -754,6 +769,7 @@ fun ListsScreenListBottomSheet(
     onNotesChange: (String) -> Unit,
     onSave: (onSaved: () -> Unit) -> Unit,
     onDelete: () -> Unit,
+    onShare: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -804,6 +820,13 @@ fun ListsScreenListBottomSheet(
                                     )
                                 }
                                 if (editor.mode != AddEditMode.Add) {
+                                    IconButton(onClick = onShare) {
+                                        Icon(
+                                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            imageVector = MaterialIconsShare,
+                                            contentDescription = stringResource(R.string.share_list),
+                                        )
+                                    }
                                     IconButton(onClick = onDelete) {
                                         Icon(
                                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
