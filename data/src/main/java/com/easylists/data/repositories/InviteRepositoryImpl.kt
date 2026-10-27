@@ -1,8 +1,10 @@
 package com.easylists.data.repositories
 
 import android.util.Base64
+import com.easylists.data.db.room.dao.ShareDao
 import com.easylists.domain.models.ClaimResult
 import com.easylists.domain.models.Invite
+import com.easylists.domain.models.InvitePreview
 import com.easylists.domain.models.InviteRole
 import com.easylists.domain.repositories.InviteRepository
 import com.easylists.domain.repositories.SessionRepository
@@ -33,6 +35,7 @@ class InviteRepositoryImpl @Inject constructor(
     private val session: SessionRepository,
     private val shareRepository: ShareRepository,
     private val syncRepository: SyncRepository,
+    private val shareDao: ShareDao,
 ) : InviteRepository {
 
     override suspend fun createInvite(
@@ -57,6 +60,8 @@ class InviteRepositoryImpl @Inject constructor(
             "role" to role.id,
             "created_by" to uid,
             "expires_at" to Timestamp(Date(expiresAt)),
+            "list_name" to shareDao.getListName(listId),
+            "inviter_name" to auth.currentUser?.displayName,
             "created_timestamp" to now,
         )
         // Stored lowercase: the rules compare it with the signed-in email, ignoring case
@@ -66,6 +71,31 @@ class InviteRepositoryImpl @Inject constructor(
         Arbor.i("Invite created for list $listId as ${role.id}")
         return Invite(token = inviteToken, listId = listId, role = role, expiresAtMillis = expiresAt)
     }
+
+
+    override suspend fun previewInvite(token: String): InvitePreview? {
+        val doc = firestore
+            .collection("invites")
+            .document(token)
+            .get()
+            .await()
+
+        if (!doc.exists()) return null
+
+        val expiresAt = doc.getTimestamp("expires_at")?.toDate()?.time ?: 0L
+        return InvitePreview(
+            token = token,
+            listName = doc.getString("list_name").orEmpty(),
+            inviterName = doc.getString("inviter_name"),
+            role = if (doc.getString("role") == "viewer") {
+                InviteRole.Viewer
+            } else {
+                InviteRole.Editor
+            },
+            isExpired = expiresAt <= System.currentTimeMillis(),
+        )
+    }
+
 
     override suspend fun claimInvite(token: String): ClaimResult {
         val user = auth.currentUser ?: return ClaimResult.NotSignedIn

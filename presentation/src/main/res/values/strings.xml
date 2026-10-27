@@ -11,6 +11,8 @@
     <string name="overflow_menu">Overflow menu</string>
     <string name="return_to_previous_screen">Return to previous screen</string>
 
+    <string name="ok">OK</string>
+
     <string name="name">Name</string>
     <string name="notes">Notes</string>
     <string name="add_list">Add A List</string>
@@ -237,6 +239,19 @@
     <string name="share_message">Join my list “%1$s” on Easy Lists: %2$s</string>
     <string name="share_sign_in_required">Sign in from Settings to share lists.</string>
     <string name="share_failed">Couldn’t create the link. Check your connection and try again.</string>
+
+    <string name="join_list_title">Join list</string>
+    <string name="join_list_message_named">%1$s invited you to “%2$s” as %3$s.</string>
+    <string name="join_list_message_unnamed">You’ve been invited to “%1$s” as %2$s.</string>
+    <string name="join_role_editor">an editor</string>
+    <string name="join_role_viewer">a viewer</string>
+    <string name="join">Join</string>
+    <string name="joining">Joining…</string>
+    <string name="join_failed_not_found">This invite was already used or has been cancelled.</string>
+    <string name="join_failed_expired">This invite has expired. Ask for a new one.</string>
+    <string name="join_failed_wrong_email">This invite was sent to a different email address. Sign in with that account to use it.</string>
+    <string name="join_failed_already_member">You’re already a member of this list.</string>
+    <string name="join_failed_other">Couldn’t join the list. Check your connection and try again.</string>
 
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>

@@ -66,7 +66,6 @@ abstract class ShareDao {
     @Query("SELECT list_id FROM lists WHERE owner_id = :ownerId AND is_deleted = 0 ORDER BY created_timestamp LIMIT 1")
     abstract suspend fun getFirstOwnedListId(ownerId: String): String?
 
-
     @Query("""
         SELECT l.list_id AS list_id,
                l.is_shared AS is_shared,
@@ -84,5 +83,8 @@ abstract class ShareDao {
         WHERE l.is_deleted = 0
         """)
     abstract fun observeListAccess(): Flow<List<ListAccessRow>>
+
+    @Query("SELECT name FROM lists WHERE list_id = :listId")
+    abstract suspend fun getListName(listId: String): String?
 
 }
