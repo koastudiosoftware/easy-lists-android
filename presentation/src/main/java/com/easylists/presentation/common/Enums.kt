@@ -30,3 +30,5 @@ enum class ListsAction(val value: String) {
     None("None"),
 }
 //endregion
+
+enum class MembersError { LeaveFailed, RevokeFailed }

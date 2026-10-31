@@ -83,6 +83,7 @@ import com.easylists.domain.models.EasyListsTag
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.FramedPhoto
+import com.easylists.presentation.common.composables.ActionRowButton
 import com.easylists.presentation.common.composables.AppTextField
 import com.easylists.presentation.common.composables.ConfirmationDialog
 import com.easylists.presentation.common.composables.SectionTitle
@@ -96,6 +97,7 @@ import com.easylists.presentation.icons.MaterialIconsClose
 import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.icons.MaterialIconsEdit
 import com.easylists.presentation.icons.MaterialIconsInsertPhoto
+import com.easylists.presentation.icons.MaterialIconsPeople
 import com.easylists.presentation.icons.MaterialIconsPhotoCamera
 import com.easylists.presentation.icons.MaterialIconsShare
 import com.easylists.presentation.models.ItemEditorState
@@ -108,6 +110,7 @@ import com.easylists.presentation.models.Screen
 import com.easylists.presentation.models.validate
 import com.easylists.presentation.ui.lists.ScreenError
 import com.easylists.presentation.ui.lists.ScreenLoading
+import com.easylists.presentation.ui.members.MembersSheet
 import com.easylists.presentation.ui.share.ShareListSheet
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
@@ -136,6 +139,7 @@ fun ListItemsScreen(
     val access by viewModel.access.collectAsStateWithLifecycle()
     val canEdit = access?.canEditItems == true
     var showShare by remember { mutableStateOf(false) }
+    var showMembers by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -186,6 +190,17 @@ fun ListItemsScreen(
                                 contentDescription = stringResource(R.string.add_item),
                                 tint = MaterialTheme.colorScheme.onSurface,
                             )
+                        }
+                        if (access?.isShared == true) {
+                            IconButton(onClick = { showMembers = true }) {
+                                Icon(
+                                    imageVector = MaterialIconsPeople,
+                                    contentDescription = stringResource(
+                                        R.string.members_title, listName
+                                    ),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
                         }
                         if (access?.canManageList == true) {
                             IconButton(onClick = { showShare = true }) {
@@ -285,6 +300,18 @@ fun ListItemsScreen(
             settings = success.settings,
             actions = actions,
         )
+
+        if (showMembers) {
+            MembersSheet(
+                listId = listId,
+                listName = listName,
+                onDismiss = { showMembers = false },
+                onLeft = {
+                    showMembers = false
+                    navController.pop()
+                },
+            )
+        }
 
         if (showShare) {
             ShareListSheet(
@@ -394,7 +421,7 @@ fun ListItemsScreenContent(
                 }
 
                 ListRow.RestoreCrossedOff -> {
-                    if (canEdit) CrossedOffActionRow(
+                    if (canEdit) ActionRowButton(
                         text = stringResource(
                             R.string.restore_all_crossed_off_items,
                         ),
@@ -404,7 +431,7 @@ fun ListItemsScreenContent(
                 }
 
                 ListRow.DeleteCrossedOff -> {
-                    if (canEdit) CrossedOffActionRow(
+                    if (canEdit) ActionRowButton(
                         text = stringResource(
                             R.string.delete_all_crossed_off_items,
                         ),
@@ -415,43 +442,6 @@ fun ListItemsScreenContent(
                 }
             }
         }
-    }
-}
-//endregion
-
-
-//region CrossedOffActionRow
-@Composable
-fun CrossedOffActionRow(
-    text: String,
-    onClick: () -> Unit,
-    destructive: Boolean = false,
-    showDivider: Boolean = true,
-) {
-    Column {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spaces.large)
-                .padding(top = MaterialTheme.spaces.medium, bottom = MaterialTheme.spaces.none),
-            contentAlignment = Alignment.Center,
-        ) {
-            FilledTonalButton(
-                modifier = Modifier.widthIn(min = 240.dp),
-                onClick = onClick,
-                colors = if (destructive) {
-                    ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    )
-                } else {
-                    ButtonDefaults.filledTonalButtonColors()
-                },
-            ) {
-                Text(text = text)
-            }
-        }
-        if (showDivider) HorizontalDivider()
     }
 }
 //endregion
@@ -853,32 +843,6 @@ fun ListItemsBottomSheet(
                             if (editor.mode == AddEditMode.Add) R.string.add_item
                             else R.string.edit_item
                         ),
-                        icon = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                IconButton(
-                                    enabled = validation.canSave && hasChanges,
-                                    onClick = { actions.onSave(hideAndDismiss) },
-                                ) {
-                                    Icon(
-                                        tint = if (hasChanges)
-                                            MaterialTheme.colorScheme.onPrimaryContainer
-                                        else
-                                            MaterialTheme.colorScheme.outline,
-                                        imageVector = MaterialIconsCheck,
-                                        contentDescription = stringResource(R.string.add_list_item),
-                                    )
-                                }
-                                if (editor.mode != AddEditMode.Add) {
-                                    IconButton(onClick = actions.onDelete) {
-                                        Icon(
-                                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                            imageVector = MaterialIconsDelete,
-                                            contentDescription = stringResource(R.string.delete_item),
-                                        )
-                                    }
-                                }
-                            }
-                        },
                         modifier = Modifier.padding(horizontal = MaterialTheme.spaces.medium)
                     )
                 }
@@ -981,6 +945,26 @@ fun ListItemsBottomSheet(
                             tags = tags,
                             selectedTagIds = editor.selectedTagIds,
                             onTagClick = actions.onTagClick,
+                        )
+                    }
+                }
+
+                item {
+                    ActionRowButton(
+                        text = stringResource(R.string.save),
+                        showDivider = false,
+                        enabled = validation.canSave && hasChanges,
+                        onClick = { actions.onSave(hideAndDismiss) }
+                    )
+                }
+
+                if (editor.mode != AddEditMode.Add) {
+                    item {
+                        ActionRowButton(
+                            text = stringResource(R.string.delete_item),
+                            onClick = actions.onDelete,
+                            destructive = true,
+                            showDivider = false,
                         )
                     }
                 }

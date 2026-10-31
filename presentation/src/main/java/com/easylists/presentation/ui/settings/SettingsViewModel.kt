@@ -2,6 +2,7 @@ package com.easylists.presentation.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.easylists.data.share.PendingInviteStore
 import com.easylists.domain.common.AppSettings
 import com.easylists.domain.common.Capitalization
 import com.easylists.domain.common.GroupCrossedOffItems
@@ -52,6 +53,7 @@ class SettingsViewModel @Inject constructor(
     private val shareRepository: ShareRepository,
     private val createInvite: CreateInviteUseCase,
     private val claimInvite: ClaimInviteUseCase,
+    private val pendingInvites: PendingInviteStore,
     @Named("web_client_id") val webClientId: String,
 ) : ViewModel() {
 
@@ -114,9 +116,21 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun onSignInFailed() = _uiState.update { it.copy(signInFailed = true) }
+
     fun onSignInErrorShown() = _uiState.update { it.copy(signInFailed = false) }
+
     fun onSignOutClick() {
         viewModelScope.launch { signOut() }
+    }
+
+    // True while an invite link waits for the person to sign in
+    val inviteWaiting: StateFlow<Boolean> = pendingInvites.token
+        .map { it != null }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    // "Not now" on the invite card: the waiting link is dropped
+    fun onInviteDismissed() {
+        pendingInvites.clear()
     }
     //endregion
 

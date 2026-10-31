@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.toxicbakery.logging.Arbor
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -68,7 +69,13 @@ class SyncUploader @Inject constructor(
         suspend fun flush() {
             if (pending.isEmpty()) return
             val batch = firestore.batch()
-            pending.forEach { batch.set(it.ref, it.data + ("synced_at" to FieldValue.serverTimestamp())) }
+            pending.forEach {
+                batch.set(
+                    it.ref,
+                    it.data + ("synced_at" to FieldValue.serverTimestamp()),
+                    SetOptions.merge(),
+                )
+            }
             batch.commit().await()
             db.withTransaction { pending.forEach { it.markClean() } }
             written += pending.size

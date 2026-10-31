@@ -2,10 +2,12 @@ package com.easylists.data.repositories
 
 import android.util.Base64
 import com.easylists.data.db.room.dao.ShareDao
+import com.easylists.data.sync.retryOnUnavailable
 import com.easylists.domain.models.ClaimResult
 import com.easylists.domain.models.Invite
 import com.easylists.domain.models.InvitePreview
 import com.easylists.domain.models.InviteRole
+import com.easylists.domain.models.JoinedList
 import com.easylists.domain.repositories.InviteRepository
 import com.easylists.domain.repositories.SessionRepository
 import com.easylists.domain.repositories.ShareRepository
@@ -67,18 +69,23 @@ class InviteRepositoryImpl @Inject constructor(
         // Stored lowercase: the rules compare it with the signed-in email, ignoring case
         email?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }?.let { data["email"] = it }
 
-        firestore.collection("invites").document(inviteToken).set(data).await()
+        firestore.collection("invites")
+            .document(inviteToken)
+            .set(data)
+            .await()
         Arbor.i("Invite created for list $listId as ${role.id}")
         return Invite(token = inviteToken, listId = listId, role = role, expiresAtMillis = expiresAt)
     }
 
 
     override suspend fun previewInvite(token: String): InvitePreview? {
-        val doc = firestore
-            .collection("invites")
-            .document(token)
-            .get()
-            .await()
+        val doc = retryOnUnavailable {
+            firestore
+                .collection("invites")
+                .document(token)
+                .get()
+                .await()
+        }
 
         if (!doc.exists()) return null
 
@@ -103,7 +110,7 @@ class InviteRepositoryImpl @Inject constructor(
         if (session.getUserId() != user.uid) return ClaimResult.NotSignedIn
 
         val inviteRef = firestore.collection("invites").document(token)
-        val invite = inviteRef.get().await()
+        val invite = retryOnUnavailable { inviteRef.get().await() }
         if (!invite.exists()) return ClaimResult.NotFound
 
         val listId = invite.getString("list_id") ?: return ClaimResult.NotFound
@@ -120,16 +127,21 @@ class InviteRepositoryImpl @Inject constructor(
 
         // Do I already have a member row for this list? A query, because the rules refuse to read
         // a document that doesn't exist.
-        val existing = firestore.collection("list_members")
-            .whereEqualTo("user_id", user.uid)
-            .whereEqualTo("list_id", listId)
-            .limit(1)
-            .get().await()
-            .documents.firstOrNull()
-        if (existing != null && existing.getBoolean("is_deleted") == false) return ClaimResult.AlreadyMember
+        val existing = retryOnUnavailable {
+            firestore.collection("list_members")
+                .whereEqualTo("user_id", user.uid)
+                .whereEqualTo("list_id", listId)
+                .limit(1)
+                .get().await()
+        }.documents.firstOrNull()
+        if (existing != null && existing.getBoolean("is_deleted") == false) {
+            return ClaimResult.AlreadyMember
+        }
 
         val now = System.currentTimeMillis()
-        val memberRef = firestore.collection("list_members").document("${listId}_${user.uid}")
+        val memberRef = firestore
+            .collection("list_members")
+            .document("${listId}_${user.uid}")
         val batch = firestore.batch()
         if (existing == null) {
             batch.set(
@@ -175,14 +187,40 @@ class InviteRepositoryImpl @Inject constructor(
         return ClaimResult.Joined(listId)
     }
 
+
     // 128 random bits, URL-safe, so the token can't be guessed
     private fun newToken(): String {
         val bytes = ByteArray(16).also { SecureRandom().nextBytes(it) }
-        return Base64.encodeToString(bytes, Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP)
+        return Base64.encodeToString(
+            bytes,
+            Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
+        )
     }
+
 
     private companion object {
         // A week
         const val INVITE_LIFETIME_MS = 7L * 24 * 60 * 60 * 1000
     }
+
+
+    override suspend fun findJoinedList(token: String): JoinedList? {
+        val uid = auth.currentUser?.uid ?: return null
+        val member = retryOnUnavailable {
+            firestore.collection("list_members")
+                .whereEqualTo("user_id", uid)
+                .whereEqualTo("invite_token", token)
+                .limit(1)
+                .get().await()
+        }.documents.firstOrNull() ?: return null
+
+        // Someone who left or was removed is not joined any longer
+        if (member.getBoolean("is_deleted") != false) return null
+        val listId = member.getString("list_id") ?: return null
+
+        // Bring the list onto this device so it can be opened
+        syncRepository.sync()
+        return JoinedList(listId, shareDao.getListName(listId).orEmpty())
+    }
+
 }

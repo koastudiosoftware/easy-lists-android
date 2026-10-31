@@ -53,12 +53,14 @@ fun InviteJoinHost(
             when (event) {
                 is JoinEvent.Joined -> {
                     navController.popUpTo { it == Screen.Lists }
-                    navController.navigate(
-                        Screen.ListItems(
-                            listId = event.listId,
-                            listName = event.listName,
+                    if (event.listName.isNotEmpty()) {
+                        navController.navigate(
+                            Screen.ListItems(
+                                listId = event.listId,
+                                listName = event.listName,
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
@@ -88,7 +90,15 @@ fun InviteJoinHost(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
                     Spacer(Modifier.width(MaterialTheme.spaces.large))
-                    Text(stringResource(R.string.joining))
+                    Text(
+                        stringResource(
+                            if (current == JoinState.Loading) {
+                                R.string.checking_invite
+                            } else {
+                                R.string.joining
+                            }
+                        )
+                    )
                 }
             },
         )
@@ -117,12 +127,13 @@ private fun confirmMessage(preview: InvitePreview): String {
             InviteRole.Viewer -> R.string.join_role_viewer
         }
     )
-    return if (inviterName.isNullOrBlank()) {
+    val inviter = preview.inviterName
+    return if (inviter.isNullOrBlank()) {
         stringResource(R.string.join_list_message_unnamed, preview.listName, role)
     } else {
         stringResource(
             R.string.join_list_message_named,
-            inviterName,
+            inviter,
             preview.listName,
             role,
         )

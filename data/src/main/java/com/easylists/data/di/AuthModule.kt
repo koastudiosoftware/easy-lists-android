@@ -3,6 +3,7 @@ package com.easylists.data.di
 import com.easylists.data.repositories.AuthRepositoryImpl
 import com.easylists.data.repositories.InviteRepositoryImpl
 import com.easylists.data.repositories.ListAccessRepositoryImpl
+import com.easylists.data.repositories.MembersRepositoryImpl
 import com.easylists.data.repositories.ShareRepositoryImpl
 import com.easylists.data.repositories.SyncRepositoryImpl
 import com.easylists.data.sync.WorkManagerSyncScheduler
@@ -10,6 +11,7 @@ import com.easylists.domain.models.SyncScheduler
 import com.easylists.domain.repositories.AuthRepository
 import com.easylists.domain.repositories.InviteRepository
 import com.easylists.domain.repositories.ListAccessRepository
+import com.easylists.domain.repositories.MembersRepository
 import com.easylists.domain.repositories.ShareRepository
 import com.easylists.domain.repositories.SyncRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -35,6 +37,9 @@ abstract class AuthModule {
     abstract fun bindListAccessRepository(
         impl: ListAccessRepositoryImpl,
     ): ListAccessRepository
+
+    @Binds
+    abstract fun bindMembersRepository(impl: MembersRepositoryImpl, ): MembersRepository
 
     @Binds
     abstract fun bindSyncRepository(impl: SyncRepositoryImpl): SyncRepository

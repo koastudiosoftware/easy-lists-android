@@ -3,6 +3,7 @@
     <string name="app_name" translatable="false">Easy Lists</string>
     <string name="app_version">Version: %1$s</string>
 
+    <string name="save">Save</string>
     <string name="lists">Lists</string>
     <string name="settings">Settings</string>
     <string name="categories">Categories</string>
@@ -19,7 +20,7 @@
     <string name="edit_list">Edit A List</string>
     <string name="create_new_list">Create a new list</string>
     <string name="create_new_tag">Create a new tag</string>
-    <string name="delete_list">Delete list</string>
+    <string name="delete_list">Delete List</string>
     <string name="no_lists_found">No lists found</string>
     <string name="take_a_picture">Take a picture</string>
     <string name="list_item_image">List item picture</string>
@@ -29,7 +30,7 @@
     <string name="cancel_deletion_of_selected_categories">Cancel deletion of selected categories</string>
     <string name="cancel_deletion_of_selected_tags">Cancel deletion of selected tags</string>
 
-    <string name="delete_item">Delete item</string>
+    <string name="delete_item">Delete Item</string>
     <string name="view_item_details">View item details</string>
     <string name="add_list_item">Add list item</string>
     <string name="add_category">Add Category</string>
@@ -252,6 +253,32 @@
     <string name="join_failed_wrong_email">This invite was sent to a different email address. Sign in with that account to use it.</string>
     <string name="join_failed_already_member">You’re already a member of this list.</string>
     <string name="join_failed_other">Couldn’t join the list. Check your connection and try again.</string>
+
+    <string name="checking_invite">Checking invite…</string>
+    <string name="invite_sign_in_title">Sign in to join a shared list</string>
+    <string name="invite_sign_in_message">Someone invited you to a list. Sign in with Google to see the invitation.</string>
+    <string name="invite_not_now">Not now</string>
+
+    <string name="members_title">Members of “%1$s”</string>
+    <string name="members_unnamed">Member</string>
+    <string name="members_role_owner">Owner</string>
+    <string name="members_role_you">%1$s · You</string>
+    <string name="members_remove">Remove</string>
+    <string name="members_remove_title">Remove from list?</string>
+    <string name="members_remove_message">%1$s will lose access to “%2$s”.</string>
+    <string name="members_leave">Leave list</string>
+    <string name="members_leave_title">Leave this list?</string>
+    <string name="members_leave_message">“%1$s” will be removed from this device. You can only come back with a new invite.</string>
+    <string name="members_leave_failed">Couldn’t leave the list. Check your connection and try again.</string>
+    <string name="members_revoke_failed">Couldn’t cancel the invite. Check your connection and try again.</string>
+    <string name="members_invites_title">Pending invites</string>
+    <string name="members_invites_none">No pending invites.</string>
+    <string name="members_invites_failed">Couldn’t load the invites.</string>
+    <string name="members_retry">Try again</string>
+    <string name="members_revoke">Revoke</string>
+    <string name="members_invite_expires">Expires %1$s</string>
+    <string name="members_invite_only_for">Only for %1$s</string>
+    <string name="delete_shared_list_warning">“%1$s” is shared. Deleting it removes it for all members of the list.</string>
 
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>

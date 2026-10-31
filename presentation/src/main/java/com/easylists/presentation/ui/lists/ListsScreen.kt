@@ -77,6 +77,7 @@ import com.easylists.domain.models.ListAccess
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
 import com.easylists.presentation.common.ListsAction
+import com.easylists.presentation.common.composables.ActionRowButton
 import com.easylists.presentation.common.composables.AppTextField
 import com.easylists.presentation.common.composables.CardGroup
 import com.easylists.presentation.common.composables.ConfirmationDialog
@@ -89,11 +90,10 @@ import com.easylists.presentation.icons.MaterialIconsArrowDownward
 import com.easylists.presentation.icons.MaterialIconsArrowUpward
 import com.easylists.presentation.icons.MaterialIconsCategory
 import com.easylists.presentation.icons.MaterialIconsCheck
-import com.easylists.presentation.icons.MaterialIconsDelete
 import com.easylists.presentation.icons.MaterialIconsDragHandle
 import com.easylists.presentation.icons.MaterialIconsEdit
-import com.easylists.presentation.icons.MaterialIconsKeyboardArrowRight
 import com.easylists.presentation.icons.MaterialIconsMoreVert
+import com.easylists.presentation.icons.MaterialIconsPeople
 import com.easylists.presentation.icons.MaterialIconsSettings
 import com.easylists.presentation.icons.MaterialIconsShare
 import com.easylists.presentation.icons.MaterialIconsSort
@@ -105,7 +105,7 @@ import com.easylists.presentation.models.ListNameError
 import com.easylists.presentation.models.ListsEvent
 import com.easylists.presentation.models.Screen
 import com.easylists.presentation.models.validate
-import com.easylists.presentation.ui.listitems.CrossedOffActionRow
+import com.easylists.presentation.ui.members.MembersSheet
 import com.easylists.presentation.ui.share.ShareListSheet
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
@@ -128,6 +128,7 @@ fun ListsScreen(
     val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
     val access by viewModel.access.collectAsStateWithLifecycle()
     var showShare by remember { mutableStateOf(false) }
+    var membersListId by remember { mutableStateOf<String?>(null) }
     val editor = viewModel.editor
 
     val interaction = viewModel.interaction
@@ -218,6 +219,7 @@ fun ListsScreen(
                         isRearranging = isRearranging,
                         onListsReordered = viewModel::onListsReordered,
                         onListAdd = { viewModel.onActionButtonClick(ListsAction.Add) },
+                        onListMembers = { membersListId = it.listId },
                     )
                 }
             }
@@ -238,7 +240,14 @@ fun ListsScreen(
                 viewModel.setShowConfirmationDialogState(false)
             },
             dialogTitle = stringResource(R.string.confirm_deletion),
-            dialogText = stringResource(R.string.delete_list_warning, listName),
+            dialogText = stringResource(
+                if (access[editor?.listId]?.isShared == true) {
+                    R.string.delete_shared_list_warning
+                } else {
+                    R.string.delete_list_warning
+                },
+                listName,
+            ),
         )
     }
 
@@ -266,6 +275,7 @@ fun ListsScreen(
             onSave = viewModel::addList,
             onDelete = { viewModel.setShowConfirmationDialogState(true) },
             onShare = { showShare = true },
+            onMembers = { membersListId = editor.listId },
             onDismiss = viewModel::onListBottomSheetDismiss,
         )
 
@@ -280,6 +290,18 @@ fun ListsScreen(
             )
         }
     }
+
+    membersListId?.let { id ->
+        MembersSheet(
+            listId = id,
+            listName = (lists as? ListListUiState.Success)?.lists
+                ?.find { it.listId.toString() == id }?.name.orEmpty(),
+            onDismiss = { membersListId = null },
+            onLeft = { membersListId = null },
+        )
+    }
+
+
 }
 //endregion
 
@@ -411,8 +433,10 @@ fun ListCard(
     list: EasyListsList,
     canManage: Boolean,
     isRearranging: Boolean,
+    showMembers: Boolean,
     onClick: () -> Unit,
     onEdit: () -> Unit,
+    onMembers: () -> Unit,
     modifier: Modifier = Modifier,
     elevation: Dp = 0.dp,
 ) {
@@ -466,6 +490,17 @@ fun ListCard(
                         contentDescription = stringResource(R.string.edit_list),
                     )
                 }
+            } else if (showMembers) {
+                IconButton(onClick = onMembers) {
+                    Icon(
+                        tint = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.size(20.dp),
+                        imageVector = MaterialIconsPeople,
+                        contentDescription = stringResource(
+                            R.string.members_title, list.name
+                        ),
+                    )
+                }
             } else {
                 Spacer(Modifier.width(MaterialTheme.spaces.large))
             }
@@ -481,8 +516,10 @@ fun ListItem(
     list: EasyListsList,
     canManage: Boolean,
     isRearranging: Boolean,
+    showMembers: Boolean,
     onClick: () -> Unit,
     onEdit: () -> Unit,
+    onMembers: () -> Unit,
     modifier: Modifier = Modifier,
     elevation: Dp = 0.dp,
 ) {
@@ -543,10 +580,20 @@ fun ListItem(
                         contentDescription = stringResource(R.string.edit_list),
                     )
                 }
+            } else if (showMembers) {
+                IconButton(onClick = onMembers) {
+                    Icon(
+                        tint = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.weight(0.12f),
+                        imageVector = MaterialIconsPeople,
+                        contentDescription = stringResource(
+                            R.string.members_title, list.name
+                        ),
+                    )
+                }
             } else {
-                Spacer(Modifier.weight(0.12f))
-            }
-        }
+                Spacer(Modifier.width(MaterialTheme.spaces.large))
+            }        }
         HorizontalDivider()
     }
 }
@@ -564,6 +611,7 @@ fun ListsScreenContent(
     onListEdit: (EasyListsList) -> Unit,
     onListsReordered: (List<String>) -> Unit,
     onListAdd: () -> Unit,
+    onListMembers: (EasyListsList) -> Unit,
 ) {
     val isCard = viewMode == ViewMode.Card
     val lazyListState = rememberLazyListState()
@@ -655,6 +703,9 @@ fun ListsScreenContent(
                             list = list,
                             canManage =
                                 access[list.listId]?.canManageList == true,
+                            showMembers = access[list.listId]
+                                ?.let { !it.canManageList && it.isShared } == true,
+                            onMembers = { onListMembers(list) },
                             isRearranging = isRearranging,
                             elevation = elevation,
                             onClick = { onListClick(list) },
@@ -665,6 +716,9 @@ fun ListsScreenContent(
                             list = list,
                             canManage =
                                 access[list.listId]?.canManageList == true,
+                            showMembers = access[list.listId]
+                                ?.let { !it.canManageList && it.isShared } == true,
+                            onMembers = { onListMembers(list) },
                             isRearranging = isRearranging,
                             elevation = elevation,
                             onClick = { onListClick(list) },
@@ -772,6 +826,7 @@ fun ListsScreenListBottomSheet(
     onSave: (onSaved: () -> Unit) -> Unit,
     onDelete: () -> Unit,
     onShare: () -> Unit,
+    onMembers: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -810,31 +865,22 @@ fun ListsScreenListBottomSheet(
                         ),
                         icon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                IconButton(
-                                    enabled = validation.canSave && hasChanges,
-                                    onClick = { onSave(hideAndDismiss) }
-                                ) {
-                                    Icon(
-                                        tint = if (hasChanges)
-                                            MaterialTheme.colorScheme.onPrimaryContainer
-                                        else MaterialTheme.colorScheme.outline,
-                                        imageVector = MaterialIconsCheck,
-                                        contentDescription = stringResource(R.string.add_list),
-                                    )
-                                }
                                 if (editor.mode != AddEditMode.Add) {
+                                    IconButton(onClick = onMembers) {
+                                        Icon(
+                                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            imageVector = MaterialIconsPeople,
+                                            contentDescription = stringResource(
+                                                R.string.members_title,
+                                                editor.name,
+                                            ),
+                                        )
+                                    }
                                     IconButton(onClick = onShare) {
                                         Icon(
                                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                             imageVector = MaterialIconsShare,
                                             contentDescription = stringResource(R.string.share_list),
-                                        )
-                                    }
-                                    IconButton(onClick = onDelete) {
-                                        Icon(
-                                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                            imageVector = MaterialIconsDelete,
-                                            contentDescription = stringResource(R.string.delete_list),
                                         )
                                     }
                                 }
@@ -871,6 +917,27 @@ fun ListsScreenListBottomSheet(
                         singleLine = false,
                     )
                 }
+
+                item {
+                    ActionRowButton(
+                        text = stringResource(R.string.save),
+                        showDivider = false,
+                        enabled = validation.canSave && hasChanges,
+                        onClick = { onSave(hideAndDismiss) }
+                    )
+                }
+
+                if (editor.mode != AddEditMode.Add) {
+                    item {
+                        ActionRowButton(
+                            text = stringResource(R.string.delete_list),
+                            onClick = onDelete,
+                            destructive = true,
+                            showDivider = false,
+                        )
+                    }
+                }
+
             }
         }
     }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.easylists.data.share.PendingInviteStore
 import com.easylists.domain.models.ClaimResult
 import com.easylists.domain.use_cases.ClaimInviteUseCase
+import com.easylists.domain.use_cases.FindJoinedListUseCase
 import com.easylists.domain.use_cases.ObserveAuthAccountUseCase
 import com.easylists.domain.use_cases.PreviewInviteUseCase
 import com.easylists.presentation.models.JoinEvent
@@ -31,6 +32,7 @@ class InviteJoinViewModel @Inject constructor(
     observeAuthAccount: ObserveAuthAccountUseCase,
     private val previewInvite: PreviewInviteUseCase,
     private val claimInvite: ClaimInviteUseCase,
+    private val findJoinedList: FindJoinedListUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<JoinState>(JoinState.Idle)
@@ -59,10 +61,25 @@ class InviteJoinViewModel @Inject constructor(
                 _state.value = JoinState.Loading
                 try {
                     val preview = previewInvite(token)
-                    _state.value = when {
-                        preview == null -> JoinState.Failed(JoinFailure.NotFound)
-                        preview.isExpired -> JoinState.Failed(JoinFailure.Expired)
-                        else -> JoinState.Confirm(preview)
+                    if (preview == null) {
+                        // Used up. If this person claimed it, they are in, so
+                        // open the list instead of complaining.
+                        val joined = findJoinedList(token)
+                        if (joined == null) {
+                            _state.value = JoinState.Failed(JoinFailure.NotFound)
+                        } else {
+                            // Send before clearing: clearing restarts this block
+                            _events.trySend(
+                                JoinEvent.Joined(joined.listId, joined.listName)
+                            )
+                            pendingInvites.clear()
+                        }
+                    } else {
+                        _state.value = if (preview.isExpired) {
+                            JoinState.Failed(JoinFailure.Expired)
+                        } else {
+                            JoinState.Confirm(preview)
+                        }
                     }
                 } catch (e: CancellationException) {
                     throw e

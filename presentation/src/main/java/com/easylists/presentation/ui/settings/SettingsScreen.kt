@@ -50,6 +50,7 @@ import com.easylists.presentation.common.composables.AccountCard
 import com.easylists.presentation.common.composables.ListSettingGroup
 import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.common.composables.CardGroup
+import com.easylists.presentation.common.composables.InviteSignInCard
 import com.easylists.presentation.common.composables.SettingsItem
 import com.easylists.presentation.common.composables.ToggleSettingsItem
 import com.easylists.presentation.common.fetchGoogleIdToken
@@ -164,6 +165,7 @@ fun SettingsScreenContent(
 
     val account by viewModel.account.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val inviteWaiting by viewModel.inviteWaiting.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -195,6 +197,16 @@ fun SettingsScreenContent(
         ),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spaces.medium),
     ) {
+        if (inviteWaiting && account == null) {
+            item {
+                InviteSignInCard(
+                    isSigningIn = uiState.isSigningIn,
+                    onSignInClick = onSignInClick,
+                    onDismiss = viewModel::onInviteDismissed,
+                )
+            }
+        }
+
         item { SettingsSectionTitle(stringResource(id = R.string.list_items)) }
         item {
             CardGroup {

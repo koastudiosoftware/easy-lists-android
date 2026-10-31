@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -29,7 +28,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.easylists.domain.models.InviteRole
 import com.easylists.presentation.R
 import com.easylists.presentation.common.composables.AppTextField
-import com.easylists.presentation.common.composables.SectionTitle
 import com.easylists.presentation.models.ShareError
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
