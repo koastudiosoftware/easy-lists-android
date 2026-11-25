@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -46,6 +47,7 @@ import com.easylists.presentation.icons.MaterialIconsKeyboardArrowRight
 import com.easylists.presentation.models.BackupMessage
 import com.easylists.presentation.models.PendingRestore
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
+import kotlin.collections.isNotEmpty
 
 private const val MAX_LISTED_BACKUPS = 10
 
@@ -258,11 +260,12 @@ fun LocalBackupSheet(
 @Composable
 private fun RestoreConfirmDialog(
     pending: PendingRestore,
-    onConfirm: () -> Unit,
+    onConfirm: (replaceShared: Boolean) -> Unit,
     onCancel: () -> Unit,
 ) {
     val summary = pending.summary
     val sectionNames = summary.sections.map { stringResource(it.labelRes()) }
+    val hasShared = summary.sharedLists > 0
 
     AlertDialog(
         onDismissRequest = onCancel,
@@ -272,7 +275,12 @@ private fun RestoreConfirmDialog(
                 summary.createdTimestamp?.let {
                     Text(stringResource(R.string.backup_restore_made, formatDate(it)))
                 }
-                Text(stringResource(R.string.backup_restore_contains, sectionNames.joinToString(", ")))
+                Text(
+                    stringResource(
+                        R.string.backup_restore_contains,
+                        sectionNames.joinToString(", "),
+                    )
+                )
                 Text(
                     stringResource(
                         R.string.backup_restore_counts,
@@ -284,16 +292,41 @@ private fun RestoreConfirmDialog(
                     )
                 )
                 Text(stringResource(R.string.backup_restore_warning))
+                if (hasShared) {
+                    Text(
+                        pluralStringResource(
+                            R.plurals.backup_restore_shared_warning,
+                            summary.sharedLists,
+                            summary.sharedLists,
+                        )
+                    )
+                }
             }
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(stringResource(R.string.backup_restore_confirm))
+            if (hasShared) {
+                Column(horizontalAlignment = Alignment.End) {
+                    TextButton(onClick = { onConfirm(true) }) {
+                        Text(stringResource(R.string.backup_restore_replace_shared))
+                    }
+                    TextButton(onClick = { onConfirm(false) }) {
+                        Text(stringResource(R.string.backup_restore_keep_shared))
+                    }
+                    TextButton(onClick = onCancel) {
+                        Text(stringResource(R.string.backup_cancel))
+                    }
+                }
+            } else {
+                TextButton(onClick = { onConfirm(false) }) {
+                    Text(stringResource(R.string.backup_restore_confirm))
+                }
             }
         },
-        dismissButton = {
-            TextButton(onClick = onCancel) {
-                Text(stringResource(R.string.backup_cancel))
+        dismissButton = if (hasShared) null else {
+            {
+                TextButton(onClick = onCancel) {
+                    Text(stringResource(R.string.backup_cancel))
+                }
             }
         },
     )

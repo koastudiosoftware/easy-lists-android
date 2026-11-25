@@ -92,6 +92,7 @@ import com.easylists.presentation.common.selectableCardBorder
 import com.easylists.presentation.icons.MaterialIconsAdd
 import com.easylists.presentation.icons.MaterialIconsArrowBack
 import com.easylists.presentation.icons.MaterialIconsBrokenImage
+import com.easylists.presentation.icons.MaterialIconsCategory
 import com.easylists.presentation.icons.MaterialIconsCheck
 import com.easylists.presentation.icons.MaterialIconsClose
 import com.easylists.presentation.icons.MaterialIconsDelete
@@ -115,6 +116,7 @@ import com.easylists.presentation.ui.share.ShareListSheet
 import com.easylists.presentation.ui.theme.spaces
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
+import dev.olshevski.navigation.reimagined.navigate
 import dev.olshevski.navigation.reimagined.pop
 import kotlinx.coroutines.launch
 
@@ -190,6 +192,23 @@ fun ListItemsScreen(
                                 contentDescription = stringResource(R.string.add_item),
                                 tint = MaterialTheme.colorScheme.onSurface,
                             )
+                        }
+                        if (access?.canManageList == true && access?.isShared == true) {
+                            IconButton(
+                                onClick = {
+                                    navController.navigate(
+                                        Screen.ListCategories(listId, listName)
+                                    )
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = MaterialIconsCategory,
+                                    contentDescription = stringResource(
+                                        R.string.list_categories_manage
+                                    ),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
                         }
                         if (access?.isShared == true) {
                             IconButton(onClick = { showMembers = true }) {

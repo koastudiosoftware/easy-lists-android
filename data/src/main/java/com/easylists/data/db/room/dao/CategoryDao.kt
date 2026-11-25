@@ -110,4 +110,14 @@ abstract class CategoryDao() {
           AND category_id NOT IN (SELECT category_id FROM list_items WHERE category_id IS NOT NULL)
         """)
     abstract suspend fun deleteForeignUnused(userId: String): Int
+
+
+    // Only the name changes. The category keeps its list and its owner, which
+    // an update of the whole row would reset.
+    @Query("""
+        UPDATE categories
+        SET name = :name, is_dirty = 1, modified_timestamp = :now
+        WHERE category_id = :categoryId
+        """)
+    abstract suspend fun rename(categoryId: String, name: String, now: Long): Int
 }

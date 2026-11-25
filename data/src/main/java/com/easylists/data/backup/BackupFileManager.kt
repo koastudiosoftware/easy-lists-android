@@ -216,6 +216,12 @@ class BackupFileManager @Inject constructor(
     // Works for any zip the user has read access to, not just ones in the backup folder.
     suspend fun readBackup(uri: Uri): BackupFile = withContext(Dispatchers.IO) { scan(uri) }
 
+    // How many shared lists restoring this backup in place would roll back
+    suspend fun sharedListsAffected(backup: BackupFile): Int =
+        withContext(Dispatchers.IO) {
+            backupDataSource.sharedListsAffected(backup)
+        }
+
     /**
      * Restores the zip at [uri]. [sections] defaults to everything in the backup.
      *
@@ -223,7 +229,11 @@ class BackupFileManager @Inject constructor(
      * restore has succeeded, so a failed restore leaves no stray files. A photo whose file name already
      * exists in the app is kept as it is.
      */
-    suspend fun restore(uri: Uri, sections: Set<BackupSection>? = null): RestoreSummary =
+    suspend fun restore(
+        uri: Uri,
+        sections: Set<BackupSection>? = null,
+        replaceShared: Boolean = false,
+    ): RestoreSummary =
         withContext(Dispatchers.IO) {
             mutex.withLock {
                 val backup = scan(uri)
@@ -249,7 +259,9 @@ class BackupFileManager @Inject constructor(
                         }
                     }
 
-                    val summary = backupDataSource.restore(backup, photoPathFor, toRestore)
+                    val summary = backupDataSource.restore(
+                        backup, photoPathFor, toRestore, replaceShared,
+                    )
                     movePhotos(staging, staged)
                     summary
                 } finally {

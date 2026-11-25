@@ -22,6 +22,7 @@ import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
 import com.easylists.data.db.room.models.ListMemberEntity
+import com.easylists.data.db.room.models.ListNoticeEntity
 import com.easylists.data.db.room.models.ListOrderEntity
 import com.easylists.data.db.room.models.ProviderLinkEntity
 import com.easylists.data.db.room.models.SyncStateEntity
@@ -36,6 +37,7 @@ import com.easylists.data.db.room.models.UserEntity
         ListEntity::class,
         ListItemEntity::class,
         ListMemberEntity::class,
+        ListNoticeEntity::class,
         ListOrderEntity::class,
         ProviderLinkEntity::class,
         SyncStateEntity::class,

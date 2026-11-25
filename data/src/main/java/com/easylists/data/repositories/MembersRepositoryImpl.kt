@@ -75,6 +75,7 @@ class MembersRepositoryImpl @Inject constructor(
                 .update(
                     mapOf(
                         "is_deleted" to true,
+                        "left" to true,
                         "modified_timestamp" to now(),
                         "synced_at" to FieldValue.serverTimestamp(),
                     )

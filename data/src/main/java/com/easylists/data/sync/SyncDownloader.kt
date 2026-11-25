@@ -8,6 +8,7 @@ import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
 import com.easylists.data.db.room.models.ListMemberEntity
+import com.easylists.data.db.room.models.ListNoticeEntity
 import com.easylists.data.db.room.models.ListOrderEntity
 import com.easylists.data.db.room.models.TagEntity
 import com.easylists.data.db.room.models.TagListItemEntity
@@ -56,10 +57,18 @@ class SyncDownloader @Inject constructor(
         val tags = mutableListOf<TagEntity>()
         val links = mutableListOf<TagListItemEntity>()
         val order = mutableListOf<ListOrderEntity>()
+        val leavers = mutableListOf<Leaver>()
 
         // cursor key -> newest synced_at seen, in microseconds
         val cursors = mutableMapOf<String, Long>()
     }
+
+    // Someone who left a list, seen in a roster
+    private class Leaver(
+        val listId: String,
+        val userId: String,
+        val displayName: String?,
+    )
 
     // Returns the number of rows changed on this device
     suspend fun pull(): Int {
@@ -89,7 +98,19 @@ class SyncDownloader @Inject constructor(
             if (listDoc.exists()) fetched.lists += listDoc.toList()
 
             fetch(firestore.collection("list_members").whereEqualTo("list_id", listId), "roster:$listId", fetched)
-                .forEach { fetched.members += it.toMember() }
+                .forEach { doc ->
+                    fetched.members += doc.toMember()
+                    // "left" is set by a person leaving, not by an owner removing them
+                    if (doc.getBoolean("left") == true &&
+                        doc.getBoolean("is_deleted") == true
+                    ) {
+                        fetched.leavers += Leaver(
+                            listId = doc.getString("list_id").orEmpty(),
+                            userId = doc.getString("user_id").orEmpty(),
+                            displayName = doc.getString("display_name"),
+                        )
+                    }
+                }
             fetch(firestore.collection("categories").whereEqualTo("list_id", listId), "categories:$listId", fetched)
                 .forEach { fetched.categories += it.toCategory() }
             fetch(firestore.collection("list_items").whereEqualTo("list_id", listId), "items:$listId", fetched)
@@ -112,6 +133,50 @@ class SyncDownloader @Inject constructor(
         val photoNames = mutableListOf<String>()
         val changed = db.withTransaction {
             var count = 0
+            val noticeTime = System.currentTimeMillis()
+            val notices = mutableListOf<ListNoticeEntity>()
+
+            // Lists the owner took away from this person: deleted them, or
+            // removed the person
+            val deletedByOwner = fetched.lists
+                .filter { it.isDeleted && it.ownerId != uid }
+                .map { it.listId }
+            val goneIds = removedIds + deletedByOwner
+            val localLists = byIds(goneIds) { syncDao.getListsByIds(it) }
+                .associateBy { it.listId }
+            goneIds.toSet().forEach { id ->
+                localLists[id]
+                    ?.takeIf { !it.isDeleted && it.ownerId != uid }
+                    ?.let { notices += ListNoticeEntity.gone(it.listId, it.name, noticeTime) }
+            }
+
+            // People who left a list this person owns
+            val leavers = fetched.leavers.filter { it.userId != uid }
+            if (leavers.isNotEmpty()) {
+                val leaverListIds = leavers.map { it.listId }
+                val ownedLists = byIds(leaverListIds) { syncDao.getListsByIds(it) }
+                    .associateBy { it.listId }
+                val knownMembers = byIds(leaverListIds) {
+                    syncDao.getMembersOfLists(it)
+                }.associateBy { "${it.listId}_${it.userId}" }
+                leavers.forEach { leaver ->
+                    // Only the owner is told. A device that doesn't have the list
+                    // yet, such as a fresh install, has nothing to announce.
+                    val list = ownedLists[leaver.listId] ?: return@forEach
+                    if (list.ownerId != uid) return@forEach
+                    // Told once: not if this device already saw them leave
+                    val known = knownMembers["${leaver.listId}_${leaver.userId}"]
+                    if (known != null && known.isDeleted) return@forEach
+                    notices += ListNoticeEntity.left(
+                        listId = list.listId,
+                        listName = list.name,
+                        userId = leaver.userId,
+                        personName = leaver.displayName ?: known?.displayName,
+                        now = noticeTime,
+                    )
+                }
+            }
+            if (notices.isNotEmpty()) syncDao.insertNotices(notices)
 
             if (removedIds.isNotEmpty()) {
                 photoNames += syncDao.getPhotoNames(removedIds.toList())

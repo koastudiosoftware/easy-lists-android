@@ -6,19 +6,29 @@ import androidx.room.Upsert
 import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
+import com.easylists.data.db.room.models.ListMemberEntity
 import com.easylists.data.db.room.models.ListOrderEntity
 import com.easylists.data.db.room.models.TagEntity
 import com.easylists.data.db.room.models.TagListItemEntity
 
 // All backup and restore queries live here so the existing DAOs stay untouched.
-// "Owned" currently means lists.owner_id / tags.owner_id / categories.owner_id = the user.
-// When list_members exists, the list queries below are where "owned" becomes "my role is owner".
+//
+// What a backup covers: every list the user owns, shared or not, with its items
+// and the categories that belong to it, plus the user's personal categories and
+// tags and the order of the lists. People and invites are not part of a snapshot.
+//
+// A restore only ever replaces what it is told to: unshared lists always, shared
+// lists only when the person chose to roll them back, and never a shared list
+// that isn't in the backup.
 @Dao
 abstract class BackupDao {
 
     //region Reads: live rows owned by the user
 
-    @Query("SELECT * FROM lists WHERE owner_id = :ownerId AND is_deleted = 0")
+    @Query("""
+        SELECT * FROM lists
+        WHERE owner_id = :ownerId AND is_deleted = 0
+        """)
     abstract suspend fun getOwnedLists(ownerId: String): List<ListEntity>
 
     @Query("""
@@ -29,8 +39,22 @@ abstract class BackupDao {
         """)
     abstract suspend fun getOwnedListItems(ownerId: String): List<ListItemEntity>
 
-    @Query("SELECT * FROM categories WHERE owner_id = :ownerId AND is_deleted = 0")
+    // Personal categories only; the ones that belong to a list are read below
+    @Query("""
+        SELECT * FROM categories
+        WHERE owner_id = :ownerId AND is_deleted = 0 AND list_id IS NULL
+        """)
     abstract suspend fun getOwnedCategories(ownerId: String): List<CategoryEntity>
+
+    // The categories of the lists the user owns, whoever created them: a shared
+    // list's items point at categories its collaborators may have added
+    @Query("""
+        SELECT c.*
+        FROM categories c
+        JOIN lists l ON l.list_id = c.list_id
+        WHERE l.owner_id = :ownerId AND l.is_deleted = 0 AND c.is_deleted = 0
+        """)
+    abstract suspend fun getOwnedListCategories(ownerId: String): List<CategoryEntity>
 
     @Query("SELECT * FROM tags WHERE owner_id = :ownerId AND is_deleted = 0")
     abstract suspend fun getOwnedTags(ownerId: String): List<TagEntity>
@@ -49,23 +73,26 @@ abstract class BackupDao {
         """)
     abstract suspend fun getOwnedTagLinks(ownerId: String): List<TagListItemEntity>
 
-    // Only the order of lists the user owns. Their order for shared lists isn't part of the backup.
+    // The order of the lists the user owns.
     @Query("""
         SELECT o.*
         FROM list_order o
         JOIN lists l ON l.list_id = o.list_id
-        WHERE o.user_id = :userId AND l.owner_id = :userId AND l.is_deleted = 0
+        WHERE o.user_id = :userId AND l.owner_id = :userId
+          AND l.is_deleted = 0
         """)
     abstract suspend fun getListOrder(userId: String): List<ListOrderEntity>
 
     //endregion
 
     //region Restore: soft-delete what the user currently owns
+    // Unshared lists and personal categories only. A shared list is only touched
+    // when it is rolled back, through the "OfLists" queries further down.
 
     @Query("""
         UPDATE categories
         SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
-        WHERE owner_id = :ownerId AND is_deleted = 0
+        WHERE owner_id = :ownerId AND is_deleted = 0 AND list_id IS NULL
         """)
     abstract suspend fun softDeleteOwnedCategories(ownerId: String, now: Long): Int
 
@@ -96,16 +123,36 @@ abstract class BackupDao {
         UPDATE list_items
         SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
         WHERE is_deleted = 0
-          AND list_id IN (SELECT list_id FROM lists WHERE owner_id = :ownerId)
+          AND list_id IN (
+              SELECT list_id FROM lists
+              WHERE owner_id = :ownerId AND is_shared = 0
+          )
         """)
     abstract suspend fun softDeleteOwnedListItems(ownerId: String, now: Long): Int
 
     @Query("""
         UPDATE lists
         SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
-        WHERE owner_id = :ownerId AND is_deleted = 0
+        WHERE owner_id = :ownerId AND is_deleted = 0 AND is_shared = 0
         """)
     abstract suspend fun softDeleteOwnedLists(ownerId: String, now: Long): Int
+
+    // A shared list being rolled back keeps its place: only its items and its
+    // categories are cleared, and the snapshot's are written over them.
+    @Query("""
+        UPDATE list_items
+        SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
+        WHERE is_deleted = 0 AND list_id IN (:listIds)
+        """)
+    abstract suspend fun softDeleteItemsOfLists(listIds: List<String>, now: Long): Int
+
+    // Whoever created them: only the list's owner may change these on the server
+    @Query("""
+        UPDATE categories
+        SET is_deleted = 1, is_dirty = 1, modified_timestamp = :now
+        WHERE is_deleted = 0 AND list_id IN (:listIds)
+        """)
+    abstract suspend fun softDeleteCategoriesOfLists(listIds: List<String>, now: Long): Int
 
     //endregion
 
@@ -121,6 +168,11 @@ abstract class BackupDao {
 
     @Upsert
     abstract suspend fun upsertLists(rows: List<ListEntity>)
+
+    // The owner's row for each restored list. The server's rules look the
+    // owner up there, so a list without it could never sync.
+    @Upsert
+    abstract suspend fun upsertMembers(rows: List<ListMemberEntity>)
 
     @Upsert
     abstract suspend fun upsertListItems(rows: List<ListItemEntity>)
@@ -143,6 +195,11 @@ abstract class BackupDao {
 
     @Query("SELECT list_item_id FROM list_items WHERE is_deleted = 0")
     abstract suspend fun getLiveListItemIds(): List<String>
+
+    // Lists that are shared now. A backup made before a list was shared must
+    // not overwrite it, which would quietly un-share it.
+    @Query("SELECT list_id FROM lists WHERE is_shared = 1")
+    abstract suspend fun getSharedListIds(): List<String>
 
     //endregion
 

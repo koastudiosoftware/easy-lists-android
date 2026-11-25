@@ -32,4 +32,8 @@ abstract class ResetDao {
 
     @Query("DELETE FROM sync_state")
     abstract suspend fun deleteSyncState()
+
+    @Query("DELETE FROM list_notices")
+    abstract suspend fun deleteNotices()
+
 }

@@ -40,6 +40,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -277,6 +278,13 @@ fun ListsScreen(
             onShare = { showShare = true },
             onMembers = { membersListId = editor.listId },
             onDismiss = viewModel::onListBottomSheetDismiss,
+            isShared = access[editor.listId]?.isShared == true,
+            onCategories = {
+                viewModel.onListBottomSheetDismiss()
+                navController.navigate(
+                    Screen.ListCategories(editor.listId, editor.name)
+                )
+            },
         )
 
         if (showShare) {
@@ -821,6 +829,7 @@ fun ListsScreenListBottomSheet(
     editor: ListEditorState,
     validation: ListEditorValidation,
     hasChanges: Boolean,
+    isShared: Boolean,
     onNameChange: (String) -> Unit,
     onNotesChange: (String) -> Unit,
     onSave: (onSaved: () -> Unit) -> Unit,
@@ -828,6 +837,7 @@ fun ListsScreenListBottomSheet(
     onShare: () -> Unit,
     onMembers: () -> Unit,
     onDismiss: () -> Unit,
+    onCategories: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
@@ -933,6 +943,16 @@ fun ListsScreenListBottomSheet(
                             text = stringResource(R.string.delete_list),
                             onClick = onDelete,
                             destructive = true,
+                            showDivider = false,
+                        )
+                    }
+                }
+
+                if (editor.mode != AddEditMode.Add && isShared) {
+                    item {
+                        ActionRowButton(
+                            text = stringResource(R.string.list_categories_manage),
+                            onClick = onCategories,
                             showDivider = false,
                         )
                     }

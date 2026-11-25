@@ -280,6 +280,24 @@
     <string name="members_invite_only_for">Only for %1$s</string>
     <string name="delete_shared_list_warning">“%1$s” is shared. Deleting it removes it for all members of the list.</string>
 
+    <string name="list_gone_title">List no longer available</string>
+    <string name="list_gone_message_one">“%1$s” is no longer available. The owner deleted it or removed you from it.</string>
+    <string name="list_gone_message_many">These lists are no longer available. Their owners deleted them or removed you from them:</string>
+
+    <string name="backup_restore_replace_shared">Replace shared lists</string>
+    <string name="backup_restore_keep_shared">Keep current shared lists</string>
+
+    <string name="list_notices_title">Shared list updates</string>
+    <string name="list_left_title">Someone left your list</string>
+    <string name="list_left_message_named">%1$s left “%2$s”. They can only come back with a new invite.</string>
+    <string name="list_left_message_unnamed">Someone left “%1$s”. They can only come back with a new invite.</string>
+    <string name="list_gone_line">“%1$s” is no longer available.</string>
+    <string name="list_left_line_named">%1$s left “%2$s”.</string>
+    <string name="list_left_line_unnamed">Someone left “%1$s”.</string>
+
+    <string name="list_categories_title">Categories in “%1$s”</string>
+    <string name="list_categories_manage">Manage categories</string>
+
     <plurals name="tag_used_by_list_items">
         <item quantity="one">Used by %d list item</item>
         <item quantity="other">Used by %d list items</item>
@@ -301,6 +319,11 @@
     <plurals name="delete_tags_warning">
         <item quantity="one">Are you sure you want to delete the selected tag? Items with this tag will not be deleted.</item>
         <item quantity="other">Are you sure you want to delete the selected tags? Items with these tags will not be deleted.</item>
+    </plurals>
+
+    <plurals name="backup_restore_shared_warning">
+        <item quantity="one">This backup includes %1$d shared list. Replacing it rolls it back to the backup for everyone on it: items others added since are removed, and items deleted since come back. If you keep it, it stays as it is.</item>
+        <item quantity="other">This backup includes %1$d shared lists. Replacing them rolls them back to the backup for everyone on them: items others added since are removed, and items deleted since come back. If you keep them, they stay as they are.</item>
     </plurals>
 
 </resources>

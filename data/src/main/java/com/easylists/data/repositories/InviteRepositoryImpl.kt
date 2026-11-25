@@ -164,6 +164,7 @@ class InviteRepositoryImpl @Inject constructor(
                 memberRef,
                 mapOf(
                     "is_deleted" to false,
+                    "left" to false,
                     "role" to role,
                     "invite_token" to token,
                     "modified_timestamp" to now,

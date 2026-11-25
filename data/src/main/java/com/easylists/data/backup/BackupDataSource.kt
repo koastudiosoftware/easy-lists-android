@@ -5,6 +5,7 @@ import com.easylists.data.db.room.EasyListsDatabase
 import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
+import com.easylists.data.db.room.models.ListMemberEntity
 import com.easylists.data.db.room.models.ListOrderEntity
 import com.easylists.data.db.room.models.TagEntity
 import com.easylists.data.db.room.models.TagListItemEntity
@@ -51,6 +52,10 @@ class BackupDataSource @Inject constructor(
             val order = if (withLists) dao.getListOrder(userId) else emptyList()
             val categories =
                 if (BackupSection.Categories in sections) dao.getOwnedCategories(userId) else emptyList()
+            // Categories that belong to the user's lists, shared or not, travel with
+            // the Lists section: the items in those lists point at them
+            val listCategories =
+                if (withLists) dao.getOwnedListCategories(userId) else emptyList()
             val tags = if (withTags) dao.getOwnedTags(userId) else emptyList()
             val links = if (withTags) dao.getOwnedTagLinks(userId) else emptyList()
 
@@ -60,13 +65,23 @@ class BackupDataSource @Inject constructor(
                 userId = userId,
                 sections = BackupSection.entries.filter { it in sections }.map { it.id },
                 settings = settings,
-                categories = categories.map { it.toBackup() },
+                categories = (categories + listCategories).map { it.toBackup() },
                 tags = tags.map { it.toBackup() },
                 lists = lists.map { it.toBackup() },
                 listItems = items.map { it.toBackup() },
                 tagLinks = links.map { it.toBackup() },
                 listOrder = order.map { it.toBackup() },
             )
+        }
+    }
+
+    // How many shared lists restoring this backup in place would roll back. Zero
+    // when it comes from another account, because it is restored as private copies.
+    suspend fun sharedListsAffected(file: BackupFile): Int {
+        if (file.userId != sessionRepository.getUserId()) return 0
+        val sharedNow = database.backupDao().getSharedListIds().toHashSet()
+        return file.lists.orEmpty().count { list ->
+            list.id != null && (list.isShared == true || list.id in sharedNow)
         }
     }
 
@@ -90,6 +105,9 @@ class BackupDataSource @Inject constructor(
         file: BackupFile,
         photoPathFor: (fileName: String) -> String?,
         sections: Set<BackupSection> = file.sectionSet(),
+        // Whether to roll shared lists back to the snapshot, in place. Only
+        // applies when restoring into the account that made the backup.
+        replaceShared: Boolean = false,
     ): RestoreSummary {
         validate(file)
 
@@ -115,6 +133,31 @@ class BackupDataSource @Inject constructor(
 
         val summary = database.withTransaction {
 
+            // Lists that are shared now. One shared since the backup was made is
+            // in here too, so it is never un-shared by accident.
+            val sharedNowIds = dao.getSharedListIds().toHashSet()
+
+            // For the owner rows written below
+            val ownerName = database.userDao().getById(currentUserId)?.displayName
+
+            // Lists in the file that are shared, in the file or now
+            val sharedInFile = file.lists.orEmpty()
+                .mapNotNull { list ->
+                    list.id?.takeIf { list.isShared == true || it in sharedNowIds }
+                }
+                .toSet()
+
+            // Rolled back in place: only for the account that made the backup, and
+            // only when the person chose Replace. Shared lists that aren't in the
+            // file are never touched.
+            val rollBackShared: Set<String> =
+                if (!regenerateIds && replaceShared) sharedInFile else emptySet()
+
+            // Shared lists that stay exactly as they are. When the backup comes from
+            // another account, its shared lists come back as private copies instead.
+            val skipListIds: Set<String> =
+                if (regenerateIds) emptySet() else sharedInFile - rollBackShared
+
             // 1. Soft-delete what the user currently owns in the sections being restored.
             //    Soft deletes (not hard deletes) are what let the user's other devices learn about it.
             if (BackupSection.Categories in toRestore) {
@@ -125,30 +168,54 @@ class BackupDataSource @Inject constructor(
                 dao.softDeleteOwnedTags(currentUserId, now)
             }
             if (BackupSection.Lists in toRestore) {
+                // Unshared lists only: shared lists are never deleted by a restore
                 dao.softDeleteOwnedListItems(currentUserId, now)
                 dao.softDeleteOwnedLists(currentUserId, now)
+                // Shared lists being rolled back: their items and categories are
+                // cleared and the snapshot's are written over them. The lists stay.
+                rollBackShared.toList().chunked(500).forEach { ids ->
+                    dao.softDeleteItemsOfLists(ids, now)
+                    dao.softDeleteCategoriesOfLists(ids, now)
+                }
             }
 
             // 2. Upsert the backup's rows in foreign-key order. Every restored row is marked dirty
             //    with a fresh modified timestamp so it wins over older copies when sync runs.
-            var categoryCount = 0
-            if (BackupSection.Categories in toRestore) {
-                val rows = file.categories.orEmpty().mapNotNull { c ->
-                    val id = c.id ?: return@mapNotNull null
-                    val name = c.name ?: return@mapNotNull null
-                    CategoryEntity(
-                        categoryId = fresh(categoryIds, id),
-                        ownerId = currentUserId,
-                        name = name,
-                        isDirty = true,
-                        isDeleted = false,
-                        createdTimestamp = c.createdTimestamp ?: now,
-                        modifiedTimestamp = now,
-                    )
+            // Personal categories come back with the Categories section. A category
+            // that belongs to a list comes back with that list: in place when a shared
+            // list is rolled back, or as a personal copy when the backup is from
+            // another account, since that list can't follow it there.
+            val categoryRows = file.categories.orEmpty().mapNotNull { c ->
+                val id = c.id ?: return@mapNotNull null
+                val name = c.name ?: return@mapNotNull null
+                val belongsTo = c.listId
+                val wanted = when {
+                    belongsTo == null -> BackupSection.Categories in toRestore
+                    regenerateIds -> BackupSection.Categories in toRestore
+                    else -> BackupSection.Lists in toRestore &&
+                            belongsTo in rollBackShared
                 }
-                dao.upsertCategories(rows)
-                categoryCount = rows.size
+                if (!wanted) return@mapNotNull null
+                val asPersonalCopy = belongsTo == null || regenerateIds
+                CategoryEntity(
+                    categoryId = fresh(categoryIds, id),
+                    // A category a collaborator made keeps its owner: the rules
+                    // don't allow the owner of a category to change
+                    ownerId = if (asPersonalCopy) {
+                        currentUserId
+                    } else {
+                        c.ownerId ?: currentUserId
+                    },
+                    name = name,
+                    isDirty = true,
+                    isDeleted = false,
+                    createdTimestamp = c.createdTimestamp ?: now,
+                    modifiedTimestamp = now,
+                    listId = if (asPersonalCopy) null else belongsTo,
+                )
             }
+            dao.upsertCategories(categoryRows)
+            val categoryCount = categoryRows.size
 
             var tagCount = 0
             if (BackupSection.Tags in toRestore) {
@@ -176,6 +243,8 @@ class BackupDataSource @Inject constructor(
                 val listRows = file.lists.orEmpty().mapNotNull { l ->
                     val id = l.id ?: return@mapNotNull null
                     val name = l.name ?: return@mapNotNull null
+                    // Shared lists that stay as they are
+                    if (id in skipListIds) return@mapNotNull null
                     ListEntity(
                         listId = fresh(listIds, id),
                         ownerId = currentUserId,
@@ -185,9 +254,28 @@ class BackupDataSource @Inject constructor(
                         isDeleted = false,
                         createdTimestamp = l.createdTimestamp ?: now,
                         modifiedTimestamp = now,
+                        // A list rolled back in place stays shared; copies are private
+                        isShared = id in rollBackShared,
                     )
                 }
                 dao.upsertLists(listRows)
+
+                // The owner's row for each restored list. The server's rules look
+                // the owner up there, so a list without it could never sync. Its
+                // creation time matches the list's, as when a list is made in the app.
+                dao.upsertMembers(
+                    listRows.map { row ->
+                        ListMemberEntity(
+                            listId = row.listId,
+                            userId = currentUserId,
+                            role = "owner",
+                            displayName = ownerName,
+                            isDirty = true,
+                            createdTimestamp = row.createdTimestamp,
+                            modifiedTimestamp = now,
+                        )
+                    }
+                )
                 listCount = listRows.size
                 val restoredListIds = listRows.map { it.listId }.toHashSet()
 
@@ -331,10 +419,13 @@ class BackupDataSource @Inject constructor(
         listSortMode = ListSortMode.from(backup.listSortMode) ?: listSortMode,
     )
 
+    // list_id and owner_id are only set for a category that belongs to a list
     private fun CategoryEntity.toBackup() = BackupCategory(
         id = categoryId,
         name = name,
         createdTimestamp = createdTimestamp,
+        listId = listId,
+        ownerId = if (listId != null) ownerId else null,
     )
 
     private fun TagEntity.toBackup() = BackupTag(
@@ -349,6 +440,7 @@ class BackupDataSource @Inject constructor(
         name = name,
         notes = notes,
         createdTimestamp = createdTimestamp,
+        isShared = isShared,
     )
 
     // photo_uri may hold a full path today and a bare file name later; either way only the name is stored.

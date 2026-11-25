@@ -86,6 +86,7 @@ class SessionRepositoryImpl @Inject constructor(
             resetDao.deleteCategories()
             resetDao.deleteTags()
             resetDao.deleteProviderLinks()
+            resetDao.deleteNotices()
             resetDao.deleteSyncState()
             resetDao.deleteUsers()
             userDao.upsert(

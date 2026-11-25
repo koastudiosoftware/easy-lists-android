@@ -3,12 +3,15 @@ package com.easylists.data.db.room.dao
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Embedded
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.easylists.data.db.room.models.CategoryEntity
 import com.easylists.data.db.room.models.ListEntity
 import com.easylists.data.db.room.models.ListItemEntity
 import com.easylists.data.db.room.models.ListMemberEntity
+import com.easylists.data.db.room.models.ListNoticeEntity
 import com.easylists.data.db.room.models.ListOrderEntity
 import com.easylists.data.db.room.models.SyncStateEntity
 import com.easylists.data.db.room.models.TagEntity
@@ -186,5 +189,16 @@ abstract class SyncDao {
         )
     """)
     abstract fun observeNewestDirtyChange(): Flow<Long?>
+
+    //region List notices
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertNotices(rows: List<ListNoticeEntity>)
+
+    @Query("SELECT * FROM list_notices ORDER BY created_timestamp")
+    abstract fun observeNotices(): Flow<List<ListNoticeEntity>>
+
+    @Query("DELETE FROM list_notices WHERE notice_id IN (:noticeIds)")
+    abstract suspend fun clearNotices(noticeIds: List<String>)
+    //endregion
 
 }

@@ -6,7 +6,7 @@ import com.easylists.data.backup.BackupSection
 data class LocalBackupState(
     val hasFolder: Boolean = false,
     val folderLabel: String? = null,
-    // Everything is ticked by default
+    // Everything is enabled by default
     val sections: Set<BackupSection> = BackupSection.entries.toSet(),
     val backups: List<BackupEntry> = emptyList(),
     val isBusy: Boolean = false,

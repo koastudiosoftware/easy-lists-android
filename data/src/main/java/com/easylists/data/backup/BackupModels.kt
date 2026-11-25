@@ -25,19 +25,41 @@ class BackupFormatException(message: String) : Exception(message)
 // older or damaged file arrives as null. The restore code decides what to do about each null.
 // Every field has an explicit @SerializedName so the format survives renaming or minification.
 data class BackupFile(
-    @SerializedName("format_version") val formatVersion: Int? = null,
-    @SerializedName("created_timestamp") val createdTimestamp: Long? = null,
+    @SerializedName("format_version")
+    val formatVersion: Int? = null,
+
+    @SerializedName("created_timestamp")
+    val createdTimestamp: Long? = null,
+
     // The user who made the backup. Rows don't carry an owner: everything in the file belongs to this user.
-    @SerializedName("user_id") val userId: String? = null,
-    @SerializedName("sections") val sections: List<String>? = null,
-    @SerializedName("settings") val settings: BackupSettings? = null,
-    @SerializedName("categories") val categories: List<BackupCategory>? = null,
-    @SerializedName("tags") val tags: List<BackupTag>? = null,
-    @SerializedName("lists") val lists: List<BackupList>? = null,
-    @SerializedName("list_items") val listItems: List<BackupListItem>? = null,
-    @SerializedName("tag_links") val tagLinks: List<BackupTagLink>? = null,
-    @SerializedName("list_order") val listOrder: List<BackupListOrder>? = null,
-) {
+    @SerializedName("user_id")
+    val userId: String? = null,
+
+    @SerializedName("sections")
+    val sections: List<String>? = null,
+
+    @SerializedName("settings")
+    val settings: BackupSettings? = null,
+
+    @SerializedName("categories")
+    val categories: List<BackupCategory>? = null,
+
+    @SerializedName("tags")
+    val tags: List<BackupTag>? = null,
+
+    @SerializedName("lists")
+    val lists: List<BackupList>? = null,
+
+    @SerializedName("list_items")
+    val listItems: List<BackupListItem>? = null,
+
+    @SerializedName("tag_links")
+    val tagLinks: List<BackupTagLink>? = null,
+
+    @SerializedName("list_order")
+    val listOrder: List<BackupListOrder>? = null,
+
+    ) {
 
     fun sectionSet(): Set<BackupSection> =
         sections.orEmpty().mapNotNull { BackupSection.fromId(it) }.toSet()
@@ -55,6 +77,7 @@ data class BackupFile(
         categories = categories.orEmpty().size,
         tags = tags.orEmpty().size,
         photos = photoFileNames().size,
+        sharedLists = lists.orEmpty().count { it.isShared == true },
     )
 
     companion object {
@@ -70,6 +93,11 @@ data class BackupSummary(
     val categories: Int,
     val tags: Int,
     val photos: Int,
+
+    // Shared lists restoring this backup in place would roll back. Starts as the
+    // number of shared lists in the file; the restore prompt replaces it with the
+    // number that really would be rolled back (see BackupDataSource.sharedListsAffected).
+    val sharedLists: Int = 0,
 )
 
 data class RestoreSummary(
@@ -79,6 +107,7 @@ data class RestoreSummary(
     val tags: Int,
     val tagLinks: Int,
     val settingsRestored: Boolean,
+
     // true when the backup came from a different user ID, so every restored row got a new ID
     val idsRegenerated: Boolean,
 )
@@ -119,6 +148,16 @@ data class BackupCategory(
 
     @SerializedName("created_timestamp")
     val createdTimestamp: Long? = null,
+
+    // Only for a category that belongs to a list (a shared list's categories).
+    // Absent in older backups and for personal categories.
+    @SerializedName("list_id")
+    val listId: String? = null,
+
+    // The original owner of a list's category, which may be a collaborator.
+    // The rules don't allow it to change, so a restore keeps it.
+    @SerializedName("owner_id")
+    val ownerId: String? = null,
 )
 
 data class BackupTag(
@@ -147,6 +186,10 @@ data class BackupList(
 
     @SerializedName("created_timestamp")
     val createdTimestamp: Long? = null,
+
+    // Whether the list was shared when the backup was made. Absent in older backups.
+    @SerializedName("is_shared")
+    val isShared: Boolean? = null,
 )
 
 data class BackupListItem(

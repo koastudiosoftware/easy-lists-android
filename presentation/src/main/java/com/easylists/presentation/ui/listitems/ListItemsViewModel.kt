@@ -25,6 +25,7 @@ import com.easylists.domain.use_cases.ObserveListAccessUseCase
 import com.easylists.domain.use_cases.RemoveTagListItemUseCase
 import com.easylists.domain.use_cases.RestoreCrossedOffListItemsUseCase
 import com.easylists.domain.use_cases.SaveListItemPhotoUseCase
+import com.easylists.domain.use_cases.SyncNowUseCase
 import com.easylists.domain.use_cases.UndeleteListItemsUseCase
 import com.easylists.domain.use_cases.UpdateListItemUseCase
 import com.easylists.presentation.common.AddEditMode
@@ -77,6 +78,7 @@ class ListItemsViewModel @Inject constructor(
     private val undeleteListItemsUseCase: UndeleteListItemsUseCase,
     private val session: SessionRepository,
     private val mapper: UiMapper,
+    private val syncNow: SyncNowUseCase,
 ) : ViewModel() {
 
     private val listId = MutableStateFlow<String?>(null)
@@ -444,7 +446,16 @@ class ListItemsViewModel @Inject constructor(
         interaction = interaction.copy(isRefreshing = true)
         refreshTrigger.update { it + 1 }
         viewModelScope.launch {
-            delay(500.milliseconds) // keeps the indicator from flickering
+            // The indicator stays for at least half a second so it doesn't flicker
+            val minimumTime = launch { delay(500.milliseconds) }
+            try {
+                syncNow(minIntervalSeconds = 30)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Arbor.e("Refresh sync failed: ${e.javaClass.simpleName}: ${e.message}", e)
+            }
+            minimumTime.join()
             interaction = interaction.copy(isRefreshing = false)
         }
     }

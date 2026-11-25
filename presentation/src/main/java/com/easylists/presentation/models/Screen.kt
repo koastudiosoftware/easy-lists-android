@@ -3,10 +3,15 @@ package com.easylists.presentation.models
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
-sealed interface Screen : Parcelable {
+sealed interface
+
+Screen : Parcelable {
 
     @Parcelize
     object Categories : Screen
+
+    @Parcelize
+    data class ListCategories(val listId: String, val listName: String) : Screen
 
     @Parcelize
     object Tags : Screen

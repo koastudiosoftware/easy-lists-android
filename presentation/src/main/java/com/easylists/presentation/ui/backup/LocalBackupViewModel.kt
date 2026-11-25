@@ -80,17 +80,24 @@ class LocalBackupViewModel @Inject constructor(
     fun onBackupChosen(uri: Uri) {
         if (_state.value.isBusy) return
         runOperation {
-            val summary = backupFileManager.readBackup(uri).summary()
+            val backup = backupFileManager.readBackup(uri)
+            // The count the prompt shows is what a restore would really roll back
+            val summary = backup.summary().copy(
+                sharedLists = backupFileManager.sharedListsAffected(backup),
+            )
             _state.update { it.copy(pendingRestore = PendingRestore(uri, summary)) }
             null
         }
     }
 
-    fun confirmRestore() {
+    fun confirmRestore(replaceShared: Boolean = false) {
         val pending = _state.value.pendingRestore ?: return
         _state.update { it.copy(pendingRestore = null) }
         runOperation {
-            backupFileManager.restore(pending.uri)
+            backupFileManager.restore(
+                pending.uri,
+                replaceShared = replaceShared,
+            )
             BackupMessage(isError = false, textRes = R.string.backup_restored)
         }
     }

@@ -85,6 +85,11 @@ class CategoryRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun renameCategory(categoryId: String, name: String): Result<Unit> {
+        return Result.runCatching {
+            localSource.rename(categoryId = categoryId, name = name)
+        }
+    }
 }
 
 interface CategoryLocalDataSource {
@@ -95,5 +100,6 @@ interface CategoryLocalDataSource {
     suspend fun delete(categoryIds: List<String>): Int
     fun getCategoryFlow(listId: String): Flow<List<EasyListsCategory>>
     suspend fun insertForList(listId: String, category: EasyListsCategory): Long
+    suspend fun rename(categoryId: String, name: String)
 
 }

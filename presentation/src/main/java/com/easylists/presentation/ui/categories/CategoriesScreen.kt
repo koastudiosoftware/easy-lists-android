@@ -78,8 +78,13 @@ import dev.olshevski.navigation.reimagined.pop
 @Composable
 fun CategoriesScreen(
     navController: NavController<Screen>,
+    listId: String? = null,
+    listName: String? = null,
     viewModel: CategoriesViewModel = hiltViewModel(),
 ) {
+    // Which categories to show: this list's, or the personal ones when null
+    LaunchedEffect(listId) { viewModel.init(listId) }
+
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val s = settings ?: return
 
@@ -103,7 +108,15 @@ fun CategoriesScreen(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 TopAppBar(
-                    title = { Text(text = stringResource(R.string.categories)) },
+                    title = {
+                        Text(
+                            if (listName != null) {
+                                stringResource(R.string.list_categories_title, listName)
+                            } else {
+                                stringResource(R.string.categories)
+                            }
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { navController.pop() }) {
                             Icon(

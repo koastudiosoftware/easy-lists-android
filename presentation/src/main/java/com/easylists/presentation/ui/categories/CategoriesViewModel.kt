@@ -11,6 +11,7 @@ import com.easylists.domain.models.EasyListsCategory
 import com.easylists.domain.models.EasyListsList
 import com.easylists.domain.models.EasyListsListItem
 import com.easylists.domain.repositories.SessionRepository
+import com.easylists.domain.use_cases.AddCategoryForListUseCase
 import com.easylists.domain.use_cases.AddCategoryUseCase
 import com.easylists.domain.use_cases.GetCategoryUseCase
 import com.easylists.domain.use_cases.GetListsUseCase
@@ -18,6 +19,7 @@ import com.easylists.domain.use_cases.GetListItemUseCase
 import com.easylists.domain.use_cases.ObserveAppSettingsUseCase
 import com.easylists.domain.use_cases.RemoveCategoryFromListItemUseCase
 import com.easylists.domain.use_cases.DeleteCategoriesUseCase
+import com.easylists.domain.use_cases.RenameCategoryUseCase
 import com.easylists.domain.use_cases.UpdateCategoryUseCase
 import com.easylists.presentation.R
 import com.easylists.presentation.common.AddEditMode
@@ -25,10 +27,14 @@ import com.easylists.presentation.models.CategoryPendingDelete
 import com.easylists.presentation.models.CategorySheetState
 import com.easylists.presentation.models.CategoriesState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -39,6 +45,7 @@ import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
     observeAppSettings: ObserveAppSettingsUseCase,
@@ -46,8 +53,8 @@ class CategoriesViewModel @Inject constructor(
     getListItemUseCase: GetListItemUseCase,
     getListsUseCase: GetListsUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
-    private val updateCategoryUseCase: UpdateCategoryUseCase,
-    private val removeCategoryFromListItemsUseCase: RemoveCategoryFromListItemUseCase,
+    private val addCategoryForListUseCase: AddCategoryForListUseCase,
+    private val renameCategoryUseCase: RenameCategoryUseCase,
     private val deleteCategoriesUseCase: DeleteCategoriesUseCase,
     private val session: SessionRepository,
 ) : ViewModel() {
@@ -71,11 +78,26 @@ class CategoriesViewModel @Inject constructor(
         val listItems: List<EasyListsListItem>,
     )
 
+    // Which categories the screen shows: a shared list's own, or the personal ones
+    private data class CategoryScope(val listId: String?)
+
+    private val scope = MutableStateFlow<CategoryScope?>(null)
+
+    // Called by the screen: the list to manage, or null for personal categories
+    fun init(listId: String?) {
+        scope.value = CategoryScope(listId)
+    }
+
     init {
+        // Nothing loads until the screen says which categories it wants
+        val categories = scope.filterNotNull().flatMapLatest { s ->
+            if (s.listId == null) getCategoryUseCase() else getCategoryUseCase(s.listId)
+        }
+
         // One combined collection instead of four independent ones, so the state is never
         // updated with, say, new tag/list-item links but stale list items.
         combine(
-            getCategoryUseCase(),
+            categories,
             getListsUseCase(),
             getListItemUseCase(),
         ) { categories, lists, listItems ->
@@ -196,6 +218,13 @@ class CategoriesViewModel @Inject constructor(
 
     @OptIn(ExperimentalUuidApi::class)
     private suspend fun addCategory(name: String) {
+        val listId = scope.value?.listId
+        if (listId != null) {
+            // A shared list's category belongs to the list
+            addCategoryForListUseCase(listId, name).getOrThrow()
+            return
+        }
+
         val ownerId = session.getUserId()
         check(ownerId.isNotEmpty()) { "No signed-in user" }
 
@@ -210,14 +239,8 @@ class CategoriesViewModel @Inject constructor(
     }
 
     private suspend fun updateCategoryName(categoryId: String?, name: String) {
-        val tag = state.categoryList.firstOrNull { it.categoryId == categoryId } ?: error("Tag not found")
-        updateCategoryUseCase(
-            category = tag.copy(
-                name = name,
-                isDirty = true,
-                modifiedTimestamp = nowMillis(),
-            )
-        ).getOrThrow()
+        val id = categoryId ?: error("Category not found")
+        renameCategoryUseCase(categoryId = id, name = name).getOrThrow()
     }
     //endregion
 

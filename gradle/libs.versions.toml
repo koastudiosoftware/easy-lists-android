@@ -1,6 +1,6 @@
 [versions]
 activityCompose = "1.13.0"
-agp = "9.5.0"
+agp = "9.5.3"
 appcompat = "1.8.0"
 arborJvm = "2.0.105"
 cameraCore = "1.6.2"

@@ -3,6 +3,7 @@ package com.easylists.data.di
 import com.easylists.data.repositories.AuthRepositoryImpl
 import com.easylists.data.repositories.InviteRepositoryImpl
 import com.easylists.data.repositories.ListAccessRepositoryImpl
+import com.easylists.data.repositories.ListNoticeRepositoryImpl
 import com.easylists.data.repositories.MembersRepositoryImpl
 import com.easylists.data.repositories.ShareRepositoryImpl
 import com.easylists.data.repositories.SyncRepositoryImpl
@@ -11,6 +12,7 @@ import com.easylists.domain.models.SyncScheduler
 import com.easylists.domain.repositories.AuthRepository
 import com.easylists.domain.repositories.InviteRepository
 import com.easylists.domain.repositories.ListAccessRepository
+import com.easylists.domain.repositories.ListNoticeRepository
 import com.easylists.domain.repositories.MembersRepository
 import com.easylists.domain.repositories.ShareRepository
 import com.easylists.domain.repositories.SyncRepository
@@ -51,6 +53,11 @@ abstract class AuthModule {
     abstract fun bindShareRepository(impl: ShareRepositoryImpl): ShareRepository
 
     @Binds abstract fun bindInviteRepository(impl: InviteRepositoryImpl): InviteRepository
+
+    @Binds
+    abstract fun bindListNoticeRepository(
+        impl: ListNoticeRepositoryImpl,
+    ): ListNoticeRepository
 
     companion object {
 

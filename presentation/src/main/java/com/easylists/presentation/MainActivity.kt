@@ -31,6 +31,8 @@ import com.easylists.presentation.ui.invite.InviteJoinViewModel
 import com.easylists.presentation.ui.listitems.ListItemsScreen
 import com.easylists.presentation.ui.lists.ListsScreen
 import com.easylists.presentation.ui.lists.ListsViewModel
+import com.easylists.presentation.ui.notices.ListNoticeHost
+import com.easylists.presentation.ui.notices.ListNoticeViewModel
 import com.easylists.presentation.ui.settings.SettingsScreen
 import com.easylists.presentation.ui.tags.TagsScreen
 import com.easylists.presentation.ui.theme.EasyListsTheme
@@ -47,6 +49,7 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
     private val startDestinationViewModel: ListsViewModel by viewModels()
     private val inviteViewModel: InviteJoinViewModel by viewModels()
+    private val noticeViewModel: ListNoticeViewModel by viewModels()
 
     @Inject
     lateinit var pendingInvites: PendingInviteStore
@@ -113,6 +116,14 @@ class MainActivity : ComponentActivity() {
                                         )
                                     }
 
+                                    is Screen.ListCategories -> {
+                                        CategoriesScreen(
+                                            navController = navController,
+                                            listId = route.listId,
+                                            listName = route.listName,
+                                        )
+                                    }
+
                                     is Screen.Categories -> {
                                         CategoriesScreen(navController = navController)
                                     }
@@ -144,6 +155,11 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }
+
+                            ListNoticeHost(
+                                viewModel = noticeViewModel,
+                                navController = navController,
+                            )
 
                             InviteJoinHost(
                                 viewModel = inviteViewModel,
